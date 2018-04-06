@@ -1,0 +1,24 @@
+{
+  "name": "@buxlabs/html-engine",
+  "version": "0.1.0",
+  "description": "html engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buxlabs/html-engine.git"
+  },
+  "keywords": [
+    "html",
+    "engine",
+    "javascript"
+  ],
+  "author": "Emil Ajdyna <emil@ajdyna.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/buxlabs/html-engine/issues"
+  },
+  "homepage": "https://github.com/buxlabs/html-engine#readme"
+}
