@@ -1,63 +1,217 @@
 const { SAXParser } = require('parse5')
+const AbstractSyntaxTree = require('@buxlabs/ast')
 
-function getValue (value, options) {
-    if (value.startsWith('${') && value.endsWith('}')) {
-        let property = value.substring(2, value.length - 1)
-        return options[property]
-    } else {
-        return value
-    }
+function getName (name) {
+  if (name.endsWith('.bind')) {
+    return name.substring(0, name.length - 5)
+  }
+  return name
 }
 
-function serialize (attrs, options, escape) {
-    let html = attrs.find(attr => attr.name === 'html')
-    if (html) {
-        return escape(getValue(html.value, options))
-    } else {
-        let text = attrs.find(attr => attr.name === 'text')
-        if (text) {
-            return getValue(text.value, options)
-        }
+function getValue (name, value) {
+  if (value.startsWith('{{') && value.endsWith('}}')) {
+    let property = value.substring(2, value.length - 2)
+    return {
+      type: 'MemberExpression',
+      computed: false,
+      object: { type: 'Identifier', name: 'o' },
+      property: { type: 'Identifier', name: property }
     }
-    return ''
+  } else if (name.endsWith('.bind')) {
+    return {
+      type: 'MemberExpression',
+      computed: false,
+      object: { type: 'Identifier', name: 'o' },
+      property: { type: 'Identifier', name: value }
+    }
+  } else {
+    return { type: 'Literal', value }
+  }
+}
+
+function serialize (node, attrs) {
+  let html = attrs.find(attr => attr.name === 'html' || attr.name === 'html.bind')
+  if (html) {
+    return getValue(html.name, html.value)
+  } else {
+    let text = attrs.find(attr => attr.name === 'text' || attr.name === 'text.bind')
+    if (text) {
+      return {
+        type: 'CallExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'e'
+        },
+        arguments: [getValue(text.name, text.value)]
+      }
+    }
+  }
+  return null
 }
 
 module.exports = {
-  render() {},
-  compile(source) {
+  render () {},
+  compile (source) {
     const parser = new SAXParser()
-
-    return function (options, escape) {
-      let start = ''
-      let end = ''
-      parser.on('startTag', (node, attrs) => {
-        if (node === 'slot' && attrs) {
-            start += serialize(attrs, options, escape)
-        } else if (attrs) {
-            start += '<'
-            start += node
-            let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
-            if (allowed.length) {
-                start += ' '
-                start += allowed
-                    .filter(attr => attr.name !== 'html' && attr.name !== 'text')
-                    .map(attr => `${attr.name}="${attr.value}"`)
-                    .join(' ')
+    const tree = new AbstractSyntaxTree('')
+    tree.append({
+      type: 'VariableDeclaration',
+      declarations: [
+        {
+          type: 'VariableDeclarator',
+          id: { type: 'Identifier', name: 't' },
+          init: { type: 'Literal', value: '' }
+        }
+      ],
+      kind: 'var'
+    })
+    parser.on('startTag', (node, attrs) => {
+      if (node === 'slot' && attrs) {
+        let right = serialize(node, attrs)
+        if (right) {
+          tree.append({
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '+=',
+              left: {
+                type: 'Identifier',
+                name: 't'
+              },
+              right
             }
-            start += '>'
-            start += serialize(attrs, options, escape)
+          })
+        }
+      } else if (attrs) {
+        tree.append({
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '+=',
+            left: {
+              type: 'Identifier',
+              name: 't'
+            },
+            right: {
+              type: 'Literal',
+              value: `<${node}`
+            }
+          }
+        })
+        let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
+        if (allowed.length) {
+          allowed.forEach(attr => {
+            tree.append({
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'AssignmentExpression',
+                operator: '+=',
+                left: { type: 'Identifier', name: 't' },
+                right: { type: 'Literal', value: ` ${getName(attr.name)}="` }
+              }
+            })
+            tree.append({
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'AssignmentExpression',
+                operator: '+=',
+                left: {
+                  type: 'Identifier',
+                  name: 't'
+                },
+                right: getValue(attr.name, attr.value)
+              }
+            })
+            tree.append({
+              type: 'ExpressionStatement',
+              expression: {
+                type: 'AssignmentExpression',
+                operator: '+=',
+                left: { type: 'Identifier', name: 't' },
+                right: { type: 'Literal', value: '"' }
+              }
+            })
+          })
+        }
+        tree.append({
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '+=',
+            left: {
+              type: 'Identifier',
+              name: 't'
+            },
+            right: {
+              type: 'Literal',
+              value: `>`
+            }
+          }
+        })
+        let right = serialize(node, attrs)
+        if (right) {
+          tree.append({
+            type: 'ExpressionStatement',
+            expression: {
+              type: 'AssignmentExpression',
+              operator: '+=',
+              left: {
+                type: 'Identifier',
+                name: 't'
+              },
+              right
+            }
+          })
+        }
+      }
+    })
+    parser.on('endTag', node => {
+      if (node !== 'slot') {
+        tree.append({
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'AssignmentExpression',
+            operator: '+=',
+            left: {
+              type: 'Identifier',
+              name: 't'
+            },
+            right: {
+              type: 'Literal',
+              value: `</${node}>`
+            }
+          }
+        })
+      }
+    })
+    parser.on('text', text => {
+      tree.append({
+        type: 'ExpressionStatement',
+        expression: {
+          type: 'AssignmentExpression',
+          operator: '+=',
+          left: {
+            type: 'Identifier',
+            name: 't'
+          },
+          right: {
+            type: 'Literal',
+            value: text
+          }
         }
       })
-      parser.on('endTag', node => {
-        if (node !== 'slot') {
-            end += `</${node}>`
-        }
-      })
-      parser.on('text', text => {
-        start += text
-      })
-      parser.write(`<slot>${source}</slot>`)
-      return start + end
-    }
+    })
+    parser.write(`<slot>${source}</slot>`)
+
+    tree.append({
+      type: 'ReturnStatement',
+      argument: {
+        type: 'Identifier',
+        name: 't'
+      }
+    })
+    const body = tree.toString()
+    const fn = new Function('o', 'e', body) // eslint-disable-line
+    return fn
   }
 }

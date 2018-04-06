@@ -4,6 +4,7 @@
   "description": "html engine",
   "main": "index.js",
   "scripts": {
+    "lint": "standard",
     "test": "node test.js"
   },
   "repository": {
@@ -22,6 +23,10 @@
   },
   "homepage": "https://github.com/buxlabs/html-engine#readme",
   "dependencies": {
+    "@buxlabs/ast": "^0.9.6",
     "parse5": "^4.0.0"
+  },
+  "devDependencies": {
+    "standard": "^11.0.1"
   }
 }
