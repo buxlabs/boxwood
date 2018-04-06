@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/buxlabs/html-engine/issues"
   },
-  "homepage": "https://github.com/buxlabs/html-engine#readme"
+  "homepage": "https://github.com/buxlabs/html-engine#readme",
+  "dependencies": {
+    "parse5": "^4.0.0"
+  }
 }
