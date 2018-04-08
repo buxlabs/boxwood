@@ -101,36 +101,70 @@ module.exports = {
         let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
         if (allowed.length) {
           allowed.forEach(attr => {
-            tree.append({
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'AssignmentExpression',
-                operator: '+=',
-                left: { type: 'Identifier', name: 't' },
-                right: { type: 'Literal', value: ` ${getName(attr.name)}="` }
+            const booleanAttributes = [
+              "autofocus",
+              "checked",
+              "readonly",
+              "disabled",
+              "formnovalidate",
+              "multiple",
+              "required"
+            ]
+            if (booleanAttributes.includes(getName(attr.name))) {
+              const assignmentExpression = {
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'AssignmentExpression',
+                  operator: '+=',
+                  left: { type: 'Identifier', name: 't' },
+                  right: { type: 'Literal', value: ` ${getName(attr.name)}` }
+                }
               }
-            })
-            tree.append({
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'AssignmentExpression',
-                operator: '+=',
-                left: {
-                  type: 'Identifier',
-                  name: 't'
-                },
-                right: getValue(attr.name, attr.value)
+              if (!attr.value) {
+                tree.append(assignmentExpression)
+              } else {
+                tree.append({
+                  type: 'IfStatement',
+                  test: getValue(attr.name, attr.value),
+                  consequent: {
+                    type: 'BlockStatement',
+                    body: [assignmentExpression]
+                  }
+                })
               }
-            })
-            tree.append({
-              type: 'ExpressionStatement',
-              expression: {
-                type: 'AssignmentExpression',
-                operator: '+=',
-                left: { type: 'Identifier', name: 't' },
-                right: { type: 'Literal', value: '"' }
-              }
-            })
+            } else {
+              tree.append({
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'AssignmentExpression',
+                  operator: '+=',
+                  left: { type: 'Identifier', name: 't' },
+                  right: { type: 'Literal', value: ` ${getName(attr.name)}="` }
+                }
+              })
+              tree.append({
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'AssignmentExpression',
+                  operator: '+=',
+                  left: {
+                    type: 'Identifier',
+                    name: 't'
+                  },
+                  right: getValue(attr.name, attr.value)
+                }
+              })
+              tree.append({
+                type: 'ExpressionStatement',
+                expression: {
+                  type: 'AssignmentExpression',
+                  operator: '+=',
+                  left: { type: 'Identifier', name: 't' },
+                  right: { type: 'Literal', value: '"' }
+                }
+              })
+            }
+
           })
         }
         tree.append({
