@@ -9,8 +9,8 @@ function getName (name) {
 }
 
 function getValue (name, value) {
-  if (value.startsWith('{{') && value.endsWith('}}')) {
-    let property = value.substring(2, value.length - 2)
+  if (value.startsWith('{') && value.endsWith('}')) {
+    let property = value.substring(1, value.length - 1)
     return {
       type: 'MemberExpression',
       computed: false,
