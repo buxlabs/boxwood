@@ -1,6 +1,31 @@
 const { SAXParser } = require('parse5')
 const AbstractSyntaxTree = require('@buxlabs/ast')
 
+class Tree extends AbstractSyntaxTree {
+  getTemplateAssignmentExpression (node) {
+    return {
+      type: 'ExpressionStatement',
+      expression: {
+        type: 'AssignmentExpression',
+        operator: '+=',
+        left: {
+          type: 'Identifier',
+          name: 't'
+        },
+        right: node
+      }
+    }
+  }
+  addTemplateAssignmentExpression (node) {
+    const expression = this.getTemplateAssignmentExpression(node)
+    this.append(expression)
+  }
+}
+
+function singlespace (string) {
+  return string.replace(/\s\s+/g, ' ')
+}
+
 function getName (name) {
   if (name.endsWith('.bind')) {
     return name.substring(0, name.length - 5)
@@ -53,7 +78,7 @@ module.exports = {
   render () {},
   compile (source) {
     const parser = new SAXParser()
-    const tree = new AbstractSyntaxTree('')
+    const tree = new Tree('')
     tree.append({
       type: 'VariableDeclaration',
       declarations: [
@@ -69,34 +94,12 @@ module.exports = {
       if (node === 'slot' && attrs) {
         let right = serialize(node, attrs)
         if (right) {
-          tree.append({
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'AssignmentExpression',
-              operator: '+=',
-              left: {
-                type: 'Identifier',
-                name: 't'
-              },
-              right
-            }
-          })
+          tree.addTemplateAssignmentExpression(right)
         }
       } else if (attrs) {
-        tree.append({
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            operator: '+=',
-            left: {
-              type: 'Identifier',
-              name: 't'
-            },
-            right: {
-              type: 'Literal',
-              value: `<${node}`
-            }
-          }
+        tree.addTemplateAssignmentExpression({
+          type: 'Literal',
+          value: `<${node}`
         })
         let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
         if (allowed.length) {
@@ -111,138 +114,89 @@ module.exports = {
               "required"
             ]
             if (booleanAttributes.includes(getName(attr.name))) {
-              const assignmentExpression = {
-                type: 'ExpressionStatement',
-                expression: {
-                  type: 'AssignmentExpression',
-                  operator: '+=',
-                  left: { type: 'Identifier', name: 't' },
-                  right: { type: 'Literal', value: ` ${getName(attr.name)}` }
-                }
-              }
+              const expression = tree.getTemplateAssignmentExpression({
+                type: 'Literal',
+                value: ` ${getName(attr.name)}`
+              })
               if (!attr.value) {
-                tree.append(assignmentExpression)
+                tree.append(expression)
               } else {
                 tree.append({
                   type: 'IfStatement',
                   test: getValue(attr.name, attr.value),
                   consequent: {
                     type: 'BlockStatement',
-                    body: [assignmentExpression]
+                    body: [expression]
                   }
                 })
               }
             } else {
-              tree.append({
-                type: 'ExpressionStatement',
-                expression: {
-                  type: 'AssignmentExpression',
-                  operator: '+=',
-                  left: { type: 'Identifier', name: 't' },
-                  right: { type: 'Literal', value: ` ${getName(attr.name)}="` }
-                }
+              tree.addTemplateAssignmentExpression({
+                type: 'Literal',
+                value: ` ${getName(attr.name)}="`
               })
-              tree.append({
-                type: 'ExpressionStatement',
-                expression: {
-                  type: 'AssignmentExpression',
-                  operator: '+=',
-                  left: {
-                    type: 'Identifier',
-                    name: 't'
-                  },
-                  right: getValue(attr.name, attr.value)
-                }
-              })
-              tree.append({
-                type: 'ExpressionStatement',
-                expression: {
-                  type: 'AssignmentExpression',
-                  operator: '+=',
-                  left: { type: 'Identifier', name: 't' },
-                  right: { type: 'Literal', value: '"' }
-                }
-              })
+              let { value } = attr
+              if (value.includes('{') && value.includes('}')) {
+                let values = []
+                let string = ''
+                singlespace(value).split('').forEach(character => {
+                  if (character === '{') {
+                    if (string) {
+                      values.push(string)
+                      string = ''
+                    }  
+                  }
+                  string += character
+                  if (character === '}') {
+                    values.push(string)
+                    string = ''
+                  }
+                })
+                values.push(string)
+                
+                values.map(string => string.trim()).filter(Boolean).forEach((value, index) => {
+                  if (index > 0) {
+                    tree.addTemplateAssignmentExpression({ type: 'Literal', value: ' ' })
+                  }
+                  tree.addTemplateAssignmentExpression(getValue(attr.name, value))
+                })
+              } else {
+                tree.addTemplateAssignmentExpression(getValue(attr.name, value))
+              }
+              tree.addTemplateAssignmentExpression({ type: 'Literal', value: '"' })
             }
 
           })
         }
-        tree.append({
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            operator: '+=',
-            left: {
-              type: 'Identifier',
-              name: 't'
-            },
-            right: {
-              type: 'Literal',
-              value: `>`
-            }
-          }
+        tree.addTemplateAssignmentExpression({
+          type: 'Literal',
+          value: `>`
         })
         let right = serialize(node, attrs)
         if (right) {
-          tree.append({
-            type: 'ExpressionStatement',
-            expression: {
-              type: 'AssignmentExpression',
-              operator: '+=',
-              left: {
-                type: 'Identifier',
-                name: 't'
-              },
-              right
-            }
-          })
+          tree.addTemplateAssignmentExpression(right)
         }
       }
     })
     parser.on('endTag', node => {
       if (node !== 'slot') {
-        tree.append({
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'AssignmentExpression',
-            operator: '+=',
-            left: {
-              type: 'Identifier',
-              name: 't'
-            },
-            right: {
-              type: 'Literal',
-              value: `</${node}>`
-            }
-          }
+        tree.addTemplateAssignmentExpression({
+          type: 'Literal',
+          value: `</${node}>`
         })
       }
     })
     parser.on('text', text => {
-      tree.append({
-        type: 'ExpressionStatement',
-        expression: {
-          type: 'AssignmentExpression',
-          operator: '+=',
-          left: {
-            type: 'Identifier',
-            name: 't'
-          },
-          right: {
-            type: 'Literal',
-            value: text
-          }
-        }
+      tree.addTemplateAssignmentExpression({
+        type: 'Literal',
+        value: text
       })
     })
     parser.write(`<slot>${source}</slot>`)
 
     tree.append({
       type: 'ReturnStatement',
-      argument: {
-        type: 'Identifier',
-        name: 't'
-      }
+      argument: { type: 'Identifier', name: 't' }
     })
     const body = tree.toString()
     const fn = new Function('o', 'e', body) // eslint-disable-line

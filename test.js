@@ -23,6 +23,12 @@ assert.deepEqual(compile('<div html="foo"></div>')(), '<div>foo</div>')
 assert.deepEqual(compile('<div text="foo"></div>')({}, html => html.replace('foo', 'bar')), '<div>bar</div>')
 assert.deepEqual(compile('<div class="foo" html="{bar}"></div>')({ bar: 'baz' }), '<div class="foo">baz</div>')
 assert.deepEqual(compile('<div class="foo" text="{bar}"></div>')({ bar: 'baz' }, value => { return value }), '<div class="foo">baz</div>')
+assert.deepEqual(compile('<div class="foo {bar}"></div>')({ bar: 'baz' }, value => { return value }), '<div class="foo baz"></div>')
+assert.deepEqual(compile('<div class="foo bar {baz}"></div>')({ baz: 'qux' }, value => { return value }), '<div class="foo bar qux"></div>')
+assert.deepEqual(compile('<div class="foo   bar    {baz}"></div>')({ baz: 'qux' }, value => { return value }), '<div class="foo bar qux"></div>')
+assert.deepEqual(compile('<div class="{foo} bar"></div>')({ foo: 'baz' }, value => { return value }), '<div class="baz bar"></div>')
+assert.deepEqual(compile('<div class="{foo} {bar}"></div>')({ foo: 'baz', bar: 'qux' }, value => { return value }), '<div class="baz qux"></div>')
+assert.deepEqual(compile('<div class="{foo} bar {baz}"></div>')({ foo: 'baz', baz: 'qux' }, value => { return value }), '<div class="baz bar qux"></div>')
 assert.deepEqual(compile('<div class="{foo}"></div>')({ foo: 'bar' }), '<div class="bar"></div>')
 assert.deepEqual(compile('<div class.bind="foo"></div>')({ foo: 'bar' }), '<div class="bar"></div>')
 assert.deepEqual(compile('<div class={foo}></div>')({ foo: 'bar' }), '<div class="bar"></div>')
@@ -34,6 +40,7 @@ assert.deepEqual(compile('<div html="{foo}">xxx</div>')({ foo: 'bar' }), '<div>b
 assert.deepEqual(compile('<div html="{foo}"></div>')({ foo: '<div>baz</div>' }), '<div><div>baz</div></div>')
 assert.deepEqual(compile('<div text="{foo}"></div>')({ foo: 'bar' }, html => html.replace('foo', 'bar')), '<div>bar</div>')
 assert.deepEqual(compile('<div html={foo}></div>')({ foo: 'bar' }), '<div>bar</div>')
+assert.deepEqual(compile('<div html="{ foo }"></div>')({ foo: 'bar' }), '<div>bar</div>')
 assert.deepEqual(compile('<input type="text" value="{foo.bar}">')({ foo: { bar: 'baz' } }), '<input type="text" value="baz">')
 assert.deepEqual(compile('<input type="text" value.bind="foo.bar">')({ foo: { bar: 'baz' } }), '<input type="text" value="baz">')
 assert.deepEqual(compile('<input type="checkbox" autofocus>')(), '<input type="checkbox" autofocus>')
@@ -60,3 +67,10 @@ assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: t
 assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: false }), '<input type="checkbox">')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
+// assert.deepEqual(compile('<ul><li repeat.for="todo of todos" text="{todo.description}"></li></ul>')({
+  // todos: [
+    // { description: 'foo' },
+    // { description: 'bar' },
+    // { description: 'baz' }
+  // ]
+// }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
