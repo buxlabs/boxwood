@@ -26,6 +26,27 @@ function singlespace (string) {
   return string.replace(/\s\s+/g, ' ')
 }
 
+function extract (value) {
+  let values = []
+  let string = ''
+  singlespace(value).split('').forEach(character => {
+    if (character === '{') {
+      if (string) {
+        values.push(string)
+        string = ''
+      }  
+    }
+    string += character
+    if (character === '}') {
+      values.push(string)
+      string = ''
+    }
+  })
+  values.push(string)
+  
+  return values.map(string => string.trim()).filter(Boolean)
+}
+
 function getName (name) {
   if (name.endsWith('.bind')) {
     return name.substring(0, name.length - 5)
@@ -34,13 +55,46 @@ function getName (name) {
 }
 
 function getValue (name, value) {
-  if (value.startsWith('{') && value.endsWith('}')) {
-    let property = value.substring(1, value.length - 1)
-    return {
-      type: 'MemberExpression',
-      computed: false,
-      object: { type: 'Identifier', name: 'o' },
-      property: { type: 'Identifier', name: property }
+  if (value.includes('{') && value.includes('}')) {
+    let values = extract(value)
+    if (values.length === 1) {
+      let property = value.substring(1, value.length - 1)
+      return {
+        type: 'MemberExpression',
+        computed: false,
+        object: { type: 'Identifier', name: 'o' },
+        property: { type: 'Identifier', name: property }
+      }
+    } else {
+      const nodes = []
+      values.map((value, index) => {
+        if (index > 0) {
+          nodes.push({ type: 'Literal', value: ' ' })
+        }
+        if (value.includes('{') && value.includes('}')) {
+          let property = value.substring(1, value.length - 1)
+          return nodes.push({
+            type: 'MemberExpression',
+            computed: false,
+            object: { type: 'Identifier', name: 'o' },
+            property: { type: 'Identifier', name: property }
+          })
+        }
+        return nodes.push({ type: 'Literal', value: value })
+      })
+      const expression = nodes.reduce((previous, current) => {
+        if (!previous.left) {
+          previous.left = current
+          return previous
+        } else if (!previous.right) {
+          previous.right = current
+          return previous
+        }
+        return { type: 'BinaryExpression', operator: '+', left: previous, right: current }
+      }, {
+        type: 'BinaryExpression', operator: '+'
+      })
+      return { type: 'ExpressionStatement', expression }
     }
   } else if (name.endsWith('.bind')) {
     return {
@@ -61,13 +115,14 @@ function serialize (node, attrs) {
   } else {
     let text = attrs.find(attr => attr.name === 'text' || attr.name === 'text.bind')
     if (text) {
+      let argument = getValue(text.name, text.value)
       return {
         type: 'CallExpression',
         callee: {
           type: 'Identifier',
           name: 'e'
         },
-        arguments: [getValue(text.name, text.value)]
+        arguments: [argument.expression ? argument.expression : argument]
       }
     }
   }
@@ -137,24 +192,8 @@ module.exports = {
               })
               let { value } = attr
               if (value.includes('{') && value.includes('}')) {
-                let values = []
-                let string = ''
-                singlespace(value).split('').forEach(character => {
-                  if (character === '{') {
-                    if (string) {
-                      values.push(string)
-                      string = ''
-                    }  
-                  }
-                  string += character
-                  if (character === '}') {
-                    values.push(string)
-                    string = ''
-                  }
-                })
-                values.push(string)
-                
-                values.map(string => string.trim()).filter(Boolean).forEach((value, index) => {
+                let values = extract(value)
+                values.forEach((value, index) => {
                   if (index > 0) {
                     tree.addTemplateAssignmentExpression({ type: 'Literal', value: ' ' })
                   }
