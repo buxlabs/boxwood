@@ -1,13 +1,14 @@
 const assert = require('assert')
 const { compile } = require('.')
 
-// assert.deepEqual(compile('<ul><slot repeat.for="todo of todos"><li text="{todo.description}"></li></slot></ul>')({
-  // todos: [
-    // { description: 'foo' },
-    // { description: 'bar' },
-    // { description: 'baz' }
-  // ]
-// }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
+assert.deepEqual(compile('<ul><slot repeat.for="todos"><li html="{todos[i].description}"></li></slot></ul>')({
+  todos: [
+    { description: 'foo' },
+    { description: 'bar' },
+    { description: 'baz' },
+    { description: 'qux' }
+  ]
+}), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
 assert.deepEqual(compile('hello world')(), 'hello world')
 assert.deepEqual(compile('<div></div>')(), '<div></div>')

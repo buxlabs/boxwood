@@ -1,5 +1,6 @@
 const { parseFragment } = require('parse5')
 const AbstractSyntaxTree = require('@buxlabs/ast')
+const TEMPLATE_VARIABLE = 't'
 
 function walk(node, callback) {
   callback(node)
@@ -21,7 +22,7 @@ function getTemplateAssignmentExpression (node) {
       operator: '+=',
       left: {
         type: 'Identifier',
-        name: 't'
+        name: TEMPLATE_VARIABLE
       },
       right: node
     }
@@ -138,7 +139,7 @@ function serialize (node, attrs) {
 module.exports = {
   render () {},
   compile (source) {
-    const htmlTree = parseFragment(source, { locationInfo: true })
+    const tree = parseFragment(source, { locationInfo: true })
     const start = new AbstractSyntaxTree('')
     const end = new AbstractSyntaxTree('')
     start.append({
@@ -146,16 +147,80 @@ module.exports = {
       declarations: [
         {
           type: 'VariableDeclarator',
-          id: { type: 'Identifier', name: 't' },
+          id: { type: 'Identifier', name: TEMPLATE_VARIABLE },
           init: { type: 'Literal', value: '' }
         }
       ],
       kind: 'var'
     })
-    walk(htmlTree, fragment => {
+    function appendNode (start, node, attrs) {
+      start.append(getTemplateAssignmentExpression({
+        type: 'Literal',
+        value: `<${node}`
+      }))
+      let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
+      if (allowed.length) {
+        allowed.forEach(attr => {
+          const booleanAttributes = [
+            "autofocus",
+            "checked",
+            "readonly",
+            "disabled",
+            "formnovalidate",
+            "multiple",
+            "required"
+          ]
+          if (booleanAttributes.includes(getName(attr.name))) {
+            const expression = getTemplateAssignmentExpression({
+              type: 'Literal',
+              value: ` ${getName(attr.name)}`
+            })
+            if (!attr.value) {
+              start.append(expression)
+            } else {
+              start.append({
+                type: 'IfStatement',
+                test: getValue(attr.name, attr.value),
+                consequent: {
+                  type: 'BlockStatement',
+                  body: [expression]
+                }
+              })
+            }
+          } else {
+            start.append(getTemplateAssignmentExpression({
+              type: 'Literal',
+              value: ` ${getName(attr.name)}="`
+            }))
+            let { value } = attr
+            if (value.includes('{') && value.includes('}')) {
+              let values = extract(value)
+              values.forEach((value, index) => {
+                if (index > 0) {
+                  start.append(getTemplateAssignmentExpression({ type: 'Literal', value: ' ' }))
+                }
+                start.append(getTemplateAssignmentExpression(getValue(attr.name, value)))
+              })
+            } else {
+              start.append(getTemplateAssignmentExpression(getValue(attr.name, value)))
+            }
+            start.append(getTemplateAssignmentExpression({ type: 'Literal', value: '"' }))
+          }
+        })
+      }
+      start.append(getTemplateAssignmentExpression({
+        type: 'Literal',
+        value: `>`
+      }))
+      let right = serialize(node, attrs)
+      if (right) {
+        start.append(getTemplateAssignmentExpression(right))
+      }
+    }
+    walk(tree, fragment => {
       const node = fragment.nodeName
       const attrs = fragment.attrs
-      if (node === '#document-fragment') return
+      if (node === '#document-fragment' || fragment.used) return
       if (node === '#text') {
         start.append(getTemplateAssignmentExpression({
           type: 'Literal',
@@ -165,7 +230,100 @@ module.exports = {
       if (node === 'slot' && attrs) {
         const repeat = attrs.find(attr => attr.name === 'repeat.for') 
         if (repeat) {
-          console.log(fragment)
+          const body = new AbstractSyntaxTree('')
+          let index = 0
+          walk(fragment, current => {
+            index += 1
+            if (index === 1) return
+            current.used = true
+            const node = current.nodeName
+            const attrs = current.attrs
+            if (attrs) {
+              appendNode(body, node, attrs)
+            }
+            if (current.__location.endTag) {
+              if (node !== 'slot') {
+                body.append(getTemplateAssignmentExpression({
+                  type: 'Literal',
+                  value: `</${node}>`
+                }))
+              }
+            }
+          })
+          start.append({
+            type: 'ForStatement',
+            init: {
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  'type': 'VariableDeclarator',
+                  'id': {
+                    'type': 'Identifier',
+                    'name': 'i'
+                  },
+                  'init': {
+                    'type': 'Literal',
+                    'value': 0
+                  }
+                },
+                {
+                  'type': 'VariableDeclarator',
+                  'id': {
+                    'type': 'Identifier',
+                    'name': 'ilen'
+                  },
+                  'init': {
+                    'type': 'MemberExpression',
+                    'object': {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'o'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        name: 'todos'
+                      }
+                    },
+                    'property': {
+                      'type': 'Identifier',
+                      'name': 'length'
+                    },
+                    'computed': false
+                  }
+                }
+              ],
+              'kind': 'var'
+            },
+            'test': {
+              'type': 'BinaryExpression',
+              'left': {
+                'type': 'Identifier',
+                'name': 'i'
+              },
+              'operator': '<',
+              'right': {
+                'type': 'Identifier',
+                'name': 'ilen'
+              }
+            },
+            'update': {
+              'type': 'AssignmentExpression',
+              'operator': '+=',
+              'left': {
+                'type': 'Identifier',
+                'name': 'i'
+              },
+              'right': {
+                'type': 'Literal',
+                'value': 1
+              }
+            },
+            'body': {
+              'type': 'BlockStatement',
+              'body': body.ast.body
+            }
+          })
         } else {
           let right = serialize(node, attrs)
           if (right) {
@@ -173,69 +331,7 @@ module.exports = {
           }
         }
       } else if (attrs) {
-        start.append(getTemplateAssignmentExpression({
-          type: 'Literal',
-          value: `<${node}`
-        }))
-        let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
-        if (allowed.length) {
-          allowed.forEach(attr => {
-            const booleanAttributes = [
-              "autofocus",
-              "checked",
-              "readonly",
-              "disabled",
-              "formnovalidate",
-              "multiple",
-              "required"
-            ]
-            if (booleanAttributes.includes(getName(attr.name))) {
-              const expression = getTemplateAssignmentExpression({
-                type: 'Literal',
-                value: ` ${getName(attr.name)}`
-              })
-              if (!attr.value) {
-                start.append(expression)
-              } else {
-                start.append({
-                  type: 'IfStatement',
-                  test: getValue(attr.name, attr.value),
-                  consequent: {
-                    type: 'BlockStatement',
-                    body: [expression]
-                  }
-                })
-              }
-            } else {
-              start.append(getTemplateAssignmentExpression({
-                type: 'Literal',
-                value: ` ${getName(attr.name)}="`
-              }))
-              let { value } = attr
-              if (value.includes('{') && value.includes('}')) {
-                let values = extract(value)
-                values.forEach((value, index) => {
-                  if (index > 0) {
-                    start.append(getTemplateAssignmentExpression({ type: 'Literal', value: ' ' }))
-                  }
-                  start.append(getTemplateAssignmentExpression(getValue(attr.name, value)))
-                })
-              } else {
-                start.append(getTemplateAssignmentExpression(getValue(attr.name, value)))
-              }
-              start.append(getTemplateAssignmentExpression({ type: 'Literal', value: '"' }))
-            }
-
-          })
-        }
-        start.append(getTemplateAssignmentExpression({
-          type: 'Literal',
-          value: `>`
-        }))
-        let right = serialize(node, attrs)
-        if (right) {
-          start.append(getTemplateAssignmentExpression(right))
-        }
+        appendNode(start, node, attrs)
       }
       if (fragment.__location.endTag) {
         if (node !== 'slot') {
@@ -248,7 +344,7 @@ module.exports = {
     })
     end.append({
       type: 'ReturnStatement',
-      argument: { type: 'Identifier', name: 't' }
+      argument: { type: 'Identifier', name: TEMPLATE_VARIABLE }
     })
     const body = start.toString() + end.toString()
     const fn = new Function('o', 'e', body) // eslint-disable-line
