@@ -1,10 +1,19 @@
 const assert = require('assert')
 const { compile } = require('.')
 
+// assert.deepEqual(compile('<ul><slot repeat.for="todo of todos"><li text="{todo.description}"></li></slot></ul>')({
+  // todos: [
+    // { description: 'foo' },
+    // { description: 'bar' },
+    // { description: 'baz' }
+  // ]
+// }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
+
 assert.deepEqual(compile('hello world')(), 'hello world')
 assert.deepEqual(compile('<div></div>')(), '<div></div>')
 assert.deepEqual(compile('<div>foo</div>')(), '<div>foo</div>')
 assert.deepEqual(compile('<input>')(), '<input>')
+assert.deepEqual(compile('<input/>')(), '<input>')
 assert.deepEqual(compile('<input type="number" value="100">')(), '<input type="number" value="100">')
 assert.deepEqual(compile('<input    value="100">')(), '<input value="100">')
 assert.deepEqual(compile('<slot html="foo"/>')(), 'foo')
@@ -74,10 +83,3 @@ assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: t
 assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: false }), '<input type="checkbox">')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
-// assert.deepEqual(compile('<ul><li repeat.for="todo of todos" text="{todo.description}"></li></ul>')({
-  // todos: [
-    // { description: 'foo' },
-    // { description: 'bar' },
-    // { description: 'baz' }
-  // ]
-// }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')

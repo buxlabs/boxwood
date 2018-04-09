@@ -1,5 +1,17 @@
-const { SAXParser } = require('parse5')
+const { parseFragment } = require('parse5')
 const AbstractSyntaxTree = require('@buxlabs/ast')
+
+function walk(node, callback) {
+  callback(node)
+  if (node.childNodes) {
+    let child = node.childNodes[0]
+    let i = 0
+    while (child) {
+      walk(child, callback)
+      child = node.childNodes[++i]
+    }
+  }
+}
 
 class Tree extends AbstractSyntaxTree {
   getTemplateAssignmentExpression (node) {
@@ -132,9 +144,10 @@ function serialize (node, attrs) {
 module.exports = {
   render () {},
   compile (source) {
-    const parser = new SAXParser()
-    const tree = new Tree('')
-    tree.append({
+    const htmlTree = parseFragment(source, { locationInfo: true })
+    const start = new Tree('')
+    const end = new Tree('')
+    start.append({
       type: 'VariableDeclaration',
       declarations: [
         {
@@ -145,14 +158,28 @@ module.exports = {
       ],
       kind: 'var'
     })
-    parser.on('startTag', (node, attrs) => {
+    walk(htmlTree, fragment => {
+      const node = fragment.nodeName
+      const attrs = fragment.attrs
+      if (node === '#document-fragment') return
+      if (node === '#text') {
+        start.addTemplateAssignmentExpression({
+          type: 'Literal',
+          value: fragment.value
+        })
+      }
       if (node === 'slot' && attrs) {
-        let right = serialize(node, attrs)
-        if (right) {
-          tree.addTemplateAssignmentExpression(right)
+        const repeat = attrs.find(attr => attr.name === 'repeat.for') 
+        if (repeat) {
+
+        } else {
+          let right = serialize(node, attrs)
+          if (right) {
+            start.addTemplateAssignmentExpression(right)
+          }
         }
       } else if (attrs) {
-        tree.addTemplateAssignmentExpression({
+        start.addTemplateAssignmentExpression({
           type: 'Literal',
           value: `<${node}`
         })
@@ -169,14 +196,14 @@ module.exports = {
               "required"
             ]
             if (booleanAttributes.includes(getName(attr.name))) {
-              const expression = tree.getTemplateAssignmentExpression({
+              const expression = start.getTemplateAssignmentExpression({
                 type: 'Literal',
                 value: ` ${getName(attr.name)}`
               })
               if (!attr.value) {
-                tree.append(expression)
+                start.append(expression)
               } else {
-                tree.append({
+                start.append({
                   type: 'IfStatement',
                   test: getValue(attr.name, attr.value),
                   consequent: {
@@ -186,7 +213,7 @@ module.exports = {
                 })
               }
             } else {
-              tree.addTemplateAssignmentExpression({
+              start.addTemplateAssignmentExpression({
                 type: 'Literal',
                 value: ` ${getName(attr.name)}="`
               })
@@ -195,49 +222,41 @@ module.exports = {
                 let values = extract(value)
                 values.forEach((value, index) => {
                   if (index > 0) {
-                    tree.addTemplateAssignmentExpression({ type: 'Literal', value: ' ' })
+                    start.addTemplateAssignmentExpression({ type: 'Literal', value: ' ' })
                   }
-                  tree.addTemplateAssignmentExpression(getValue(attr.name, value))
+                  start.addTemplateAssignmentExpression(getValue(attr.name, value))
                 })
               } else {
-                tree.addTemplateAssignmentExpression(getValue(attr.name, value))
+                start.addTemplateAssignmentExpression(getValue(attr.name, value))
               }
-              tree.addTemplateAssignmentExpression({ type: 'Literal', value: '"' })
+              start.addTemplateAssignmentExpression({ type: 'Literal', value: '"' })
             }
 
           })
         }
-        tree.addTemplateAssignmentExpression({
+        start.addTemplateAssignmentExpression({
           type: 'Literal',
           value: `>`
         })
         let right = serialize(node, attrs)
         if (right) {
-          tree.addTemplateAssignmentExpression(right)
+          start.addTemplateAssignmentExpression(right)
+        }
+      }
+      if (fragment.__location.endTag) {
+        if (node !== 'slot') {
+          end.addTemplateAssignmentExpression({
+            type: 'Literal',
+            value: `</${node}>`
+          })
         }
       }
     })
-    parser.on('endTag', node => {
-      if (node !== 'slot') {
-        tree.addTemplateAssignmentExpression({
-          type: 'Literal',
-          value: `</${node}>`
-        })
-      }
-    })
-    parser.on('text', text => {
-      tree.addTemplateAssignmentExpression({
-        type: 'Literal',
-        value: text
-      })
-    })
-    parser.write(`<slot>${source}</slot>`)
-
-    tree.append({
+    end.append({
       type: 'ReturnStatement',
       argument: { type: 'Identifier', name: 't' }
     })
-    const body = tree.toString()
+    const body = start.toString() + end.toString()
     const fn = new Function('o', 'e', body) // eslint-disable-line
     return fn
   }
