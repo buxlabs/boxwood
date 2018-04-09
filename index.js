@@ -13,24 +13,18 @@ function walk(node, callback) {
   }
 }
 
-class Tree extends AbstractSyntaxTree {
-  getTemplateAssignmentExpression (node) {
-    return {
-      type: 'ExpressionStatement',
-      expression: {
-        type: 'AssignmentExpression',
-        operator: '+=',
-        left: {
-          type: 'Identifier',
-          name: 't'
-        },
-        right: node
-      }
+function getTemplateAssignmentExpression (node) {
+  return {
+    type: 'ExpressionStatement',
+    expression: {
+      type: 'AssignmentExpression',
+      operator: '+=',
+      left: {
+        type: 'Identifier',
+        name: 't'
+      },
+      right: node
     }
-  }
-  addTemplateAssignmentExpression (node) {
-    const expression = this.getTemplateAssignmentExpression(node)
-    this.append(expression)
   }
 }
 
@@ -145,8 +139,8 @@ module.exports = {
   render () {},
   compile (source) {
     const htmlTree = parseFragment(source, { locationInfo: true })
-    const start = new Tree('')
-    const end = new Tree('')
+    const start = new AbstractSyntaxTree('')
+    const end = new AbstractSyntaxTree('')
     start.append({
       type: 'VariableDeclaration',
       declarations: [
@@ -163,26 +157,26 @@ module.exports = {
       const attrs = fragment.attrs
       if (node === '#document-fragment') return
       if (node === '#text') {
-        start.addTemplateAssignmentExpression({
+        start.append(getTemplateAssignmentExpression({
           type: 'Literal',
           value: fragment.value
-        })
+        }))
       }
       if (node === 'slot' && attrs) {
         const repeat = attrs.find(attr => attr.name === 'repeat.for') 
         if (repeat) {
-
+          console.log(fragment)
         } else {
           let right = serialize(node, attrs)
           if (right) {
-            start.addTemplateAssignmentExpression(right)
+            start.append(getTemplateAssignmentExpression(right))
           }
         }
       } else if (attrs) {
-        start.addTemplateAssignmentExpression({
+        start.append(getTemplateAssignmentExpression({
           type: 'Literal',
           value: `<${node}`
-        })
+        }))
         let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
         if (allowed.length) {
           allowed.forEach(attr => {
@@ -196,7 +190,7 @@ module.exports = {
               "required"
             ]
             if (booleanAttributes.includes(getName(attr.name))) {
-              const expression = start.getTemplateAssignmentExpression({
+              const expression = getTemplateAssignmentExpression({
                 type: 'Literal',
                 value: ` ${getName(attr.name)}`
               })
@@ -213,42 +207,42 @@ module.exports = {
                 })
               }
             } else {
-              start.addTemplateAssignmentExpression({
+              start.append(getTemplateAssignmentExpression({
                 type: 'Literal',
                 value: ` ${getName(attr.name)}="`
-              })
+              }))
               let { value } = attr
               if (value.includes('{') && value.includes('}')) {
                 let values = extract(value)
                 values.forEach((value, index) => {
                   if (index > 0) {
-                    start.addTemplateAssignmentExpression({ type: 'Literal', value: ' ' })
+                    start.append(getTemplateAssignmentExpression({ type: 'Literal', value: ' ' }))
                   }
-                  start.addTemplateAssignmentExpression(getValue(attr.name, value))
+                  start.append(getTemplateAssignmentExpression(getValue(attr.name, value)))
                 })
               } else {
-                start.addTemplateAssignmentExpression(getValue(attr.name, value))
+                start.append(getTemplateAssignmentExpression(getValue(attr.name, value)))
               }
-              start.addTemplateAssignmentExpression({ type: 'Literal', value: '"' })
+              start.append(getTemplateAssignmentExpression({ type: 'Literal', value: '"' }))
             }
 
           })
         }
-        start.addTemplateAssignmentExpression({
+        start.append(getTemplateAssignmentExpression({
           type: 'Literal',
           value: `>`
-        })
+        }))
         let right = serialize(node, attrs)
         if (right) {
-          start.addTemplateAssignmentExpression(right)
+          start.append(getTemplateAssignmentExpression(right))
         }
       }
       if (fragment.__location.endTag) {
         if (node !== 'slot') {
-          end.addTemplateAssignmentExpression({
+          end.append(getTemplateAssignmentExpression({
             type: 'Literal',
             value: `</${node}>`
-          })
+          }))
         }
       }
     })
