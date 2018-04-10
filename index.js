@@ -61,12 +61,14 @@ function getName (name) {
   return name
 }
 
-function getValue (name, value) {
+function getValue (name, value, variables = []) {
   if (value.includes('{') && value.includes('}')) {
     let values = extract(value)
     if (values.length === 1) {
       let property = value.substring(1, value.length - 1)
-      return {
+      return variables.includes(property.split('.')[0]) ? {
+        type: 'Identifier', name: property
+      } : {
         type: 'MemberExpression',
         computed: false,
         object: { type: 'Identifier', name: 'o' },
@@ -80,7 +82,9 @@ function getValue (name, value) {
         }
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
-          return nodes.push({
+          return nodes.push(variables.includes(property.split('.')[0]) ? {
+            type: 'Identifier', name: property
+          } : {
             type: 'MemberExpression',
             computed: false,
             object: { type: 'Identifier', name: 'o' },
@@ -104,7 +108,9 @@ function getValue (name, value) {
       return { type: 'ExpressionStatement', expression }
     }
   } else if (name.endsWith('.bind')) {
-    return {
+    return variables.includes(value.split('.')[0]) ? {
+      type: 'Identifier', name: value
+    } : {
       type: 'MemberExpression',
       computed: false,
       object: { type: 'Identifier', name: 'o' },
@@ -115,14 +121,14 @@ function getValue (name, value) {
   }
 }
 
-function serialize (node, attrs) {
+function serialize (node, attrs, variables) {
   let html = attrs.find(attr => attr.name === 'html' || attr.name === 'html.bind')
   if (html) {
-    return getValue(html.name, html.value)
+    return getValue(html.name, html.value, variables)
   } else {
     let text = attrs.find(attr => attr.name === 'text' || attr.name === 'text.bind')
     if (text) {
-      let argument = getValue(text.name, text.value)
+      let argument = getValue(text.name, text.value, variables)
       return {
         type: 'CallExpression',
         callee: {
@@ -153,7 +159,7 @@ module.exports = {
       ],
       kind: 'var'
     })
-    function appendNode (start, node, attrs) {
+    function appendNode (start, node, attrs, variables = []) {
       start.append(getTemplateAssignmentExpression({
         type: 'Literal',
         value: `<${node}`
@@ -212,7 +218,7 @@ module.exports = {
         type: 'Literal',
         value: `>`
       }))
-      let right = serialize(node, attrs)
+      let right = serialize(node, attrs, variables)
       if (right) {
         start.append(getTemplateAssignmentExpression(right))
       }
@@ -232,6 +238,45 @@ module.exports = {
         if (repeat) {
           const body = new AbstractSyntaxTree('')
           let index = 0
+          let variable
+          let parent = repeat.value
+          if (repeat.value.includes(' in ')) {
+            let parts = repeat.value.split(' in ')
+            variable = parts[0]
+            parent = parts[1]
+            body.append({
+              type: 'VariableDeclaration',
+              declarations: [
+                {
+                  type: 'VariableDeclarator',
+                  id: {
+                    type: 'Identifier',
+                    name: variable
+                  },
+                  init: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'o'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        name: parent
+                      }
+                    },
+                    property: {
+                      type: 'Identifier',
+                      name: 'i'
+                    },
+                    computed: true
+                  }
+                }
+              ],
+              kind: 'var'
+            })
+          }
           walk(fragment, current => {
             index += 1
             if (index === 1) return
@@ -239,7 +284,7 @@ module.exports = {
             const node = current.nodeName
             const attrs = current.attrs
             if (attrs) {
-              appendNode(body, node, attrs)
+              appendNode(body, node, attrs, [variable].filter(Boolean))
             }
             if (current.__location.endTag) {
               if (node !== 'slot') {
@@ -282,7 +327,7 @@ module.exports = {
                       },
                       property: {
                         type: 'Identifier',
-                        name: 'todos'
+                        name: parent
                       }
                     },
                     'property': {
