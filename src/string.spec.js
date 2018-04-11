@@ -1,0 +1,16 @@
+const assert = require('assert')
+const { extract } = require('./string')
+
+assert.deepEqual(extract('foo'), ['foo'])
+assert.deepEqual(extract('bar'), ['bar'])
+assert.deepEqual(extract('{foo}'), ['{foo}'])
+assert.deepEqual(extract('{bar}'), ['{bar}'])
+assert.deepEqual(extract('foo bar'), ['foo bar'])
+assert.deepEqual(extract('foo {bar}'), ['foo', '{bar}'])
+assert.deepEqual(extract('{foo} bar'), ['{foo}', 'bar'])
+assert.deepEqual(extract('{foo} {bar}'), ['{foo}', '{bar}'])
+assert.deepEqual(extract('foo bar {baz}'), ['foo bar', '{baz}'])
+assert.deepEqual(extract('foo {bar} baz'), ['foo', '{bar}', 'baz'])
+assert.deepEqual(extract('foo     bar'), ['foo bar'])
+assert.deepEqual(extract('   foo     bar    '), ['foo bar'])
+// assert.deepEqual(extract('{foo}{bar}'), ['{foo}', '{bar}']) TODO support or not?
