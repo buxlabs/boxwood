@@ -46,7 +46,7 @@ module.exports = {
       argument: getIdentifier(TEMPLATE_VARIABLE)
     }
   },
-  getForLoop (name, body) {
+  getForLoop (name, body, variables, index, guard) {
     return {
       type: 'ForStatement',
       init: {
@@ -54,15 +54,15 @@ module.exports = {
         declarations: [
           {
             type: 'VariableDeclarator',
-            id: getIdentifier('i'),
+            id: getIdentifier(index),
             init: getLiteral(0)
           },
           {
             type: 'VariableDeclarator',
-            id: getIdentifier('ilen'),
+            id: getIdentifier(guard),
             init: {
               type: 'MemberExpression',
-              object: {
+              object: variables.includes(name) ? getIdentifier(name) : {
                 type: 'MemberExpression',
                 object: getIdentifier(OBJECT_VARIABLE),
                 property: getIdentifier(name)
@@ -76,14 +76,14 @@ module.exports = {
       },
       test: {
         type: 'BinaryExpression',
-        left: getIdentifier('i'),
+        left: getIdentifier(index),
         operator: '<',
-        right: getIdentifier('ilen')
+        right: getIdentifier(guard)
       },
       update: {
         type: 'AssignmentExpression',
         operator: '+=',
-        left: getIdentifier('i'),
+        left: getIdentifier(index),
         right: getLiteral(1)
       },
       body: {
@@ -92,7 +92,7 @@ module.exports = {
       }
     }
   },
-  getForLoopVariable (variable, parent) {
+  getForLoopVariable (variable, name, variables, index) {
     return {
       type: 'VariableDeclaration',
       declarations: [
@@ -101,12 +101,12 @@ module.exports = {
           id: getIdentifier(variable),
           init: {
             type: 'MemberExpression',
-            object: {
+            object: variables.includes(name) ? getIdentifier(name) : {
               type: 'MemberExpression',
               object: getIdentifier(OBJECT_VARIABLE),
-              property: getIdentifier(parent),
+              property: getIdentifier(name),
             },
-            property: getIdentifier('i'),
+            property: getIdentifier(index),
             computed: true
           }
         }

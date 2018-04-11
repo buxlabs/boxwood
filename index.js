@@ -1,5 +1,6 @@
 const { parseFragment } = require('parse5')
 const AbstractSyntaxTree = require('@buxlabs/ast')
+const { array } = require('@buxlabs/utils')
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./src/enum')
 const walk = require('./src/walk')
 const {
@@ -11,6 +12,14 @@ const {
   getForLoopVariable
 } = require('./src/factory')
 const { convertHtmlOrTextAttribute, getNodes } = require('./src/convert')
+
+function getLoopIndex (variables) {
+  return array.identifier(variables)
+}
+
+function getLoopGuard (index) {
+  return index + 'len'
+}
 
 function collect (start, end, fragment, variables = []) {
   if (fragment.used) return
@@ -24,17 +33,16 @@ function collect (start, end, fragment, variables = []) {
     if (repeat) {
       const header = new AbstractSyntaxTree('')
       const footer = new AbstractSyntaxTree('')
-      let variable
-      let parent = repeat.value
-      if (repeat.value.includes(' in ')) {
-        [variable, parent] = repeat.value.split(' in ')
-        variables = variables.concat(variable)
-        header.append(getForLoopVariable(variable, parent))
-      }
+      let [variable, parent] = repeat.value.split(' in ')
+      variables.push(variable)
+      let index = getLoopIndex(variables)
+      let guard = getLoopGuard(index)
+      variables.push(index)
+      header.append(getForLoopVariable(variable, parent, variables, index))
       walk(fragment, current => {
         collect(header, footer, current, variables)
       })
-      start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body)))
+      start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body), variables, index, guard))
     } else {
       const leaf = convertHtmlOrTextAttribute(node, attrs)
       if (leaf) {
