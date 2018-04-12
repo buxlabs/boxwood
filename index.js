@@ -29,6 +29,20 @@ function collect (start, end, fragment, variables = []) {
   const { attrs } = fragment
   if (node === '#text') {
     return start.append(getTemplateAssignmentExpression(getLiteral(fragment.value)))
+  } else if (node === 'if') {
+    const header = new AbstractSyntaxTree('')
+    const footer = new AbstractSyntaxTree('')
+    walk(fragment, current => {
+      collect(header, footer, current, variables)
+    })
+    start.append({
+      type: 'IfStatement',
+      test: getObjectMemberExpression(attrs[0].name),
+      consequent: {
+        type: 'BlockStatement',
+        body: header.ast.body.concat(footer.ast.body)
+      }
+    })
   } else if (node === 'loop') {
     const loop = attrs.find(attr => attr.name === 'for') 
     const header = new AbstractSyntaxTree('')
@@ -53,7 +67,7 @@ function collect (start, end, fragment, variables = []) {
     nodes.forEach(node => start.append(node))
   }
   if (fragment.__location && fragment.__location.endTag) {
-    if (node !== 'slot' && node !== 'loop') {
+    if (node !== 'if' && node !== 'loop' && node !== 'slot') {
       const tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
       if (tag) {
         const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
