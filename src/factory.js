@@ -46,6 +46,13 @@ module.exports = {
       argument: getIdentifier(TEMPLATE_VARIABLE)
     }
   },
+  getObjectMemberExpression (name) {
+    return {
+      type: 'MemberExpression',
+      object: getIdentifier(OBJECT_VARIABLE),
+      property: getIdentifier(name),
+    }
+  },
   getForLoop (name, body, variables, index, guard) {
     return {
       type: 'ForStatement',

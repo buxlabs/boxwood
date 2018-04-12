@@ -8,6 +8,7 @@ const {
   getTemplateVariableDeclaration,
   getTemplateAssignmentExpression,
   getTemplateReturnStatement,
+  getObjectMemberExpression,
   getForLoop,
   getForLoopVariable
 } = require('./src/factory')
@@ -53,7 +54,15 @@ function collect (start, end, fragment, variables = []) {
   }
   if (fragment.__location && fragment.__location.endTag) {
     if (node !== 'slot' && node !== 'loop') {
-      end.append(getTemplateAssignmentExpression(getLiteral(`</${node}>`)))
+      const morph = attrs.find(attr => attr.name === 'as')
+      if (morph) {
+        const property = morph.value.substring(1, morph.value.length - 1)
+        end.append(getTemplateAssignmentExpression(getLiteral('</')))
+        end.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
+        end.append(getTemplateAssignmentExpression(getLiteral('>')))
+      } else {
+        end.append(getTemplateAssignmentExpression(getLiteral(`</${node}>`)))
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES } = require('./enum')
-const { getLiteral, getIdentifier, getTemplateAssignmentExpression } = require('./factory')
+const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignmentExpression } = require('./factory')
 const { singlespace, extract, getName } = require('./string')
+
 
 function convertAttribute (name, value, variables = []) {
   if (value.includes('{') && value.includes('}')) {
@@ -76,8 +77,15 @@ function convertHtmlOrTextAttribute (node, attrs, variables) {
 
 function getNodes (node, attrs, variables = []) {
   let nodes = []
-  nodes.push(getTemplateAssignmentExpression(getLiteral(`<${node}`)))
-  let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text')
+  let morph = attrs.find(attr => attr.name === 'as')
+  if (morph) {
+    const property = morph.value.substring(1, morph.value.length - 1)
+    nodes.push(getTemplateAssignmentExpression(getLiteral('<')))
+    nodes.push(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
+  } else {
+    nodes.push(getTemplateAssignmentExpression(getLiteral(`<${node}`)))
+  }
+  let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text' && attr.name !== 'as')
   if (allowed.length) {
     allowed.forEach(attr => {
       if (BOOLEAN_ATTRIBUTES.includes(getName(attr.name))) {
