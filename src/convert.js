@@ -77,15 +77,15 @@ function convertHtmlOrTextAttribute (node, attrs, variables) {
 
 function getNodes (node, attrs, variables = []) {
   let nodes = []
-  let morph = attrs.find(attr => attr.name === 'as')
-  if (morph) {
-    const property = morph.value.substring(1, morph.value.length - 1)
+  let tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+  if (tag) {
+    const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
     nodes.push(getTemplateAssignmentExpression(getLiteral('<')))
     nodes.push(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
   } else {
     nodes.push(getTemplateAssignmentExpression(getLiteral(`<${node}`)))
   }
-  let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text' && attr.name !== 'as')
+  let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text' && attr.name !== 'tag' && attr.name !== 'tag.bind')
   if (allowed.length) {
     allowed.forEach(attr => {
       if (BOOLEAN_ATTRIBUTES.includes(getName(attr.name))) {

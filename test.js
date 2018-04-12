@@ -110,5 +110,7 @@ assert.deepEqual(compile('<ul><loop for="todo in todos"><li html="{todo.text}"><
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
 
-assert.deepEqual(compile('<div as="{tag}"></div>')({ tag: 'button'}), '<button></button>')
-assert.deepEqual(compile('<div as="{tag}"></div>')({ tag: 'a' }), '<a></a>')
+assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'button'}), '<button></button>')
+assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'a' }), '<a></a>')
+assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'button'}), '<button></button>')
+assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'a'}), '<a></a>')

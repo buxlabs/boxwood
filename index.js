@@ -54,9 +54,9 @@ function collect (start, end, fragment, variables = []) {
   }
   if (fragment.__location && fragment.__location.endTag) {
     if (node !== 'slot' && node !== 'loop') {
-      const morph = attrs.find(attr => attr.name === 'as')
-      if (morph) {
-        const property = morph.value.substring(1, morph.value.length - 1)
+      const tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+      if (tag) {
+        const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
         end.append(getTemplateAssignmentExpression(getLiteral('</')))
         end.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
         end.append(getTemplateAssignmentExpression(getLiteral('>')))
