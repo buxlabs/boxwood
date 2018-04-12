@@ -28,33 +28,31 @@ function collect (start, end, fragment, variables = []) {
   const { attrs } = fragment
   if (node === '#text') {
     return start.append(getTemplateAssignmentExpression(getLiteral(fragment.value)))
+  } else if (node === 'loop') {
+    const loop = attrs.find(attr => attr.name === 'for') 
+    const header = new AbstractSyntaxTree('')
+    const footer = new AbstractSyntaxTree('')
+    const [variable, parent] = loop.value.split(' in ')
+    variables.push(variable)
+    const index = getLoopIndex(variables)
+    const guard = getLoopGuard(index)
+    variables.push(index)
+    header.append(getForLoopVariable(variable, parent, variables, index))
+    walk(fragment, current => {
+      collect(header, footer, current, variables)
+    })
+    start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body), variables, index, guard))
   } else if (node === 'slot' && attrs) {
-    const repeat = attrs.find(attr => attr.name === 'repeat.for') 
-    if (repeat) {
-      const header = new AbstractSyntaxTree('')
-      const footer = new AbstractSyntaxTree('')
-      let [variable, parent] = repeat.value.split(' in ')
-      variables.push(variable)
-      let index = getLoopIndex(variables)
-      let guard = getLoopGuard(index)
-      variables.push(index)
-      header.append(getForLoopVariable(variable, parent, variables, index))
-      walk(fragment, current => {
-        collect(header, footer, current, variables)
-      })
-      start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body), variables, index, guard))
-    } else {
-      const leaf = convertHtmlOrTextAttribute(node, attrs)
-      if (leaf) {
-        start.append(getTemplateAssignmentExpression(leaf))
-      }
+    const leaf = convertHtmlOrTextAttribute(node, attrs)
+    if (leaf) {
+      start.append(getTemplateAssignmentExpression(leaf))
     }
   } else if (attrs) {
     const nodes = getNodes(node, attrs, variables)
     nodes.forEach(node => start.append(node))
   }
   if (fragment.__location && fragment.__location.endTag) {
-    if (node !== 'slot') {
+    if (node !== 'slot' && node !== 'loop') {
       end.append(getTemplateAssignmentExpression(getLiteral(`</${node}>`)))
     }
   }

@@ -76,7 +76,7 @@ assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: f
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
 
-assert.deepEqual(compile('<ul><slot repeat.for="todo in todos"><li html="{todo.description}"></li></slot></ul>')({
+assert.deepEqual(compile('<ul><loop for="todo in todos"><li html="{todo.description}"></li></loop></ul>')({
   todos: [
     { description: 'foo' },
     { description: 'bar' },
@@ -85,7 +85,7 @@ assert.deepEqual(compile('<ul><slot repeat.for="todo in todos"><li html="{todo.d
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-assert.deepEqual(compile('<ul><slot repeat.for="foo in bar"><li html="{foo.baz}"></li></slot></ul>')({
+assert.deepEqual(compile('<ul><loop for="foo in bar"><li html="{foo.baz}"></li></loop></ul>')({
   bar: [
     { baz: 'foo' },
     { baz: 'bar' },
@@ -94,10 +94,18 @@ assert.deepEqual(compile('<ul><slot repeat.for="foo in bar"><li html="{foo.baz}"
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-assert.deepEqual(compile('<ul><slot repeat.for="foo in bar"><slot repeat.for="baz in foo"><li html="{baz.qux}"></li></slot></slot></ul>')({
+assert.deepEqual(compile('<ul><loop for="foo in bar"><loop for="baz in foo"><li html="{baz.qux}"></li></loop></loop></ul>')({
   bar: [
     [ { qux: 1 }, { qux: 2 } ],
     [ { qux: 3 }, { qux: 4 } ],
     [ { qux: 5 }, { qux: 6 } ]
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
+
+assert.deepEqual(compile('<ul><loop for="todo in todos"><li html="{todo.text}"></li></loop></ul>')({
+  todos: [
+    { text: 'foo' },
+    { text: 'bar' },
+    { text: 'baz' }
+  ]
+}), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
