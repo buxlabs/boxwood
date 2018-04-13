@@ -39,6 +39,19 @@ function collect (start, end, fragment, variables = []) {
         body: header.ast.body.concat(footer.ast.body)
       }
     })
+  } else if (node === 'else') {
+    const leaf = start.ast.body[start.ast.body.length - 1]
+    if (leaf.type === 'IfStatement') {
+      const header = new AbstractSyntaxTree('')
+      const footer = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(header, footer, current, variables)
+      })
+      leaf.alternate = {
+        type: 'BlockStatement',
+        body: header.ast.body.concat(footer.ast.body)
+      }
+    }
   } else if (node === 'loop') {
     const loop = attrs.find(attr => attr.name === 'for') 
     const header = new AbstractSyntaxTree('')
@@ -64,7 +77,7 @@ function collect (start, end, fragment, variables = []) {
     nodes.forEach(node => start.append(node))
   }
   if (fragment.__location && fragment.__location.endTag) {
-    if (node !== 'if' && node !== 'loop' && node !== 'slot') {
+    if (node !== 'if' && node !== 'else' && node !== 'loop' && node !== 'slot') {
       const tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
       if (tag) {
         const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value

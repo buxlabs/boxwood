@@ -116,12 +116,16 @@ assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'button'}), '<button>
 assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'a' }), '<a></a>')
 assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'button'}), '<button></button>')
 assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'a'}), '<a></a>')
+
 assert.deepEqual(compile('<if foo>bar</if>')({ foo: false }), '')
 assert.deepEqual(compile('<if foo>bar</if>')({ foo: true }), 'bar')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: true, baz: true }), 'barqux')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: true, baz: false }), 'bar')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: true }), 'qux')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: false }), '')
+
+assert.deepEqual(compile('<if foo>bar</if><else>baz</else>')({ foo: false }), 'baz')
+assert.deepEqual(compile('<if foo>bar</if><else>baz</else>')({ foo: true }), 'bar')
 
 assert.deepEqual(compile('<ul><loop for="a in b"><li html="{a.b}"></li></loop></ul>')({
   b: [
