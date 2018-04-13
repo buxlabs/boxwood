@@ -127,6 +127,22 @@ assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: 
 assert.deepEqual(compile('<if foo>bar</if><else>baz</else>')({ foo: false }), 'baz')
 assert.deepEqual(compile('<if foo>bar</if><else>baz</else>')({ foo: true }), 'bar')
 
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif>')({ foo: true, baz: true }), 'bar')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif>')({ foo: true, baz: false }), 'bar')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif>')({ foo: false, baz: false }), '')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif>')({ foo: false, baz: true }), 'qux')
+
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><else>quux</else>')({ foo: true, baz: true }), 'bar')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><else>quux</else>')({ foo: true, baz: false }), 'bar')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><else>quux</else>')({ foo: false, baz: false }), 'quux')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><else>quux</else>')({ foo: false, baz: true }), 'qux')
+
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: true, baz: true, quux: true }), 'bar')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: true, baz: false, quux: false }), 'bar')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: true, quux: false }), 'qux')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: false, quux: true }), 'corge')
+assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: false, quux: false }), '')
+
 assert.deepEqual(compile('<ul><loop for="a in b"><li html="{a.b}"></li></loop></ul>')({
   b: [
     { b: 'foo' },
