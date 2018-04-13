@@ -14,7 +14,9 @@ assert.deepEqual(compile('<slot html="foo"></slot>')(), 'foo')
 assert.deepEqual(compile('<slot text="foo"></slot>')({}, html => html.replace('foo', 'bar')), 'bar')
 assert.deepEqual(compile('<slot html="{foo}"/>')({ foo: 'bar' }), 'bar')
 assert.deepEqual(compile('<slot html={foo} />')({ foo: 'bar' }), 'bar')
+assert.deepEqual(compile('<slot html={foo.bar} />')({ foo: { bar: 'baz' } }), 'baz')
 assert.deepEqual(compile('<slot text="{foo}"/>')({ foo: 'bar' }, html => html.replace('bar', 'foo')), 'foo')
+assert.deepEqual(compile('<slot text="{foo.bar}"/>')({ foo: { bar: 'baz' } }, html => html.replace('baz', 'qux')), 'qux')
 assert.deepEqual(compile('<slot html="{foo}"></slot>')({ foo: 'bar' }), 'bar')
 assert.deepEqual(compile('<slot html="{foo} bar"></slot>')({ foo: 'baz' }), 'baz bar')
 assert.deepEqual(compile('<slot html="foo {bar}"></slot>')({ bar: 'baz' }), 'foo baz')
@@ -120,3 +122,31 @@ assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: true, baz: t
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: true, baz: false }), 'bar')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: true }), 'qux')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: false }), '')
+
+assert.deepEqual(compile('<ul><loop for="a in b"><li html="{a.b}"></li></loop></ul>')({
+  b: [
+    { b: 'foo' },
+    { b: 'bar' }
+  ]
+}), '<ul><li>foo</li><li>bar</li></ul>')
+
+assert.deepEqual(compile('<ul><loop for="t in b"><li html="{t.b}"></li></loop></ul>')({
+  b: [
+    { b: 'foo' },
+    { b: 'bar' }
+  ]
+}), '<ul><li>foo</li><li>bar</li></ul>')
+
+assert.deepEqual(compile('<ul><loop for="o in b"><li html="{o.b}"></li></loop></ul>')({
+  b: [
+    { b: 'foo' },
+    { b: 'bar' }
+  ]
+}), '<ul><li>foo</li><li>bar</li></ul>')
+
+assert.deepEqual(compile('<ul><loop for="e in b"><li html="{e.b}"></li></loop></ul>')({
+  b: [
+    { b: 'foo' },
+    { b: 'bar' }
+  ]
+}), '<ul><li>foo</li><li>bar</li></ul>')

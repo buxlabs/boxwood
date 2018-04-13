@@ -1,7 +1,7 @@
 module.exports = {
-  TEMPLATE_VARIABLE: 't',
-  OBJECT_VARIABLE: 'o',
-  ESCAPE_VARIABLE: 'e',
+  TEMPLATE_VARIABLE: '__t',
+  OBJECT_VARIABLE: '__o',
+  ESCAPE_VARIABLE: '__e',
   BOOLEAN_ATTRIBUTES: [
     "autofocus",
     "checked",
