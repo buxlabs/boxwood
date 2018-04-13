@@ -1,13 +1,14 @@
 const AbstractSyntaxTree = require('@buxlabs/ast')
 const { array } = require('@buxlabs/utils')
 const {
+  getIdentifier,
   getLiteral,
   getTemplateAssignmentExpression,
   getObjectMemberExpression,
   getForLoop,
   getForLoopVariable
 } = require('./factory')
-const { convertHtmlOrTextAttribute, getNodes } = require('./convert')
+const { convertAttribute, convertHtmlOrTextAttribute, getNodes } = require('./convert')
 const walk = require('./walk')
 
 function getLoopIndex (variables) {
@@ -18,7 +19,7 @@ function getLoopGuard (variables) {
   return array.identifier(variables)
 }
 
-function collect (start, end, fragment, variables = []) {
+function collect (start, end, fragment, variables) {
   if (fragment.used) return
   fragment.used = true
   const node = fragment.nodeName
@@ -31,9 +32,11 @@ function collect (start, end, fragment, variables = []) {
     walk(fragment, current => {
       collect(header, footer, current, variables)
     })
+    const { name } = attrs[0]
+    const [prefix] = name.split('.')
     start.append({
       type: 'IfStatement',
-      test: getObjectMemberExpression(attrs[0].name),
+      test: variables.includes(prefix) ? getIdentifier(name) : getObjectMemberExpression(name),
       consequent: {
         type: 'BlockStatement',
         body: header.ast.body.concat(footer.ast.body)
@@ -50,9 +53,11 @@ function collect (start, end, fragment, variables = []) {
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
       }
+      const { name } = attrs[0]
+      const [prefix] = name.split('.')
       leaf.alternate = {
         type: 'IfStatement',
-        test: getObjectMemberExpression(attrs[0].name),
+        test: variables.includes(prefix) ? getIdentifier(name) : getObjectMemberExpression(name),
         consequent: {
           type: 'BlockStatement',
           body: header.ast.body.concat(footer.ast.body)
@@ -91,7 +96,7 @@ function collect (start, end, fragment, variables = []) {
     })
     start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body), variables, index, guard))
   } else if (node === 'slot' && attrs) {
-    const leaf = convertHtmlOrTextAttribute(node, attrs)
+    const leaf = convertHtmlOrTextAttribute(node, attrs, variables)
     if (leaf) {
       start.append(getTemplateAssignmentExpression(leaf))
     }

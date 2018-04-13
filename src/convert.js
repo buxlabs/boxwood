@@ -3,7 +3,7 @@ const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignm
 const { singlespace, extract, getName } = require('./string')
 
 
-function convertAttribute (name, value, variables = []) {
+function convertAttribute (name, value, variables) {
   if (value.includes('{') && value.includes('}')) {
     let values = extract(value)
     if (values.length === 1) {
@@ -75,7 +75,7 @@ function convertHtmlOrTextAttribute (node, attrs, variables) {
   return null
 }
 
-function getNodes (node, attrs, variables = []) {
+function getNodes (node, attrs, variables) {
   let nodes = []
   let tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
   if (tag) {
@@ -95,7 +95,7 @@ function getNodes (node, attrs, variables = []) {
         } else {
           nodes.push({
             type: 'IfStatement',
-            test: convertAttribute(attr.name, attr.value),
+            test: convertAttribute(attr.name, attr.value, variables),
             consequent: {
               type: 'BlockStatement',
               body: [expression]
@@ -111,10 +111,10 @@ function getNodes (node, attrs, variables = []) {
             if (index > 0) {
               nodes.push(getTemplateAssignmentExpression(getLiteral(' ')))
             }
-            nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.name, value)))
+            nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.name, value, variables)))
           })
         } else {
-          nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.name, value)))
+          nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.name, value, variables)))
         }
         nodes.push(getTemplateAssignmentExpression(getLiteral('"')))
       }

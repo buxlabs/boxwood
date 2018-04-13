@@ -124,6 +124,12 @@ assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: true, baz: f
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: true }), 'qux')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: false, baz: false }), '')
 
+assert.deepEqual(compile('<if foo.length>bar</if>')({ foo: [] }), '')
+assert.deepEqual(compile('<if foo.length>bar</if>')({ foo: ['baz'] }), 'bar')
+
+assert.deepEqual(compile('<if valid()>bar</if>')({ valid: () => false }), '')
+assert.deepEqual(compile('<if valid()>bar</if>')({ valid: () => true }), 'bar')
+
 assert.deepEqual(compile('<if foo>bar</if><else>baz</else>')({ foo: false }), 'baz')
 assert.deepEqual(compile('<if foo>bar</if><else>baz</else>')({ foo: true }), 'bar')
 
@@ -173,3 +179,26 @@ assert.deepEqual(compile('<ul><loop for="e in b"><li html="{e.b}"></li></loop></
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
+
+assert.deepEqual(compile('<loop for="foo in foos"><img src="{foo.src}"></loop>')({
+  foos: [
+    { title: 'foo', src: 'foo.jpg' },
+    { title: 'bar', src: 'bar.jpg' }
+  ]
+}), '<img src="foo.jpg"><img src="bar.jpg">')
+
+assert.deepEqual(compile('<loop for="foo in foos"><if foo.src><img src="{foo.src}"></if></loop>')({
+  foos: [
+    { title: 'foo', src: 'foo.jpg' },
+    { title: 'bar', src: null }
+  ]
+}), '<img src="foo.jpg">')
+
+
+assert.deepEqual(compile('<loop for="foo in foos"><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></loop>')({
+  foos: [
+    { title: 'foo', src: 'foo.jpg', href: null },
+    { title: 'bar', src: null, href: null },
+    { title: 'baz', src: null, href: 'https://buxlabs.pl'}
+  ]
+}), '<img src="foo.jpg"><a href="https://buxlabs.pl"></a>')
