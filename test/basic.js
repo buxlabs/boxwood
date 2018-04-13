@@ -1,5 +1,5 @@
 const assert = require('assert')
-const { compile } = require('.')
+const { compile } = require('..')
 
 assert.deepEqual(compile('hello world')(), 'hello world')
 assert.deepEqual(compile('<div></div>')(), '<div></div>')

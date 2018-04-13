@@ -1,0 +1,21 @@
+<h1 text="{title}"></h1>
+<p>
+  <strong text="{city.name}"></strong><span text="({voivodeship.name}), {createdAt}"></span>
+</p>
+<p text="{owner.name}"></p>
+<p>
+  <small text="(id: {id}, views: {views})"></small>
+</p>
+<if photos.length>
+  <img src="{photos[0]}">
+</if>
+<h4>body</h4>
+<p text="{body}"></p>
+<if photos.length>
+  <h4>photos</h4>
+  <ul>
+    <loop for="photo in photos">
+      <li><img src="{photo}"></li>
+    </loop>
+  </ul>
+</if>
