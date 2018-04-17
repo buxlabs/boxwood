@@ -2,18 +2,36 @@ const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES } = require('./enum
 const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignmentExpression } = require('./factory')
 const { singlespace, extract, getName } = require('./string')
 
+function convertToIdentifier (property, variables) {
+  return variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
+    type: 'MemberExpression',
+    computed: false,
+    object: getIdentifier(OBJECT_VARIABLE),
+    property: getIdentifier(property)
+  }
+}
+
+function convertToBinaryExpression (nodes) {
+  return nodes.reduce((previous, current) => {
+    if (!previous.left) {
+      previous.left = current
+      return previous
+    } else if (!previous.right) {
+      previous.right = current
+      return previous
+    }
+    return { type: 'BinaryExpression', operator: '+', left: previous, right: current }
+  }, {
+    type: 'BinaryExpression', operator: '+'
+  })
+}
 
 function convertAttribute (name, value, variables) {
   if (value.includes('{') && value.includes('}')) {
     let values = extract(value)
     if (values.length === 1) {
       let property = value.substring(1, value.length - 1)
-      return variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
-        type: 'MemberExpression',
-        computed: false,
-        object: getIdentifier(OBJECT_VARIABLE),
-        property: getIdentifier(property)
-      }
+      return convertToIdentifier(property, variables)
     } else {
       const nodes = []
       values.map((value, index) => {
@@ -22,27 +40,11 @@ function convertAttribute (name, value, variables) {
         }
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
-          return nodes.push(variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
-            type: 'MemberExpression',
-            computed: false,
-            object: getIdentifier(OBJECT_VARIABLE),
-            property: getIdentifier(property)
-          })
+          return nodes.push(convertToIdentifier(property, variables))
         }
         return nodes.push(getLiteral(value))
       })
-      const expression = nodes.reduce((previous, current) => {
-        if (!previous.left) {
-          previous.left = current
-          return previous
-        } else if (!previous.right) {
-          previous.right = current
-          return previous
-        }
-        return { type: 'BinaryExpression', operator: '+', left: previous, right: current }
-      }, {
-        type: 'BinaryExpression', operator: '+'
-      })
+      const expression = convertToBinaryExpression(nodes)
       return { type: 'ExpressionStatement', expression }
     }
   } else if (name.endsWith('.bind')) {
@@ -73,6 +75,45 @@ function convertHtmlOrTextAttribute (node, attrs, variables) {
     }
   }
   return null
+}
+
+function convertText (text, variables) {
+  if (text.includes('{') && text.includes('}')) {
+    let values = extract(text)
+    if (values.length === 1) {
+      let property = text.substring(1, text.length - 1)
+      const node = convertToIdentifier(property, variables)
+      return [getTemplateAssignmentExpression({
+        type: 'CallExpression',
+        callee: getIdentifier(ESCAPE_VARIABLE),
+        arguments: [node]
+      })]
+    } else {
+      let nodes = []
+      values.map((value, index) => {
+        if (index > 0) {
+          nodes.push(getLiteral(' '))
+        }
+        if (value.includes('{') && value.includes('}')) {
+          let property = value.substring(1, value.length - 1)
+          return nodes.push(convertToIdentifier(property, variables))
+        }
+        return nodes.push(getLiteral(value))
+      })
+      nodes = nodes.map(node => {
+        if (node.type === 'Literal') return node
+        return {
+          type: 'CallExpression',
+          callee: getIdentifier(ESCAPE_VARIABLE),
+          arguments: [node]
+        }
+      })
+      const expression = convertToBinaryExpression(nodes)
+      return [getTemplateAssignmentExpression(expression)]
+    }
+  } else {
+    return [getTemplateAssignmentExpression(getLiteral(text))]
+  }
 }
 
 function getNodes (node, attrs, variables) {
@@ -131,5 +172,6 @@ function getNodes (node, attrs, variables) {
 module.exports = {
   convertHtmlOrTextAttribute,
   convertAttribute,
+  convertText,
   getNodes
 }

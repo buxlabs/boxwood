@@ -8,7 +8,7 @@ const {
   getForLoop,
   getForLoopVariable
 } = require('./factory')
-const { convertAttribute, convertHtmlOrTextAttribute, getNodes } = require('./convert')
+const { convertAttribute, convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
 const walk = require('./walk')
 
 function getLoopIndex (variables) {
@@ -25,7 +25,8 @@ function collect (start, end, fragment, variables) {
   const node = fragment.nodeName
   const { attrs } = fragment
   if (node === '#text') {
-    return start.append(getTemplateAssignmentExpression(getLiteral(fragment.value)))
+    const nodes = convertText(fragment.value, variables)
+    return nodes.forEach(node => start.append(node))
   } else if (node === 'if') {
     const header = new AbstractSyntaxTree('')
     const footer = new AbstractSyntaxTree('')
