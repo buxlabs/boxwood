@@ -80,11 +80,10 @@ function collect (start, end, fragment, variables) {
         body: header.ast.body.concat(footer.ast.body)
       }
     }
-  } else if (node === 'loop') {
-    const loop = attrs.find(attr => attr.name === 'for') 
+  } else if (node === 'each') {
     const header = new AbstractSyntaxTree('')
     const footer = new AbstractSyntaxTree('')
-    const [variable, parent] = loop.value.split(' in ')
+    const [variable, operator, parent] = attrs.map(attr => attr.name)
     variables.push(variable)
     const index = getLoopIndex(variables.concat(parent))
     variables.push(index)
@@ -105,7 +104,7 @@ function collect (start, end, fragment, variables) {
     nodes.forEach(node => start.append(node))
   }
   if (fragment.__location && fragment.__location.endTag) {
-    if (node !== 'if' && node !== 'else' && node !== 'elseif' && node !== 'loop' && node !== 'slot') {
+    if (node !== 'if' && node !== 'else' && node !== 'elseif' && node !== 'each' && node !== 'slot') {
       const tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
       if (tag) {
         const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value

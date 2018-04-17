@@ -78,7 +78,7 @@ assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: f
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
 
-assert.deepEqual(compile('<ul><loop for="todo in todos"><li html="{todo.description}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each todo in todos><li html="{todo.description}"></li></each></ul>')({
   todos: [
     { description: 'foo' },
     { description: 'bar' },
@@ -87,7 +87,7 @@ assert.deepEqual(compile('<ul><loop for="todo in todos"><li html="{todo.descript
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-assert.deepEqual(compile('<ul><loop for="foo in bar"><li html="{foo.baz}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each foo in bar><li html="{foo.baz}"></li></each></ul>')({
   bar: [
     { baz: 'foo' },
     { baz: 'bar' },
@@ -96,7 +96,7 @@ assert.deepEqual(compile('<ul><loop for="foo in bar"><li html="{foo.baz}"></li><
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-assert.deepEqual(compile('<ul><loop for="foo in bar"><loop for="baz in foo"><li html="{baz.qux}"></li></loop></loop></ul>')({
+assert.deepEqual(compile('<ul><each foo in bar><each baz in foo><li html="{baz.qux}"></li></each></each></ul>')({
   bar: [
     [ { qux: 1 }, { qux: 2 } ],
     [ { qux: 3 }, { qux: 4 } ],
@@ -104,7 +104,7 @@ assert.deepEqual(compile('<ul><loop for="foo in bar"><loop for="baz in foo"><li 
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-assert.deepEqual(compile('<ul><loop for="todo in todos"><li html="{todo.text}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each todo in todos><li html="{todo.text}"></li></each></ul>')({
   todos: [
     { text: 'foo' },
     { text: 'bar' },
@@ -152,42 +152,42 @@ assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>c
 assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: false, quux: true }), 'corge')
 assert.deepEqual(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: false, quux: false }), '')
 
-assert.deepEqual(compile('<ul><loop for="a in b"><li html="{a.b}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each a in b><li html="{a.b}"></li></each></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-assert.deepEqual(compile('<ul><loop for="t in b"><li html="{t.b}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each t in b><li html="{t.b}"></li></each></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-assert.deepEqual(compile('<ul><loop for="o in b"><li html="{o.b}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each o in b><li html="{o.b}"></li></each></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-assert.deepEqual(compile('<ul><loop for="e in b"><li html="{e.b}"></li></loop></ul>')({
+assert.deepEqual(compile('<ul><each e in b><li html="{e.b}"></li></each></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-assert.deepEqual(compile('<loop for="foo in foos"><img src="{foo.src}"></loop>')({
+assert.deepEqual(compile('<each foo in foos><img src="{foo.src}"></each>')({
   foos: [
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: 'bar.jpg' }
   ]
 }), '<img src="foo.jpg"><img src="bar.jpg">')
 
-assert.deepEqual(compile('<loop for="foo in foos"><if foo.src><img src="{foo.src}"></if></loop>')({
+assert.deepEqual(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if></each>')({
   foos: [
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: null }
@@ -195,7 +195,7 @@ assert.deepEqual(compile('<loop for="foo in foos"><if foo.src><img src="{foo.src
 }), '<img src="foo.jpg">')
 
 
-assert.deepEqual(compile('<loop for="foo in foos"><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></loop>')({
+assert.deepEqual(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></each>')({
   foos: [
     { title: 'foo', src: 'foo.jpg', href: null },
     { title: 'bar', src: null, href: null },
