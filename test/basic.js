@@ -194,6 +194,12 @@ assert.deepEqual(compile('<each foo in foos><if foo.src><img src="{foo.src}"></i
   ]
 }), '<img src="foo.jpg">')
 
+assert.deepEqual(compile('<for foo in foos><if foo.src><img src="{foo.src}"></if></for>')({
+  foos: [
+    { title: 'foo', src: 'foo.jpg' },
+    { title: 'bar', src: null }
+  ]
+}), '<img src="foo.jpg">')
 
 assert.deepEqual(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></each>')({
   foos: [
