@@ -1,7 +1,6 @@
 const {
   TEMPLATE_VARIABLE,
-  OBJECT_VARIABLE,
-  ESCAPE_VARIABLE
+  OBJECT_VARIABLE
 } = require('./enum')
 
 function getIdentifier (name) {
@@ -50,7 +49,7 @@ module.exports = {
     return {
       type: 'MemberExpression',
       object: getIdentifier(OBJECT_VARIABLE),
-      property: getIdentifier(name),
+      property: getIdentifier(name)
     }
   },
   getForLoop (name, body, variables, index, guard) {
@@ -111,7 +110,7 @@ module.exports = {
             object: variables.includes(name) ? getIdentifier(name) : {
               type: 'MemberExpression',
               object: getIdentifier(OBJECT_VARIABLE),
-              property: getIdentifier(name),
+              property: getIdentifier(name)
             },
             property: getIdentifier(index),
             computed: true

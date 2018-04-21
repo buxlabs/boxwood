@@ -1,4 +1,4 @@
-module.exports = function walk(node, callback) {
+module.exports = function walk (node, callback) {
   callback(node)
   if (node.childNodes) {
     let child = node.childNodes[0]

@@ -1,14 +1,13 @@
-const { parseFragment } = require('parse5')
+const { parse, walk } = require('./src/parser')
 const AbstractSyntaxTree = require('@buxlabs/ast')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./src/enum')
-const walk = require('./src/walk')
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./src/factory')
 const collect = require('./src/collect')
 
 module.exports = {
   render () {},
   compile (source) {
-    const tree = parseFragment(source, { locationInfo: true })
+    const tree = parse(source)
     const start = new AbstractSyntaxTree('')
     const end = new AbstractSyntaxTree('')
     const variables = [TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE]

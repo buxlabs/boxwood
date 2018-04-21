@@ -12,7 +12,7 @@ module.exports = {
         if (string) {
           values.push(string)
           string = ''
-        }  
+        }
       }
       string += character
       if (character === '}') {
@@ -21,7 +21,7 @@ module.exports = {
       }
     })
     values.push(string)
-    
+
     return values.map(string => string.trim()).filter(Boolean)
   },
   getName (name) {

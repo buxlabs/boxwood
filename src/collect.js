@@ -8,8 +8,8 @@ const {
   getForLoop,
   getForLoopVariable
 } = require('./factory')
-const { convertAttribute, convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
-const walk = require('./walk')
+const { convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
+const { walk } = require('./parser')
 
 function getLoopIndex (variables) {
   return array.identifier(variables)
@@ -22,12 +22,12 @@ function getLoopGuard (variables) {
 function collect (start, end, fragment, variables) {
   if (fragment.used) return
   fragment.used = true
-  const node = fragment.nodeName
+  const tag = fragment.tagName
   const { attrs } = fragment
-  if (node === '#text') {
+  if (fragment.type === 'text') {
     const nodes = convertText(fragment.value, variables)
     return nodes.forEach(node => start.append(node))
-  } else if (node === 'if') {
+  } else if (tag === 'if') {
     const header = new AbstractSyntaxTree('')
     const footer = new AbstractSyntaxTree('')
     walk(fragment, current => {
@@ -43,7 +43,7 @@ function collect (start, end, fragment, variables) {
         body: header.ast.body.concat(footer.ast.body)
       }
     })
-  } else if (node === 'elseif') {
+  } else if (tag === 'elseif') {
     let leaf = start.ast.body[start.ast.body.length - 1]
     if (leaf.type === 'IfStatement') {
       const header = new AbstractSyntaxTree('')
@@ -65,7 +65,7 @@ function collect (start, end, fragment, variables) {
         }
       }
     }
-  } else if (node === 'else') {
+  } else if (tag === 'else') {
     let leaf = start.ast.body[start.ast.body.length - 1]
     if (leaf.type === 'IfStatement') {
       const header = new AbstractSyntaxTree('')
@@ -81,10 +81,10 @@ function collect (start, end, fragment, variables) {
         body: header.ast.body.concat(footer.ast.body)
       }
     }
-  } else if (node === 'each' || node === 'for') {
+  } else if (tag === 'each' || tag === 'for') {
     const header = new AbstractSyntaxTree('')
     const footer = new AbstractSyntaxTree('')
-    const [variable, operator, parent] = attrs.map(attr => attr.name)
+    const [variable, , parent] = attrs.map(attr => attr.name)
     variables.push(variable)
     const index = getLoopIndex(variables.concat(parent))
     variables.push(index)
@@ -95,25 +95,25 @@ function collect (start, end, fragment, variables) {
       collect(header, footer, current, variables)
     })
     start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body), variables, index, guard))
-  } else if (node === 'slot' && attrs) {
-    const leaf = convertHtmlOrTextAttribute(node, attrs, variables)
+  } else if (tag === 'slot' && attrs) {
+    const leaf = convertHtmlOrTextAttribute(fragment, variables)
     if (leaf) {
       start.append(getTemplateAssignmentExpression(leaf))
     }
   } else if (attrs) {
-    const nodes = getNodes(node, attrs, variables)
+    const nodes = getNodes(fragment, variables)
     nodes.forEach(node => start.append(node))
   }
   if (fragment.__location && fragment.__location.endTag) {
-    if (node !== 'if' && node !== 'else' && node !== 'elseif' && node !== 'each' && node !== 'for' && node !== 'slot') {
-      const tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
-      if (tag) {
-        const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
+    if (tag !== 'if' && tag !== 'else' && tag !== 'elseif' && tag !== 'each' && tag !== 'for' && tag !== 'slot') {
+      const attr = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+      if (attr) {
+        const property = attr.name === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
         end.append(getTemplateAssignmentExpression(getLiteral('</')))
         end.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
         end.append(getTemplateAssignmentExpression(getLiteral('>')))
       } else {
-        end.append(getTemplateAssignmentExpression(getLiteral(`</${node}>`)))
+        end.append(getTemplateAssignmentExpression(getLiteral(`</${tag}>`)))
       }
     }
   }

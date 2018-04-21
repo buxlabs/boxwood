@@ -3,12 +3,12 @@ module.exports = {
   OBJECT_VARIABLE: '__o',
   ESCAPE_VARIABLE: '__e',
   BOOLEAN_ATTRIBUTES: [
-    "autofocus",
-    "checked",
-    "readonly",
-    "disabled",
-    "formnovalidate",
-    "multiple",
-    "required"
+    'autofocus',
+    'checked',
+    'readonly',
+    'disabled',
+    'formnovalidate',
+    'multiple',
+    'required'
   ]
 }

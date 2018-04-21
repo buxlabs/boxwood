@@ -1,6 +1,6 @@
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES } = require('./enum')
 const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignmentExpression } = require('./factory')
-const { singlespace, extract, getName } = require('./string')
+const { extract, getName } = require('./string')
 
 function convertToIdentifier (property, variables) {
   return variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
@@ -59,7 +59,8 @@ function convertAttribute (name, value, variables) {
   }
 }
 
-function convertHtmlOrTextAttribute (node, attrs, variables) {
+function convertHtmlOrTextAttribute (fragment, variables) {
+  let { attrs } = fragment
   let html = attrs.find(attr => attr.name === 'html' || attr.name === 'html.bind')
   if (html) {
     return convertAttribute(html.name, html.value, variables)
@@ -70,7 +71,8 @@ function convertHtmlOrTextAttribute (node, attrs, variables) {
       return {
         type: 'CallExpression',
         callee: getIdentifier(ESCAPE_VARIABLE),
-        arguments: [argument.expression ? argument.expression : argument]
+        arguments: [argument.expression ? argument.expression : argument],
+        fragment
       }
     }
   }
@@ -116,7 +118,9 @@ function convertText (text, variables) {
   }
 }
 
-function getNodes (node, attrs, variables) {
+function getNodes (fragment, variables) {
+  let node = fragment.tagName
+  let { attrs } = fragment
   let nodes = []
   let tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
   if (tag) {
@@ -162,7 +166,7 @@ function getNodes (node, attrs, variables) {
     })
   }
   nodes.push(getTemplateAssignmentExpression(getLiteral('>')))
-  const leaf = convertHtmlOrTextAttribute(node, attrs, variables)
+  const leaf = convertHtmlOrTextAttribute(fragment, variables)
   if (leaf) {
     nodes.push(getTemplateAssignmentExpression(leaf))
   }

@@ -1,6 +1,8 @@
 const assert = require('assert')
 const { compile } = require('..')
 
+assert.deepEqual(compile('')(), '')
+assert.deepEqual(compile('<!-- foo -->')(), '')
 assert.deepEqual(compile('hello world')(), 'hello world')
 assert.deepEqual(compile('<div></div>')(), '<div></div>')
 assert.deepEqual(compile('<div>foo</div>')(), '<div>foo</div>')
@@ -116,11 +118,10 @@ assert.deepEqual(compile('<ul><each todo in todos><li html="{todo.text}"></li></
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
 
-assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'button'}), '<button></button>')
+assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'button' }), '<button></button>')
 assert.deepEqual(compile('<div tag="{tag}"></div>')({ tag: 'a' }), '<a></a>')
-assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'button'}), '<button></button>')
-assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'a'}), '<a></a>')
-
+assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'button' }), '<button></button>')
+assert.deepEqual(compile('<div tag.bind="tag"></div>')({ tag: 'a' }), '<a></a>')
 assert.deepEqual(compile('<if foo>bar</if>')({ foo: false }), '')
 assert.deepEqual(compile('<if foo>bar</if>')({ foo: true }), 'bar')
 assert.deepEqual(compile('<if foo>bar</if><if baz>qux</if>')({ foo: true, baz: true }), 'barqux')
@@ -209,6 +210,33 @@ assert.deepEqual(compile('<each foo in foos><if foo.src><img src="{foo.src}"></i
   foos: [
     { title: 'foo', src: 'foo.jpg', href: null },
     { title: 'bar', src: null, href: null },
-    { title: 'baz', src: null, href: 'https://buxlabs.pl'}
+    { title: 'baz', src: null, href: 'https://buxlabs.pl' }
   ]
 }), '<img src="foo.jpg"><a href="https://buxlabs.pl"></a>')
+
+assert.deepEqual(compile('{foo}<each foo in bar><div>{foo.baz}</div></each>')({
+  foo: 'bar',
+  bar: [
+    { baz: 'qux' },
+    { baz: 'quux' },
+    { baz: 'quuux' }
+  ]
+}, html => html), 'bar<div>qux</div><div>quux</div><div>quuux</div>')
+
+assert.deepEqual(compile('<div>{foo}<each foo in bar><div>{foo.baz}</div></each></div>')({
+  foo: 'bar',
+  bar: [
+    { baz: 'qux' },
+    { baz: 'quux' },
+    { baz: 'quuux' }
+  ]
+}, html => html), '<div>bar<div>qux</div><div>quux</div><div>quuux</div></div>')
+
+// assert.deepEqual(compile('<div>{foo}</div><each foo in bar><div>{foo.baz}</div></each>')({
+// foo: 'bar',
+// bar: [
+// { baz: 'qux' },
+// { baz: 'quux' },
+// { baz: 'quuux' }
+// ]
+// }, html => html), '<div>bar</div><div>qux</div><div>quux</div><div>quuux</div>')
