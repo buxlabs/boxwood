@@ -31,7 +31,7 @@ function collect (ast, fragment, variables) {
     fragment.children.forEach(node => {
       collect(ast, node, variables)
     })
-    if (tag && !SELF_CLOSING_TAGS.includes(tag) && !SPECIAL_TAGS.includes(tag)) {
+    if (!SELF_CLOSING_TAGS.includes(tag)) {
       const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
       if (attr) {
         const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
