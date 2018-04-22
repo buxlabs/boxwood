@@ -60,12 +60,11 @@ function convertAttribute (name, value, variables) {
 }
 
 function convertHtmlOrTextAttribute (fragment, variables) {
-  let { attrs } = fragment
-  let html = attrs.find(attr => attr.name === 'html' || attr.name === 'html.bind')
+  let html = fragment.attributes.find(attr => attr.name === 'html' || attr.name === 'html.bind')
   if (html) {
     return convertAttribute(html.name, html.value, variables)
   } else {
-    let text = attrs.find(attr => attr.name === 'text' || attr.name === 'text.bind')
+    let text = fragment.attributes.find(attr => attr.name === 'text' || attr.name === 'text.bind')
     if (text) {
       let argument = convertAttribute(text.name, text.value, variables)
       return {
@@ -120,9 +119,8 @@ function convertText (text, variables) {
 
 function getNodes (fragment, variables) {
   let node = fragment.tagName
-  let { attrs } = fragment
   let nodes = []
-  let tag = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+  let tag = fragment.attributes.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
   if (tag) {
     const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
     nodes.push(getTemplateAssignmentExpression(getLiteral('<')))
@@ -130,7 +128,7 @@ function getNodes (fragment, variables) {
   } else {
     nodes.push(getTemplateAssignmentExpression(getLiteral(`<${node}`)))
   }
-  let allowed = attrs.filter(attr => attr.name !== 'html' && attr.name !== 'text' && attr.name !== 'tag' && attr.name !== 'tag.bind')
+  let allowed = fragment.attributes.filter(attr => attr.name !== 'html' && attr.name !== 'text' && attr.name !== 'tag' && attr.name !== 'tag.bind')
   if (allowed.length) {
     allowed.forEach(attr => {
       if (BOOLEAN_ATTRIBUTES.includes(getName(attr.name))) {

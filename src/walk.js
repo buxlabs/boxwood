@@ -1,11 +1,17 @@
 module.exports = function walk (node, callback) {
-  callback(node)
-  if (node.childNodes) {
-    let child = node.childNodes[0]
+  let children
+  if (Array.isArray(node)) {
+    children = node
+  } else {
+    callback(node)
+    children = node.children || node.childNodes
+  }
+  if (children) {
+    let child = children[0]
     let i = 0
     while (child) {
       walk(child, callback)
-      child = node.childNodes[++i]
+      child = children[++i]
     }
   }
 }

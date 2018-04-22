@@ -10,6 +10,7 @@ const {
 } = require('./factory')
 const { convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
 const { walk } = require('./parser')
+const { SELF_CLOSING_TAGS } = require('./enum')
 
 function getLoopIndex (variables) {
   return array.identifier(variables)
@@ -23,9 +24,9 @@ function collect (start, end, fragment, variables) {
   if (fragment.used) return
   fragment.used = true
   const tag = fragment.tagName
-  const { attrs } = fragment
+  const attrs = fragment.attributes
   if (fragment.type === 'text') {
-    const nodes = convertText(fragment.value, variables)
+    const nodes = convertText(fragment.content, variables)
     return nodes.forEach(node => start.append(node))
   } else if (tag === 'if') {
     const header = new AbstractSyntaxTree('')
@@ -95,18 +96,18 @@ function collect (start, end, fragment, variables) {
       collect(header, footer, current, variables)
     })
     start.append(getForLoop(parent, header.ast.body.concat(footer.ast.body), variables, index, guard))
-  } else if (tag === 'slot' && attrs) {
+  } else if (tag === 'slot' && attrs && attrs.length > 0) {
     const leaf = convertHtmlOrTextAttribute(fragment, variables)
     if (leaf) {
       start.append(getTemplateAssignmentExpression(leaf))
     }
-  } else if (attrs) {
+  } else if (fragment.type === 'element') {
     const nodes = getNodes(fragment, variables)
     nodes.forEach(node => start.append(node))
   }
-  if (fragment.__location && fragment.__location.endTag) {
+  if (tag && !SELF_CLOSING_TAGS.includes(tag)) {
     if (tag !== 'if' && tag !== 'else' && tag !== 'elseif' && tag !== 'each' && tag !== 'for' && tag !== 'slot') {
-      const attr = attrs.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+      const attr = fragment.attributes.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
       if (attr) {
         const property = attr.name === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
         end.append(getTemplateAssignmentExpression(getLiteral('</')))

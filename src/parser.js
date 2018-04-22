@@ -17,11 +17,15 @@ function getChildren (node) {
 
 module.exports = {
   parse (source) {
-    const tree = parseFragment(source, { locationInfo: true })
+    const tree = parseFragment(source).childNodes
     walk(tree, node => {
       node.type = getType(node)
       node.attributes = getAttributes(node)
       node.children = getChildren(node)
+      if (node.type === 'text') {
+        node.content = node.value
+      }
+      delete node.parentNode
     })
     return tree
   },
