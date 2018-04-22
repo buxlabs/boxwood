@@ -60,13 +60,13 @@ function convertAttribute (name, value, variables) {
 }
 
 function convertHtmlOrTextAttribute (fragment, variables) {
-  let html = fragment.attributes.find(attr => attr.name === 'html' || attr.name === 'html.bind')
+  let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html.bind')
   if (html) {
-    return convertAttribute(html.name, html.value, variables)
+    return convertAttribute(html.key, html.value, variables)
   } else {
-    let text = fragment.attributes.find(attr => attr.name === 'text' || attr.name === 'text.bind')
+    let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text.bind')
     if (text) {
-      let argument = convertAttribute(text.name, text.value, variables)
+      let argument = convertAttribute(text.key, text.value, variables)
       return {
         type: 'CallExpression',
         callee: getIdentifier(ESCAPE_VARIABLE),
@@ -120,25 +120,25 @@ function convertText (text, variables) {
 function getNodes (fragment, variables) {
   let node = fragment.tagName
   let nodes = []
-  let tag = fragment.attributes.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+  let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
   if (tag) {
-    const property = tag.name === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
+    const property = tag.key === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
     nodes.push(getTemplateAssignmentExpression(getLiteral('<')))
     nodes.push(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
   } else {
     nodes.push(getTemplateAssignmentExpression(getLiteral(`<${node}`)))
   }
-  let allowed = fragment.attributes.filter(attr => attr.name !== 'html' && attr.name !== 'text' && attr.name !== 'tag' && attr.name !== 'tag.bind')
+  let allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag' && attr.key !== 'tag.bind')
   if (allowed.length) {
     allowed.forEach(attr => {
-      if (BOOLEAN_ATTRIBUTES.includes(getName(attr.name))) {
-        const expression = getTemplateAssignmentExpression(getLiteral(` ${getName(attr.name)}`))
+      if (BOOLEAN_ATTRIBUTES.includes(getName(attr.key))) {
+        const expression = getTemplateAssignmentExpression(getLiteral(` ${getName(attr.key)}`))
         if (!attr.value) {
           nodes.push(expression)
         } else {
           nodes.push({
             type: 'IfStatement',
-            test: convertAttribute(attr.name, attr.value, variables),
+            test: convertAttribute(attr.key, attr.value, variables),
             consequent: {
               type: 'BlockStatement',
               body: [expression]
@@ -146,7 +146,7 @@ function getNodes (fragment, variables) {
           })
         }
       } else {
-        nodes.push(getTemplateAssignmentExpression(getLiteral(` ${getName(attr.name)}="`)))
+        nodes.push(getTemplateAssignmentExpression(getLiteral(` ${getName(attr.key)}="`)))
         let { value } = attr
         if (value.includes('{') && value.includes('}')) {
           let values = extract(value)
@@ -154,10 +154,10 @@ function getNodes (fragment, variables) {
             if (index > 0) {
               nodes.push(getTemplateAssignmentExpression(getLiteral(' ')))
             }
-            nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.name, value, variables)))
+            nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.key, value, variables)))
           })
         } else {
-          nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.name, value, variables)))
+          nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.key, value, variables)))
         }
         nodes.push(getTemplateAssignmentExpression(getLiteral('"')))
       }

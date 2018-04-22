@@ -25,7 +25,7 @@
   "dependencies": {
     "@buxlabs/ast": "^0.9.6",
     "@buxlabs/utils": "^2.2.2",
-    "parse5": "^4.0.0"
+    "himalaya": "^1.1.0"
   },
   "devDependencies": {
     "standard": "^11.0.1"

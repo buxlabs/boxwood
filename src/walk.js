@@ -4,7 +4,7 @@ module.exports = function walk (node, callback) {
     children = node
   } else {
     callback(node)
-    children = node.children || node.childNodes
+    children = node.children
   }
   if (children) {
     let child = children[0]

@@ -34,11 +34,11 @@ function collect (start, end, fragment, variables) {
     walk(fragment, current => {
       collect(header, footer, current, variables)
     })
-    const { name } = attrs[0]
-    const [prefix] = name.split('.')
+    const { key } = attrs[0]
+    const [prefix] = key.split('.')
     start.append({
       type: 'IfStatement',
-      test: variables.includes(prefix) ? getIdentifier(name) : getObjectMemberExpression(name),
+      test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
       consequent: {
         type: 'BlockStatement',
         body: header.ast.body.concat(footer.ast.body)
@@ -55,11 +55,11 @@ function collect (start, end, fragment, variables) {
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
       }
-      const { name } = attrs[0]
-      const [prefix] = name.split('.')
+      const { key } = attrs[0]
+      const [prefix] = key.split('.')
       leaf.alternate = {
         type: 'IfStatement',
-        test: variables.includes(prefix) ? getIdentifier(name) : getObjectMemberExpression(name),
+        test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
         consequent: {
           type: 'BlockStatement',
           body: header.ast.body.concat(footer.ast.body)
@@ -85,7 +85,7 @@ function collect (start, end, fragment, variables) {
   } else if (tag === 'each' || tag === 'for') {
     const header = new AbstractSyntaxTree('')
     const footer = new AbstractSyntaxTree('')
-    const [variable, , parent] = attrs.map(attr => attr.name)
+    const [variable, , parent] = attrs.map(attr => attr.key)
     variables.push(variable)
     const index = getLoopIndex(variables.concat(parent))
     variables.push(index)
@@ -107,9 +107,9 @@ function collect (start, end, fragment, variables) {
   }
   if (tag && !SELF_CLOSING_TAGS.includes(tag)) {
     if (tag !== 'if' && tag !== 'else' && tag !== 'elseif' && tag !== 'each' && tag !== 'for' && tag !== 'slot') {
-      const attr = fragment.attributes.find(attr => attr.name === 'tag' || attr.name === 'tag.bind')
+      const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
       if (attr) {
-        const property = attr.name === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
+        const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
         end.append(getTemplateAssignmentExpression(getLiteral('</')))
         end.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
         end.append(getTemplateAssignmentExpression(getLiteral('>')))
