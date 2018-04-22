@@ -3,7 +3,7 @@ const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignm
 const { extract, getName } = require('./string')
 
 function convertToIdentifier (property, variables) {
-  return variables.map(variable => variable.name).includes(property.split('.')[0]) ? getIdentifier(property) : {
+  return variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
     type: 'MemberExpression',
     computed: false,
     object: getIdentifier(OBJECT_VARIABLE),
@@ -48,7 +48,7 @@ function convertAttribute (name, value, variables) {
       return { type: 'ExpressionStatement', expression }
     }
   } else if (name.endsWith('.bind')) {
-    return variables.map(variable => variable.name).includes(value.split('.')[0]) ? getIdentifier(value) : {
+    return variables.includes(value.split('.')[0]) ? getIdentifier(value) : {
       type: 'MemberExpression',
       computed: false,
       object: getIdentifier(OBJECT_VARIABLE),

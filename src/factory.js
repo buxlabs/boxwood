@@ -68,7 +68,7 @@ module.exports = {
             id: getIdentifier(guard),
             init: {
               type: 'MemberExpression',
-              object: variables.map(variable => variable.name).includes(name) ? getIdentifier(name) : {
+              object: variables.includes(name) ? getIdentifier(name) : {
                 type: 'MemberExpression',
                 object: getIdentifier(OBJECT_VARIABLE),
                 property: getIdentifier(name)
@@ -107,7 +107,7 @@ module.exports = {
           id: getIdentifier(variable),
           init: {
             type: 'MemberExpression',
-            object: variables.map(variable => variable.name).includes(name) ? getIdentifier(name) : {
+            object: variables.includes(name) ? getIdentifier(name) : {
               type: 'MemberExpression',
               object: getIdentifier(OBJECT_VARIABLE),
               property: getIdentifier(name)

@@ -9,13 +9,11 @@ module.exports = {
   compile (source) {
     const htmltree = parse(source)
     const tree = new AbstractSyntaxTree('')
-    const variables = [{
-      name: TEMPLATE_VARIABLE, depth: 0
-    }, {
-      name: OBJECT_VARIABLE, depth: 0
-    }, {
-      name: ESCAPE_VARIABLE, depth: 0
-    }]
+    const variables = [
+      TEMPLATE_VARIABLE,
+      OBJECT_VARIABLE,
+      ESCAPE_VARIABLE
+    ]
     tree.append(getTemplateVariableDeclaration())
     walk(htmltree, fragment => {
       collect(tree, fragment, variables)

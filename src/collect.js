@@ -13,11 +13,11 @@ const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 
 function getLoopIndex (variables) {
-  return array.identifier(variables.map(variable => variable.name))
+  return array.identifier(variables)
 }
 
 function getLoopGuard (variables) {
-  return array.identifier(variables.map(variable => variable.name))
+  return array.identifier(variables)
 }
 
 function collect (tree, fragment, variables) {
@@ -54,7 +54,7 @@ function collect (tree, fragment, variables) {
     const [prefix] = key.split('.')
     tree.append({
       type: 'IfStatement',
-      test: variables.map(variable => variable.name).includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
+      test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
       consequent: {
         type: 'BlockStatement',
         body: ast.ast.body
@@ -74,7 +74,7 @@ function collect (tree, fragment, variables) {
       const [prefix] = key.split('.')
       leaf.alternate = {
         type: 'IfStatement',
-        test: variables.map(variable => variable.name).includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
+        test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
         consequent: {
           type: 'BlockStatement',
           body: ast.ast.body
@@ -99,16 +99,19 @@ function collect (tree, fragment, variables) {
   } else if (tag === 'each' || tag === 'for') {
     const ast = new AbstractSyntaxTree('')
     const [variable, , parent] = attrs.map(attr => attr.key)
-    variables.push({ name: variable })
-    const index = getLoopIndex(variables.concat({ name: parent }))
-    variables.push({ name: index })
-    const guard = getLoopGuard(variables.concat({ name: parent }))
-    variables.push({ name: guard })
+    variables.push(variable)
+    const index = getLoopIndex(variables.concat(parent))
+    variables.push(index)
+    const guard = getLoopGuard(variables.concat(parent))
+    variables.push(guard)
     ast.append(getForLoopVariable(variable, parent, variables, index))
     walk(fragment, current => {
       collect(ast, current, variables)
     })
     tree.append(getForLoop(parent, ast.ast.body, variables, index, guard))
+    variables.pop()
+    variables.pop()
+    variables.pop()
   } else if (tag === 'slot' && attrs && attrs.length > 0) {
     const leaf = convertHtmlOrTextAttribute(fragment, variables)
     if (leaf) {
