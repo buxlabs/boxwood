@@ -6,12 +6,12 @@
 <p>
   <small>(id: {id}, views: {views})</small>
 </p>
-<if photos.length>
-  <img src="{photos[0]}">
+<if photos are present>
+  <img src="{photos | first}">
 </if>
 <h4>body</h4>
 <p>{body}</p>
-<if photos.length>
+<if photos has more than one item>
   <h4>photos</h4>
   <ul>
     <each photo in photos>

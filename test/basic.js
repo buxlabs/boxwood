@@ -240,3 +240,12 @@ assert.deepEqual(compile('<div>{foo}</div><each foo in bar><div>{foo.baz}</div><
     { baz: 'quuux' }
   ]
 }, html => html), '<div>bar</div><div>qux</div><div>quux</div><div>quuux</div>')
+
+// assert.deepEqual(compile('<each foo in bar><div>{foo.baz}</div></each><div>{foo}</div>')({
+//   foo: 'bar',
+//   bar: [
+//     { baz: 'qux' },
+//     { baz: 'quux' },
+//     { baz: 'quuux' }
+//   ]
+// }, html => html), '<div>qux</div><div>quux</div><div>quuux</div><div>bar</div>')
