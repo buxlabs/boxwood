@@ -6,6 +6,8 @@ assert.deepEqual(compile('<!-- foo -->')(), '')
 assert.deepEqual(compile('hello world')(), 'hello world')
 assert.deepEqual(compile('<div></div>')(), '<div></div>')
 assert.deepEqual(compile('<div>foo</div>')(), '<div>foo</div>')
+assert.deepEqual(compile('foo<div></div>')(), 'foo<div></div>')
+assert.deepEqual(compile('<div></div>foo')(), '<div></div>foo')
 assert.deepEqual(compile('<input>')(), '<input>')
 assert.deepEqual(compile('<input/>')(), '<input>')
 assert.deepEqual(compile('<input type="number" value="100">')(), '<input type="number" value="100">')
@@ -34,6 +36,8 @@ assert.deepEqual(compile('<slot text.bind="foo"></slot>')({ foo: 'bar' }, html =
 assert.deepEqual(compile('<div html="foo"></div>')(), '<div>foo</div>')
 assert.deepEqual(compile('<div text="foo"></div>')({}, html => html.replace('foo', 'bar')), '<div>bar</div>')
 assert.deepEqual(compile('<div>{foo}</div>')({ foo: 'bar' }, html => html.replace('bar', 'baz')), '<div>baz</div>')
+assert.deepEqual(compile('{foo}<div></div>')({ foo: 'bar' }, html => html.replace('bar', 'baz')), 'baz<div></div>')
+assert.deepEqual(compile('<div></div>{foo}')({ foo: 'bar' }, html => html.replace('bar', 'baz')), '<div></div>baz')
 assert.deepEqual(compile('<div>{foo} {bar}</div>')({ foo: 'bar', bar: 'baz' }, html => html.replace('bar', 'qux').replace('baz', 'quux')), '<div>qux quux</div>')
 assert.deepEqual(compile('<div>hello {world}</div>')({ world: 'world' }, html => html.replace('world', 'mars')), '<div>hello mars</div>')
 assert.deepEqual(compile('<div class="foo" html="{bar}"></div>')({ bar: 'baz' }), '<div class="foo">baz</div>')
@@ -83,6 +87,7 @@ assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: t
 assert.deepEqual(compile('<input type="checkbox" multiple.bind="foo">')({ foo: false }), '<input type="checkbox">')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 assert.deepEqual(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
+assert.deepEqual(compile('<span class="icon {name}"></span>')({ name: 'buxus' }), '<span class="icon buxus"></span>')
 
 assert.deepEqual(compile('<ul><each todo in todos><li html="{todo.description}"></li></each></ul>')({
   todos: [
