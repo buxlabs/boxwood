@@ -12,6 +12,9 @@ equal(compile('<input>')(), '<input>')
 equal(compile('<input/>')(), '<input>')
 equal(compile('<input type="number" value="100">')(), '<input type="number" value="100">')
 equal(compile('<input    value="100">')(), '<input value="100">')
+equal(compile('{hello}, world!')({ hello: 'Hello' }, html => html), 'Hello, world!')
+equal(compile('<div>{hello}, world!</div>')({ hello: 'Hello' }, html => html), '<div>Hello, world!</div>')
+equal(compile('{foo}{bar}')({ foo: 'foo', bar: 'bar' }, html => html), 'foobar')
 equal(compile('<slot html="foo"/>')(), 'foo')
 equal(compile('<slot text="foo"/>')({}, html => html.replace('foo', 'bar')), 'bar')
 equal(compile('<slot html="foo"></slot>')(), 'foo')
@@ -88,6 +91,7 @@ equal(compile('<input type="checkbox" multiple.bind="foo">')({ foo: false }), '<
 equal(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 equal(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
 equal(compile('<span class="icon {name}"></span>')({ name: 'buxus' }), '<span class="icon buxus"></span>')
+equal(compile('<span class="icon icon-{name}"></span>')({ name: 'buxus' }), '<span class="icon icon-buxus"></span>')
 
 equal(compile('<ul><each todo in todos><li html="{todo.description}"></li></each></ul>')({
   todos: [

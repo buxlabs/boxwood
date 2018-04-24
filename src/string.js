@@ -22,7 +22,7 @@ module.exports = {
     })
     values.push(string)
 
-    return values.map(string => string.trim()).filter(Boolean)
+    return values.filter(Boolean)
   },
   getName (name) {
     if (name.endsWith('.bind')) {

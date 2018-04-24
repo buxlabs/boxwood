@@ -35,9 +35,6 @@ function convertAttribute (name, value, variables) {
     } else {
       const nodes = []
       values.map((value, index) => {
-        if (index > 0) {
-          nodes.push(getLiteral(' '))
-        }
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
           return nodes.push(convertToIdentifier(property, variables))
@@ -92,9 +89,6 @@ function convertText (text, variables) {
     } else {
       let nodes = []
       values.map((value, index) => {
-        if (index > 0) {
-          nodes.push(getLiteral(' '))
-        }
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
           return nodes.push(convertToIdentifier(property, variables))
@@ -151,9 +145,6 @@ function getNodes (fragment, variables) {
         if (value.includes('{') && value.includes('}')) {
           let values = extract(value)
           values.forEach((value, index) => {
-            if (index > 0) {
-              nodes.push(getTemplateAssignmentExpression(getLiteral(' ')))
-            }
             nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.key, value, variables)))
           })
         } else {
