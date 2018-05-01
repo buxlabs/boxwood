@@ -24,6 +24,8 @@ module.exports = {
     'for',
     'slot',
     'try',
-    'catch'
+    'catch',
+    'unless',
+    'elseunless'
   ]
 }

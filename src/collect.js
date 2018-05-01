@@ -149,6 +149,51 @@ function collect (tree, fragment, variables) {
         }
       }
     }
+  } else if (tag === 'unless') {
+    const ast = new AbstractSyntaxTree('')
+    walk(fragment, current => {
+      collect(ast, current, variables)
+    })
+    const { key } = attrs[0]
+    const [prefix] = key.split('.')
+
+    tree.append({
+      type: 'IfStatement',
+      test: {
+        type: 'UnaryExpression',
+        operator: '!',
+        argument: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+      },
+      consequent: {
+        type: 'BlockStatement',
+        body: ast.ast.body
+      }
+    })
+  } else if (tag === 'elseunless') {
+    let leaf = tree.ast.body[tree.ast.body.length - 1]
+    if (leaf.type === 'IfStatement') {
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables)
+      })
+      while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
+        leaf = leaf.alternate
+      }
+      const { key } = attrs[0]
+      const [prefix] = key.split('.')
+      leaf.alternate = {
+        type: 'IfStatement',
+        test: {
+          type: 'UnaryExpression',
+          operator: '!',
+          argument: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+        },
+        consequent: {
+          type: 'BlockStatement',
+          body: ast.ast.body
+        }
+      }
+    }
   }
 }
 
