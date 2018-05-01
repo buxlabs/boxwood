@@ -50,7 +50,6 @@ function collect (tree, fragment, variables) {
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-
     if (attrs.length === 1) {
       const { key } = attrs[0]
       const [prefix] = key.split('.')
@@ -71,19 +70,74 @@ function collect (tree, fragment, variables) {
         const condition2 = attrs[2].key
         const [prefix2] = condition2.split('.')
 
-        tree.append({
-          type: 'IfStatement',
-          test: {
-            type: 'LogicalExpression',
-            left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
-            right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
-            operator: '&&'
-          },
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.ast.body
-          }
-        })
+        if (attrs[3] && attrs[3].key === 'and' && !attrs[5]) {
+          const lastCondition = attrs.pop().key
+          const [lastPrefix] = lastCondition.split('.')
+
+          tree.append({
+            type: 'IfStatement',
+            test: {
+              type: 'LogicalExpression',
+              left: {
+                type: 'LogicalExpression',
+                left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+                operator: '&&',
+                right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2)
+              },
+              operator: '&&',
+              right: variables.includes(lastPrefix) ? getIdentifier(lastCondition) : getObjectMemberExpression(lastCondition)
+            },
+            consequent: {
+              type: 'BlockStatement',
+              body: ast.ast.body
+            }
+          })
+        } else if (attrs[5] && attrs[5].key === 'and') {
+          const condition3 = attrs[4].key
+          const [prefix3] = condition3.split('.')
+
+          const lastCondition = attrs.pop().key
+          const [lastPrefix] = lastCondition.split('.')
+
+          tree.append({
+            type: 'IfStatement',
+            test: {
+              type: 'LogicalExpression',
+              left: {
+                type: 'LogicalExpression',
+                left: {
+                  type: 'LogicalExpression',
+                  left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+                  operator: '&&',
+                  right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2)
+                },
+                operator: '&&',
+                right: variables.includes(prefix3) ? getIdentifier(condition3) : getObjectMemberExpression(condition3),
+              },
+              operator: '&&',
+              right: variables.includes(lastPrefix) ? getIdentifier(lastCondition) : getObjectMemberExpression(lastCondition)
+            },
+            consequent: {
+              type: 'BlockStatement',
+              body: ast.ast.body
+            }
+          })
+        }
+        else {
+          tree.append({
+            type: 'IfStatement',
+            test: {
+              type: 'LogicalExpression',
+              left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+              right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
+              operator: '&&'
+            },
+            consequent: {
+              type: 'BlockStatement',
+              body: ast.ast.body
+            }
+          })
+        }
       }
     }
   } else if (tag === 'elseif') {
