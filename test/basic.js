@@ -258,3 +258,11 @@ equal(compile('<each foo in bar><div>{foo.baz}</div></each><div>{foo}</div>')({
     { baz: 'quuux' }
   ]
 }, html => html), '<div>qux</div><div>quux</div><div>quuux</div><div>bar</div>')
+
+equal(compile('<try>{foo.bar}</try><catch>baz</catch>')({
+  foo: { bar: 'bar' }
+}, html => html), 'bar')
+
+equal(compile('<try>{foo.bar}</try><catch>baz</catch>')({}), 'baz')
+
+// equal(compile('<try><div>{foo.bar}</div></try><catch>baz</catch>')({}), 'baz')

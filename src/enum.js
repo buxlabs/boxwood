@@ -22,6 +22,8 @@ module.exports = {
     'elseif',
     'each',
     'for',
-    'slot'
+    'slot',
+    'try',
+    'catch'
   ]
 }

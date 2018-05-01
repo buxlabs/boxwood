@@ -117,6 +117,38 @@ function collect (tree, fragment, variables) {
     if (leaf) {
       tree.append(getTemplateAssignmentExpression(leaf))
     }
+  } else if (tag === 'try') {
+    const ast = new AbstractSyntaxTree('')
+    walk(fragment, current => {
+      collect(ast, current, variables)
+    })
+
+    tree.append({
+      type: 'TryStatement',
+      block: {
+        type: 'BlockStatement',
+        body: ast.ast.body
+      }
+    })
+  } else if (tag === 'catch') {
+    const leaf = tree.ast.body[tree.ast.body.length - 1]
+    if (leaf.type === 'TryStatement') {
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables)
+      })
+      leaf.handler = {
+        type: 'CatchClause',
+        param: {
+          type: 'Identifier',
+          name: 'exception'
+        },
+        body: {
+          type: 'BlockStatement',
+          body: ast.ast.body
+        }
+      }
+    }
   }
 }
 
