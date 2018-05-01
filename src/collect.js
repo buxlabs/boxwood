@@ -50,16 +50,42 @@ function collect (tree, fragment, variables) {
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-    const { key } = attrs[0]
-    const [prefix] = key.split('.')
-    tree.append({
-      type: 'IfStatement',
-      test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
-      consequent: {
-        type: 'BlockStatement',
-        body: ast.ast.body
+
+    if (attrs.length === 1) {
+      const { key } = attrs[0]
+      const [prefix] = key.split('.')
+      tree.append({
+        type: 'IfStatement',
+        test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
+        consequent: {
+          type: 'BlockStatement',
+          body: ast.ast.body
+        }
+      })
+    } else {
+      const operator = attrs[1].key
+      if (operator === 'and') {
+        const condition1 = attrs[0].key
+        const [prefix1] = condition1.split('.')
+
+        const condition2 = attrs[2].key
+        const [prefix2] = condition2.split('.')
+
+        tree.append({
+          type: 'IfStatement',
+          test: {
+            type: 'LogicalExpression',
+            left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+            right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
+            operator: '&&'
+          },
+          consequent: {
+            type: 'BlockStatement',
+            body: ast.ast.body
+          }
+        })
       }
-    })
+    }
   } else if (tag === 'elseif') {
     let leaf = tree.ast.body[tree.ast.body.length - 1]
     if (leaf.type === 'IfStatement') {

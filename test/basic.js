@@ -303,3 +303,36 @@ equal(compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')({
   bar: true
 }, html => html), '')
 
+equal(compile('<if foo and bar>baz</if>')({
+  foo: true,
+  bar: true
+}, html => html), 'baz')
+
+equal(compile('<if foo and bar>baz</if>')({
+  foo: false,
+  bar: true
+}, html => html), '')
+
+equal(compile('<if foo and bar>baz</if>')({
+  foo: true,
+  bar: false
+}, html => html), '')
+
+equal(compile('<if foo and bar and baz>qux</if>')({
+  foo: true,
+  bar: true,
+  baz: true
+}, html => html), 'qux')
+
+equal(compile('<if foo and bar and baz>qux</if>')({
+  foo: false,
+  bar: true,
+  baz: true
+}, html => html), '')
+
+equal(compile('<if foo and bar and baz>qux</if>')({
+  foo: true,
+  bar: true,
+  baz: false
+}, html => html), '')
+
