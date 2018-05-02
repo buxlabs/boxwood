@@ -265,6 +265,13 @@ equal(compile('<try>{foo.bar}</try><catch>baz</catch>')({
 
 equal(compile('<try>{foo.bar}</try><catch>baz</catch>')({}), 'baz')
 
+equal(compile(`
+<try>{foo.bar}</try>
+<catch>baz</catch>
+`)({
+  foo: { bar: 'bar' }
+}, html => html), '\nbar\n\n')
+
 // equal(compile('<try><div>{foo.bar}</div></try><catch>baz</catch>')({}), 'baz')
 
 equal(compile('<unless foo>bar</unless>')({
@@ -298,10 +305,56 @@ equal(compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')({
   bar: false
 }, html => html), 'baz')
 
+equal(compile(`
+<unless foo>bar</unless>
+<elseunless bar>baz</elseunless>
+`)({
+  foo: true,
+  bar: false
+}, html => html), '\nbaz\n\n')
+
+equal(compile(`
+<if foo>bar</if>
+<elseunless bar>baz</elseunless>
+`)({
+  foo: false,
+  bar: false
+}, html => html), '\nbaz\n\n')
+
 equal(compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')({
   foo: true,
   bar: true
 }, html => html), '')
+
+equal(compile(`
+<if foo>bar</if>
+<else>baz</else>
+`)({
+  foo: true
+}, html => html), '\nbar\n\n')
+
+equal(compile(`
+<if foo>bar</if>
+<else>baz</else>
+`)({
+  foo: false
+}, html => html), '\nbaz\n\n')
+
+equal(compile(`
+<if foo>bar</if>
+<elseif bar>baz</else>
+`)({
+  foo: true,
+  bar: false
+}, html => html), '\nbar\n')
+
+equal(compile(`
+<if foo>bar</if>
+<elseif bar>baz</else>
+`)({
+  foo: false,
+  bar: true
+}, html => html), '\nbaz\n\n')
 
 equal(compile('<if foo and bar>baz</if>')({
   foo: true,

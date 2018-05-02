@@ -209,8 +209,8 @@ function collect (tree, fragment, variables) {
       }
     }
   } else if (tag === 'elseif') {
-    let leaf = tree.ast.body[tree.ast.body.length - 1]
-    if (leaf.type === 'IfStatement') {
+    let leaf = tree.last('IfStatement')
+    if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
         collect(ast, current, variables)
@@ -230,8 +230,8 @@ function collect (tree, fragment, variables) {
       }
     }
   } else if (tag === 'else') {
-    let leaf = tree.ast.body[tree.ast.body.length - 1]
-    if (leaf.type === 'IfStatement') {
+    let leaf = tree.last('IfStatement')
+    if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
         collect(ast, current, variables)
@@ -279,8 +279,8 @@ function collect (tree, fragment, variables) {
       }
     })
   } else if (tag === 'catch') {
-    const leaf = tree.ast.body[tree.ast.body.length - 1]
-    if (leaf.type === 'TryStatement') {
+    const leaf = tree.last('TryStatement')
+    if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
         collect(ast, current, variables)
@@ -318,8 +318,8 @@ function collect (tree, fragment, variables) {
       }
     })
   } else if (tag === 'elseunless') {
-    let leaf = tree.ast.body[tree.ast.body.length - 1]
-    if (leaf.type === 'IfStatement') {
+    let leaf = tree.last('IfStatement')
+    if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
         collect(ast, current, variables)
