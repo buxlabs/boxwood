@@ -10,7 +10,7 @@ const {
 } = require('./factory')
 const { convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
 const { walk } = require('./parser')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP } = require('./enum')
 
 function getLoopIndex (variables) {
   return array.identifier(variables)
@@ -50,16 +50,55 @@ function collect (tree, fragment, variables) {
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-    const { key } = attrs[0]
-    const [prefix] = key.split('.')
-    tree.append({
-      type: 'IfStatement',
-      test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
-      consequent: {
-        type: 'BlockStatement',
-        body: ast.ast.body
+    if (attrs.length === 1) {
+      const { key } = attrs[0]
+      const [prefix] = key.split('.')
+      tree.append({
+        type: 'IfStatement',
+        test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
+        consequent: {
+          type: 'BlockStatement',
+          body: ast.ast.body
+        }
+      })
+    } else {
+      const keys = attrs.map(attr => attr.key)
+      const condition1 = attrs[0].key
+      const [prefix1] = condition1.split('.')
+
+      const condition2 = attrs[2].key
+      const [prefix2] = condition2.split('.')
+
+      const operator = attrs[1].key
+
+      let expression = {
+        type: 'LogicalExpression',
+        left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+        right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
+        operator: OPERATORS_MAP[operator]
       }
-    })
+
+      for (let i = 3; i < keys.length; i++) {
+        const operator = keys[i]
+        i += 1
+        const condition = keys[i]
+        const prefix = condition.split('.')
+        expression = {
+          type: 'LogicalExpression',
+          left: expression,
+          right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
+          operator: OPERATORS_MAP[operator]
+        }
+      }
+      tree.append({
+        type: 'IfStatement',
+        test: expression,
+        consequent: {
+          type: 'BlockStatement',
+          body: ast.ast.body
+        }
+      })
+    }
   } else if (tag === 'elseif') {
     let leaf = tree.ast.body[tree.ast.body.length - 1]
     if (leaf.type === 'IfStatement') {

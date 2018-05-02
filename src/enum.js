@@ -27,5 +27,9 @@ module.exports = {
     'catch',
     'unless',
     'elseunless'
-  ]
+  ],
+  OPERATORS_MAP: {
+    and: '&&',
+    or: '||'
+  }
 }
