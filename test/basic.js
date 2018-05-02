@@ -777,3 +777,47 @@ equal(compile('<if foo is a regexp>baz</if>')({
 equal(compile('<if foo is a regexp>baz</if>')({
   foo: ''
 }, html => html), '')
+
+equal(compile('<if foo is even>baz</if>')({
+  foo: 2
+}, html => html), 'baz')
+
+equal(compile('<if foo is even>baz</if>')({
+  foo: 0
+}, html => html), 'baz')
+
+equal(compile('<if foo is even>baz</if>')({
+  foo: 1
+}, html => html), '')
+
+equal(compile('<if foo is even>baz</if>')({
+  foo: 'baz'
+}, html => html), '')
+
+equal(compile('<if foo is even>baz</if>')({
+  foo: [1, 2]
+}, html => html), '')
+
+equal(compile('<if foo is even>baz</if>')({
+  foo: [1, 2].length
+}, html => html), 'baz')
+
+equal(compile('<if foo is odd>baz</if>')({
+  foo: 1
+}, html => html), 'baz')
+
+equal(compile('<if foo is odd>baz</if>')({
+  foo: 2
+}, html => html), '')
+
+equal(compile('<if foo is odd>baz</if>')({
+  foo: [1].length
+}, html => html), 'baz')
+
+equal(compile('<if foo is odd>baz</if>')({
+  foo: ''
+}, html => html), '')
+
+equal(compile('<if foo is odd>baz</if>')({
+  foo: 'bar'.length
+}, html => html), 'baz')
