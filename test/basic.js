@@ -578,3 +578,126 @@ equal(compile('<if foo is empty>baz</if>')({
 //   foo: {}
 // }, html => html), 'baz')
 
+equal(compile('<if foo is an array>baz</if>')({
+  foo: []
+}, html => html), 'baz')
+
+equal(compile('<if foo is an array>baz</if>')({
+  foo: new Array()
+}, html => html), 'baz')
+
+equal(compile('<if foo is an array>baz</if>')({
+  foo: ''
+}, html => html), '')
+
+equal(compile('<if foo is an array>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is a string>baz</if>')({
+  foo: ''
+}, html => html), 'baz')
+
+equal(compile('<if foo is a string>baz</if>')({
+  foo: new String('foo')
+}, html => html), 'baz')
+
+equal(compile('<if foo is a string>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is a number>baz</if>')({
+  foo: []
+}, html => html), '')
+
+equal(compile('<if foo is a number>baz</if>')({
+  foo: 13
+}, html => html), 'baz')
+
+equal(compile('<if foo is a number>baz</if>')({
+  foo: new Number(4)
+}, html => html), 'baz')
+
+equal(compile('<if foo is a number>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is a symbol>baz</if>')({
+  foo: Symbol()
+}, html => html), 'baz')
+
+equal(compile('<if foo is a symbol>baz</if>')({
+  foo: Symbol('foo')
+}, html => html), 'baz')
+
+equal(compile('<if foo is a symbol>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is a map>baz</if>')({
+  foo: new Map()
+}, html => html), 'baz')
+
+equal(compile('<if foo is a map>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is a map>baz</if>')({
+  foo: []
+}, html => html), '')
+
+equal(compile('<if foo is a set>baz</if>')({
+  foo: new Set()
+}, html => html), 'baz')
+
+equal(compile('<if foo is a set>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is a set>baz</if>')({
+  foo: []
+}, html => html), '')
+
+equal(compile('<if foo is a boolean>baz</if>')({
+  foo: true
+}, html => html), 'baz')
+
+equal(compile('<if foo is a boolean>baz</if>')({
+  foo: false
+}, html => html), 'baz')
+
+equal(compile('<if foo is a boolean>baz</if>')({
+  foo: new Boolean(false)
+}, html => html), 'baz')
+
+equal(compile('<if foo is a boolean>baz</if>')({
+  foo: true
+}, html => html), 'baz')
+
+equal(compile('<if foo is a boolean>baz</if>')({
+  foo: false
+}, html => html), 'baz')
+
+equal(compile('<if foo is undefined>baz</if>')({
+  foo: undefined
+}, html => html), 'baz')
+
+equal(compile('<if foo is undefined>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if foo is null>baz</if>')({
+  foo: null
+}, html => html), 'baz')
+
+equal(compile('<if foo is an object>baz</if>')({
+  foo: {}
+}, html => html), 'baz')
+
+equal(compile('<if foo is an object>baz</if>')({
+  foo: null
+}, html => html), '')
+
+equal(compile('<if foo is an object>baz</if>')({
+  foo: function () {}
+}, html => html), 'baz')
