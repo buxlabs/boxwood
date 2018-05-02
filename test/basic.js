@@ -766,14 +766,14 @@ equal(compile('<if foo is an object>baz</if>')({
   foo: function () {}
 }, html => html), 'baz')
 
-equal(compile('<if foo is an regexp>baz</if>')({
+equal(compile('<if foo is a regexp>baz</if>')({
   foo: /regexp/
 }, html => html), 'baz')
 
-equal(compile('<if foo is an regexp>baz</if>')({
+equal(compile('<if foo is a regexp>baz</if>')({
   foo: new RegExp('regexp')
 }, html => html), 'baz')
 
-equal(compile('<if foo is an regexp>baz</if>')({
+equal(compile('<if foo is a regexp>baz</if>')({
   foo: ''
 }, html => html), '')
