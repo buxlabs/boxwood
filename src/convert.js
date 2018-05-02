@@ -79,7 +79,8 @@ function convertText (text, variables) {
   if (text.includes('{') && text.includes('}')) {
     let values = extract(text)
     if (values.length === 1) {
-      let property = text.substring(1, text.length - 1)
+      let value = text.trim()
+      let property = value.substring(1, value.length - 1)
       const node = convertToIdentifier(property, variables)
       return [getTemplateAssignmentExpression({
         type: 'CallExpression',

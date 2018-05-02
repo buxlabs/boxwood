@@ -21,7 +21,6 @@ module.exports = {
       }
     })
     values.push(string)
-
     return values.filter(Boolean)
   },
   getName (name) {
