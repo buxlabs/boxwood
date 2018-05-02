@@ -390,4 +390,79 @@ equal(compile('<if foo or bar>baz</if>')({
   bar: false
 }, html => html), '')
 
+equal(compile('<if foo eq bar>baz</if>')({
+  foo: 42,
+  bar: 42
+}, html => html), 'baz')
+
+equal(compile('<if foo eq bar>baz</if>')({
+  foo: 40,
+  bar: 42
+}, html => html), '')
+
+equal(compile('<if foo eq bar>baz</if>')({
+  foo: '42',
+  bar: 42
+}, html => html), '')
+
+equal(compile('<if foo gt bar>baz</if>')({
+  foo: 42,
+  bar: 30
+}, html => html), 'baz')
+
+equal(compile('<if foo gt bar>baz</if>')({
+  foo: 42,
+  bar: 42
+}, html => html), '')
+
+equal(compile('<if foo gt bar>baz</if>')({
+  foo: 42,
+  bar: 50
+}, html => html), '')
+
+equal(compile('<if foo lt bar>baz</if>')({
+  foo: 42,
+  bar: 30
+}, html => html), '')
+
+equal(compile('<if foo lt bar>baz</if>')({
+  foo: 42,
+  bar: 42
+}, html => html), '')
+
+equal(compile('<if foo lt bar>baz</if>')({
+  foo: 42,
+  bar: 50
+}, html => html), 'baz')
+
+equal(compile('<if foo gte bar>baz</if>')({
+  foo: 42,
+  bar: 30
+}, html => html), 'baz')
+
+equal(compile('<if foo gte bar>baz</if>')({
+  foo: 42,
+  bar: 42
+}, html => html), 'baz')
+
+equal(compile('<if foo gte bar>baz</if>')({
+  foo: 42,
+  bar: 50
+}, html => html), '')
+
+equal(compile('<if foo lte bar>baz</if>')({
+  foo: 42,
+  bar: 30
+}, html => html), '')
+
+equal(compile('<if foo lte bar>baz</if>')({
+  foo: 42,
+  bar: 42
+}, html => html), 'baz')
+
+equal(compile('<if foo lte bar>baz</if>')({
+  foo: 42,
+  bar: 50
+}, html => html), 'baz')
+
 

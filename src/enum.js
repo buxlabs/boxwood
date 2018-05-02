@@ -30,6 +30,11 @@ module.exports = {
   ],
   OPERATORS_MAP: {
     and: '&&',
-    or: '||'
+    or: '||',
+    eq: '===',
+    gt: '>',
+    lt: '<',
+    gte: '>=',
+    lte: '<='
   }
 }
