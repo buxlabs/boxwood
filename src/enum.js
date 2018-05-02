@@ -35,6 +35,7 @@ module.exports = {
     gt: '>',
     lt: '<',
     gte: '>=',
-    lte: '<='
+    lte: '<=',
+    equals: '==='
   }
 }

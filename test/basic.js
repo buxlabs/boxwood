@@ -465,4 +465,116 @@ equal(compile('<if foo lte bar>baz</if>')({
   bar: 50
 }, html => html), 'baz')
 
+equal(compile('<if foo equals bar>baz</if>')({
+  foo: 42,
+  bar: 42
+}, html => html), 'baz')
+
+equal(compile('<if foo equals bar>baz</if>')({
+  foo: 40,
+  bar: 42
+}, html => html), '')
+
+equal(compile('<if foo equals bar>baz</if>')({
+  foo: '42',
+  bar: 42
+}, html => html), '')
+
+equal(compile('<if foo is present>baz</if>')({
+  foo: {}
+}, html => html), 'baz')
+
+equal(compile('<if foo is present>baz</if>')({}, html => html), '')
+
+equal(compile('<if foo is positive>baz</if>')({
+  foo: 1
+}, html => html), 'baz')
+
+equal(compile('<if foo is positive>baz</if>')({
+  foo: 0
+}, html => html), '')
+
+equal(compile('<if foo is positive>baz</if>')({
+  foo: -1
+}, html => html), '')
+
+equal(compile('<if foo is negative>baz</if>')({
+  foo: 1
+}, html => html), '')
+
+equal(compile('<if foo is negative>baz</if>')({
+  foo: 0
+}, html => html), '')
+
+equal(compile('<if foo is negative>baz</if>')({
+  foo: -1
+}, html => html), 'baz')
+
+equal(compile('<if foo is finite>baz</if>')({
+  foo: 100
+}, html => html), 'baz')
+
+equal(compile('<if foo is finite>baz</if>')({
+  foo: Infinity
+}, html => html), '')
+
+equal(compile('<if foo is finite>baz</if>')({
+  foo: -Infinity
+}, html => html), '')
+
+equal(compile('<if foo is finite>baz</if>')({
+  foo: 0
+}, html => html), 'baz')
+
+equal(compile('<if foo is finite>baz</if>')({
+  foo: NaN
+}, html => html), '')
+
+equal(compile('<if foo is finite>baz</if>')({
+  foo: 2e64
+}, html => html), 'baz')
+
+equal(compile('<if foo is infinite>baz</if>')({
+  foo: 100
+}, html => html), '')
+
+equal(compile('<if foo is infinite>baz</if>')({
+  foo: Infinity
+}, html => html), 'baz')
+
+equal(compile('<if foo is infinite>baz</if>')({
+  foo: -Infinity
+}, html => html), 'baz')
+
+equal(compile('<if foo is infinite>baz</if>')({
+  foo: 0
+}, html => html), '')
+
+equal(compile('<if foo is infinite>baz</if>')({
+  foo: NaN
+}, html => html), '')
+
+equal(compile('<if foo is infinite>baz</if>')({
+  foo: 2e1000
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: []
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: [{ baz: 'bar'}, {}]
+}, html => html), '')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: ''
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: 'qux'
+}, html => html), '')
+
+// equal(compile('<if foo is empty>baz</if>')({
+//   foo: {}
+// }, html => html), 'baz')
 

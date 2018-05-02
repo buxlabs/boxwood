@@ -63,41 +63,150 @@ function collect (tree, fragment, variables) {
       })
     } else {
       const keys = attrs.map(attr => attr.key)
-      const condition1 = attrs[0].key
-      const [prefix1] = condition1.split('.')
+      const operator = keys[1]
 
-      const condition2 = attrs[2].key
-      const [prefix2] = condition2.split('.')
-
-      const operator = attrs[1].key
-
-      let expression = {
-        type: 'LogicalExpression',
-        left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
-        right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
-        operator: OPERATORS_MAP[operator]
+      const getTest = (action, node) => {
+        if (action === 'positive') {
+          return {
+            type: 'BinaryExpression',
+            left: node,
+            right: {
+              type: 'Literal',
+              value: 0
+            },
+            operator: '>'
+          }
+        }
+        if (action === 'negative') {
+          return {
+            type: 'BinaryExpression',
+            left: node,
+            right: {
+              type: 'Literal',
+              value: 0
+            },
+            operator: '<'
+          }
+        }
+        if (action === 'finite') {
+          return {
+            type: 'CallExpression',
+            callee: {
+              type: 'Identifier',
+              name: 'isFinite'
+            },
+            arguments: [node]
+          }
+        }
+        if (action === 'infinite') {
+          return {
+            type: 'LogicalExpression',
+            left: {
+              type: 'BinaryExpression',
+              left: node,
+              operator: '===',
+              right: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: 'Number'
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'POSITIVE_INFINITY'
+                },
+                computed: false
+              }
+            },
+            operator: '||',
+            right: {
+              type: 'BinaryExpression',
+              left: node,
+              operator: '===',
+              right: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: 'Number'
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'NEGATIVE_INFINITY'
+                },
+                computed: false
+              }
+            }
+          }
+        }
+        if (action === 'empty') {
+          return {
+            type: 'BinaryExpression',
+            left: {
+              type: 'MemberExpression',
+              object: node,
+              property: {
+                type: 'Identifier',
+                name: 'length'
+              }
+            },
+            operator: '===',
+            right: {
+              type: 'Literal',
+              value: 0
+            }
+          }
+        }
+        return node
       }
 
-      for (let i = 3; i < keys.length; i++) {
-        const operator = keys[i]
-        i += 1
-        const condition = keys[i]
-        const prefix = condition.split('.')
-        expression = {
+      if (operator === 'is') {
+        const action = keys[2]
+        const key = keys[0]
+        const [prefix] = key.split('.')
+        const node = variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+        tree.append({
+          type: 'IfStatement',
+          test: getTest(action, node),
+          consequent: {
+            type: 'BlockStatement',
+            body: ast.ast.body
+          }
+        })
+      } else if (Object.keys(OPERATORS_MAP).includes(operator)) {
+        const condition1 = keys[0]
+        const [prefix1] = condition1.split('.')
+
+        const condition2 = keys[2]
+        const [prefix2] = condition2.split('.')
+
+        let expression = {
           type: 'LogicalExpression',
-          left: expression,
-          right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
+          left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+          right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
           operator: OPERATORS_MAP[operator]
         }
-      }
-      tree.append({
-        type: 'IfStatement',
-        test: expression,
-        consequent: {
-          type: 'BlockStatement',
-          body: ast.ast.body
+
+        for (let i = 3; i < keys.length; i++) {
+          const operator = keys[i]
+          i += 1
+          const condition = keys[i]
+          const prefix = condition.split('.')
+          expression = {
+            type: 'LogicalExpression',
+            left: expression,
+            right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
+            operator: OPERATORS_MAP[operator]
+          }
         }
-      })
+        tree.append({
+          type: 'IfStatement',
+          test: expression,
+          consequent: {
+            type: 'BlockStatement',
+            body: ast.ast.body
+          }
+        })
+      }
     }
   } else if (tag === 'elseif') {
     let leaf = tree.ast.body[tree.ast.body.length - 1]
