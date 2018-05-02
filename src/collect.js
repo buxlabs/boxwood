@@ -283,7 +283,8 @@ function collect (tree, fragment, variables) {
             type === 'map' ||
             type === 'set' ||
             type === 'boolean' ||
-            type === 'regexp'
+            type === 'regexp' ||
+            type === 'date'
           ) {
             return {
               type: 'BinaryExpression',

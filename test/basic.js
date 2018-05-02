@@ -778,6 +778,18 @@ equal(compile('<if foo is a regexp>baz</if>')({
   foo: ''
 }, html => html), '')
 
+equal(compile('<if foo is a date>baz</if>')({
+  foo: new Date()
+}, html => html), 'baz')
+
+equal(compile('<if foo is a date>baz</if>')({
+  foo: new Date(2018, 15, 04)
+}, html => html), 'baz')
+
+equal(compile('<if foo is a date>baz</if>')({
+  foo: '08.09.2018'
+}, html => html), '')
+
 equal(compile('<if foo is even>baz</if>')({
   foo: 2
 }, html => html), 'baz')
