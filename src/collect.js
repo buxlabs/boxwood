@@ -58,7 +58,7 @@ function collect (tree, fragment, variables) {
         test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
         consequent: {
           type: 'BlockStatement',
-          body: ast.ast.body
+          body: ast.body()
         }
       })
     } else {
@@ -223,7 +223,7 @@ function collect (tree, fragment, variables) {
                   operator: '===',
                   right: {
                     type: 'Literal',
-                    value: 'function',
+                    value: 'function'
                   }
                 },
                 operator: '||',
@@ -319,7 +319,7 @@ function collect (tree, fragment, variables) {
           test: getTest(keys, node),
           consequent: {
             type: 'BlockStatement',
-            body: ast.ast.body
+            body: ast.body()
           }
         })
       } else if (Object.keys(OPERATORS_MAP).includes(operator)) {
@@ -353,7 +353,7 @@ function collect (tree, fragment, variables) {
           test: expression,
           consequent: {
             type: 'BlockStatement',
-            body: ast.ast.body
+            body: ast.body()
           }
         })
       }
@@ -375,7 +375,7 @@ function collect (tree, fragment, variables) {
         test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
         consequent: {
           type: 'BlockStatement',
-          body: ast.ast.body
+          body: ast.body()
         }
       }
     }
@@ -391,7 +391,7 @@ function collect (tree, fragment, variables) {
       }
       leaf.alternate = {
         type: 'BlockStatement',
-        body: ast.ast.body
+        body: ast.body()
       }
     }
   } else if (tag === 'each' || tag === 'for') {
@@ -406,7 +406,7 @@ function collect (tree, fragment, variables) {
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-    tree.append(getForLoop(parent, ast.ast.body, variables, index, guard))
+    tree.append(getForLoop(parent, ast.body(), variables, index, guard))
     variables.pop()
     variables.pop()
     variables.pop()
@@ -425,7 +425,7 @@ function collect (tree, fragment, variables) {
       type: 'TryStatement',
       block: {
         type: 'BlockStatement',
-        body: ast.ast.body
+        body: ast.body()
       }
     })
   } else if (tag === 'catch') {
@@ -443,7 +443,7 @@ function collect (tree, fragment, variables) {
         },
         body: {
           type: 'BlockStatement',
-          body: ast.ast.body
+          body: ast.body()
         }
       }
     }
@@ -464,7 +464,7 @@ function collect (tree, fragment, variables) {
       },
       consequent: {
         type: 'BlockStatement',
-        body: ast.ast.body
+        body: ast.body()
       }
     })
   } else if (tag === 'elseunless') {
@@ -488,7 +488,7 @@ function collect (tree, fragment, variables) {
         },
         consequent: {
           type: 'BlockStatement',
-          body: ast.ast.body
+          body: ast.body()
         }
       }
     }

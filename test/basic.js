@@ -616,7 +616,7 @@ equal(compile('<if foo is empty>baz</if>')({
 }, html => html), 'baz')
 
 equal(compile('<if foo is empty>baz</if>')({
-  foo: [{ baz: 'bar'}, {}]
+  foo: [{ baz: 'bar' }, {}]
 }, html => html), '')
 
 equal(compile('<if foo is empty>baz</if>')({
@@ -636,7 +636,7 @@ equal(compile('<if foo is an array>baz</if>')({
 }, html => html), 'baz')
 
 equal(compile('<if foo is an array>baz</if>')({
-  foo: new Array()
+  foo: []
 }, html => html), 'baz')
 
 equal(compile('<if foo is an array>baz</if>')({
@@ -652,7 +652,7 @@ equal(compile('<if foo is a string>baz</if>')({
 }, html => html), 'baz')
 
 equal(compile('<if foo is a string>baz</if>')({
-  foo: new String('foo')
+  foo: 'foo'
 }, html => html), 'baz')
 
 equal(compile('<if foo is a string>baz</if>')({
@@ -668,16 +668,12 @@ equal(compile('<if foo is a number>baz</if>')({
 }, html => html), 'baz')
 
 equal(compile('<if foo is a number>baz</if>')({
-  foo: new Number(4)
+  foo: 4
 }, html => html), 'baz')
 
 equal(compile('<if foo is a number>baz</if>')({
   foo: {}
 }, html => html), '')
-
-equal(compile('<if foo is a symbol>baz</if>')({
-  foo: Symbol()
-}, html => html), 'baz')
 
 equal(compile('<if foo is a symbol>baz</if>')({
   foo: Symbol('foo')
@@ -720,7 +716,7 @@ equal(compile('<if foo is a boolean>baz</if>')({
 }, html => html), 'baz')
 
 equal(compile('<if foo is a boolean>baz</if>')({
-  foo: new Boolean(false)
+  foo: false
 }, html => html), 'baz')
 
 equal(compile('<if foo is a boolean>baz</if>')({
@@ -766,4 +762,3 @@ equal(compile('<if foo is an regexp>baz</if>')({
 equal(compile('<if foo is an regexp>baz</if>')({
   foo: ''
 }, html => html), '')
-
