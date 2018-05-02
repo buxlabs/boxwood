@@ -188,8 +188,7 @@ function collect (tree, fragment, variables) {
         if (action === 'a' || action === 'an') {
           const capitalize = (string) => string[0].toUpperCase() + string.substring(1)
           const type = keys[3]
-          const constructor = capitalize(type)
-
+          const constructor = type === 'regexp' ? 'RegExp' : capitalize(type)
           if (type === 'array') {
             return {
               type: 'CallExpression',
@@ -263,7 +262,8 @@ function collect (tree, fragment, variables) {
             type === 'symbol' ||
             type === 'map' ||
             type === 'set' ||
-            type === 'boolean'
+            type === 'boolean' ||
+            type === 'regexp'
           ) {
             return {
               type: 'BinaryExpression',
