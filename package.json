@@ -23,9 +23,10 @@
   },
   "homepage": "https://github.com/buxlabs/html-engine#readme",
   "dependencies": {
-    "@buxlabs/ast": "^0.9.6",
+    "@buxlabs/ast": "^0.10.1",
     "@buxlabs/utils": "^2.2.2",
-    "himalaya": "^1.1.0"
+    "himalaya": "^1.1.0",
+    "himalaya-walk": "^1.0.0"
   },
   "devDependencies": {
     "standard": "^11.0.1"

@@ -1,5 +1,5 @@
 const { parse } = require('himalaya')
-const walk = require('./walk')
+const walk = require('himalaya-walk')
 
 module.exports = {
   parse (source) {
