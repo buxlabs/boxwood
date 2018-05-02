@@ -92,6 +92,21 @@ equal(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<i
 equal(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
 equal(compile('<span class="icon {name}"></span>')({ name: 'buxus' }), '<span class="icon buxus"></span>')
 equal(compile('<span class="icon icon-{name}"></span>')({ name: 'buxus' }), '<span class="icon icon-buxus"></span>')
+equal(compile('<a href="blog/{name}">{title}</a>')({ name: 'foo', title: 'Foo' }, html => html), '<a href="blog/foo">Foo</a>')
+
+equal(compile(`
+<a href='blog/{name}'>
+  {title}
+</a>
+`)({ name: 'foo', title: 'Foo' }, html => html), '\n<a href="blog/foo">Foo</a>\n')
+
+equal(compile('<div>{foo} {bar}</div>')({ foo: 'foo', bar: 'bar' }, html => html), '<div>foo bar</div>')
+
+equal(compile(`
+<div>
+  {foo} {bar}
+</div>
+`)({ foo: 'foo', bar: 'bar' }, html => html), '\n<div>foo bar</div>\n')
 
 equal(compile('<ul><each todo in todos><li html="{todo.description}"></li></each></ul>')({
   todos: [
