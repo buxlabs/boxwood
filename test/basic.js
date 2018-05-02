@@ -370,3 +370,24 @@ equal(compile('<if foo and bar and baz and ban>qux</if>')({
   ban: false
 }, html => html), '')
 
+equal(compile('<if foo or bar>baz</if>')({
+  foo: true,
+  bar: true
+}, html => html), 'baz')
+
+equal(compile('<if foo or bar>baz</if>')({
+  foo: true,
+  bar: false
+}, html => html), 'baz')
+
+equal(compile('<if foo or bar>baz</if>')({
+  foo: false,
+  bar: true
+}, html => html), 'baz')
+
+equal(compile('<if foo or bar>baz</if>')({
+  foo: false,
+  bar: false
+}, html => html), '')
+
+
