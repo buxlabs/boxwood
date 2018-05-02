@@ -65,7 +65,9 @@ function collect (tree, fragment, variables) {
       const keys = attrs.map(attr => attr.key)
       const operator = keys[1]
 
-      const getTest = (action, node) => {
+      const getTest = (keys, node) => {
+        const action = keys[2]
+
         if (action === 'positive') {
           return {
             type: 'BinaryExpression',
@@ -156,17 +158,165 @@ function collect (tree, fragment, variables) {
             }
           }
         }
+        if (action === 'null') {
+          return {
+            type: 'BinaryExpression',
+            left: node,
+            operator: '===',
+            right: {
+              type: 'Literal',
+              value: null
+            }
+          }
+        }
+        if (action === 'undefined') {
+          return {
+            type: 'BinaryExpression',
+            left: node,
+            operator: '===',
+            right: {
+              type: 'UnaryExpression',
+              operator: 'void',
+              prefix: 'true',
+              argument: {
+                type: 'Literal',
+                value: 0
+              }
+            }
+          }
+        }
+        if (action === 'a' || action === 'an') {
+          const capitalize = (string) => string[0].toUpperCase() + string.substring(1)
+          const type = keys[3]
+          const constructor = type === 'regexp' ? 'RegExp' : capitalize(type)
+          if (type === 'array') {
+            return {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: constructor
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'isArray'
+                },
+                computed: false
+              },
+              arguments: [node]
+            }
+          }
+          if (type === 'object') {
+            return {
+              type: 'LogicalExpression',
+              left: {
+                type: 'LogicalExpression',
+                left: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'UnaryExpression',
+                    operator: 'typeof',
+                    prefix: true,
+                    argument: node
+                  },
+                  operator: '===',
+                  right: {
+                    type: 'Literal',
+                    value: 'function',
+                  }
+                },
+                operator: '||',
+                right: {
+                  type: 'BinaryExpression',
+                  left: {
+                    type: 'UnaryExpression',
+                    operator: 'typeof',
+                    prefix: true,
+                    argument: node
+                  },
+                  operator: '===',
+                  right: {
+                    type: 'Literal',
+                    value: 'object'
+                  }
+                }
+              },
+              operator: '&&',
+              right: {
+                type: 'UnaryExpression',
+                operator: '!',
+                prefix: true,
+                argument: {
+                  type: 'UnaryExpression',
+                  operator: '!',
+                  prefix: true,
+                  argument: node
+                }
+              }
+            }
+          }
+          if (
+            type === 'string' ||
+            type === 'number' ||
+            type === 'symbol' ||
+            type === 'map' ||
+            type === 'set' ||
+            type === 'boolean' ||
+            type === 'regexp'
+          ) {
+            return {
+              type: 'BinaryExpression',
+              left: {
+                type: 'CallExpression',
+                callee: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'Object'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        name: 'prototype'
+                      },
+                      computed: false
+                    },
+                    property: {
+                      type: 'Identifier',
+                      name: 'toString'
+                    },
+                    computed: false
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'call'
+                  },
+                  computed: false
+                },
+                arguments: [node]
+              },
+              operator: '===',
+              right: {
+                type: 'Literal',
+                value: `[object ${constructor}]`
+              }
+            }
+          }
+        }
         return node
       }
 
       if (operator === 'is') {
-        const action = keys[2]
         const key = keys[0]
         const [prefix] = key.split('.')
         const node = variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
         tree.append({
           type: 'IfStatement',
-          test: getTest(action, node),
+          test: getTest(keys, node),
           consequent: {
             type: 'BlockStatement',
             body: ast.ast.body
