@@ -37,5 +37,11 @@ module.exports = {
     gte: '>=',
     lte: '<=',
     equals: '==='
+  },
+  BITWISE_OPERATORS_MAP: {
+    or: '|',
+    and: '&',
+    xor: '^',
+    not: '~'
   }
 }

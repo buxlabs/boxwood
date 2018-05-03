@@ -10,7 +10,7 @@ const {
 } = require('./factory')
 const { convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
 const { walk } = require('./parser')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
 
 function getLoopIndex (variables) {
   return array.identifier(variables)
@@ -356,7 +356,6 @@ function collect (tree, fragment, variables) {
           right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
           operator: OPERATORS_MAP[operator]
         }
-
         for (let i = 3; i < keys.length; i++) {
           const operator = keys[i]
           i += 1
@@ -364,6 +363,40 @@ function collect (tree, fragment, variables) {
           const prefix = condition.split('.')
           expression = {
             type: 'LogicalExpression',
+            left: expression,
+            right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
+            operator: OPERATORS_MAP[operator]
+          }
+        }
+        tree.append({
+          type: 'IfStatement',
+          test: expression,
+          consequent: {
+            type: 'BlockStatement',
+            body: ast.body()
+          }
+        })
+      } else if (operator === 'bitwise') {
+        const condition1 = keys[0]
+        const [prefix1] = condition1.split('.')
+
+        const condition2 = keys[3]
+        const [prefix2] = condition2.split('.')
+        const operator = keys[2]
+
+        let expression = {
+          type: 'BinaryExpression',
+          left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
+          right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
+          operator: BITWISE_OPERATORS_MAP[operator]
+        }
+        for (let i = 4; i < keys.length; i++) {
+          const operator = keys[i]
+          i += 1
+          const condition = keys[i]
+          const prefix = condition.split('.')
+          expression = {
+            type: 'BinaryExpression',
             left: expression,
             right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
             operator: OPERATORS_MAP[operator]
