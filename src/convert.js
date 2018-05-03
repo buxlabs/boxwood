@@ -1,5 +1,8 @@
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES } = require('./enum')
-const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignmentExpression } = require('./factory')
+const {
+  getLiteral, getIdentifier, getObjectMemberExpression,
+  getTemplateAssignmentExpression, getTemplateAssignmentEscapeCallExpression
+} = require('./factory')
 const { extract, getName } = require('./string')
 const AbstractSyntaxTree = require('@buxlabs/ast')
 
@@ -90,32 +93,18 @@ function convertText (text, variables) {
         return [getTemplateAssignmentExpression(expression)]
       } else if (expression.type === 'Identifier') {
         if (variables.includes(expression.name)) {
-          return [getTemplateAssignmentExpression({
-            type: 'CallExpression',
-            callee: getIdentifier(ESCAPE_VARIABLE),
-            arguments: [expression]
-          })]
+          return [getTemplateAssignmentEscapeCallExpression(expression)]
         } else {
-          return [getTemplateAssignmentExpression({
-            type: 'CallExpression',
-            callee: getIdentifier(ESCAPE_VARIABLE),
-            arguments: [
-              {
-                type: 'MemberExpression',
-                computed: false,
-                object: getIdentifier(OBJECT_VARIABLE),
-                property: expression
-              }
-            ]
+          return [getTemplateAssignmentEscapeCallExpression({
+            type: 'MemberExpression',
+            computed: false,
+            object: getIdentifier(OBJECT_VARIABLE),
+            property: expression
           })]
         }
       } else if (expression.type === 'MemberExpression') {
         if (variables.includes(expression.object.name)) {
-          return [getTemplateAssignmentExpression({
-            type: 'CallExpression',
-            callee: getIdentifier(ESCAPE_VARIABLE),
-            arguments: [expression]
-          })]
+          return [getTemplateAssignmentEscapeCallExpression(expression)]
         } else {
           const leaf = {
             type: 'MemberExpression',
@@ -126,11 +115,7 @@ function convertText (text, variables) {
             },
             property: expression.property
           }
-          return [getTemplateAssignmentExpression({
-            type: 'CallExpression',
-            callee: getIdentifier(ESCAPE_VARIABLE),
-            arguments: [leaf]
-          })]
+          return [getTemplateAssignmentEscapeCallExpression(leaf)]
         }
       }
     } else {

@@ -1,6 +1,7 @@
 const {
   TEMPLATE_VARIABLE,
-  OBJECT_VARIABLE
+  OBJECT_VARIABLE,
+  ESCAPE_VARIABLE
 } = require('./enum')
 
 function getIdentifier (name) {
@@ -9,6 +10,29 @@ function getIdentifier (name) {
 
 function getLiteral (value) {
   return { type: 'Literal', value }
+}
+
+function getTemplateAssignmentExpression (node) {
+  return {
+    type: 'ExpressionStatement',
+    expression: {
+      type: 'AssignmentExpression',
+      operator: '+=',
+      left: {
+        type: 'Identifier',
+        name: TEMPLATE_VARIABLE
+      },
+      right: node
+    }
+  }
+}
+
+function getTemplateAssignmentEscapeCallExpression (node) {
+  return getTemplateAssignmentExpression({
+    type: 'CallExpression',
+    callee: getIdentifier(ESCAPE_VARIABLE),
+    arguments: [node]
+  })
 }
 
 module.exports = {
@@ -25,20 +49,8 @@ module.exports = {
       kind: 'var'
     }
   },
-  getTemplateAssignmentExpression (node) {
-    return {
-      type: 'ExpressionStatement',
-      expression: {
-        type: 'AssignmentExpression',
-        operator: '+=',
-        left: {
-          type: 'Identifier',
-          name: TEMPLATE_VARIABLE
-        },
-        right: node
-      }
-    }
-  },
+  getTemplateAssignmentExpression,
+  getTemplateAssignmentEscapeCallExpression,
   getTemplateReturnStatement () {
     return {
       type: 'ReturnStatement',
