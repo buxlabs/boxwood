@@ -27,7 +27,12 @@ function collect (tree, fragment, variables) {
   const attrs = fragment.attributes
   if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
     const nodes = convertTag(fragment, variables)
-    nodes.forEach(node => tree.append(node))
+    nodes.forEach(node => {
+      if (node.type === 'IfStatement') {
+        return tree.append(node)
+      }
+      tree.append(getTemplateAssignmentExpression(node))
+    })
     fragment.children.forEach(node => {
       collect(tree, node, variables)
     })
@@ -472,7 +477,7 @@ function collect (tree, fragment, variables) {
   } else if (tag === 'slot' && attrs && attrs.length > 0) {
     const leaf = convertHtmlOrTextAttribute(fragment, variables)
     if (leaf) {
-      tree.append(leaf)
+      tree.append(getTemplateAssignmentExpression(leaf))
     }
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')

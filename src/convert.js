@@ -57,17 +57,17 @@ function convertAttribute (name, value, variables) {
 function convertHtmlOrTextAttribute (fragment, variables) {
   let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html.bind')
   if (html) {
-    return getTemplateAssignmentExpression(convertAttribute(html.key, html.value, variables))
+    return convertAttribute(html.key, html.value, variables)
   } else {
     let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text.bind')
     if (text) {
       let argument = convertAttribute(text.key, text.value, variables)
-      return getTemplateAssignmentExpression({
+      return {
         type: 'CallExpression',
         callee: getIdentifier(ESCAPE_VARIABLE),
         arguments: [argument.expression ? argument.expression : argument],
         fragment
-      })
+      }
     }
   }
   return null
@@ -134,16 +134,16 @@ function convertTag (fragment, variables) {
   let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
   if (tag) {
     const property = tag.key === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
-    nodes.push(getTemplateAssignmentExpression(getLiteral('<')))
-    nodes.push(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
+    nodes.push(getLiteral('<'))
+    nodes.push(getObjectMemberExpression(property))
   } else {
-    nodes.push(getTemplateAssignmentExpression(getLiteral(`<${node}`)))
+    nodes.push(getLiteral(`<${node}`))
   }
   let allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag' && attr.key !== 'tag.bind')
   if (allowed.length) {
     allowed.forEach(attr => {
       if (BOOLEAN_ATTRIBUTES.includes(getName(attr.key))) {
-        const expression = getTemplateAssignmentExpression(getLiteral(` ${getName(attr.key)}`))
+        const expression = getLiteral(` ${getName(attr.key)}`)
         if (!attr.value) {
           nodes.push(expression)
         } else {
@@ -152,26 +152,26 @@ function convertTag (fragment, variables) {
             test: convertAttribute(attr.key, attr.value, variables),
             consequent: {
               type: 'BlockStatement',
-              body: [expression]
+              body: [getTemplateAssignmentExpression(expression)]
             }
           })
         }
       } else {
-        nodes.push(getTemplateAssignmentExpression(getLiteral(` ${getName(attr.key)}="`)))
+        nodes.push(getLiteral(` ${getName(attr.key)}="`))
         let { value } = attr
         if (value.includes('{') && value.includes('}')) {
           let values = extract(value)
-          values.forEach((value, index) => {
-            nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.key, value, variables)))
+          values.forEach(value => {
+            nodes.push(convertAttribute(attr.key, value, variables))
           })
         } else {
-          nodes.push(getTemplateAssignmentExpression(convertAttribute(attr.key, value, variables)))
+          nodes.push(convertAttribute(attr.key, value, variables))
         }
-        nodes.push(getTemplateAssignmentExpression(getLiteral('"')))
+        nodes.push(getLiteral('"'))
       }
     })
   }
-  nodes.push(getTemplateAssignmentExpression(getLiteral('>')))
+  nodes.push(getLiteral('>'))
   const leaf = convertHtmlOrTextAttribute(fragment, variables)
   if (leaf) {
     nodes.push(leaf)
