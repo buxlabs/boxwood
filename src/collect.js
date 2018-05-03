@@ -8,7 +8,7 @@ const {
   getForLoop,
   getForLoopVariable
 } = require('./factory')
-const { convertHtmlOrTextAttribute, convertText, getNodes } = require('./convert')
+const { convertHtmlOrTextAttribute, convertText, getNodes, convertAttribute } = require('./convert')
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
 
@@ -450,17 +450,22 @@ function collect (tree, fragment, variables) {
     }
   } else if (tag === 'each' || tag === 'for') {
     const ast = new AbstractSyntaxTree('')
-    const [variable, , parent] = attrs.map(attr => attr.key)
+    const [left, operator, right] = attrs
+    const variable = left.key
+    let parent = operator.value || `{${right.key}}`
+    const name = convertAttribute('', parent, variables)
+
     variables.push(variable)
+    parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
     const index = getLoopIndex(variables.concat(parent))
     variables.push(index)
     const guard = getLoopGuard(variables.concat(parent))
     variables.push(guard)
-    ast.append(getForLoopVariable(variable, parent, variables, index))
+    ast.append(getForLoopVariable(variable, name, variables, index))
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-    tree.append(getForLoop(parent, ast.body(), variables, index, guard))
+    tree.append(getForLoop(name, ast.body(), variables, index, guard))
     variables.pop()
     variables.pop()
     variables.pop()

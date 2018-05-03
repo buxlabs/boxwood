@@ -134,6 +134,14 @@ equal(compile('<ul><each foo in bar><each baz in foo><li html="{baz.qux}"></li><
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
+equal(compile('<ul><each foo in bar><each baz in foo.qux><li html="{baz}"></li></each></each></ul>')({
+  bar: [
+    { qux: [1, 2] },
+    { qux: [3, 4] },
+    { qux: [5, 6] }
+  ]
+}), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
+
 equal(compile('<ul><each todo in todos><li html="{todo.text}"></li></each></ul>')({
   todos: [
     { text: 'foo' },
@@ -893,3 +901,20 @@ equal(compile('<if foo bitwise xor bar>baz</if>')({
   foo: 1,
   bar: 1
 }, html => html), '')
+
+equal(compile('<ul><each todo in="{todos}"><li html="{todo.description}"></li></each></ul>')({
+  todos: [
+    { description: 'foo' },
+    { description: 'bar' },
+    { description: 'baz' },
+    { description: 'qux' }
+  ]
+}), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
+
+equal(compile('<ul><each foo in="{bar}"><each baz in="{foo.qux}"><li html="{baz}"></li></each></each></ul>')({
+  bar: [
+    { qux: [1, 2] },
+    { qux: [3, 4] },
+    { qux: [5, 6] }
+  ]
+}), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
