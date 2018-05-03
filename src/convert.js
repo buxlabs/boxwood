@@ -21,20 +21,24 @@ function convertToBinaryExpression (nodes) {
   })
 }
 
+function convertToExpression (string) {
+  const tree = new AbstractSyntaxTree(string)
+  const { expression } = tree.ast.body[0]
+  return expression
+}
+
 function convertAttribute (name, value, variables) {
   if (value.includes('{') && value.includes('}')) {
     let values = extract(value)
     if (values.length === 1) {
       let property = value.substring(1, value.length - 1)
-      const tree = new AbstractSyntaxTree(property)
-      const { expression } = tree.ast.body[0]
+      const expression = convertToExpression(property)
       return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
     } else {
       const nodes = values.map((value, index) => {
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
-          const tree = new AbstractSyntaxTree(property)
-          const { expression } = tree.ast.body[0]
+          const expression = convertToExpression(property)
           return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
         }
         return getLiteral(value)
@@ -43,12 +47,8 @@ function convertAttribute (name, value, variables) {
       return { type: 'ExpressionStatement', expression }
     }
   } else if (name.endsWith('.bind')) {
-    return variables.includes(value.split('.')[0]) ? getIdentifier(value) : {
-      type: 'MemberExpression',
-      computed: false,
-      object: getIdentifier(OBJECT_VARIABLE),
-      property: getIdentifier(value)
-    }
+    const expression = convertToExpression(value)
+    return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('.')[0]))
   } else {
     return getLiteral(value)
   }
@@ -116,8 +116,7 @@ function convertText (text, variables) {
   const nodes = extract(text).map((value, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
-      const tree = new AbstractSyntaxTree(property)
-      const { expression } = tree.ast.body[0]
+      const expression = convertToExpression(property)
       return getTemplateNode(expression, variables)
     }
     return getLiteral(value)
@@ -129,7 +128,7 @@ function convertText (text, variables) {
   return nodes
 }
 
-function getNodes (fragment, variables) {
+function convertTag (fragment, variables) {
   let node = fragment.tagName
   let nodes = []
   let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -184,5 +183,5 @@ module.exports = {
   convertHtmlOrTextAttribute,
   convertAttribute,
   convertText,
-  getNodes
+  convertTag
 }

@@ -45,6 +45,7 @@ module.exports = {
     not: '~'
   },
   UNESCAPED_NAMES: [
+    'value',
     'checked',
     'readonly',
     'disabled',

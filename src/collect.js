@@ -8,16 +8,16 @@ const {
   getForLoop,
   getForLoopVariable
 } = require('./factory')
-const { convertHtmlOrTextAttribute, convertText, getNodes, convertAttribute } = require('./convert')
+const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute } = require('./convert')
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
 
-function getLoopIndex (variables) {
+function getFreeIdentifier (variables) {
   return array.identifier(variables)
 }
 
-function getLoopGuard (variables) {
-  return array.identifier(variables)
+function getTemplateIdentifier (prefix, key, variables) {
+  return variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
 }
 
 function collect (tree, fragment, variables) {
@@ -26,7 +26,7 @@ function collect (tree, fragment, variables) {
   const tag = fragment.tagName
   const attrs = fragment.attributes
   if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    const nodes = getNodes(fragment, variables)
+    const nodes = convertTag(fragment, variables)
     nodes.forEach(node => tree.append(node))
     fragment.children.forEach(node => {
       collect(tree, node, variables)
@@ -55,7 +55,7 @@ function collect (tree, fragment, variables) {
       const [prefix] = key.split('.')
       tree.append({
         type: 'IfStatement',
-        test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
+        test: getTemplateIdentifier(prefix, key, variables),
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
@@ -334,7 +334,7 @@ function collect (tree, fragment, variables) {
       if (operator === 'is') {
         const key = keys[0]
         const [prefix] = key.split('.')
-        const node = variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+        const node = getTemplateIdentifier(prefix, key, variables)
         tree.append({
           type: 'IfStatement',
           test: getTest(keys, node),
@@ -352,8 +352,8 @@ function collect (tree, fragment, variables) {
 
         let expression = {
           type: 'LogicalExpression',
-          left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
-          right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
+          left: getTemplateIdentifier(prefix1, condition1, variables),
+          right: getTemplateIdentifier(prefix2, condition2, variables),
           operator: OPERATORS_MAP[operator]
         }
         for (let i = 3; i < keys.length; i++) {
@@ -364,7 +364,7 @@ function collect (tree, fragment, variables) {
           expression = {
             type: 'LogicalExpression',
             left: expression,
-            right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
+            right: getTemplateIdentifier(prefix, condition, variables),
             operator: OPERATORS_MAP[operator]
           }
         }
@@ -386,8 +386,8 @@ function collect (tree, fragment, variables) {
 
         let expression = {
           type: 'BinaryExpression',
-          left: variables.includes(prefix1) ? getIdentifier(condition1) : getObjectMemberExpression(condition1),
-          right: variables.includes(prefix2) ? getIdentifier(condition2) : getObjectMemberExpression(condition2),
+          left: getTemplateIdentifier(prefix1, condition1, variables),
+          right: getTemplateIdentifier(prefix2, condition2, variables),
           operator: BITWISE_OPERATORS_MAP[operator]
         }
         for (let i = 4; i < keys.length; i++) {
@@ -398,7 +398,7 @@ function collect (tree, fragment, variables) {
           expression = {
             type: 'BinaryExpression',
             left: expression,
-            right: variables.includes(prefix) ? getIdentifier(condition) : getObjectMemberExpression(condition),
+            right: getTemplateIdentifier(prefix, condition, variables),
             operator: OPERATORS_MAP[operator]
           }
         }
@@ -426,7 +426,7 @@ function collect (tree, fragment, variables) {
       const [prefix] = key.split('.')
       leaf.alternate = {
         type: 'IfStatement',
-        test: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key),
+        test: getTemplateIdentifier(prefix, key, variables),
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
@@ -457,9 +457,9 @@ function collect (tree, fragment, variables) {
 
     variables.push(variable)
     parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
-    const index = getLoopIndex(variables.concat(parent))
+    const index = getFreeIdentifier(variables.concat(parent))
     variables.push(index)
-    const guard = getLoopGuard(variables.concat(parent))
+    const guard = getFreeIdentifier(variables.concat(parent))
     variables.push(guard)
     ast.append(getForLoopVariable(variable, name, variables, index))
     walk(fragment, current => {
@@ -519,7 +519,7 @@ function collect (tree, fragment, variables) {
       test: {
         type: 'UnaryExpression',
         operator: '!',
-        argument: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+        argument: getTemplateIdentifier(prefix, key, variables)
       },
       consequent: {
         type: 'BlockStatement',
@@ -543,7 +543,7 @@ function collect (tree, fragment, variables) {
         test: {
           type: 'UnaryExpression',
           operator: '!',
-          argument: variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+          argument: getTemplateIdentifier(prefix, key, variables)
         },
         consequent: {
           type: 'BlockStatement',
