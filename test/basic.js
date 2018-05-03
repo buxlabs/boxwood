@@ -98,7 +98,7 @@ equal(compile(`
 <a href='blog/{name}'>
   {title}
 </a>
-`)({ name: 'foo', title: 'Foo' }, html => html), '\n<a href="blog/foo">Foo</a>\n')
+`)({ name: 'foo', title: 'Foo' }, html => html), '<a href="blog/foo">Foo</a>')
 
 equal(compile('<div>{foo} {bar}</div>')({ foo: 'foo', bar: 'bar' }, html => html), '<div>foo bar</div>')
 
@@ -106,7 +106,7 @@ equal(compile(`
 <div>
   {foo} {bar}
 </div>
-`)({ foo: 'foo', bar: 'bar' }, html => html), '\n<div>foo bar</div>\n')
+`)({ foo: 'foo', bar: 'bar' }, html => html), '<div>foo bar</div>')
 
 equal(compile('<ul><each todo in todos><li html="{todo.description}"></li></each></ul>')({
   todos: [
@@ -293,7 +293,7 @@ equal(compile(`
 <catch>baz</catch>
 `)({
   foo: { bar: 'bar' }
-}, html => html), '\nbar\n\n')
+}, html => html), 'bar')
 
 // equal(compile('<try><div>{foo.bar}</div></try><catch>baz</catch>')({}), 'baz')
 
@@ -334,7 +334,7 @@ equal(compile(`
 `)({
   foo: true,
   bar: false
-}, html => html), '\nbaz\n\n')
+}, html => html), 'baz')
 
 equal(compile(`
 <if foo>bar</if>
@@ -342,7 +342,7 @@ equal(compile(`
 `)({
   foo: false,
   bar: false
-}, html => html), '\nbaz\n\n')
+}, html => html), 'baz')
 
 equal(compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')({
   foo: true,
@@ -354,14 +354,14 @@ equal(compile(`
 <else>baz</else>
 `)({
   foo: true
-}, html => html), '\nbar\n\n')
+}, html => html), 'bar')
 
 equal(compile(`
 <if foo>bar</if>
 <else>baz</else>
 `)({
   foo: false
-}, html => html), '\nbaz\n\n')
+}, html => html), 'baz')
 
 equal(compile(`
 <if foo>bar</if>
@@ -369,7 +369,7 @@ equal(compile(`
 `)({
   foo: true,
   bar: false
-}, html => html), '\nbar\n')
+}, html => html), 'bar')
 
 equal(compile(`
 <if foo>bar</if>
@@ -377,7 +377,7 @@ equal(compile(`
 `)({
   foo: false,
   bar: true
-}, html => html), '\nbaz\n\n')
+}, html => html), 'baz')
 
 equal(compile('<if foo and bar>baz</if>')({
   foo: true,

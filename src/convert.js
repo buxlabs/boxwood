@@ -37,13 +37,12 @@ function convertAttribute (name, value, variables) {
       let property = value.substring(1, value.length - 1)
       return convertToIdentifier(property, variables)
     } else {
-      const nodes = []
-      values.map((value, index) => {
+      const nodes = values.map((value, index) => {
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
-          return nodes.push(convertToIdentifier(property, variables))
+          return convertToIdentifier(property, variables)
         }
-        return nodes.push(getLiteral(value))
+        return getLiteral(value)
       })
       const expression = convertToBinaryExpression(nodes)
       return { type: 'ExpressionStatement', expression }
@@ -63,91 +62,67 @@ function convertAttribute (name, value, variables) {
 function convertHtmlOrTextAttribute (fragment, variables) {
   let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html.bind')
   if (html) {
-    return convertAttribute(html.key, html.value, variables)
+    return getTemplateAssignmentExpression(convertAttribute(html.key, html.value, variables))
   } else {
     let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text.bind')
     if (text) {
       let argument = convertAttribute(text.key, text.value, variables)
-      return {
+      return getTemplateAssignmentExpression({
         type: 'CallExpression',
         callee: getIdentifier(ESCAPE_VARIABLE),
         arguments: [argument.expression ? argument.expression : argument],
         fragment
-      }
+      })
     }
   }
   return null
 }
 
+function getTransformedNode (expression, variables) {
+  if (expression.type === 'Literal') {
+    return getTemplateAssignmentExpression(expression)
+  } else if (expression.type === 'BinaryExpression') {
+    return getTemplateAssignmentExpression(expression)
+  } else if (expression.type === 'Identifier') {
+    if (variables.includes(expression.name)) {
+      return getTemplateAssignmentEscapeCallExpression(expression)
+    } else {
+      return getTemplateAssignmentEscapeCallExpression({
+        type: 'MemberExpression',
+        computed: false,
+        object: getIdentifier(OBJECT_VARIABLE),
+        property: expression
+      })
+    }
+  } else if (expression.type === 'MemberExpression') {
+    if (variables.includes(expression.object.name)) {
+      return getTemplateAssignmentEscapeCallExpression(expression)
+    } else {
+      const leaf = {
+        type: 'MemberExpression',
+        object: {
+          type: 'MemberExpression',
+          object: getIdentifier(OBJECT_VARIABLE),
+          property: expression.object
+        },
+        property: expression.property
+      }
+      return getTemplateAssignmentEscapeCallExpression(leaf)
+    }
+  }
+}
+
 function convertText (text, variables) {
-  if (text.includes('{') && text.includes('}')) {
-    let values = extract(text)
-    if (values.length === 1) {
-      let value = text.trim()
+  let values = extract(text)
+  return values.map((value, index) => {
+    if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const tree = new AbstractSyntaxTree(property)
       const { expression } = tree.ast.body[0]
-      if (expression.type === 'Literal') {
-        return [getTemplateAssignmentExpression(expression)]
-      } else if (expression.type === 'BinaryExpression') {
-        return [getTemplateAssignmentExpression(expression)]
-      } else if (expression.type === 'Identifier') {
-        if (variables.includes(expression.name)) {
-          return [getTemplateAssignmentEscapeCallExpression(expression)]
-        } else {
-          return [getTemplateAssignmentEscapeCallExpression({
-            type: 'MemberExpression',
-            computed: false,
-            object: getIdentifier(OBJECT_VARIABLE),
-            property: expression
-          })]
-        }
-      } else if (expression.type === 'MemberExpression') {
-        if (variables.includes(expression.object.name)) {
-          return [getTemplateAssignmentEscapeCallExpression(expression)]
-        } else {
-          const leaf = {
-            type: 'MemberExpression',
-            object: {
-              type: 'MemberExpression',
-              object: getIdentifier(OBJECT_VARIABLE),
-              property: expression.object
-            },
-            property: expression.property
-          }
-          return [getTemplateAssignmentEscapeCallExpression(leaf)]
-        }
-      }
-    } else {
-      let nodes = []
-      values.map((value, index) => {
-        if (value.includes('{') && value.includes('}')) {
-          let property = value.substring(1, value.length - 1)
-          const tree = new AbstractSyntaxTree(property)
-          const { expression } = tree.ast.body[0]
-          if (expression.type === 'Literal') {
-            return nodes.push(expression)
-          } else if (expression.type === 'BinaryExpression') {
-            return nodes.push(expression)
-          }
-          return nodes.push(convertToIdentifier(property, variables))
-        }
-        return nodes.push(getLiteral(value))
-      })
-      nodes = nodes.map(node => {
-        if (node.type === 'Literal') return node
-        return {
-          type: 'CallExpression',
-          callee: getIdentifier(ESCAPE_VARIABLE),
-          arguments: [node]
-        }
-      })
-      const expression = convertToBinaryExpression(nodes)
-      return [getTemplateAssignmentExpression(expression)]
+      return getTransformedNode(expression, variables)
     }
-  } else {
-    return [getTemplateAssignmentExpression(getLiteral(text))]
-  }
+    return getTemplateAssignmentExpression(getLiteral(value))
+  })
 }
 
 function getNodes (fragment, variables) {
@@ -196,7 +171,7 @@ function getNodes (fragment, variables) {
   nodes.push(getTemplateAssignmentExpression(getLiteral('>')))
   const leaf = convertHtmlOrTextAttribute(fragment, variables)
   if (leaf) {
-    nodes.push(getTemplateAssignmentExpression(leaf))
+    nodes.push(leaf)
   }
   return nodes
 }

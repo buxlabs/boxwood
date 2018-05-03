@@ -472,7 +472,7 @@ function collect (tree, fragment, variables) {
   } else if (tag === 'slot' && attrs && attrs.length > 0) {
     const leaf = convertHtmlOrTextAttribute(fragment, variables)
     if (leaf) {
-      tree.append(getTemplateAssignmentExpression(leaf))
+      tree.append(leaf)
     }
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
