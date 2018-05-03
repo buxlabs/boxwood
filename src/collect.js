@@ -185,6 +185,26 @@ function collect (tree, fragment, variables) {
             }
           }
         }
+        if (action === 'even' || action === 'odd') {
+          const operator = action === 'even' ? '===' : '!=='
+          return {
+            type: 'BinaryExpression',
+            left: {
+              type: 'BinaryExpression',
+              left: node,
+              operator: '%',
+              right: {
+                type: 'Literal',
+                value: 2
+              }
+            },
+            operator,
+            right: {
+              type: 'Literal',
+              value: 0
+            }
+          }
+        }
         if (action === 'a' || action === 'an') {
           const capitalize = (string) => string[0].toUpperCase() + string.substring(1)
           const type = keys[3]
@@ -263,7 +283,8 @@ function collect (tree, fragment, variables) {
             type === 'map' ||
             type === 'set' ||
             type === 'boolean' ||
-            type === 'regexp'
+            type === 'regexp' ||
+            type === 'date'
           ) {
             return {
               type: 'BinaryExpression',
