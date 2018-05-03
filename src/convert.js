@@ -88,13 +88,51 @@ function convertText (text, variables) {
         return [getTemplateAssignmentExpression(expression)]
       } else if (expression.type === 'BinaryExpression') {
         return [getTemplateAssignmentExpression(expression)]
+      } else if (expression.type === 'Identifier') {
+        if (variables.includes(expression.name)) {
+          return [getTemplateAssignmentExpression({
+            type: 'CallExpression',
+            callee: getIdentifier(ESCAPE_VARIABLE),
+            arguments: [expression]
+          })]
+        } else {
+          return [getTemplateAssignmentExpression({
+            type: 'CallExpression',
+            callee: getIdentifier(ESCAPE_VARIABLE),
+            arguments: [
+              {
+                type: 'MemberExpression',
+                computed: false,
+                object: getIdentifier(OBJECT_VARIABLE),
+                property: expression
+              }
+            ]
+          })]
+        }
+      } else if (expression.type === 'MemberExpression') {
+        if (variables.includes(expression.object.name)) {
+          return [getTemplateAssignmentExpression({
+            type: 'CallExpression',
+            callee: getIdentifier(ESCAPE_VARIABLE),
+            arguments: [expression]
+          })]
+        } else {
+          const leaf = {
+            type: 'MemberExpression',
+            object: {
+              type: 'MemberExpression',
+              object: getIdentifier(OBJECT_VARIABLE),
+              property: expression.object
+            },
+            property: expression.property
+          }
+          return [getTemplateAssignmentExpression({
+            type: 'CallExpression',
+            callee: getIdentifier(ESCAPE_VARIABLE),
+            arguments: [leaf]
+          })]
+        }
       }
-      const node = convertToIdentifier(property, variables)
-      return [getTemplateAssignmentExpression({
-        type: 'CallExpression',
-        callee: getIdentifier(ESCAPE_VARIABLE),
-        arguments: [node]
-      })]
     } else {
       let nodes = []
       values.map((value, index) => {
