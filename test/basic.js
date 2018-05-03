@@ -51,9 +51,9 @@ equal(compile('<div class="foo   bar    {baz}"></div>')({ baz: 'qux' }, value =>
 equal(compile('<div class="{foo} bar"></div>')({ foo: 'baz' }, value => { return value }), '<div class="baz bar"></div>')
 equal(compile('<div class="{foo} {bar}"></div>')({ foo: 'baz', bar: 'qux' }, value => { return value }), '<div class="baz qux"></div>')
 equal(compile('<div class="{foo} bar {baz}"></div>')({ foo: 'baz', baz: 'qux' }, value => { return value }), '<div class="baz bar qux"></div>')
-equal(compile('<div class="{foo}"></div>')({ foo: 'bar' }), '<div class="bar"></div>')
+equal(compile('<div class="{foo}"></div>')({ foo: 'bar' }, html => html), '<div class="bar"></div>')
 equal(compile('<div class.bind="foo"></div>')({ foo: 'bar' }), '<div class="bar"></div>')
-equal(compile('<div class={foo}></div>')({ foo: 'bar' }), '<div class="bar"></div>')
+equal(compile('<div class={foo}></div>')({ foo: 'bar' }, html => html), '<div class="bar"></div>')
 equal(compile('<div></div>')(), '<div></div>')
 equal(compile('<h1>{title}</h1>')({ title: 'buxlabs' }, value => value), '<h1>buxlabs</h1>')
 equal(compile('<div html="{foo}"></div>')({ foo: 'bar' }), '<div>bar</div>')
@@ -64,7 +64,7 @@ equal(compile('<div html="{foo}"></div>')({ foo: '<div>baz</div>' }), '<div><div
 equal(compile('<div text="{foo}"></div>')({ foo: 'bar' }, html => html.replace('foo', 'bar')), '<div>bar</div>')
 equal(compile('<div html={foo}></div>')({ foo: 'bar' }), '<div>bar</div>')
 equal(compile('<div html="{ foo }"></div>')({ foo: 'bar' }), '<div>bar</div>')
-equal(compile('<input type="text" value="{foo.bar}">')({ foo: { bar: 'baz' } }), '<input type="text" value="baz">')
+equal(compile('<input type="text" value="{foo.bar}">')({ foo: { bar: 'baz' } }, html => html), '<input type="text" value="baz">')
 equal(compile('<input type="text" value.bind="foo.bar">')({ foo: { bar: 'baz' } }), '<input type="text" value="baz">')
 equal(compile('<input type="checkbox" autofocus>')(), '<input type="checkbox" autofocus>')
 equal(compile('<input type="checkbox" checked>')(), '<input type="checkbox" checked>')
@@ -90,8 +90,8 @@ equal(compile('<input type="checkbox" multiple.bind="foo">')({ foo: true }), '<i
 equal(compile('<input type="checkbox" multiple.bind="foo">')({ foo: false }), '<input type="checkbox">')
 equal(compile('<input type="checkbox" required.bind="foo">')({ foo: true }), '<input type="checkbox" required>')
 equal(compile('<input type="checkbox" required.bind="foo">')({ foo: false }), '<input type="checkbox">')
-equal(compile('<span class="icon {name}"></span>')({ name: 'buxus' }), '<span class="icon buxus"></span>')
-equal(compile('<span class="icon icon-{name}"></span>')({ name: 'buxus' }), '<span class="icon icon-buxus"></span>')
+equal(compile('<span class="icon {name}"></span>')({ name: 'buxus' }, html => html), '<span class="icon buxus"></span>')
+equal(compile('<span class="icon icon-{name}"></span>')({ name: 'buxus' }, html => html), '<span class="icon icon-buxus"></span>')
 equal(compile('<a href="blog/{name}">{title}</a>')({ name: 'foo', title: 'Foo' }, html => html), '<a href="blog/foo">Foo</a>')
 
 equal(compile(`
@@ -222,21 +222,21 @@ equal(compile('<each foo in foos><img src="{foo.src}"></each>')({
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: 'bar.jpg' }
   ]
-}), '<img src="foo.jpg"><img src="bar.jpg">')
+}, html => html), '<img src="foo.jpg"><img src="bar.jpg">')
 
 equal(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if></each>')({
   foos: [
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: null }
   ]
-}), '<img src="foo.jpg">')
+}, html => html), '<img src="foo.jpg">')
 
 equal(compile('<for foo in foos><if foo.src><img src="{foo.src}"></if></for>')({
   foos: [
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: null }
   ]
-}), '<img src="foo.jpg">')
+}, html => html), '<img src="foo.jpg">')
 
 equal(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></each>')({
   foos: [
@@ -244,7 +244,7 @@ equal(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if><elseif f
     { title: 'bar', src: null, href: null },
     { title: 'baz', src: null, href: 'https://buxlabs.pl' }
   ]
-}), '<img src="foo.jpg"><a href="https://buxlabs.pl"></a>')
+}, html => html), '<img src="foo.jpg"><a href="https://buxlabs.pl"></a>')
 
 equal(compile('{foo}<each foo in bar><div>{foo.baz}</div></each>')({
   foo: 'bar',

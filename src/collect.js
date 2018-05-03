@@ -44,7 +44,7 @@ function collect (tree, fragment, variables) {
     }
   } else if (fragment.type === 'text') {
     const nodes = convertText(fragment.content, variables)
-    return nodes.forEach(node => tree.append(node))
+    return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
@@ -453,7 +453,7 @@ function collect (tree, fragment, variables) {
     const [left, operator, right] = attrs
     const variable = left.key
     let parent = operator.value || `{${right.key}}`
-    const name = convertAttribute('', parent, variables)
+    const name = convertAttribute('html', parent, variables)
 
     variables.push(variable)
     parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties

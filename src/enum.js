@@ -43,5 +43,15 @@ module.exports = {
     and: '&',
     xor: '^',
     not: '~'
-  }
+  },
+  UNESCAPED_NAMES: [
+    'checked',
+    'readonly',
+    'disabled',
+    'autofocus',
+    'formnovalidate',
+    'multiple',
+    'required',
+    'html'
+  ]
 }

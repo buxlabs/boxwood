@@ -27,12 +27,12 @@ function getTemplateAssignmentExpression (node) {
   }
 }
 
-function getTemplateAssignmentEscapeCallExpression (node) {
-  return getTemplateAssignmentExpression({
+function getEscapeCallExpression (node) {
+  return {
     type: 'CallExpression',
     callee: getIdentifier(ESCAPE_VARIABLE),
     arguments: [node]
-  })
+  }
 }
 
 module.exports = {
@@ -50,7 +50,7 @@ module.exports = {
     }
   },
   getTemplateAssignmentExpression,
-  getTemplateAssignmentEscapeCallExpression,
+  getEscapeCallExpression,
   getTemplateReturnStatement () {
     return {
       type: 'ReturnStatement',

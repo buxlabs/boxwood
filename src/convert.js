@@ -1,19 +1,10 @@
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES } = require('./enum')
+const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES } = require('./enum')
 const {
   getLiteral, getIdentifier, getObjectMemberExpression,
-  getTemplateAssignmentExpression, getTemplateAssignmentEscapeCallExpression
+  getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
 const { extract, getName } = require('./string')
 const AbstractSyntaxTree = require('@buxlabs/ast')
-
-function convertToIdentifier (property, variables) {
-  return variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
-    type: 'MemberExpression',
-    computed: false,
-    object: getIdentifier(OBJECT_VARIABLE),
-    property: getIdentifier(property)
-  }
-}
 
 function convertToBinaryExpression (nodes) {
   return nodes.reduce((previous, current) => {
@@ -35,12 +26,16 @@ function convertAttribute (name, value, variables) {
     let values = extract(value)
     if (values.length === 1) {
       let property = value.substring(1, value.length - 1)
-      return convertToIdentifier(property, variables)
+      const tree = new AbstractSyntaxTree(property)
+      const { expression } = tree.ast.body[0]
+      return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
     } else {
       const nodes = values.map((value, index) => {
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
-          return convertToIdentifier(property, variables)
+          const tree = new AbstractSyntaxTree(property)
+          const { expression } = tree.ast.body[0]
+          return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
         }
         return getLiteral(value)
       })
@@ -78,25 +73,29 @@ function convertHtmlOrTextAttribute (fragment, variables) {
   return null
 }
 
-function getTransformedNode (expression, variables) {
+function getTemplateNode (expression, variables, unescape) {
   if (expression.type === 'Literal') {
-    return getTemplateAssignmentExpression(expression)
+    return expression
   } else if (expression.type === 'BinaryExpression') {
-    return getTemplateAssignmentExpression(expression)
+    return expression
   } else if (expression.type === 'Identifier') {
     if (variables.includes(expression.name)) {
-      return getTemplateAssignmentEscapeCallExpression(expression)
+      if (unescape) return expression
+      return getEscapeCallExpression(expression)
     } else {
-      return getTemplateAssignmentEscapeCallExpression({
+      const node = {
         type: 'MemberExpression',
         computed: false,
         object: getIdentifier(OBJECT_VARIABLE),
         property: expression
-      })
+      }
+      if (unescape) return node
+      return getEscapeCallExpression(node)
     }
   } else if (expression.type === 'MemberExpression') {
     if (variables.includes(expression.object.name)) {
-      return getTemplateAssignmentEscapeCallExpression(expression)
+      if (unescape) return expression
+      return getEscapeCallExpression(expression)
     } else {
       const leaf = {
         type: 'MemberExpression',
@@ -107,22 +106,27 @@ function getTransformedNode (expression, variables) {
         },
         property: expression.property
       }
-      return getTemplateAssignmentEscapeCallExpression(leaf)
+      if (unescape) return leaf
+      return getEscapeCallExpression(leaf)
     }
   }
 }
 
 function convertText (text, variables) {
-  let values = extract(text)
-  return values.map((value, index) => {
+  const nodes = extract(text).map((value, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const tree = new AbstractSyntaxTree(property)
       const { expression } = tree.ast.body[0]
-      return getTransformedNode(expression, variables)
+      return getTemplateNode(expression, variables)
     }
-    return getTemplateAssignmentExpression(getLiteral(value))
+    return getLiteral(value)
   })
+  if (nodes.length > 1) {
+    const expression = convertToBinaryExpression(nodes)
+    return [{ type: 'ExpressionStatement', expression }]
+  }
+  return nodes
 }
 
 function getNodes (fragment, variables) {
