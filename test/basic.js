@@ -918,3 +918,18 @@ equal(compile('<ul><each foo in="{bar}"><each baz in="{foo.qux}"><li html="{baz}
     { qux: [5, 6] }
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
+
+equal(compile('<div>{42}</div>')({}), '<div>42</div>')
+equal(compile('<div>{42} {42}</div>')({}), '<div>42 42</div>')
+equal(compile('<div>{42} {foo}</div>')({
+  foo: 'bar'
+}, html => html), '<div>42 bar</div>')
+equal(compile('<div>{"42"} {foo}</div>')({
+  foo: 'bar'
+}, html => html), '<div>42 bar</div>')
+equal(compile('<div>{42 + 42}</div>')({
+  foo: 'bar'
+}, html => html), '<div>84</div>')
+equal(compile('<div>1 + 2 = {1 + 2}</div>')({
+  foo: 'bar'
+}, html => html), '<div>1 + 2 = 3</div>')

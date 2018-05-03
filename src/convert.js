@@ -1,6 +1,7 @@
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES } = require('./enum')
 const { getLiteral, getIdentifier, getObjectMemberExpression, getTemplateAssignmentExpression } = require('./factory')
 const { extract, getName } = require('./string')
+const AbstractSyntaxTree = require('@buxlabs/ast')
 
 function convertToIdentifier (property, variables) {
   return variables.includes(property.split('.')[0]) ? getIdentifier(property) : {
@@ -81,6 +82,13 @@ function convertText (text, variables) {
     if (values.length === 1) {
       let value = text.trim()
       let property = value.substring(1, value.length - 1)
+      const tree = new AbstractSyntaxTree(property)
+      const { expression } = tree.ast.body[0]
+      if (expression.type === 'Literal') {
+        return [getTemplateAssignmentExpression(expression)]
+      } else if (expression.type === 'BinaryExpression') {
+        return [getTemplateAssignmentExpression(expression)]
+      }
       const node = convertToIdentifier(property, variables)
       return [getTemplateAssignmentExpression({
         type: 'CallExpression',
@@ -92,6 +100,13 @@ function convertText (text, variables) {
       values.map((value, index) => {
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
+          const tree = new AbstractSyntaxTree(property)
+          const { expression } = tree.ast.body[0]
+          if (expression.type === 'Literal') {
+            return nodes.push(expression)
+          } else if (expression.type === 'BinaryExpression') {
+            return nodes.push(expression)
+          }
           return nodes.push(convertToIdentifier(property, variables))
         }
         return nodes.push(getLiteral(value))
