@@ -288,6 +288,18 @@ equal(compile('<try>{foo.bar}</try><catch>baz</catch>')({
 
 equal(compile('<try>{foo.bar}</try><catch>baz</catch>')({}), 'baz')
 
+equal(compile('<try>{foo.bar.baz}</try><catch>qux</catch>')({
+  foo: { bar: { baz: 'baz' } }
+}, html => html), 'baz')
+
+equal(compile('<try>{foo.bar.baz}</try><catch>qux</catch>')({}), 'qux')
+
+equal(compile('<try>{foo.bar.baz.bam}</try><catch>qux</catch>')({
+  foo: { bar: { baz: { bam: 'bam' } } }
+}, html => html), 'bam')
+
+equal(compile('<try>{foo.bar.baz.bam}</try><catch>qux</catch>')({}), 'qux')
+
 equal(compile(`
 <try>{foo.bar}</try>
 <catch>baz</catch>

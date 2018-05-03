@@ -97,17 +97,31 @@ function getTemplateNode (expression, variables, unescape) {
       if (unescape) return expression
       return getEscapeCallExpression(expression)
     } else {
-      const leaf = {
-        type: 'MemberExpression',
-        object: {
+      if (expression.object.type === 'Identifier') {
+        let leaf = {
+          type: 'MemberExpression',
+          object: {
+            type: 'MemberExpression',
+            object: getIdentifier(OBJECT_VARIABLE),
+            property: expression.object
+          },
+          property: expression.property
+        }
+        if (unescape) return leaf
+        return getEscapeCallExpression(leaf)
+      } else if (expression.object.type === 'MemberExpression') {
+        let leaf = expression.object
+        while (leaf.object.type === 'MemberExpression') {
+          leaf = leaf.object
+        }
+        leaf.object = {
           type: 'MemberExpression',
           object: getIdentifier(OBJECT_VARIABLE),
-          property: expression.object
-        },
-        property: expression.property
+          property: leaf.object
+        }
+        if (unescape) return expression
+        return getEscapeCallExpression(expression)
       }
-      if (unescape) return leaf
-      return getEscapeCallExpression(leaf)
     }
   }
 }
