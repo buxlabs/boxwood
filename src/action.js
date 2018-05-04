@@ -314,7 +314,15 @@ function isDate(node) {
   return getObjectWithConstructorBinaryExpression(node, 'Date')
 }
 
-const ACTIONS = [
+function negate(node) {
+  return {
+    type: 'UnaryExpression',
+    operator: '!',
+    argument: node
+  }
+}
+
+const STANDARD_ACTIONS = [
   { name: ['is', 'positive'], handler: isPositive, args: 1 },
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
   { name: ['is', 'finite'], handler: isFinite, args: 1 },
@@ -343,7 +351,20 @@ const ACTIONS = [
   { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
 ]
 
+const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
+  const name = action.name.slice(0)
+  name.splice(1, 0, 'not')
+  return {
+    name,
+    handler: function () {
+      return negate(action.handler.apply(this, arguments))
+    },
+    args: action.args
+  }
+})
+
+const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
+
 module.exports = {
-  getAction,
-  ACTIONS
+  getAction
 }

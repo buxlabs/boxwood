@@ -11,7 +11,7 @@ const {
 const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute } = require('./convert')
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
-const { ACTIONS, getAction } = require('./action')
+const { getAction } = require('./action')
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)

@@ -962,6 +962,9 @@ equal(compile('<if foo is present>bar</if>')({
   foo: undefined
 }, html => html), '')
 
+equal(compile('<if foo is not present>bar</if>')({
+  foo: undefined
+}, html => html), 'bar')
 
 // equal(compile('<if foo is less than bar>baz</if>')({
 //   foo: 100,
