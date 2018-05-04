@@ -110,10 +110,18 @@ function isNull(node) {
 }
 
 function isUndefined(node) {
+  return getVoidBinaryExpression(node, '===')
+}
+
+function isPresent(node) {
+  return getVoidBinaryExpression(node, '!==')
+}
+
+function getVoidBinaryExpression(node, operator) {
   return {
     type: 'BinaryExpression',
     left: node,
-    operator: '===',
+    operator,
     right: {
       type: 'UnaryExpression',
       operator: 'void',
@@ -311,9 +319,13 @@ const ACTIONS = [
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
   { name: ['is', 'finite'], handler: isFinite, args: 1 },
   { name: ['is', 'infinite'], handler: isInfinite, args: 1 },
+  { name: ['is', 'present'], handler: isPresent, args: 1 },
+  { name: ['are', 'present'], handler: isPresent, args: 1 },
   { name: ['is', 'empty'], handler: isEmpty, args: 1 },
+  { name: ['are', 'empty'], handler: isEmpty, args: 1 },
   { name: ['is', 'null'], handler: isNull, args: 1 },
   { name: ['is', 'undefined'], handler: isUndefined, args: 1 },
+  { name: ['is', 'void'], handler: isUndefined, args: 1 },
   { name: ['is', 'even'], handler: isEven, args: 1 },
   { name: ['is', 'odd'], handler: isOdd, args: 1 },
   { name: ['is', 'an', 'array'], handler: isArray, args: 1 },

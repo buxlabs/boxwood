@@ -946,6 +946,23 @@ equal(compile('<div>1 + 2 = {1 + 2}</div>')({
   foo: 'bar'
 }, html => html), '<div>1 + 2 = 3</div>')
 
+equal(compile('<if foo is present>bar</if>')({
+  foo: true
+}, html => html), 'bar')
+
+equal(compile('<if foo is present>bar</if>')({
+  foo: false
+}, html => html), 'bar')
+
+equal(compile('<if foo is present>bar</if>')({
+  foo: null
+}, html => html), 'bar')
+
+equal(compile('<if foo is present>bar</if>')({
+  foo: undefined
+}, html => html), '')
+
+
 // equal(compile('<if foo is less than bar>baz</if>')({
 //   foo: 100,
 //   bar: 50
