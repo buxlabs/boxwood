@@ -11,6 +11,7 @@ const {
 const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute } = require('./convert')
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
+const { ACTIONS, getAction } = require('./action')
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
@@ -72,267 +73,20 @@ function collect (tree, fragment, variables) {
 
       const getTest = (keys, node) => {
         const action = keys[2]
+        const keywords = []
+        let handler
 
-        if (action === 'positive') {
-          return {
-            type: 'BinaryExpression',
-            left: node,
-            right: {
-              type: 'Literal',
-              value: 0
-            },
-            operator: '>'
-          }
+        for (let i = 1; i < keys.length; i++) {
+          keywords.push(keys[i])
+          handler = getAction(keywords)
+
+          if (handler) keywords.length = 0
         }
-        if (action === 'negative') {
-          return {
-            type: 'BinaryExpression',
-            left: node,
-            right: {
-              type: 'Literal',
-              value: 0
-            },
-            operator: '<'
-          }
+
+        if (handler) {
+          return handler(node)
         }
-        if (action === 'finite') {
-          return {
-            type: 'CallExpression',
-            callee: {
-              type: 'Identifier',
-              name: 'isFinite'
-            },
-            arguments: [node]
-          }
-        }
-        if (action === 'infinite') {
-          return {
-            type: 'LogicalExpression',
-            left: {
-              type: 'BinaryExpression',
-              left: node,
-              operator: '===',
-              right: {
-                type: 'MemberExpression',
-                object: {
-                  type: 'Identifier',
-                  name: 'Number'
-                },
-                property: {
-                  type: 'Identifier',
-                  name: 'POSITIVE_INFINITY'
-                },
-                computed: false
-              }
-            },
-            operator: '||',
-            right: {
-              type: 'BinaryExpression',
-              left: node,
-              operator: '===',
-              right: {
-                type: 'MemberExpression',
-                object: {
-                  type: 'Identifier',
-                  name: 'Number'
-                },
-                property: {
-                  type: 'Identifier',
-                  name: 'NEGATIVE_INFINITY'
-                },
-                computed: false
-              }
-            }
-          }
-        }
-        if (action === 'empty') {
-          return {
-            type: 'BinaryExpression',
-            left: {
-              type: 'MemberExpression',
-              object: node,
-              property: {
-                type: 'Identifier',
-                name: 'length'
-              }
-            },
-            operator: '===',
-            right: {
-              type: 'Literal',
-              value: 0
-            }
-          }
-        }
-        if (action === 'null') {
-          return {
-            type: 'BinaryExpression',
-            left: node,
-            operator: '===',
-            right: {
-              type: 'Literal',
-              value: null
-            }
-          }
-        }
-        if (action === 'undefined') {
-          return {
-            type: 'BinaryExpression',
-            left: node,
-            operator: '===',
-            right: {
-              type: 'UnaryExpression',
-              operator: 'void',
-              prefix: 'true',
-              argument: {
-                type: 'Literal',
-                value: 0
-              }
-            }
-          }
-        }
-        if (action === 'even' || action === 'odd') {
-          const operator = action === 'even' ? '===' : '!=='
-          return {
-            type: 'BinaryExpression',
-            left: {
-              type: 'BinaryExpression',
-              left: node,
-              operator: '%',
-              right: {
-                type: 'Literal',
-                value: 2
-              }
-            },
-            operator,
-            right: {
-              type: 'Literal',
-              value: 0
-            }
-          }
-        }
-        if (action === 'a' || action === 'an') {
-          const capitalize = (string) => string[0].toUpperCase() + string.substring(1)
-          const type = keys[3]
-          const constructor = type === 'regexp' ? 'RegExp' : capitalize(type)
-          if (type === 'array') {
-            return {
-              type: 'CallExpression',
-              callee: {
-                type: 'MemberExpression',
-                object: {
-                  type: 'Identifier',
-                  name: constructor
-                },
-                property: {
-                  type: 'Identifier',
-                  name: 'isArray'
-                },
-                computed: false
-              },
-              arguments: [node]
-            }
-          }
-          if (type === 'object') {
-            return {
-              type: 'LogicalExpression',
-              left: {
-                type: 'LogicalExpression',
-                left: {
-                  type: 'BinaryExpression',
-                  left: {
-                    type: 'UnaryExpression',
-                    operator: 'typeof',
-                    prefix: true,
-                    argument: node
-                  },
-                  operator: '===',
-                  right: {
-                    type: 'Literal',
-                    value: 'function'
-                  }
-                },
-                operator: '||',
-                right: {
-                  type: 'BinaryExpression',
-                  left: {
-                    type: 'UnaryExpression',
-                    operator: 'typeof',
-                    prefix: true,
-                    argument: node
-                  },
-                  operator: '===',
-                  right: {
-                    type: 'Literal',
-                    value: 'object'
-                  }
-                }
-              },
-              operator: '&&',
-              right: {
-                type: 'UnaryExpression',
-                operator: '!',
-                prefix: true,
-                argument: {
-                  type: 'UnaryExpression',
-                  operator: '!',
-                  prefix: true,
-                  argument: node
-                }
-              }
-            }
-          }
-          if (
-            type === 'string' ||
-            type === 'number' ||
-            type === 'symbol' ||
-            type === 'map' ||
-            type === 'set' ||
-            type === 'boolean' ||
-            type === 'regexp' ||
-            type === 'date'
-          ) {
-            return {
-              type: 'BinaryExpression',
-              left: {
-                type: 'CallExpression',
-                callee: {
-                  type: 'MemberExpression',
-                  object: {
-                    type: 'MemberExpression',
-                    object: {
-                      type: 'MemberExpression',
-                      object: {
-                        type: 'Identifier',
-                        name: 'Object'
-                      },
-                      property: {
-                        type: 'Identifier',
-                        name: 'prototype'
-                      },
-                      computed: false
-                    },
-                    property: {
-                      type: 'Identifier',
-                      name: 'toString'
-                    },
-                    computed: false
-                  },
-                  property: {
-                    type: 'Identifier',
-                    name: 'call'
-                  },
-                  computed: false
-                },
-                arguments: [node]
-              },
-              operator: '===',
-              right: {
-                type: 'Literal',
-                value: `[object ${constructor}]`
-              }
-            }
-          }
-        }
+
         return node
       }
 

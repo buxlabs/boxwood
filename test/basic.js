@@ -945,3 +945,8 @@ equal(compile('<div>{42 + 42}</div>')({
 equal(compile('<div>1 + 2 = {1 + 2}</div>')({
   foo: 'bar'
 }, html => html), '<div>1 + 2 = 3</div>')
+
+// equal(compile('<if foo is less than bar>baz</if>')({
+//   foo: 100,
+//   bar: 50
+// }, html => html), '')
