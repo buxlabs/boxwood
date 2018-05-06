@@ -173,6 +173,12 @@ assert(template({ foo: 'bar' }) === '<div>bar</div>')
 ```
 
 ```html
+<if foo is void>
+  Hello, world!
+</if>
+```
+
+```html
 <if foo is null>
   Hello, world!
 </if>
@@ -180,6 +186,18 @@ assert(template({ foo: 'bar' }) === '<div>bar</div>')
 
 ```html
 <if foo is an object>
+  Hello, world!
+</if>
+```
+
+```html
+<if foo is not present>
+  Hello, world!
+</if>
+```
+
+```html
+<if foo is not empty>
   Hello, world!
 </if>
 ```
