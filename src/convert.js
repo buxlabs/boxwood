@@ -73,25 +73,28 @@ function convertHtmlOrTextAttribute (fragment, variables) {
   return null
 }
 
+function convertIdentifier (node, variables) {
+  if (variables.includes(node.name)) {
+    return node
+  } else {
+    return {
+      type: 'MemberExpression',
+      computed: false,
+      object: getIdentifier(OBJECT_VARIABLE),
+      property: node
+    }
+  }
+}
+
 function getTemplateNode (expression, variables, unescape) {
   if (expression.type === 'Literal') {
     return expression
   } else if (expression.type === 'BinaryExpression') {
     return expression
   } else if (expression.type === 'Identifier') {
-    if (variables.includes(expression.name)) {
-      if (unescape) return expression
-      return getEscapeCallExpression(expression)
-    } else {
-      const node = {
-        type: 'MemberExpression',
-        computed: false,
-        object: getIdentifier(OBJECT_VARIABLE),
-        property: expression
-      }
-      if (unescape) return node
-      return getEscapeCallExpression(node)
-    }
+    const node = convertIdentifier(expression, variables)
+    if (unescape) return node
+    return getEscapeCallExpression(node)
   } else if (expression.type === 'MemberExpression') {
     if (variables.includes(expression.object.name)) {
       if (unescape) return expression
@@ -119,6 +122,27 @@ function getTemplateNode (expression, variables, unescape) {
           object: getIdentifier(OBJECT_VARIABLE),
           property: leaf.object
         }
+        if (unescape) return expression
+        return getEscapeCallExpression(expression)
+      }
+    }
+  } else if (expression.type === 'CallExpression') {
+    expression.arguments = expression.arguments.map(node => getTemplateNode(node, variables, unescape))
+    if (expression.callee.type === 'Identifier') {
+      expression.callee = convertIdentifier(expression.callee, variables)
+      if (unescape) return expression
+      return getEscapeCallExpression(expression)
+    } else if (expression.callee.type === 'MemberExpression') {
+      let node = expression.callee.object
+      if (expression.callee.object.type === 'Identifier') {
+        expression.callee.object = convertIdentifier(expression.callee.object, variables)
+        if (unescape) return expression
+        return getEscapeCallExpression(expression)
+      } else {
+        while (node.object && node.object.type === 'MemberExpression') {
+          node = node.object
+        }
+        node.object = convertIdentifier(node.object, variables)
         if (unescape) return expression
         return getEscapeCallExpression(expression)
       }
