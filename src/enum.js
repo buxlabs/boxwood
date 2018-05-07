@@ -28,22 +28,6 @@ module.exports = {
     'unless',
     'elseunless'
   ],
-  OPERATORS_MAP: {
-    and: '&&',
-    or: '||',
-    eq: '===',
-    gt: '>',
-    lt: '<',
-    gte: '>=',
-    lte: '<=',
-    equals: '==='
-  },
-  BITWISE_OPERATORS_MAP: {
-    or: '|',
-    and: '&',
-    xor: '^',
-    not: '~'
-  },
   UNESCAPED_NAMES: [
     'value',
     'checked',

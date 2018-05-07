@@ -1,7 +1,7 @@
 const assert = require('assert')
-const { getAction } = require('./action')
+const { getAction, getExpression } = require('./action')
 
-assert.deepEqual(getAction(['is', 'positive'])('foo'), {
+assert.deepEqual(getAction(['is', 'positive']).handler('foo'), {
   type: 'BinaryExpression',
   left: 'foo',
   right: {
@@ -11,7 +11,7 @@ assert.deepEqual(getAction(['is', 'positive'])('foo'), {
   operator: '>'
 })
 
-assert.deepEqual(getAction(['is', 'negative'])('foo'), {
+assert.deepEqual(getAction(['is', 'negative']).handler('foo'), {
   type: 'BinaryExpression',
   left: 'foo',
   right: {
@@ -21,7 +21,7 @@ assert.deepEqual(getAction(['is', 'negative'])('foo'), {
   operator: '<'
 })
 
-assert.deepEqual(getAction(['is', 'finite'])('foo'), {
+assert.deepEqual(getAction(['is', 'finite']).handler('foo'), {
   type: 'CallExpression',
   callee: {
     type: 'Identifier',
@@ -30,7 +30,7 @@ assert.deepEqual(getAction(['is', 'finite'])('foo'), {
   arguments: ['foo']
 })
 
-assert.deepEqual(getAction(['is', 'infinite'])('foo'), {
+assert.deepEqual(getAction(['is', 'infinite']).handler('foo'), {
   type: 'LogicalExpression',
   left: {
     type: 'BinaryExpression',
@@ -69,7 +69,7 @@ assert.deepEqual(getAction(['is', 'infinite'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'empty'])('foo'), {
+assert.deepEqual(getAction(['is', 'empty']).handler('foo'), {
   type: 'BinaryExpression',
   left: {
     type: 'MemberExpression',
@@ -86,7 +86,7 @@ assert.deepEqual(getAction(['is', 'empty'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'null'])('foo'), {
+assert.deepEqual(getAction(['is', 'null']).handler('foo'), {
   type: 'BinaryExpression',
   left: 'foo',
   operator: '===',
@@ -96,7 +96,7 @@ assert.deepEqual(getAction(['is', 'null'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'undefined'])('foo'), {
+assert.deepEqual(getAction(['is', 'undefined']).handler('foo'), {
   type: 'BinaryExpression',
   left: 'foo',
   operator: '===',
@@ -111,7 +111,7 @@ assert.deepEqual(getAction(['is', 'undefined'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'even'])('foo'), {
+assert.deepEqual(getAction(['is', 'even']).handler('foo'), {
   type: 'BinaryExpression',
   left: {
     type: 'BinaryExpression',
@@ -129,7 +129,7 @@ assert.deepEqual(getAction(['is', 'even'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'odd'])('foo'), {
+assert.deepEqual(getAction(['is', 'odd']).handler('foo'), {
   type: 'BinaryExpression',
   left: {
     type: 'BinaryExpression',
@@ -147,7 +147,7 @@ assert.deepEqual(getAction(['is', 'odd'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'an', 'array'])('foo'), {
+assert.deepEqual(getAction(['is', 'an', 'array']).handler('foo'), {
   type: 'CallExpression',
   callee: {
     type: 'MemberExpression',
@@ -164,7 +164,7 @@ assert.deepEqual(getAction(['is', 'an', 'array'])('foo'), {
   arguments: ['foo']
 })
 
-assert.deepEqual(getAction(['is', 'an', 'object'])('foo'), {
+assert.deepEqual(getAction(['is', 'an', 'object']).handler('foo'), {
   type: 'LogicalExpression',
   left: {
     type: 'LogicalExpression',
@@ -212,7 +212,7 @@ assert.deepEqual(getAction(['is', 'an', 'object'])('foo'), {
   }
 })
 
-assert.deepEqual(getAction(['is', 'a', 'regexp'])('foo'), {
+assert.deepEqual(getAction(['is', 'a', 'regexp']).handler('foo'), {
   type: 'BinaryExpression',
   left: {
     type: 'CallExpression',
@@ -251,4 +251,25 @@ assert.deepEqual(getAction(['is', 'a', 'regexp'])('foo'), {
     type: 'Literal',
     value: '[object RegExp]'
   }
+})
+
+assert.deepEqual(getAction(['or']).handler('foo', 'bar'), {
+  type: 'LogicalExpression',
+  left: 'foo',
+  operator: '||',
+  right: 'bar'
+})
+
+assert.deepEqual(getAction(['and']).handler('foo', 'bar'), {
+  type: 'LogicalExpression',
+  left: 'foo',
+  operator: '&&',
+  right: 'bar'
+})
+
+assert.deepEqual(getAction(['lte']).handler('foo', 'bar'), {
+  type: 'LogicalExpression',
+  left: 'foo',
+  operator: '<=',
+  right: 'bar'
 })

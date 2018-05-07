@@ -56,120 +56,83 @@ function collect (tree, fragment, variables) {
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-    if (attrs.length === 1) {
-      const { key } = attrs[0]
-      const [prefix] = key.split('.')
+    const appendIfStatement = node => {
       tree.append({
         type: 'IfStatement',
-        test: getTemplateIdentifier(prefix, key, variables),
+        test: node,
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
         }
       })
-    } else {
-      const keys = attrs.map(attr => attr.key)
-      const operator = keys[1]
+    }
 
-      const getTest = (keys, node) => {
-        const action = keys[2]
-        const keywords = []
-        let handler
+    const findAction = (keys, index = 1) => {
+      const keywords = []
+      let action
 
-        for (let i = 1; i < keys.length; i++) {
-          keywords.push(keys[i])
-          handler = getAction(keywords)
+      for (let i = index; i < keys.length; i++) {
+        keywords.push(keys[i])
+        action = getAction(keywords)
 
-          if (handler) keywords.length = 0
-        }
-
-        if (handler) {
-          return handler(node)
-        }
-
-        return node
+        if (action) return action
       }
+    }
 
-      if (operator === 'is') {
+    const getTest = (action, keys) => {
+      if (!action || action.args === 1) {
         const key = keys[0]
         const [prefix] = key.split('.')
         const node = getTemplateIdentifier(prefix, key, variables)
-        tree.append({
-          type: 'IfStatement',
-          test: getTest(keys, node),
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body()
-          }
-        })
-      } else if (Object.keys(OPERATORS_MAP).includes(operator)) {
-        const condition1 = keys[0]
-        const [prefix1] = condition1.split('.')
 
-        const condition2 = keys[2]
-        const [prefix2] = condition2.split('.')
-
-        let expression = {
-          type: 'LogicalExpression',
-          left: getTemplateIdentifier(prefix1, condition1, variables),
-          right: getTemplateIdentifier(prefix2, condition2, variables),
-          operator: OPERATORS_MAP[operator]
+        if (!action) {
+          return node
+        } else {
+          return action.handler(node)
         }
-        for (let i = 3; i < keys.length; i++) {
-          const operator = keys[i]
-          i += 1
-          const condition = keys[i]
-          const prefix = condition.split('.')
-          expression = {
-            type: 'LogicalExpression',
-            left: expression,
-            right: getTemplateIdentifier(prefix, condition, variables),
-            operator: OPERATORS_MAP[operator]
-          }
-        }
-        tree.append({
-          type: 'IfStatement',
-          test: expression,
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body()
-          }
-        })
-      } else if (operator === 'bitwise') {
-        const condition1 = keys[0]
-        const [prefix1] = condition1.split('.')
-
-        const condition2 = keys[3]
-        const [prefix2] = condition2.split('.')
-        const operator = keys[2]
-
-        let expression = {
-          type: 'BinaryExpression',
-          left: getTemplateIdentifier(prefix1, condition1, variables),
-          right: getTemplateIdentifier(prefix2, condition2, variables),
-          operator: BITWISE_OPERATORS_MAP[operator]
-        }
-        for (let i = 4; i < keys.length; i++) {
-          const operator = keys[i]
-          i += 1
-          const condition = keys[i]
-          const prefix = condition.split('.')
-          expression = {
-            type: 'BinaryExpression',
-            left: expression,
-            right: getTemplateIdentifier(prefix, condition, variables),
-            operator: OPERATORS_MAP[operator]
-          }
-        }
-        tree.append({
-          type: 'IfStatement',
-          test: expression,
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body()
-          }
-        })
       }
+      if (action.args === 2) {
+        let i = 0
+        let left
+        let right
+        let test
+
+        while(i < keys.length) {
+          if (left) {
+            let condition = keys[i]
+            let prefix = condition.split('.')
+
+            right = getTemplateIdentifier(prefix, condition, variables)
+            test = action.handler(left, right)
+            i++
+            continue
+          }
+
+          let condition1 = keys[i]
+          let [prefix1] = condition1.split('.')
+          left = getTemplateIdentifier(prefix1, condition1, variables)
+
+          i += action.bin || action.args
+
+          let condition2 = keys[i]
+          let [prefix2] = condition2.split('.')
+          right = getTemplateIdentifier(prefix2, condition2, variables)
+
+          i++
+          test = action.handler(left, right)
+        }
+        return test
+      }
+    }
+    if (attrs.length === 1) {
+      const keys = attrs.map(attr => attr.key)
+      const test = getTest(null, keys)
+      appendIfStatement(test)
+    } else {
+      const keys = attrs.map(attr => attr.key)
+      const action = findAction(keys)
+      const test = getTest(action, keys)
+      appendIfStatement(test)
     }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
