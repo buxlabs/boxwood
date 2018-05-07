@@ -5,23 +5,33 @@ function singlespace (string) {
 module.exports = {
   singlespace,
   extract (value) {
-    let values = []
+    let objects = []
     let string = ''
     singlespace(value.trim()).split('').forEach(character => {
       if (character === '{') {
         if (string) {
-          values.push({ value: string })
+          objects.push({ value: string })
           string = ''
         }
       }
       string += character
       if (character === '}') {
-        values.push({ value: string })
+        objects.push({ value: string })
         string = ''
       }
     })
-    values.push({ value: string })
-    return values.filter(object => !!object.value)
+    objects.push({ value: string })
+    objects = objects.map(object => {
+      let value = object.value
+      if (value.startsWith('{') && value.endsWith('}') && value.includes('|')) {
+        value = value.substring(1, value.length - 1)
+        let parts = value.split('|').map(string => string.trim())
+        object.value = `{${parts[0]}}`
+        object.modifiers = parts.slice(1)
+      }
+      return object
+    })
+    return objects.filter(object => !!object.value)
   },
   getName (name) {
     if (name.endsWith('.bind')) {
