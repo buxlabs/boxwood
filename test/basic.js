@@ -1002,3 +1002,7 @@ equal(compile('<if foo is greater than bar>baz</if>')({
   foo: 30,
   bar: 40
 }, html => html), '')
+
+// equal(compile('{foo | uppercase}')({
+//   foo: 'bar'
+// }, html => html), 'BAR')

@@ -10,18 +10,18 @@ module.exports = {
     singlespace(value.trim()).split('').forEach(character => {
       if (character === '{') {
         if (string) {
-          values.push(string)
+          values.push({ value: string })
           string = ''
         }
       }
       string += character
       if (character === '}') {
-        values.push(string)
+        values.push({ value: string })
         string = ''
       }
     })
-    values.push(string)
-    return values.filter(Boolean)
+    values.push({ value: string })
+    return values.filter(object => !!object.value)
   },
   getName (name) {
     if (name.endsWith('.bind')) {

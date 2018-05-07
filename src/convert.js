@@ -35,7 +35,7 @@ function convertAttribute (name, value, variables) {
       const expression = convertToExpression(property)
       return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
     } else {
-      const nodes = values.map((value, index) => {
+      const nodes = values.map(({ value }, index) => {
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
           const expression = convertToExpression(property)
@@ -151,7 +151,7 @@ function getTemplateNode (expression, variables, unescape) {
 }
 
 function convertText (text, variables) {
-  const nodes = extract(text).map((value, index) => {
+  const nodes = extract(text).map(({ value }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
@@ -199,7 +199,7 @@ function convertTag (fragment, variables) {
         let { value } = attr
         if (value.includes('{') && value.includes('}')) {
           let values = extract(value)
-          values.forEach(value => {
+          values.forEach(({ value }) => {
             nodes.push(convertAttribute(attr.key, value, variables))
           })
         } else {
