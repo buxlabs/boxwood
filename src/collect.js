@@ -66,74 +66,60 @@ function collect (tree, fragment, variables) {
         }
       })
     }
-
-    const findAction = (keys, index = 1) => {
+    const findAction = (keys, index) => {
       const keywords = []
       let action
 
-      for (let i = index; i < keys.length; i++) {
+      for (let i = 1; i < keys.length; i++) {
         keywords.push(keys[i])
         action = getAction(keywords)
 
         if (action) return action
       }
     }
-
     const getTest = (action, keys) => {
       if (!action || action.args === 1) {
         const key = keys[0]
         const [prefix] = key.split('.')
         const node = getTemplateIdentifier(prefix, key, variables)
 
-        if (!action) {
-          return node
-        } else {
-          return action.handler(node)
-        }
+        if (!action) return node
+        return action.handler(node)
       }
       if (action.args === 2) {
-        let i = 0
         let left
         let right
         let test
 
-        while(i < keys.length) {
+        for (let i = 0; i < keys.length; i++) {
           if (left) {
             let condition = keys[i]
             let prefix = condition.split('.')
 
             right = getTemplateIdentifier(prefix, condition, variables)
             test = action.handler(left, right)
-            i++
             continue
           }
 
-          let condition1 = keys[i]
-          let [prefix1] = condition1.split('.')
+          const condition1 = keys[i]
+          const [prefix1] = condition1.split('.')
           left = getTemplateIdentifier(prefix1, condition1, variables)
 
-          i += action.bin || action.args
+          i += action.name.length //skip operator
 
-          let condition2 = keys[i]
-          let [prefix2] = condition2.split('.')
+          const condition2 = keys[++i]
+          const [prefix2] = condition2.split('.')
           right = getTemplateIdentifier(prefix2, condition2, variables)
 
-          i++
           test = action.handler(left, right)
         }
         return test
       }
     }
-    if (attrs.length === 1) {
-      const keys = attrs.map(attr => attr.key)
-      const test = getTest(null, keys)
-      appendIfStatement(test)
-    } else {
-      const keys = attrs.map(attr => attr.key)
-      const action = findAction(keys)
-      const test = getTest(action, keys)
-      appendIfStatement(test)
-    }
+    const keys = attrs.map(attr => attr.key)
+    const action = findAction(keys)
+    const test = getTest(action, keys)
+    appendIfStatement(test)
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
     if (leaf) {

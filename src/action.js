@@ -419,10 +419,10 @@ const STANDARD_ACTIONS = [
   { name: ['gte'], handler: isGreaterThanOrEqual, args: 2 },
   { name: ['lte'], handler: isLessThanOrEqual, args: 2 },
   { name: ['equals'], handler: isEquals, args: 2 },
-  { name: ['bitwise', 'or'], handler: isBitwiseAlternative, args: 2, bin: 3},
-  { name: ['bitwise', 'and'], handler: isBitwiseConjunction, args: 2, bin: 3},
-  { name: ['bitwise', 'xor'], handler: isBitwiseAlternativeNegation, args: 2, bin: 3},
-  { name: ['bitwise', 'not'], handler: isBitwiseNegation, args: 2, bin: 3},
+  { name: ['bitwise', 'or'], handler: isBitwiseAlternative, args: 2 },
+  { name: ['bitwise', 'and'], handler: isBitwiseConjunction, args: 2 },
+  { name: ['bitwise', 'xor'], handler: isBitwiseAlternativeNegation, args: 2 },
+  { name: ['bitwise', 'not'], handler: isBitwiseNegation, args: 2 },
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
