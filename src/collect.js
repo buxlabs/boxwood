@@ -56,121 +56,70 @@ function collect (tree, fragment, variables) {
     walk(fragment, current => {
       collect(ast, current, variables)
     })
-    if (attrs.length === 1) {
-      const { key } = attrs[0]
-      const [prefix] = key.split('.')
+    const appendIfStatement = node => {
       tree.append({
         type: 'IfStatement',
-        test: getTemplateIdentifier(prefix, key, variables),
+        test: node,
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
         }
       })
-    } else {
-      const keys = attrs.map(attr => attr.key)
-      const operator = keys[1]
+    }
+    const findAction = (keys, index) => {
+      const keywords = []
+      let action
 
-      const getTest = (keys, node) => {
-        const action = keys[2]
-        const keywords = []
-        let handler
+      for (let i = 1; i < keys.length; i++) {
+        keywords.push(keys[i])
+        action = getAction(keywords)
 
-        for (let i = 1; i < keys.length; i++) {
-          keywords.push(keys[i])
-          handler = getAction(keywords)
-
-          if (handler) keywords.length = 0
-        }
-
-        if (handler) {
-          return handler(node)
-        }
-
-        return node
+        if (action) return action
       }
-
-      if (operator === 'is') {
+    }
+    const getTest = (action, keys) => {
+      if (!action || action.args === 1) {
         const key = keys[0]
         const [prefix] = key.split('.')
         const node = getTemplateIdentifier(prefix, key, variables)
-        tree.append({
-          type: 'IfStatement',
-          test: getTest(keys, node),
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body()
-          }
-        })
-      } else if (Object.keys(OPERATORS_MAP).includes(operator)) {
-        const condition1 = keys[0]
-        const [prefix1] = condition1.split('.')
 
-        const condition2 = keys[2]
-        const [prefix2] = condition2.split('.')
+        if (!action) return node
+        return action.handler(node)
+      }
+      if (action.args === 2) {
+        let left
+        let right
+        let test
 
-        let expression = {
-          type: 'LogicalExpression',
-          left: getTemplateIdentifier(prefix1, condition1, variables),
-          right: getTemplateIdentifier(prefix2, condition2, variables),
-          operator: OPERATORS_MAP[operator]
-        }
-        for (let i = 3; i < keys.length; i++) {
-          const operator = keys[i]
-          i += 1
-          const condition = keys[i]
-          const prefix = condition.split('.')
-          expression = {
-            type: 'LogicalExpression',
-            left: expression,
-            right: getTemplateIdentifier(prefix, condition, variables),
-            operator: OPERATORS_MAP[operator]
-          }
-        }
-        tree.append({
-          type: 'IfStatement',
-          test: expression,
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body()
-          }
-        })
-      } else if (operator === 'bitwise') {
-        const condition1 = keys[0]
-        const [prefix1] = condition1.split('.')
+        for (let i = 0; i < keys.length; i++) {
+          if (left) {
+            let condition = keys[i]
+            let prefix = condition.split('.')
 
-        const condition2 = keys[3]
-        const [prefix2] = condition2.split('.')
-        const operator = keys[2]
+            right = getTemplateIdentifier(prefix, condition, variables)
+            test = action.handler(left, right)
+            continue
+          }
 
-        let expression = {
-          type: 'BinaryExpression',
-          left: getTemplateIdentifier(prefix1, condition1, variables),
-          right: getTemplateIdentifier(prefix2, condition2, variables),
-          operator: BITWISE_OPERATORS_MAP[operator]
+          const condition1 = keys[i]
+          const [prefix1] = condition1.split('.')
+          left = getTemplateIdentifier(prefix1, condition1, variables)
+
+          i += action.name.length //skip operator
+
+          const condition2 = keys[++i]
+          const [prefix2] = condition2.split('.')
+          right = getTemplateIdentifier(prefix2, condition2, variables)
+
+          test = action.handler(left, right)
         }
-        for (let i = 4; i < keys.length; i++) {
-          const operator = keys[i]
-          i += 1
-          const condition = keys[i]
-          const prefix = condition.split('.')
-          expression = {
-            type: 'BinaryExpression',
-            left: expression,
-            right: getTemplateIdentifier(prefix, condition, variables),
-            operator: OPERATORS_MAP[operator]
-          }
-        }
-        tree.append({
-          type: 'IfStatement',
-          test: expression,
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body()
-          }
-        })
+        return test
       }
     }
+    const keys = attrs.map(attr => attr.key)
+    const action = findAction(keys)
+    const test = getTest(action, keys)
+    appendIfStatement(test)
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
     if (leaf) {

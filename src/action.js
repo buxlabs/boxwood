@@ -1,7 +1,7 @@
 const getAction = (actionName) => {
   for (let action of ACTIONS) {
     if (action.name.join('') === actionName.join('')) {
-      return action.handler
+      return action
     }
   }
 }
@@ -322,6 +322,68 @@ function negate(node) {
   }
 }
 
+function getLogicalExpression(left, right, operator) {
+  return {
+    type: 'LogicalExpression',
+    left,
+    right,
+    operator
+  }
+}
+
+function getBinaryExpression(left, right, operator) {
+  return {
+    type: 'BinaryExpression',
+    left,
+    right,
+    operator
+  }
+}
+
+function isAlternative(left, right) {
+  return getLogicalExpression(left, right, '||')
+}
+
+function isConjunction(left, right, operator) {
+  return getLogicalExpression(left, right, '&&')
+}
+
+function isGreaterThan(left, right, operator) {
+ return getLogicalExpression(left, right, '>')
+}
+
+function isLessThan(left, right, operator) {
+ return getLogicalExpression(left, right, '<')
+}
+
+function isGreaterThanOrEqual(left, right, operator) {
+ return getLogicalExpression(left, right, '>=')
+}
+
+function isLessThanOrEqual(left, right, operator) {
+ return getLogicalExpression(left, right, '<=')
+}
+
+function isEquals(left, right, operator) {
+  return getLogicalExpression(left, right, '===')
+}
+
+function isBitwiseAlternative(left, right) {
+  return getBinaryExpression(left, right, '|')
+}
+
+function isBitwiseConjunction(left, right) {
+ return getBinaryExpression(left, right, '&')
+}
+
+function isBitwiseAlternativeNegation(left, right) {
+  return getBinaryExpression(left, right, '^')
+}
+
+function isBitwiseNegation (left, right) {
+  return getBinaryExpression(left, right, '~')
+}
+
 const STANDARD_ACTIONS = [
   { name: ['is', 'positive'], handler: isPositive, args: 1 },
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
@@ -349,6 +411,20 @@ const STANDARD_ACTIONS = [
   { name: ['is', 'a', 'weakset'], handler: isWeakSet, args: 1 },
   { name: ['is', 'a', 'boolean'], handler: isBoolean, args: 1 },
   { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
+  { name: ['or'], handler: isAlternative, args: 2 },
+  { name: ['and'], handler: isConjunction, args: 2 },
+  { name: ['eq'], handler: isEquals, args: 2 },
+  { name: ['gt'], handler: isGreaterThan, args: 2 },
+  { name: ['is', 'greater', 'than'], handler: isGreaterThan, args: 2 },
+  { name: ['lt'], handler: isLessThan, args: 2 },
+  { name: ['is', 'less', 'than'], handler: isLessThan, args: 2 },
+  { name: ['gte'], handler: isGreaterThanOrEqual, args: 2 },
+  { name: ['lte'], handler: isLessThanOrEqual, args: 2 },
+  { name: ['equals'], handler: isEquals, args: 2 },
+  { name: ['bitwise', 'or'], handler: isBitwiseAlternative, args: 2 },
+  { name: ['bitwise', 'and'], handler: isBitwiseConjunction, args: 2 },
+  { name: ['bitwise', 'xor'], handler: isBitwiseAlternativeNegation, args: 2 },
+  { name: ['bitwise', 'not'], handler: isBitwiseNegation, args: 2 },
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {

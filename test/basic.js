@@ -973,7 +973,32 @@ equal(compile('<if foo is not present>bar</if>')({
   foo: undefined
 }, html => html), 'bar')
 
-// equal(compile('<if foo is less than bar>baz</if>')({
-//   foo: 100,
-//   bar: 50
-// }, html => html), '')
+equal(compile('<if foo is less than bar>baz</if>')({
+  foo: 100,
+  bar: 50
+}, html => html), '')
+
+equal(compile('<if foo is less than bar>baz</if>')({
+  foo: 50,
+  bar: 50
+}, html => html), '')
+
+equal(compile('<if foo is less than bar>baz</if>')({
+  foo: 30,
+  bar: 40
+}, html => html), 'baz')
+
+equal(compile('<if foo is greater than bar>baz</if>')({
+  foo: 100,
+  bar: 50
+}, html => html), 'baz')
+
+equal(compile('<if foo is greater than bar>baz</if>')({
+  foo: 50,
+  bar: 50
+}, html => html), '')
+
+equal(compile('<if foo is greater than bar>baz</if>')({
+  foo: 30,
+  bar: 40
+}, html => html), '')
