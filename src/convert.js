@@ -151,11 +151,11 @@ function getTemplateNode (expression, variables, unescape) {
 }
 
 function convertText (text, variables) {
-  const nodes = extract(text).map(({ value }, index) => {
+  const nodes = extract(text).map(({ value, modifiers }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
-      return getTemplateNode(expression, variables)
+      return modify(getTemplateNode(expression, variables), modifiers)
     }
     return getLiteral(value)
   })
@@ -164,6 +164,22 @@ function convertText (text, variables) {
     return [{ type: 'ExpressionStatement', expression }]
   }
   return nodes
+}
+
+function modify(node, modifiers) {
+  if (modifiers) {
+    return modifiers.reduce((leaf, modifier) => {
+      return {
+        type: 'CallExpression',
+        callee: {
+          type: 'Identifier',
+          name: modifier
+        },
+        arguments: [leaf]
+      }
+    }, node)
+  }
+  return node
 }
 
 function convertTag (fragment, variables) {
