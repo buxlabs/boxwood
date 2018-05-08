@@ -1017,3 +1017,5 @@ equal(compile('<div class="{foo | uppercase}"></div>')({ foo: 'bar' }, html => h
 equal(compile('<input checked="{query | trim}">')({ query: '' }, html => html), '<input>')
 equal(compile('<input checked="{query | trim}">')({ query: '   ' }, html => html), '<input>')
 equal(compile('<input checked="{query | trim}">')({ query: 'bar' }, html => html), '<input checked>')
+equal(compile('<div>{foo | removeWhitespace}</div>')({ foo: 'b  ar' }, html => html), '<div>bar</div>')
+
