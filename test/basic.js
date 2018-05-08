@@ -658,6 +658,10 @@ equal(compile('<if foo is empty>baz</if>')({
 }, html => html), 'baz')
 
 equal(compile('<if foo is empty>baz</if>')({
+  foo: new Array()
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
   foo: [{ baz: 'bar' }, {}]
 }, html => html), '')
 
@@ -669,9 +673,52 @@ equal(compile('<if foo is empty>baz</if>')({
   foo: 'qux'
 }, html => html), '')
 
-// equal(compile('<if foo is empty>baz</if>')({
-//   foo: null
-// }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({
+  foo: null
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: undefined
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: {}
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: { bar: null }
+}, html => html), '')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: {
+    1: 'bar',
+    2: 'baz'
+  }
+}, html => html), '')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: { bar: 'ban' }
+}, html => html), '')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: function () {}
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: new Map()
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: new Map([['foo', 'bar'], ['baz', 'ban']])
+}, html => html), '')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: new Set()
+}, html => html), 'baz')
+
+equal(compile('<if foo is empty>baz</if>')({
+  foo: new Set([1, 'foo', 'bar'])
+}, html => html), '')
 
 equal(compile('<if foo is an array>baz</if>')({
   foo: []

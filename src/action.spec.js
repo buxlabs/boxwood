@@ -74,79 +74,325 @@ assert.deepEqual(getAction(['is', 'empty']).handler('foo'), {
   left: {
     type: 'LogicalExpression',
     left: {
-      type: 'CallExpression',
-      callee: {
-        type: 'MemberExpression',
-        object: {
-          type: 'Identifier',
-          name: 'Array'
-        },
-        property: {
-          type: 'Identifier',
-          name: 'isArray'
-        },
-        computed: false
+      type: 'LogicalExpression',
+      left: {
+        type: 'BinaryExpression',
+        left: 'foo',
+        operator: '==',
+        right: {
+          type: 'Literal',
+          value: null,
+        }
       },
-      arguments: ['foo']
+      operator: '||',
+      right: {
+        type: 'LogicalExpression',
+        left: {
+          type: 'LogicalExpression',
+          left: {
+            type: 'CallExpression',
+            callee: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'Array'
+              },
+              property: {
+                type: 'Identifier',
+                name: 'isArray'
+              },
+              computed: false
+            },
+            arguments: ['foo']
+          },
+          operator: '||',
+          right: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'Object'
+                    },
+                    property: {
+                      type: 'Identifier',
+                      name: 'prototype'
+                    },
+                    computed: false
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'toString'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'call'
+                },
+                computed: false
+              },
+              arguments: ['foo']
+            },
+            operator: '===',
+            right: {
+              type: 'Literal',
+              value: '[object String]',
+            }
+          }
+        },
+        operator: '&&',
+        right: {
+          type: 'BinaryExpression',
+          left: {
+            type: 'MemberExpression',
+            object: 'foo',
+            property: {
+              type: 'Identifier',
+              name: 'length'
+            },
+            computed: false
+          },
+          operator: '===',
+          right: {
+            type: 'Literal',
+            value: 0
+          }
+        }
+      }
     },
     operator: '||',
     right: {
-      type: 'BinaryExpression',
+      type: 'LogicalExpression',
       left: {
-        type: 'CallExpression',
-        callee: {
+        type: 'LogicalExpression',
+        left: {
+          type: 'BinaryExpression',
+          left: {
+            type: 'CallExpression',
+            callee: {
+              type: 'MemberExpression',
+              object: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'Object'
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'prototype'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'toString'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                name: 'call'
+              },
+              computed: false
+            },
+            arguments: ['foo']
+          },
+          operator: '===',
+          right: {
+            type: 'Literal',
+            value: '[object Set]',
+          }
+        },
+        operator: '||',
+        right: {
+          type: 'BinaryExpression',
+          left: {
+            type: 'CallExpression',
+            callee: {
+              type: 'MemberExpression',
+              object: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'Object'
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'prototype'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'toString'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                name: 'call'
+              },
+              computed: false
+            },
+            arguments: ['foo']
+          },
+          operator: '===',
+          right: {
+            type: 'Literal',
+            value: '[object Map]',
+          }
+        }
+      },
+      operator: '&&',
+      right: {
+        type: 'BinaryExpression',
+        left: {
           type: 'MemberExpression',
-          object: {
+          object: 'foo',
+          property: {
+            type: 'Identifier',
+            name: 'size'
+          },
+          computed: false
+        },
+        operator: '===',
+        right: {
+          type: 'Literal',
+          value: 0,
+        }
+      }
+    }
+  },
+  operator: '||',
+  right: {
+    type: 'LogicalExpression',
+    left: {
+      type: 'LogicalExpression',
+      left: {
+        type: 'BinaryExpression',
+        left: {
+          type: 'CallExpression',
+          callee: {
             type: 'MemberExpression',
             object: {
               type: 'MemberExpression',
               object: {
-                type: 'Identifier',
-                name: 'Object'
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: 'Object'
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'prototype'
+                },
+                computed: false
               },
               property: {
                 type: 'Identifier',
-                name: 'prototype'
+                name: 'toString'
               },
               computed: false
             },
             property: {
               type: 'Identifier',
-              name: 'toString'
+              name: 'call'
             },
             computed: false
           },
-          property: {
-            type: 'Identifier',
-            name: 'call'
-          },
-          computed: false
+          arguments: ['foo']
         },
-        arguments: ['foo']
+        operator: '===',
+        right: {
+          type: 'Literal',
+          value: '[object Object]'
+        }
+      },
+      operator: '||',
+      right: {
+        type: 'BinaryExpression',
+        left: {
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            object: {
+              type: 'MemberExpression',
+              object: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: 'Object'
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'prototype'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                name: 'toString'
+              },
+              computed: false
+            },
+            property: {
+              type: 'Identifier',
+              name: 'call'
+            },
+            computed: false
+          },
+          arguments: ['foo']
+        },
+        operator: '===',
+        right: {
+          type: 'Literal',
+          value: '[object Function]'
+        }
+      }
+    },
+    operator: '&&',
+    right: {
+      type: 'BinaryExpression',
+      left: {
+        type: 'MemberExpression',
+        object: {
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            object: {
+              type: 'Identifier',
+              name: 'Object'
+            },
+            property: {
+              type: 'Identifier',
+              name: 'keys'
+            },
+            computed: false
+          },
+          arguments: ['foo']
+        },
+        property: {
+          type: 'Identifier',
+          name: 'length'
+        },
+        computed: false
       },
       operator: '===',
       right: {
         type: 'Literal',
-        value: '[object String]',
+        value: 0
       }
-    }
-  },
-  operator: '&&',
-  right: {
-    type: 'BinaryExpression',
-    left: {
-      type: 'MemberExpression',
-      object: 'foo',
-      property: {
-        type: 'Identifier',
-        name: 'length'
-      },
-      computedd: false
-    },
-    operator: '===',
-    right: {
-      type: 'Literal',
-      value: 0
     }
   }
 })
