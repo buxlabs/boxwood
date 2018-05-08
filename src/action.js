@@ -80,19 +80,84 @@ function isInfinite (node) {
 
 function isEmpty (node) {
   return {
-    type: 'BinaryExpression',
+    type: 'LogicalExpression',
     left: {
-      type: 'MemberExpression',
-      object: node,
-      property: {
-        type: 'Identifier',
-        name: 'length'
+      type: 'LogicalExpression',
+      left: {
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: {
+            type: 'Identifier',
+            name: 'Array'
+          },
+          property: {
+            type: 'Identifier',
+            name: 'isArray'
+          },
+          computed: false
+        },
+        arguments: [node]
+      },
+      operator: '||',
+      right: {
+        type: 'BinaryExpression',
+        left: {
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            object: {
+              type: 'MemberExpression',
+              object: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: 'Object'
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'prototype'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                name: 'toString'
+              },
+              computed: false
+            },
+            property: {
+              type: 'Identifier',
+              name: 'call'
+            },
+            computed: false
+          },
+          arguments: [node]
+        },
+        operator: '===',
+        right: {
+          type: 'Literal',
+          value: '[object String]',
+        }
       }
     },
-    operator: '===',
+    operator: '&&',
     right: {
-      type: 'Literal',
-      value: 0
+      type: 'BinaryExpression',
+      left: {
+        type: 'MemberExpression',
+        object: node,
+        property: {
+          type: 'Identifier',
+          name: 'length'
+        },
+        computedd: false
+      },
+      operator: '===',
+      right: {
+        type: 'Literal',
+        value: 0
+      }
     }
   }
 }

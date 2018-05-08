@@ -670,7 +670,7 @@ equal(compile('<if foo is empty>baz</if>')({
 }, html => html), '')
 
 // equal(compile('<if foo is empty>baz</if>')({
-//   foo: {}
+//   foo: null
 // }, html => html), 'baz')
 
 equal(compile('<if foo is an array>baz</if>')({
@@ -1008,6 +1008,7 @@ equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 equal(compile('{foo | uppercase}')({
   foo: 'bar'
 }, html => html), 'BAR')
+<<<<<<< 956ae3d2ef544003dca2e653b94e54cfae7d9235
 
 equal(compile('<div html="{foo | uppercase}"></div>')({ foo: 'bar' }), '<div>BAR</div>')
 equal(compile('<div html="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
@@ -1019,3 +1020,5 @@ equal(compile('<input checked="{query | trim}">')({ query: '   ' }, html => html
 equal(compile('<input checked="{query | trim}">')({ query: 'bar' }, html => html), '<input checked>')
 equal(compile('<div>{foo | removeWhitespace}</div>')({ foo: 'b  ar' }, html => html), '<div>bar</div>')
 
+=======
+>>>>>>> Changed isEmpty implementation
