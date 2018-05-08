@@ -78,21 +78,332 @@ function isInfinite (node) {
   }
 }
 
-function isEmpty (node) {
+function isEmpty(node) {
   return {
-    type: 'BinaryExpression',
+    type: 'LogicalExpression',
     left: {
-      type: 'MemberExpression',
-      object: node,
-      property: {
-        type: 'Identifier',
-        name: 'length'
+      type: 'LogicalExpression',
+      left: {
+        type: 'LogicalExpression',
+        left: {
+          type: 'BinaryExpression',
+          left: node,
+          operator: '==',
+          right: {
+            type: 'Literal',
+            value: null,
+          }
+        },
+        operator: '||',
+        right: {
+          type: 'LogicalExpression',
+          left: {
+            type: 'LogicalExpression',
+            left: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'Identifier',
+                  name: 'Array'
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'isArray'
+                },
+                computed: false
+              },
+              arguments: [node]
+            },
+            operator: '||',
+            right: {
+              type: 'BinaryExpression',
+              left: {
+                type: 'CallExpression',
+                callee: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'MemberExpression',
+                      object: {
+                        type: 'Identifier',
+                        name: 'Object'
+                      },
+                      property: {
+                        type: 'Identifier',
+                        name: 'prototype'
+                      },
+                      computed: false
+                    },
+                    property: {
+                      type: 'Identifier',
+                      name: 'toString'
+                    },
+                    computed: false
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'call'
+                  },
+                  computed: false
+                },
+                arguments: [node]
+              },
+              operator: '===',
+              right: {
+                type: 'Literal',
+                value: '[object String]',
+              }
+            }
+          },
+          operator: '&&',
+          right: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'MemberExpression',
+              object: node,
+              property: {
+                type: 'Identifier',
+                name: 'length'
+              },
+              computed: false
+            },
+            operator: '===',
+            right: {
+              type: 'Literal',
+              value: 0
+            }
+          }
+        }
+      },
+      operator: '||',
+      right: {
+        type: 'LogicalExpression',
+        left: {
+          type: 'LogicalExpression',
+          left: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'Object'
+                    },
+                    property: {
+                      type: 'Identifier',
+                      name: 'prototype'
+                    },
+                    computed: false
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'toString'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'call'
+                },
+                computed: false
+              },
+              arguments: [node]
+            },
+            operator: '===',
+            right: {
+              type: 'Literal',
+              value: '[object Set]',
+            }
+          },
+          operator: '||',
+          right: {
+            type: 'BinaryExpression',
+            left: {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'MemberExpression',
+                    object: {
+                      type: 'Identifier',
+                      name: 'Object'
+                    },
+                    property: {
+                      type: 'Identifier',
+                      name: 'prototype'
+                    },
+                    computed: false
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'toString'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'call'
+                },
+                computed: false
+              },
+              arguments: [node]
+            },
+            operator: '===',
+            right: {
+              type: 'Literal',
+              value: '[object Map]',
+            }
+          }
+        },
+        operator: '&&',
+        right: {
+          type: 'BinaryExpression',
+          left: {
+            type: 'MemberExpression',
+            object: node,
+            property: {
+              type: 'Identifier',
+              name: 'size'
+            },
+            computed: false
+          },
+          operator: '===',
+          right: {
+            type: 'Literal',
+            value: 0,
+          }
+        }
       }
     },
-    operator: '===',
+    operator: '||',
     right: {
-      type: 'Literal',
-      value: 0
+      type: 'LogicalExpression',
+      left: {
+        type: 'LogicalExpression',
+        left: {
+          type: 'BinaryExpression',
+          left: {
+            type: 'CallExpression',
+            callee: {
+              type: 'MemberExpression',
+              object: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'Object'
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'prototype'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'toString'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                name: 'call'
+              },
+              computed: false
+            },
+            arguments: [node]
+          },
+          operator: '===',
+          right: {
+            type: 'Literal',
+            value: '[object Object]'
+          }
+        },
+        operator: '||',
+        right: {
+          type: 'BinaryExpression',
+          left: {
+            type: 'CallExpression',
+            callee: {
+              type: 'MemberExpression',
+              object: {
+                type: 'MemberExpression',
+                object: {
+                  type: 'MemberExpression',
+                  object: {
+                    type: 'Identifier',
+                    name: 'Object'
+                  },
+                  property: {
+                    type: 'Identifier',
+                    name: 'prototype'
+                  },
+                  computed: false
+                },
+                property: {
+                  type: 'Identifier',
+                  name: 'toString'
+                },
+                computed: false
+              },
+              property: {
+                type: 'Identifier',
+                name: 'call'
+              },
+              computed: false
+            },
+            arguments: [node]
+          },
+          operator: '===',
+          right: {
+            type: 'Literal',
+            value: '[object Function]'
+          }
+        }
+      },
+      operator: '&&',
+      right: {
+        type: 'BinaryExpression',
+        left: {
+          type: 'MemberExpression',
+          object: {
+            type: 'CallExpression',
+            callee: {
+              type: 'MemberExpression',
+              object: {
+                type: 'Identifier',
+                name: 'Object'
+              },
+              property: {
+                type: 'Identifier',
+                name: 'keys'
+              },
+              computed: false
+            },
+            arguments: [node]
+          },
+          property: {
+            type: 'Identifier',
+            name: 'length'
+          },
+          computed: false
+        },
+        operator: '===',
+        right: {
+          type: 'Literal',
+          value: 0
+        }
+      }
     }
   }
 }
