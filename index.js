@@ -21,75 +21,7 @@ module.exports = {
       collect(tree, fragment, variables, modifiers)
     })
     modifiers.forEach(modifier => {
-      if (modifier === 'uppercase') {
-        tree.prepend({
-          type: 'FunctionDeclaration',
-          id: {
-            type: 'Identifier',
-            name: 'uppercase'
-          },
-          params: [{
-            type: 'Identifier',
-            name: 'string'
-          }],
-          body: {
-            type: 'BlockStatement',
-            body: [{
-              type: 'ReturnStatement',
-              argument: {
-                type: 'CallExpression',
-                callee: {
-                  type: 'MemberExpression',
-                  object: {
-                    type: 'Identifier',
-                    name: 'string'
-                  },
-                  property: {
-                    type: 'Identifier',
-                    name: 'toUpperCase'
-                  },
-                  computed: false
-                },
-                arguments: []
-              }
-            }]
-          }
-        })
-      } else if (modifier === 'trim') {
-        tree.prepend({
-          type: 'FunctionDeclaration',
-          id: {
-            type: 'Identifier',
-            name: 'trim'
-          },
-          params: [{
-            type: 'Identifier',
-            name: 'string'
-          }],
-          body: {
-            type: 'BlockStatement',
-            body: [{
-              type: 'ReturnStatement',
-              argument: {
-                type: 'CallExpression',
-                callee: {
-                  type: 'MemberExpression',
-                  object: {
-                    type: 'Identifier',
-                    name: 'string'
-                  },
-                  property: {
-                    type: 'Identifier',
-                    name: 'trim'
-                  },
-                  computed: false
-                },
-                arguments: []
-              }
-            }]
-          }
-        })
-      } else if (utils.string[modifier]) {
+      if (utils.string[modifier]) {
         const x = new AbstractSyntaxTree(utils.string[modifier].toString())
         const fn = x.body()[0]
         fn.id.name = modifier
