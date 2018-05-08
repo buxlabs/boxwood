@@ -1005,6 +1005,15 @@ equal(compile('<if foo is greater than bar>baz</if>')({
 
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 
-// equal(compile('{foo | uppercase}')({
-//   foo: 'bar'
-// }, html => html), 'BAR')
+equal(compile('{foo | uppercase}')({
+  foo: 'bar'
+}, html => html), 'BAR')
+
+equal(compile('<div html="{foo | uppercase}"></div>')({ foo: 'bar' }), '<div>BAR</div>')
+equal(compile('<div html="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
+equal(compile('<div text="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
+equal(compile('<div text="{foo | uppercase}"></div>')({ foo: 'bar' }, html => html), '<div>BAR</div>')
+equal(compile('<div class="{foo | uppercase}"></div>')({ foo: 'bar' }, html => html), '<div class="BAR"></div>')
+equal(compile('<input checked="{query | trim}">')({ query: '' }, html => html), '<input>')
+equal(compile('<input checked="{query | trim}">')({ query: '   ' }, html => html), '<input>')
+equal(compile('<input checked="{query | trim}">')({ query: 'bar' }, html => html), '<input checked>')

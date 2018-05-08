@@ -21,13 +21,13 @@ function getTemplateIdentifier (prefix, key, variables) {
   return variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
 }
 
-function collect (tree, fragment, variables) {
+function collect (tree, fragment, variables, modifiers) {
   if (fragment.used) return
   fragment.used = true
   const tag = fragment.tagName
   const attrs = fragment.attributes
   if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    const nodes = convertTag(fragment, variables)
+    const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
       if (node.type === 'IfStatement') {
         return tree.append(node)
@@ -49,7 +49,7 @@ function collect (tree, fragment, variables) {
       }
     }
   } else if (fragment.type === 'text') {
-    const nodes = convertText(fragment.content, variables)
+    const nodes = convertText(fragment.content, variables, modifiers)
     return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')

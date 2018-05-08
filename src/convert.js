@@ -27,13 +27,17 @@ function convertToExpression (string) {
   return expression
 }
 
-function convertAttribute (name, value, variables) {
+function convertAttribute (name, value, variables, currentModifiers) {
   if (value.includes('{') && value.includes('}')) {
     let values = extract(value)
     if (values.length === 1) {
-      let property = value.substring(1, value.length - 1)
+      let property = values[0].value.substring(1, values[0].value.length - 1)
       const expression = convertToExpression(property)
-      return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
+      const { modifiers } = values[0]
+      if (modifiers) {
+        modifiers.forEach(modifier => currentModifiers.push(modifier))
+      }
+      return modify(getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name)), modifiers)
     } else {
       const nodes = values.map(({ value }, index) => {
         if (value.includes('{') && value.includes('}')) {
@@ -54,14 +58,14 @@ function convertAttribute (name, value, variables) {
   }
 }
 
-function convertHtmlOrTextAttribute (fragment, variables) {
+function convertHtmlOrTextAttribute (fragment, variables, currentModifiers) {
   let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html.bind')
   if (html) {
-    return convertAttribute(html.key, html.value, variables)
+    return convertAttribute(html.key, html.value, variables, currentModifiers)
   } else {
     let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text.bind')
     if (text) {
-      let argument = convertAttribute(text.key, text.value, variables)
+      let argument = convertAttribute(text.key, text.value, variables, currentModifiers)
       return {
         type: 'CallExpression',
         callee: getIdentifier(ESCAPE_VARIABLE),
@@ -150,11 +154,14 @@ function getTemplateNode (expression, variables, unescape) {
   }
 }
 
-function convertText (text, variables) {
+function convertText (text, variables, currentModifiers) {
   const nodes = extract(text).map(({ value, modifiers }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
+      if (modifiers) {
+        modifiers.forEach(modifier =>  currentModifiers.push(modifier))
+      }
       return modify(getTemplateNode(expression, variables), modifiers)
     }
     return getLiteral(value)
@@ -182,7 +189,7 @@ function modify(node, modifiers) {
   return node
 }
 
-function convertTag (fragment, variables) {
+function convertTag (fragment, variables, currentModifiers) {
   let node = fragment.tagName
   let nodes = []
   let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -203,7 +210,7 @@ function convertTag (fragment, variables) {
         } else {
           nodes.push({
             type: 'IfStatement',
-            test: convertAttribute(attr.key, attr.value, variables),
+            test: convertAttribute(attr.key, attr.value, variables, currentModifiers),
             consequent: {
               type: 'BlockStatement',
               body: [getTemplateAssignmentExpression(expression)]
@@ -213,20 +220,13 @@ function convertTag (fragment, variables) {
       } else {
         nodes.push(getLiteral(` ${getName(attr.key)}="`))
         let { value } = attr
-        if (value.includes('{') && value.includes('}')) {
-          let values = extract(value)
-          values.forEach(({ value }) => {
-            nodes.push(convertAttribute(attr.key, value, variables))
-          })
-        } else {
-          nodes.push(convertAttribute(attr.key, value, variables))
-        }
+        nodes.push(convertAttribute(attr.key, value, variables, currentModifiers))
         nodes.push(getLiteral('"'))
       }
     })
   }
   nodes.push(getLiteral('>'))
-  const leaf = convertHtmlOrTextAttribute(fragment, variables)
+  const leaf = convertHtmlOrTextAttribute(fragment, variables, currentModifiers)
   if (leaf) {
     nodes.push(leaf)
   }
