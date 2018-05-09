@@ -30,45 +30,6 @@ assert.deepEqual(getAction(['is', 'finite']).handler('foo'), {
   arguments: ['foo']
 })
 
-assert.deepEqual(getAction(['is', 'infinite']).handler('foo'), {
-  type: 'LogicalExpression',
-  left: {
-    type: 'BinaryExpression',
-    left: 'foo',
-    operator: '===',
-    right: {
-      type: 'MemberExpression',
-      object: {
-        type: 'Identifier',
-        name: 'Number'
-      },
-      property: {
-        type: 'Identifier',
-        name: 'POSITIVE_INFINITY'
-      },
-      computed: false
-    }
-  },
-  operator: '||',
-  right: {
-    type: 'BinaryExpression',
-    left: 'foo',
-    operator: '===',
-    right: {
-      type: 'MemberExpression',
-      object: {
-        type: 'Identifier',
-        name: 'Number'
-      },
-      property: {
-        type: 'Identifier',
-        name: 'NEGATIVE_INFINITY'
-      },
-      computed: false
-    }
-  }
-})
-
 assert.deepEqual(getAction(['is', 'null']).handler('foo'), {
   type: 'BinaryExpression',
   left: 'foo',

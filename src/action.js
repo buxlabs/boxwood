@@ -40,44 +40,9 @@ function isFinite (node) {
 }
 
 function isInfinite (node) {
-  return {
-    type: 'LogicalExpression',
-    left: {
-      type: 'BinaryExpression',
-      left: node,
-      operator: '===',
-      right: {
-        type: 'MemberExpression',
-        object: {
-          type: 'Identifier',
-          name: 'Number'
-        },
-        property: {
-          type: 'Identifier',
-          name: 'POSITIVE_INFINITY'
-        },
-        computed: false
-      }
-    },
-    operator: '||',
-    right: {
-      type: 'BinaryExpression',
-      left: node,
-      operator: '===',
-      right: {
-        type: 'MemberExpression',
-        object: {
-          type: 'Identifier',
-          name: 'Number'
-        },
-        property: {
-          type: 'Identifier',
-          name: 'NEGATIVE_INFINITY'
-        },
-        computed: false
-      }
-    }
-  }
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`${code} === Number.POSITIVE_INFINITY || ${code} === Number.NEGATIVE_INFINITY`)
+  return tree.first('LogicalExpression')
 }
 
 function isEmpty(node) {
