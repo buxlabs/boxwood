@@ -159,6 +159,10 @@ function collect (tree, fragment, variables, modifiers) {
   } else if (tag === 'each' || tag === 'for') {
     const ast = new AbstractSyntaxTree('')
     const [left, operator, right] = attrs
+    let range
+    if (right && right.key === 'range' && right.value.includes('...')) {
+      range = right.value.split('...').map(Number)
+    }
     const variable = left.key
     let parent = operator.value || `{${right.key}}`
     const name = convertAttribute('html', parent, variables)
@@ -169,11 +173,11 @@ function collect (tree, fragment, variables, modifiers) {
     variables.push(index)
     const guard = getFreeIdentifier(variables.concat(parent))
     variables.push(guard)
-    ast.append(getForLoopVariable(variable, name, variables, index))
+    ast.append(getForLoopVariable(variable, name, variables, index, range))
     walk(fragment, current => {
       collect(ast, current, variables, modifiers)
     })
-    tree.append(getForLoop(name, ast.body(), variables, index, guard))
+    tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
     variables.pop()
     variables.pop()
     variables.pop()

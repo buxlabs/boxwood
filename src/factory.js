@@ -64,7 +64,7 @@ module.exports = {
       property: getIdentifier(name)
     }
   },
-  getForLoop (name, body, variables, index, guard) {
+  getForLoop (name, body, variables, index, guard, range) {
     return {
       type: 'ForStatement',
       init: {
@@ -73,9 +73,9 @@ module.exports = {
           {
             type: 'VariableDeclarator',
             id: getIdentifier(index),
-            init: getLiteral(0)
+            init: getLiteral(range ? range[0] : 0)
           },
-          {
+          !range && {
             type: 'VariableDeclarator',
             id: getIdentifier(guard),
             init: {
@@ -85,14 +85,14 @@ module.exports = {
               computed: false
             }
           }
-        ],
+        ].filter(Boolean),
         kind: 'var'
       },
       test: {
         type: 'BinaryExpression',
         left: getIdentifier(index),
         operator: '<',
-        right: getIdentifier(guard)
+        right: range ? getLiteral(range[1]) : getIdentifier(guard)
       },
       update: {
         type: 'AssignmentExpression',
@@ -106,14 +106,14 @@ module.exports = {
       }
     }
   },
-  getForLoopVariable (variable, name, variables, index) {
+  getForLoopVariable (variable, name, variables, index, range) {
     return {
       type: 'VariableDeclaration',
       declarations: [
         {
           type: 'VariableDeclarator',
           id: getIdentifier(variable),
-          init: {
+          init: range ? getIdentifier(index) : {
             type: 'MemberExpression',
             object: name,
             property: getIdentifier(index),

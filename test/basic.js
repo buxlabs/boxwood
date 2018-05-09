@@ -1067,3 +1067,5 @@ equal(compile('<input checked="{query | trim}">')({ query: '' }, html => html), 
 equal(compile('<input checked="{query | trim}">')({ query: '   ' }, html => html), '<input>')
 equal(compile('<input checked="{query | trim}">')({ query: 'bar' }, html => html), '<input checked>')
 equal(compile('<div>{foo | removeWhitespace}</div>')({ foo: 'b  ar' }, html => html), '<div>bar</div>')
+
+equal(compile('<for number in range="1...10">{number}</for>')({}, html => html), '123456789')
