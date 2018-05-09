@@ -108,6 +108,8 @@ equal(compile(`
 `)({ name: 'foo', title: 'Foo' }, html => html), '<a href="blog/foo">Foo</a>')
 
 equal(compile('<div>{foo} {bar}</div>')({ foo: 'foo', bar: 'bar' }, html => html), '<div>foo bar</div>')
+equal(compile('{foo}')({ foo: undefined }, html => html), 'undefined')
+equal(compile('{foo}')({ foo: null }, html => html), 'null')
 
 equal(compile(`
 <div>

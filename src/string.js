@@ -23,11 +23,13 @@ module.exports = {
     objects.push({ value: string })
     objects = objects.map(object => {
       let value = object.value
-      if (value.startsWith('{') && value.endsWith('}') && value.includes('|')) {
-        value = value.substring(1, value.length - 1)
-        let parts = value.split('|').map(string => string.trim())
-        object.value = `{${parts[0]}}`
-        object.modifiers = parts.slice(1)
+      if (value.startsWith('{') && value.endsWith('}')) {
+        if (value.includes('|')) {
+          value = value.substring(1, value.length - 1)
+          let parts = value.split('|').map(string => string.trim())
+          object.value = `{${parts[0]}}`
+          object.modifiers = parts.slice(1)
+        }
       }
       return object
     })
