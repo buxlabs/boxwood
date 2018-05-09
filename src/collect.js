@@ -160,8 +160,13 @@ function collect (tree, fragment, variables, modifiers) {
     const ast = new AbstractSyntaxTree('')
     const [left, operator, right] = attrs
     let range
-    if (right && right.key === 'range' && right.value.includes('...')) {
-      range = right.value.split('...').map(Number)
+    if (right && right.key === 'range' && right.value) {
+      if (right.value.includes('...')) {
+        range = right.value.split('...').map(Number)
+      } else if(right.value.includes('..')) {
+        range = right.value.split('..').map(Number)
+        range[1] += 1
+      }
     }
     const variable = left.key
     let parent = operator.value || `{${right.key}}`
