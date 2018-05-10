@@ -30,6 +30,7 @@ module.exports = {
     })
     tree.append(getTemplateReturnStatement())
     const body = tree.toString()
+    console.log(body)
     return new Function(OBJECT_VARIABLE, ESCAPE_VARIABLE, body) // eslint-disable-line
   }
 }

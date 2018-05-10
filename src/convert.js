@@ -92,7 +92,7 @@ function convertIdentifier (node, variables) {
 
 function getTemplateNode (expression, variables, unescape) {
   if (expression.type === 'Literal') {
-    return expression
+    return getEscapeCallExpression(expression)
   } else if (expression.type === 'BinaryExpression') {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
       if (node.type === 'Identifier' && !node.transformed) {
@@ -105,13 +105,12 @@ function getTemplateNode (expression, variables, unescape) {
           object,
           property: node
         }
-        if (!unescape) {
-          node = getEscapeCallExpression(node)
-          node.callee.transformed= true
-        }
       }
       return node
     })
+    if (!unescape) {
+      expression = getEscapeCallExpression(expression)
+    }
     return expression
   } else if (expression.type === 'Identifier') {
     const node = convertIdentifier(expression, variables)

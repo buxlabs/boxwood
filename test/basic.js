@@ -987,8 +987,8 @@ equal(compile('<ul><each foo in="{bar}"><each baz in="{foo.qux}"><li html="{baz}
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-equal(compile('<div>{42}</div>')({}), '<div>42</div>')
-equal(compile('<div>{42} {42}</div>')({}), '<div>42 42</div>')
+equal(compile('<div>{42}</div>')({}, html => html), '<div>42</div>')
+equal(compile('<div>{42} {42}</div>')({}, html => html), '<div>42 42</div>')
 equal(compile('<div>{42} {foo}</div>')({
   foo: 'bar'
 }, html => html), '<div>42 bar</div>')
@@ -1083,3 +1083,7 @@ equal(compile('{foo() + 1}')({ foo: () => 0 }, html => html), '1')
 equal(compile('{foo() + bar() + 2}')({ foo: () => 0, bar: () => 1}, html => html), '3')
 equal(compile('{foo() + bar() + baz()}')({ foo: () => 0, bar: () => 1, baz: () => 2}, html => html), '3')
 equal(compile('{foo() + bar + 2}')({ foo: () => 0, bar: 1 }, html => html), '3')
+equal(compile('{foo(bar) + baz}')({ foo: (bar) => bar, bar: 2, baz: 1 }, html => html), '3')
+// equal(compile('{"<script></script>"}')(
+//   {}, html => html.replace(/</g, '&lt;').replace(/>/g, '&gt;')), '&lt;script&gt;&lt;/script&gt')
+// equal(compile('{foo.bar + 1}')({ foo: { bar: 1 }  }, html => html), '2')
