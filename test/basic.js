@@ -1087,3 +1087,5 @@ equal(compile('{foo(bar) + baz}')({ foo: (bar) => bar, bar: 2, baz: 1 }, html =>
 // equal(compile('{"<script></script>"}')(
 //   {}, html => html.replace(/</g, '&lt;').replace(/>/g, '&gt;')), '&lt;script&gt;&lt;/script&gt')
 // equal(compile('{foo.bar + 1}')({ foo: { bar: 1 }  }, html => html), '2')
+equal(compile('<h5>#{index + 1} {translate("blog.author")}: {author}</h5>')(
+  { index: 0, translate: () => 'author', author: 'Olek' }, html => html), '<h5>#1 author: Olek</h5>')
