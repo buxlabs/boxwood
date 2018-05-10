@@ -1079,3 +1079,7 @@ equal(compile('{foo + bar}')({
   bar: 'hello'
 }, html => html.replace(/</g, '&lt;').replace(/>/g, '&gt;')), '&lt;script&gt;alert("foo")&lt;/script&gt;hello')
 equal(compile('{foo + bar + baz}')({ foo: 0, bar: 1, baz: 2 }, html => html), '3')
+equal(compile('{foo() + 1}')({ foo: () => 0 }, html => html), '1')
+equal(compile('{foo() + bar() + 2}')({ foo: () => 0, bar: () => 1}, html => html), '3')
+equal(compile('{foo() + bar() + baz()}')({ foo: () => 0, bar: () => 1, baz: () => 2}, html => html), '3')
+equal(compile('{foo() + bar + 2}')({ foo: () => 0, bar: 1 }, html => html), '3')
