@@ -1070,3 +1070,12 @@ equal(compile('<div>{foo | removeWhitespace}</div>')({ foo: 'b  ar' }, html => h
 
 equal(compile('<for number in range="1...10">{number}</for>')({}, html => html), '123456789')
 equal(compile('<for number in range="1..10">{number}</for>')({}, html => html), '12345678910')
+
+equal(compile('{foo + 1}')({ foo: 0 }, html => html), '1')
+equal(compile('{1 + foo}')({ foo: 0 }, html => html), '1')
+equal(compile('{foo + bar}')({ foo: 0, bar: 1 }, html => html), '1')
+equal(compile('{foo + bar}')({
+  foo: '<script>alert("foo")</script>',
+  bar: 'hello'
+}, html => html.replace(/</g, '&lt;').replace(/>/g, '&gt;')), '&lt;script&gt;alert("foo")&lt;/script&gt;hello')
+equal(compile('{foo + bar + baz}')({ foo: 0, bar: 1, baz: 2 }, html => html), '3')
