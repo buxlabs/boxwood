@@ -1104,6 +1104,9 @@ equal(compile('{foo | min}')({ foo: [1, 2, 3] }, html => html), '1')
 
 equal(compile('{Math.pow(foo, 3)}')({ foo: 2 }, html => html), '8')
 
+equal(compile('{Number.isFinite(foo)}')({ foo: 42 }, html => html), 'true')
+equal(compile('{Number.isFinite(foo)}')({ foo: Infinity }, html => html), 'false')
+
 equal(compile('{JSON.stringify(foo, null, 2)}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
 equal(compile('{JSON.stringify(foo, null, 4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
 equal(compile('{foo | json}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
