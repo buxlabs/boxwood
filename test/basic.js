@@ -1092,9 +1092,12 @@ equal(compile('{foo | round}')({ foo: 1.6 }, html => html), '2')
 
 equal(compile('{foo | pow(3)}')({ foo: 2 }, html => html), '8')
 equal(compile('{foo | truncate(6)}')({ foo: 'foobarbaz' }, html => html), 'foo...')
-equal(compile('{foo | pad("0")}')({ foo: 'foo' }, html => html), '0foo')
-// equal(compile('{foo | max}')({ foo: [1, 2, 3] }, html => html), 3)
-// equal(compile('{foo | min}')({ foo: [1, 2, 3] }, html => html), 1)
+equal(compile('{foo | pad("0")}')({ foo: 'foo\nbar' }, html => html), '0foo\n0bar')
+equal(compile('{foo | max}')({ foo: [1, 2, 3] }, html => html), '3')
+equal(compile('{foo | min}')({ foo: [1, 2, 3] }, html => html), '1')
+
+// equal(compile('{foo | prettify}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
+equal(compile('{foo | prettify}')({ foo: '{"bar": "baz"}' }, html => html), '{\n    "bar": "baz"\n}')
 
 equal(compile('<for number in range="1...10">{number}</for>')({}, html => html), '123456789')
 equal(compile('<for number in range="1..10">{number}</for>')({}, html => html), '12345678910')
