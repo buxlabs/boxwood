@@ -2,6 +2,7 @@ module.exports = {
   TEMPLATE_VARIABLE: '__t',
   OBJECT_VARIABLE: '__o',
   ESCAPE_VARIABLE: '__e',
+  GLOBAL_VARIABLES: ['JSON', 'Math'],
   BOOLEAN_ATTRIBUTES: [
     'autofocus',
     'checked',
