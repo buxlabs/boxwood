@@ -92,15 +92,20 @@ function convertIdentifier (node, variables) {
 }
 
 function getTemplateNode (expression, variables, unescape) {
+  if (expression.type === 'Identifier') {
+    const node = convertIdentifier(expression, variables)
+    if (unescape) return node
+    return getEscapeCallExpression(node)
+  }
   if (expression.type === 'Literal') {
     return getEscapeCallExpression(expression)
   } else if (expression.type === 'BinaryExpression') {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
       if (node.type === 'Identifier' && !node.transformed) {
-        node.transformed= true
+        node.transformed = true
         const { name } = node
         const object = getIdentifier(OBJECT_VARIABLE)
-        object.transformed= true
+        object.transformed = true
         node = {
           type: 'MemberExpression',
           object,
@@ -113,10 +118,6 @@ function getTemplateNode (expression, variables, unescape) {
       expression = getEscapeCallExpression(expression)
     }
     return expression
-  } else if (expression.type === 'Identifier') {
-    const node = convertIdentifier(expression, variables)
-    if (unescape) return node
-    return getEscapeCallExpression(node)
   } else if (expression.type === 'MemberExpression') {
     if (variables.includes(expression.object.name)) {
       if (unescape) return expression
@@ -169,6 +170,24 @@ function getTemplateNode (expression, variables, unescape) {
         return getEscapeCallExpression(expression)
       }
     }
+  } else if (expression.type === 'ArrayExpression') {
+    AbstractSyntaxTree.replace(expression, (node, parent) => {
+      if (node.type === 'Identifier' && !node.transformed) {
+        node.transformed = true
+        const { name } = node
+        const object = getIdentifier(OBJECT_VARIABLE)
+        object.transformed = true
+        node = {
+          type: 'MemberExpression',
+          object,
+          property: node
+        }
+        node = getEscapeCallExpression(node)
+        node.callee.transformed = true
+      }
+      return node
+    })
+    return expression
   }
 }
 
