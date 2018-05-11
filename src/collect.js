@@ -319,6 +319,44 @@ function collect (tree, fragment, variables, modifiers) {
         test: null
       })
     }
+  } else if (tag === 'foreach') {
+    const ast = new AbstractSyntaxTree('')
+    const [left, operator, right] = attrs
+    variables.push(left.key)
+    walk(fragment, current => {
+      collect(ast, current, variables, modifiers)
+    })
+    variables.pop()
+    tree.append({
+      type: "ExpressionStatement",
+      expression: {
+        type: "CallExpression",
+        callee: {
+          type: "MemberExpression",
+          object: getIdentifierWithOptionalPrefix(right.key.split('.')[0], right.key, variables),
+          property: {
+            type: "Identifier",
+            name: "forEach"
+          },
+          computed: false
+        },
+        arguments: [
+          {
+            type: "FunctionExpression",
+            params: [
+              {
+                type: "Identifier",
+                name: left.key
+              }
+            ],
+            body: {
+              type: 'BlockStatement',
+              body: ast.body()
+            }
+          }
+        ]
+      }
+    })
   }
 }
 

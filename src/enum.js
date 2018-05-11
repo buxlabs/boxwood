@@ -29,7 +29,8 @@ module.exports = {
     'elseunless',
     'switch',
     'case',
-    'default'
+    'default',
+    'foreach'
   ],
   UNESCAPED_NAMES: [
     'value',
