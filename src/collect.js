@@ -17,8 +17,20 @@ function getFreeIdentifier (variables) {
   return array.identifier(variables)
 }
 
-function getTemplateIdentifier (prefix, key, variables) {
+function getIdentifierWithOptionalPrefix (prefix, key, variables) {
   return variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
+}
+
+function findAction (keys) {
+  const keywords = []
+  let action
+
+  for (let i = 0; i < keys.length; i++) {
+    keywords.push(keys[i])
+    action = getAction(keywords)
+
+    if (action) return action
+  }
 }
 
 function collect (tree, fragment, variables, modifiers) {
@@ -66,22 +78,11 @@ function collect (tree, fragment, variables, modifiers) {
         }
       })
     }
-    const findAction = (keys, index) => {
-      const keywords = []
-      let action
-
-      for (let i = 1; i < keys.length; i++) {
-        keywords.push(keys[i])
-        action = getAction(keywords)
-
-        if (action) return action
-      }
-    }
     const getTest = (action, keys) => {
       if (!action || action.args === 1) {
         const key = keys[0]
         const [prefix] = key.split('.')
-        const node = getTemplateIdentifier(prefix, key, variables)
+        const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
 
         if (!action) return node
         return action.handler(node)
@@ -96,20 +97,20 @@ function collect (tree, fragment, variables, modifiers) {
             let condition = keys[i]
             let prefix = condition.split('.')
 
-            right = getTemplateIdentifier(prefix, condition, variables)
+            right = getIdentifierWithOptionalPrefix(prefix, condition, variables)
             test = action.handler(left, right)
             continue
           }
 
           const condition1 = keys[i]
           const [prefix1] = condition1.split('.')
-          left = getTemplateIdentifier(prefix1, condition1, variables)
+          left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
 
           i += action.name.length //skip operator
 
           const condition2 = keys[++i]
           const [prefix2] = condition2.split('.')
-          right = getTemplateIdentifier(prefix2, condition2, variables)
+          right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
 
           test = action.handler(left, right)
         }
@@ -117,7 +118,7 @@ function collect (tree, fragment, variables, modifiers) {
       }
     }
     const keys = attrs.map(attr => attr.key)
-    const action = findAction(keys)
+    const action = findAction(keys.slice(1))
     const test = getTest(action, keys)
     appendIfStatement(test)
   } else if (tag === 'elseif') {
@@ -134,7 +135,7 @@ function collect (tree, fragment, variables, modifiers) {
       const [prefix] = key.split('.')
       leaf.alternate = {
         type: 'IfStatement',
-        test: getTemplateIdentifier(prefix, key, variables),
+        test: getIdentifierWithOptionalPrefix(prefix, key, variables),
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
@@ -236,7 +237,7 @@ function collect (tree, fragment, variables, modifiers) {
       test: {
         type: 'UnaryExpression',
         operator: '!',
-        argument: getTemplateIdentifier(prefix, key, variables)
+        argument: getIdentifierWithOptionalPrefix(prefix, key, variables)
       },
       consequent: {
         type: 'BlockStatement',
@@ -260,13 +261,63 @@ function collect (tree, fragment, variables, modifiers) {
         test: {
           type: 'UnaryExpression',
           operator: '!',
-          argument: getTemplateIdentifier(prefix, key, variables)
+          argument: getIdentifierWithOptionalPrefix(prefix, key, variables)
         },
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
         }
       }
+    }
+  } else if (tag === 'switch') {
+    const { key } = attrs[0]
+    const [prefix] = key.split('.')
+    tree.append({
+      type: 'SwitchStatement',
+      discriminant: {
+        type: 'Literal',
+        value: true
+      },
+      condition: getIdentifierWithOptionalPrefix(prefix, key, variables),
+      cases: []
+    })
+  } else if (tag === 'case') {
+    let leaf = tree.last('SwitchStatement')
+    if (leaf) {
+      const keys = attrs.map(attr => attr.key)
+      const action = findAction(keys)
+      if (action) {
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers)
+        })
+        ast.append({
+          type: 'BreakStatement',
+          label: null
+        })
+        leaf.cases.push({
+          type: 'SwitchCase',
+          consequent: ast.body(),
+          test: action.handler(leaf.condition)
+        })
+      }
+    }
+  } else if (tag === 'default') {
+    let leaf = tree.last('SwitchStatement')
+    if (leaf) {
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers)
+      })
+      ast.append({
+        type: 'BreakStatement',
+        label: null
+      })
+      leaf.cases.push({
+        type: 'SwitchCase',
+        consequent: ast.body(),
+        test: null
+      })
     }
   }
 }

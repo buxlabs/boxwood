@@ -26,7 +26,10 @@ module.exports = {
     'try',
     'catch',
     'unless',
-    'elseunless'
+    'elseunless',
+    'switch',
+    'case',
+    'default'
   ],
   UNESCAPED_NAMES: [
     'value',
