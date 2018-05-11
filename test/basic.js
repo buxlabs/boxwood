@@ -1101,6 +1101,7 @@ equal(compile('{foo | truncate(6)}')({ foo: 'foobarbaz' }, html => html), 'foo..
 equal(compile('{foo | pad("0")}')({ foo: 'foo\nbar' }, html => html), '0foo\n0bar')
 equal(compile('{foo | max}')({ foo: [1, 2, 3] }, html => html), '3')
 equal(compile('{foo | min}')({ foo: [1, 2, 3] }, html => html), '1')
+equal(compile('{foo | sqrt}')({ foo: 4 }, html => html), '2')
 
 equal(compile('{Math.pow(foo, 3)}')({ foo: 2 }, html => html), '8')
 
