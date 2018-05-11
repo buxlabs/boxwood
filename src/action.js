@@ -1,12 +1,5 @@
 const AbstractSyntaxTree = require('@buxlabs/ast')
-
-const getAction = (actionName) => {
-  for (let action of ACTIONS) {
-    if (action.name.join('') === actionName.join('')) {
-      return action
-    }
-  }
-}
+const { getIdentifier, getLiteral } = require('./factory')
 
 function isPositive (node) {
   return getCompareWithZeroBinaryExpression(node, '>')
@@ -16,27 +9,12 @@ function isNegative (node) {
   return getCompareWithZeroBinaryExpression(node, '<')
 }
 
-function getCompareWithZeroBinaryExpression (node, operator) {
-  return {
-    type: 'BinaryExpression',
-    left: node,
-    right: {
-      type: 'Literal',
-      value: 0
-    },
-    operator
-  }
+function getCompareWithZeroBinaryExpression (left, operator) {
+  return getBinaryExpression(left, getLiteral(0), operator)
 }
 
 function isFinite (node) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'Identifier',
-      name: 'isFinite'
-    },
-    arguments: [node]
-  }
+  return { type: 'CallExpression', callee: getIdentifier('isFinite'), arguments: [node] }
 }
 
 function isInfinite (node) {
@@ -58,16 +36,8 @@ function isEmpty(node) {
   return tree.first('LogicalExpression')
 }
 
-function isNull(node) {
-  return {
-    type: 'BinaryExpression',
-    left: node,
-    operator: '===',
-    right: {
-      type: 'Literal',
-      value: null
-    }
-  }
+function isNull(left) {
+  return getBinaryExpression(left, getLiteral(null), '===')
 }
 
 function isUndefined(node) {
@@ -78,41 +48,16 @@ function isPresent(node) {
   return getVoidBinaryExpression(node, '!==')
 }
 
-function getVoidBinaryExpression(node, operator) {
-  return {
-    type: 'BinaryExpression',
-    left: node,
-    operator,
-    right: {
-      type: 'UnaryExpression',
-      operator: 'void',
-      prefix: 'true',
-      argument: {
-        type: 'Literal',
-        value: 0
-      }
-    }
-  }
+function getVoid () {
+  return { type: 'UnaryExpression', operator: 'void', prefix: 'true', argument: getLiteral(0) }
 }
 
-function getModuloWithZeroBinaryExpression(node, operator) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'BinaryExpression',
-      left: node,
-      operator: '%',
-      right: {
-        type: 'Literal',
-        value: 2
-      }
-    },
-    operator,
-    right: {
-      type: 'Literal',
-      value: 0
-    }
-  }
+function getVoidBinaryExpression(left, operator) {
+  return getBinaryExpression(left, getVoid(), operator)
+}
+
+function getModuloWithZeroBinaryExpression(left, operator) {
+  return getBinaryExpression(getBinaryExpression(left, getLiteral(2), '%'), getLiteral(0), operator)
 }
 
 function isEven(node) {
@@ -128,14 +73,8 @@ function isArray(node) {
     type: 'CallExpression',
     callee: {
       type: 'MemberExpression',
-      object: {
-        type: 'Identifier',
-        name: 'Array'
-      },
-      property: {
-        type: 'Identifier',
-        name: 'isArray'
-      },
+      object: getIdentifier('Array'),
+      property: getIdentifier('isArray'),
       computed: false
     },
     arguments: [node]
@@ -156,10 +95,7 @@ function isObject(node) {
           argument: node
         },
         operator: '===',
-        right: {
-          type: 'Literal',
-          value: 'function'
-        }
+        right: getLiteral('function')
       },
       operator: '||',
       right: {
@@ -171,10 +107,7 @@ function isObject(node) {
           argument: node
         },
         operator: '===',
-        right: {
-          type: 'Literal',
-          value: 'object'
-        }
+        right: getLiteral('object')
       }
     },
     operator: '&&',
@@ -203,35 +136,20 @@ function getObjectWithConstructorBinaryExpression(node, constructor) {
           type: 'MemberExpression',
           object: {
             type: 'MemberExpression',
-            object: {
-              type: 'Identifier',
-              name: 'Object'
-            },
-            property: {
-              type: 'Identifier',
-              name: 'prototype'
-            },
+            object: getIdentifier('Object'),
+            property: getIdentifier('prototype'),
             computed: false
           },
-          property: {
-            type: 'Identifier',
-            name: 'toString'
-          },
+          property: getIdentifier('toString'),
           computed: false
         },
-        property: {
-          type: 'Identifier',
-          name: 'call'
-        },
+        property: getIdentifier('call'),
         computed: false
       },
       arguments: [node]
     },
     operator: '===',
-    right: {
-      type: 'Literal',
-      value: `[object ${constructor}]`
-    }
+    right: getLiteral(`[object ${constructor}]`)
   }
 }
 
@@ -275,30 +193,20 @@ function isDate(node) {
   return getObjectWithConstructorBinaryExpression(node, 'Date')
 }
 
-function negate(node) {
-  return {
-    type: 'UnaryExpression',
-    operator: '!',
-    argument: node
-  }
+function negate(argument) {
+  return { type: 'UnaryExpression', operator: '!', argument }
+}
+
+function getExpression (type, left, right, operator) {
+  return { type, left, right, operator }
 }
 
 function getLogicalExpression(left, right, operator) {
-  return {
-    type: 'LogicalExpression',
-    left,
-    right,
-    operator
-  }
+  return getExpression('LogicalExpression', left, right, operator)
 }
 
 function getBinaryExpression(left, right, operator) {
-  return {
-    type: 'BinaryExpression',
-    left,
-    right,
-    operator
-  }
+  return getExpression('BinaryExpression', left, right, operator)
 }
 
 function isAlternative(left, right) {
@@ -403,5 +311,11 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
 
 module.exports = {
-  getAction
+  getAction (name) {
+    for (let action of ACTIONS) {
+      if (action.name.join('') === name.join('')) {
+        return action
+      }
+    }
+  }
 }
