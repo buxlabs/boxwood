@@ -4,6 +4,7 @@ const {
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
 const { extract, getName } = require('./string')
+const { getModifierName } = require ('./modifiers')
 const AbstractSyntaxTree = require('@buxlabs/ast')
 
 function convertToBinaryExpression (nodes) {
@@ -200,7 +201,7 @@ function modify(node, modifiers) {
           type: 'CallExpression',
           callee: {
             type: 'Identifier',
-            name: node.callee.name
+            name: getModifierName(node.callee.name)
           },
           arguments: [leaf].concat(node.arguments)
         }
@@ -209,7 +210,7 @@ function modify(node, modifiers) {
         type: 'CallExpression',
         callee: {
           type: 'Identifier',
-          name: node.name
+          name: getModifierName(node.name)
         },
         arguments: [leaf]
       }
