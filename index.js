@@ -4,6 +4,7 @@ const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./src/e
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./src/factory')
 const collect = require('./src/collect')
 const utils = require('@buxlabs/utils')
+const { getModifier } = require('./src/modifiers')
 
 module.exports = {
   render () {},
@@ -20,12 +21,10 @@ module.exports = {
     walk(htmltree, fragment => {
       collect(tree, fragment, variables, modifiers)
     })
-    modifiers.forEach(modifier => {
-      if (utils.string[modifier]) {
-        const x = new AbstractSyntaxTree(utils.string[modifier].toString())
-        const fn = x.body()[0]
-        fn.id.name = modifier
-        tree.prepend(fn)
+    modifiers.forEach(name => {
+      const modifier = getModifier(name)
+      if (modifier) {
+        tree.prepend(modifier)
       }
     })
     tree.append(getTemplateReturnStatement())

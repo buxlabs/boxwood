@@ -193,11 +193,23 @@ function convertText (text, variables, currentModifiers) {
 function modify(node, modifiers) {
   if (modifiers) {
     return modifiers.reduce((leaf, modifier) => {
+      const tree = new AbstractSyntaxTree(modifier)
+      const node = tree.body()[0].expression
+      if (node.type === 'CallExpression') {
+        return {
+          type: 'CallExpression',
+          callee: {
+            type: 'Identifier',
+            name: node.callee.name
+          },
+          arguments: [leaf].concat(node.arguments)
+        }
+      }
       return {
         type: 'CallExpression',
         callee: {
           type: 'Identifier',
-          name: modifier
+          name: node.name
         },
         arguments: [leaf]
       }
