@@ -237,6 +237,7 @@ function collect (tree, fragment, variables, modifiers) {
       test: {
         type: 'UnaryExpression',
         operator: '!',
+        prefix: true,
         argument: getIdentifierWithOptionalPrefix(prefix, key, variables)
       },
       consequent: {
@@ -261,6 +262,7 @@ function collect (tree, fragment, variables, modifiers) {
         test: {
           type: 'UnaryExpression',
           operator: '!',
+          prefix: true,
           argument: getIdentifierWithOptionalPrefix(prefix, key, variables)
         },
         consequent: {

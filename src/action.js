@@ -49,7 +49,7 @@ function isPresent(node) {
 }
 
 function getVoid () {
-  return { type: 'UnaryExpression', operator: 'void', prefix: 'true', argument: getLiteral(0) }
+  return { type: 'UnaryExpression', operator: 'void', prefix: true, argument: getLiteral(0) }
 }
 
 function getVoidBinaryExpression(left, operator) {
@@ -194,7 +194,7 @@ function isDate(node) {
 }
 
 function negate(argument) {
-  return { type: 'UnaryExpression', operator: '!', argument }
+  return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
 }
 
 function getExpression (type, left, right, operator) {

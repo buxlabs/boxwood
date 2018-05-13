@@ -47,7 +47,7 @@ assert.deepEqual(getAction(['is', 'undefined']).handler('foo'), {
   right: {
     type: 'UnaryExpression',
     operator: 'void',
-    prefix: 'true',
+    prefix: true,
     argument: {
       type: 'Literal',
       value: 0
