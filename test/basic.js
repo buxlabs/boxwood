@@ -1,7 +1,7 @@
 const { equal } = require('assert')
 const { compile } = require('..')
 
-console.time('test')
+console.time('test: success')
 equal(compile('')(), '')
 equal(compile('<!-- foo -->')(), '')
 equal(compile('hello world')(), 'hello world')
@@ -1176,5 +1176,10 @@ equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz'
 // equal(compile(`<import Button from="./fixtures/import/Button.html"><Button>foo</Button>`)(
 //   {}, html => html), '<div class="btn btn-primary">foo</div>')
 // equal(compile(`<DIV></DIV>`)({}, html => html), '<div></div>')
+equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`)({}, html => html), '<div>foo bar baz</div>')
+equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`)({}, html => html), '<div>foo</div><footer>bar</footer>')
+equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`)({ title: 'foo' }, html => html), '<div>foo</div>')
+equal(compile(`<partial from="./fixtures/partial/header.html">`)({ title: 'foo' }, html => html), '<div>foo</div>')
+equal(compile(`<partial from="./fixtures/partial/header.html" />`)({ title: 'foo' }, html => html), '<div>foo</div>')
 
-console.timeEnd('test')
+console.timeEnd('test: success')

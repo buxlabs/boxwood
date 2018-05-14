@@ -14,6 +14,7 @@ const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } 
 const { getAction } = require('./action')
 const { readFileSync } = require('fs')
 const { join } = require('path')
+const { parse } = require('himalaya')
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
@@ -367,6 +368,10 @@ function collect (tree, fragment, variables, modifiers, components) {
     const content = readFileSync(join(__dirname, '../test', path), 'utf8')
     components.push({ name, content })
   } else if (components.map(component => component.name).includes(tag)) {
+  } else if (tag === 'partial') {
+    const path = attrs[0].value
+    const content = readFileSync(join(__dirname, '../test', path), 'utf8')
+    fragment.children = parse(content)
   }
 }
 
