@@ -1053,6 +1053,38 @@ equal(compile('<if foo is greater than bar>baz</if>')({
   bar: 40
 }, html => html), '')
 
+equal(compile('<if foo has a whitespace>baz</if>')({
+  foo: 'foo&nbsp;bar',
+}, html => html), 'baz')
+
+equal(compile('<if foo has a whitespace>baz</if>')({
+  foo: 'foobar',
+}, html => html), '')
+
+equal(compile('<if foo has a whitespace>baz</if>')({
+  foo: '\n',
+}, html => html), 'baz')
+
+equal(compile('<if foo has a whitespace>baz</if>')({
+  foo: '&nbsp;',
+}, html => html), 'baz')
+
+equal(compile('<if foo has not a whitespace>baz</if>')({
+  foo: 'foobar',
+}, html => html), 'baz')
+
+equal(compile('<if foo has not a whitespace>baz</if>')({
+  foo: ' foo bar ',
+}, html => html), '')
+
+equal(compile('<if foo has a newline>baz</if>')({
+  foo: ' foo\nbar',
+}, html => html), 'baz')
+
+equal(compile('<if foo has a newline>baz</if>')({
+  foo: ' foo\tbar',
+}, html => html), '')
+
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 
 equal(compile('{foo | uppercase}')({
@@ -1187,3 +1219,11 @@ equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, htm
 equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
 console.timeEnd('test: success')
+
+
+// \u0009  \t
+// \u000B  \v
+// \u000C  \f
+// \u0020
+// \u00A0
+// \uFEFF
