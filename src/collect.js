@@ -41,7 +41,14 @@ function collect (tree, fragment, variables, modifiers, components) {
   fragment.used = true
   const tag = fragment.tagName
   const attrs = fragment.attributes
-  if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
+  if (tag === 'script' && attrs[0].key === 'inline') {
+    const leaf = fragment.children[0]
+    leaf.used = true
+    const ast = new AbstractSyntaxTree(leaf.content)
+    ast.each('VariableDeclarator', node => variables.push(node.id.name))
+    const body = ast.body()
+    body.forEach(node => tree.append(node))
+  } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
     const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
       if (node.type === 'IfStatement') {

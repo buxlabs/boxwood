@@ -1182,4 +1182,6 @@ equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`)({ tit
 equal(compile(`<partial from="./fixtures/partial/header.html">`)({ title: 'foo' }, html => html), '<div>foo</div>')
 equal(compile(`<partial from="./fixtures/partial/header.html" />`)({ title: 'foo' }, html => html), '<div>foo</div>')
 
+equal(compile(`<script inline>const foo = "bar"</script>{foo}`)({}, html => html), 'bar')
+
 console.timeEnd('test: success')
