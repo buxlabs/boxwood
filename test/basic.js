@@ -1097,6 +1097,12 @@ equal(compile('<if foo has not a number>baz</if>')({ foo: 'bar' }, html => html)
 equal(compile('<if foo has a number>baz</if>')({ foo: { bar: '4' }}, html => html), '')
 equal(compile('<if foo has not a number>baz</if>')({ foo: { bar: '4' }}, html => html), 'baz')
 
+equal(compile('<if foo has a number>baz</if>')({ foo: [1, 2, 3] }, html => html), 'baz')
+equal(compile('<if foo has a number>baz</if>')({ foo: [{}, 'bar', 'baz'] }, html => html), '')
+
+equal(compile('<if foo has a number>baz</if>')({ foo: [{}, 4, 'bar'] }, html => html), 'baz')
+equal(compile('<if foo has not a number>baz</if>')({ foo: [{}, 4, 'bar'] }, html => html), '')
+
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 
 equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
