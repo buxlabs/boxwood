@@ -1183,5 +1183,7 @@ equal(compile(`<partial from="./fixtures/partial/header.html">`)({ title: 'foo' 
 equal(compile(`<partial from="./fixtures/partial/header.html" />`)({ title: 'foo' }, html => html), '<div>foo</div>')
 
 equal(compile(`<script inline>const foo = "bar"</script>{foo}`)({}, html => html), 'bar')
+equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, html => html), '2018')
+equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
 console.timeEnd('test: success')
