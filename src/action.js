@@ -294,6 +294,12 @@ function hasNumber(node) {
   return tree.first('LogicalExpression')
 }
 
+function hasNumbers(node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`Array.isArray(${code}) && ${code}.filter(value => typeof value === 'number').length > 1`)
+  return tree.first('LogicalExpression')
+}
+
 const STANDARD_ACTIONS = [
   { name: ['is', 'positive'], handler: isPositive, args: 1 },
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
@@ -324,6 +330,7 @@ const STANDARD_ACTIONS = [
   { name: ['has', 'a', 'whitespace'], handler: isWhitespace, args: 1 },
   { name: ['has', 'a', 'newline'], handler: isNewLine, args: 1 },
   { name: ['has', 'a', 'number'], handler: hasNumber, args: 1 },
+  { name: ['has', 'numbers'], handler: hasNumbers, args: 1 },
   { name: ['or'], handler: isAlternative, args: 2 },
   { name: ['and'], handler: isConjunction, args: 2 },
   { name: ['eq'], handler: isEquals, args: 2 },
