@@ -1054,42 +1054,52 @@ equal(compile('<if foo is greater than bar>baz</if>')({
 }, html => html), '')
 
 equal(compile('<if foo has a whitespace>baz</if>')({
-  foo: 'foo&nbsp;bar',
+  foo: 'foo&nbsp;bar'
 }, html => html), 'baz')
 
 equal(compile('<if foo has a whitespace>baz</if>')({
-  foo: 'foobar',
+  foo: 'foobar'
 }, html => html), '')
 
 equal(compile('<if foo has a whitespace>baz</if>')({
-  foo: '\n',
+  foo: '\n'
 }, html => html), 'baz')
 
 equal(compile('<if foo has a whitespace>baz</if>')({
-  foo: '&nbsp;',
+  foo: '&nbsp;'
 }, html => html), 'baz')
 
 equal(compile('<if foo has not a whitespace>baz</if>')({
-  foo: 'foobar',
+  foo: 'foobar'
 }, html => html), 'baz')
 
 equal(compile('<if foo has not a whitespace>baz</if>')({
-  foo: ' foo bar ',
+  foo: ' foo bar '
 }, html => html), '')
 
 equal(compile('<if foo has a newline>baz</if>')({
-  foo: ' foo\nbar',
+  foo: ' foo\nbar'
 }, html => html), 'baz')
 
 equal(compile('<if foo has a newline>baz</if>')({
-  foo: ' foo\tbar',
+  foo: ' foo\tbar'
 }, html => html), '')
+
+equal(compile('<if foo has a number>baz</if>')({ foo: { bar: 4 }}, html => html), 'baz')
+equal(compile('<if foo has not a number>baz</if>')({ foo: { bar: 4 }}, html => html), '')
+
+equal(compile('<if foo has a number>baz</if>')({ foo: 4 }, html => html), 'baz')
+equal(compile('<if foo has not a number>baz</if>')({ foo: 4 }, html => html), '')
+
+equal(compile('<if foo has a number>baz</if>')({ foo: 'bar' }, html => html), '')
+equal(compile('<if foo has not a number>baz</if>')({ foo: 'bar' }, html => html), 'baz')
+
+equal(compile('<if foo has a number>baz</if>')({ foo: { bar: '4' }}, html => html), '')
+equal(compile('<if foo has not a number>baz</if>')({ foo: { bar: '4' }}, html => html), 'baz')
 
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 
-equal(compile('{foo | uppercase}')({
-  foo: 'bar'
-}, html => html), 'BAR')
+equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
 
 equal(compile('<div html="{foo | uppercase}"></div>')({ foo: 'bar' }), '<div>BAR</div>')
 equal(compile('<div html="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
