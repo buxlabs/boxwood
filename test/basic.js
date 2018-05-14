@@ -1219,11 +1219,3 @@ equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, htm
 equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
 console.timeEnd('test: success')
-
-
-// \u0009  \t
-// \u000B  \v
-// \u000C  \f
-// \u0020
-// \u00A0
-// \uFEFF
