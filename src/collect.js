@@ -12,6 +12,8 @@ const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute } 
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
 const { getAction } = require('./action')
+const { readFileSync } = require('fs')
+const { join } = require('path')
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
@@ -33,7 +35,7 @@ function findAction (keys) {
   }
 }
 
-function collect (tree, fragment, variables, modifiers) {
+function collect (tree, fragment, variables, modifiers, components) {
   if (fragment.used) return
   fragment.used = true
   const tag = fragment.tagName
@@ -47,7 +49,7 @@ function collect (tree, fragment, variables, modifiers) {
       tree.append(getTemplateAssignmentExpression(node))
     })
     fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers)
+      collect(tree, node, variables, modifiers, components)
     })
     if (!SELF_CLOSING_TAGS.includes(tag)) {
       const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -66,7 +68,7 @@ function collect (tree, fragment, variables, modifiers) {
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers)
+      collect(ast, current, variables, modifiers, components)
     })
     const appendIfStatement = node => {
       tree.append({
@@ -126,7 +128,7 @@ function collect (tree, fragment, variables, modifiers) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers)
+        collect(ast, current, variables, modifiers, components)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -147,7 +149,7 @@ function collect (tree, fragment, variables, modifiers) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers)
+        collect(ast, current, variables, modifiers, components)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -181,7 +183,7 @@ function collect (tree, fragment, variables, modifiers) {
     variables.push(guard)
     ast.append(getForLoopVariable(variable, name, variables, index, range))
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers)
+      collect(ast, current, variables, modifiers, components)
     })
     tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
     variables.pop()
@@ -195,7 +197,7 @@ function collect (tree, fragment, variables, modifiers) {
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers)
+      collect(ast, current, variables, modifiers, components)
     })
 
     tree.append({
@@ -210,7 +212,7 @@ function collect (tree, fragment, variables, modifiers) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers)
+        collect(ast, current, variables, modifiers, components)
       })
       leaf.handler = {
         type: 'CatchClause',
@@ -227,7 +229,7 @@ function collect (tree, fragment, variables, modifiers) {
   } else if (tag === 'unless') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers)
+      collect(ast, current, variables, modifiers, components)
     })
     const { key } = attrs[0]
     const [prefix] = key.split('.')
@@ -250,7 +252,7 @@ function collect (tree, fragment, variables, modifiers) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers)
+        collect(ast, current, variables, modifiers, components)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -291,7 +293,7 @@ function collect (tree, fragment, variables, modifiers) {
       if (action) {
         const ast = new AbstractSyntaxTree('')
         walk(fragment, current => {
-          collect(ast, current, variables, modifiers)
+          collect(ast, current, variables, modifiers, components)
         })
         ast.append({
           type: 'BreakStatement',
@@ -309,7 +311,7 @@ function collect (tree, fragment, variables, modifiers) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers)
+        collect(ast, current, variables, modifiers, components)
       })
       ast.append({
         type: 'BreakStatement',
@@ -326,7 +328,7 @@ function collect (tree, fragment, variables, modifiers) {
     const [left, operator, right] = attrs
     variables.push(left.key)
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers)
+      collect(ast, current, variables, modifiers, components)
     })
     variables.pop()
     tree.append({
@@ -359,6 +361,12 @@ function collect (tree, fragment, variables, modifiers) {
         ]
       }
     })
+  } else if (tag === 'import') {
+    const name = attrs[0].key
+    const path = attrs[1].value
+    const content = readFileSync(join(__dirname, '../test', path), 'utf8')
+    components.push({ name, content })
+  } else if (components.map(component => component.name).includes(tag)) {
   }
 }
 

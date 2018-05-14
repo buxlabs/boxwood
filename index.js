@@ -17,9 +17,10 @@ module.exports = {
       ESCAPE_VARIABLE
     ].concat(GLOBAL_VARIABLES)
     const modifiers = []
+    const components = []
     tree.append(getTemplateVariableDeclaration())
     walk(htmltree, fragment => {
-      collect(tree, fragment, variables, modifiers)
+      collect(tree, fragment, variables, modifiers, components)
     })
     modifiers.forEach(name => {
       const modifier = getModifier(name)

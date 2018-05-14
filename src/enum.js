@@ -31,7 +31,8 @@ module.exports = {
     'switch',
     'case',
     'default',
-    'foreach'
+    'foreach',
+    'import'
   ],
   UNESCAPED_NAMES: [
     'value',
