@@ -1284,6 +1284,8 @@ equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz'
 
 equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button>`)(
   {}, html => html), '<button class="btn btn-primary">foo</button>')
+equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button><button>bar</button>`)(
+  {}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
 equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`)({}, html => html), '<div>foo bar baz</div>')
 equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`)({}, html => html), '<div>foo</div><footer>bar</footer>')
 equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`)({ title: 'foo' }, html => html), '<div>foo</div>')
