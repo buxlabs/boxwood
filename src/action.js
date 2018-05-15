@@ -253,12 +253,11 @@ function isBitwiseNegation (left, right) {
   return getBinaryExpression(left, right, '~')
 }
 
-
-function isWhitespace (node) {
+function hasWhitespace (node) {
   return getCallExpressionWithRegExp(node, '\\s|&nbsp;')
 }
 
-function isNewLine (node) {
+function hasNewLine (node) {
   return getCallExpressionWithRegExp(node, '\\n')
 }
 
@@ -327,8 +326,8 @@ const STANDARD_ACTIONS = [
   { name: ['is', 'a', 'weakset'], handler: isWeakSet, args: 1 },
   { name: ['is', 'a', 'boolean'], handler: isBoolean, args: 1 },
   { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
-  { name: ['has', 'a', 'whitespace'], handler: isWhitespace, args: 1 },
-  { name: ['has', 'a', 'newline'], handler: isNewLine, args: 1 },
+  { name: ['has', 'a', 'whitespace'], handler: hasWhitespace, args: 1 },
+  { name: ['has', 'a', 'newline'], handler: hasNewLine, args: 1 },
   { name: ['has', 'a', 'number'], handler: hasNumber, args: 1 },
   { name: ['has', 'numbers'], handler: hasNumbers, args: 1 },
   { name: ['or'], handler: isAlternative, args: 2 },
@@ -349,7 +348,7 @@ const STANDARD_ACTIONS = [
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   const name = action.name.slice(0)
-  name.splice(1, 0, 'not')
+  name.includes('has') ? name.splice(0, 1, 'does', 'not', 'have') : name.splice(1, 0, 'not')
   return {
     name,
     handler: function () {
