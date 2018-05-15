@@ -41,7 +41,24 @@ function collect (tree, fragment, variables, modifiers, components) {
   fragment.used = true
   const tag = fragment.tagName
   const attrs = fragment.attributes
-  if (tag === 'script' && attrs[0].key === 'inline') {
+  const component = components.find(component => component.name === tag)
+  if (component && !fragment.plain) {
+    const htmlTree = parse(component.content)
+    const children = fragment.children
+    walk(htmlTree, current => {
+      current.plain = true
+      if (current.type === 'element' && current.tagName === 'slot') {
+        current.children = children
+      }
+    })
+    fragment.children = htmlTree
+    const ast = new AbstractSyntaxTree('')
+    walk(fragment, current => {
+      collect(ast, current, variables, modifiers, components)
+    })
+    const body = ast.body()
+    body.forEach(node => tree.append(node))
+  } else if (tag === 'script' && attrs[0].key === 'inline') {
     const leaf = fragment.children[0]
     leaf.used = true
     const ast = new AbstractSyntaxTree(leaf.content)
@@ -201,10 +218,19 @@ function collect (tree, fragment, variables, modifiers, components) {
     variables.pop()
     variables.pop()
     variables.pop()
-  } else if (tag === 'slot' && attrs && attrs.length > 0) {
-    const leaf = convertHtmlOrTextAttribute(fragment, variables)
-    if (leaf) {
-      tree.append(getTemplateAssignmentExpression(leaf))
+  } else if (tag === 'slot') {
+    if (attrs && attrs.length > 0) {
+      const leaf = convertHtmlOrTextAttribute(fragment, variables)
+      if (leaf) {
+        tree.append(getTemplateAssignmentExpression(leaf))
+      }
+    } else {
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components)
+      })
+      const body = ast.body()
+      body.forEach(node => tree.append(node))
     }
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
@@ -378,7 +404,6 @@ function collect (tree, fragment, variables, modifiers, components) {
     const path = attrs[1].value
     const content = readFileSync(join(__dirname, '../test', path), 'utf8')
     components.push({ name, content })
-  } else if (components.map(component => component.name).includes(tag)) {
   } else if (tag === 'partial') {
     const path = attrs[0].value
     const content = readFileSync(join(__dirname, '../test', path), 'utf8')
