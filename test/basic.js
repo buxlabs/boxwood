@@ -1160,6 +1160,11 @@ equal(compile('<if foo is falsy>baz</if>')({ foo: [] }, html => html), '')
 equal(compile('<if foo is not falsy>baz</if>')({ foo: true }, html => html), 'baz')
 equal(compile('<if foo is not falsy>baz</if>')({ foo: 'bar' }, html => html), 'baz')
 
+equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
+equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
+equal(compile('<if foo not eq="bar">baz</if>')({ foo: 'baz' }, html => html), 'baz')
+equal(compile('<if foo not eq="bar">baz</if>')({ foo: 'bar' }, html => html), '')
+
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
 

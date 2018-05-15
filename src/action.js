@@ -366,7 +366,14 @@ const STANDARD_ACTIONS = [
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   const name = action.name.slice(0)
-  name.includes('has') ? name.splice(0, 1, 'does', 'not', 'have') : name.splice(1, 0, 'not')
+  if (name.includes('has')) {
+    name.splice(0, 1, 'does', 'not', 'have')
+  } else if (name.length === 1 && ['eq', 'gt', 'gte', 'lt', 'lte'].includes(name[0])) {
+    name.splice(0, 0, 'not')
+  } else {
+    name.splice(1, 0, 'not')
+  }
+
   return {
     name,
     handler: function () {
