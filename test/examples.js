@@ -11,5 +11,5 @@ function test (name, data = {}) {
 }
 
 // test('ad')
-test('simple')
-test('footer')
+// test('simple')
+// test('footer')

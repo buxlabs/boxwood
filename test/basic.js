@@ -1296,4 +1296,7 @@ equal(compile(`<script inline>const foo = "bar"</script>{foo}`)({}, html => html
 equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, html => html), '2018')
 equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
+equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
+equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => html), 'qux')
+
 console.timeEnd('test: success')
