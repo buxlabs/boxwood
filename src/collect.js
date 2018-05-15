@@ -1,5 +1,5 @@
-const AbstractSyntaxTree = require('@buxlabs/ast')
-const { array } = require('@buxlabs/utils')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { array } = require('pure-utilities')
 const {
   getIdentifier,
   getLiteral,

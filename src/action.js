@@ -1,4 +1,4 @@
-const AbstractSyntaxTree = require('@buxlabs/ast')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getIdentifier, getLiteral } = require('./factory')
 
 function isPositive (node) {

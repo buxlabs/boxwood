@@ -1,5 +1,5 @@
-const AbstractSyntaxTree = require('@buxlabs/ast')
-const utils = require('@buxlabs/utils')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
+const utilities = require('pure-utilities')
 
 const aliases = {
   json: 'prettify',
@@ -20,7 +20,10 @@ module.exports = {
     const node = tree.body()[0].expression
     let name = node.type === 'CallExpression' ? node.callee.name : node.name
     name = getModifierName(name)
-    const method = utils.string[name] || utils.math[name] || utils.json[name] || utils.array[name]
+    const method = utilities.string[name] ||
+      utilities.math[name] ||
+      utilities.json[name] ||
+      utilities.array[name]
     if (!method) return null
     const leaf = new AbstractSyntaxTree(method.toString())
     const fn = leaf.body()[0]

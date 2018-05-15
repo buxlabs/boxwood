@@ -5,7 +5,7 @@ const {
 } = require('./factory')
 const { extract, getName } = require('./string')
 const { getModifierName } = require ('./modifiers')
-const AbstractSyntaxTree = require('@buxlabs/ast')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
 
 function convertToBinaryExpression (nodes) {
   return nodes.reduce((previous, current) => {
