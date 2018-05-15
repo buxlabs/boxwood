@@ -1248,6 +1248,16 @@ equal(compile('{foo | ninth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html =>
 equal(compile('{foo | tenth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
 equal(compile('{foo | last}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
 
+equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } } , html => html), 'null')
+equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, html => html), 'qux')
+equal(compile('{photos | first | dig("src")}')({
+  photos: [ { size: '100', src: 'baz' }, { size: '200', src: 'qux'} ]
+}, html => html), 'baz')
+equal(compile('{foo | first | dig("foo.bar.baz")}')({
+  foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
+}, html => html), 'qux')
+
+
 equal(compile('<for number in range="1...10">{number}</for>')({}, html => html), '123456789')
 equal(compile('<for number in range="1..10">{number}</for>')({}, html => html), '12345678910')
 

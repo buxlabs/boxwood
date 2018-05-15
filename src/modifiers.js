@@ -23,7 +23,8 @@ module.exports = {
     const method = utilities.string[name] ||
       utilities.math[name] ||
       utilities.json[name] ||
-      utilities.array[name]
+      utilities.array[name] ||
+      utilities.object[name]
     if (!method) return null
     const leaf = new AbstractSyntaxTree(method.toString())
     const fn = leaf.body()[0]
