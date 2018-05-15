@@ -253,6 +253,53 @@ function isBitwiseNegation (left, right) {
   return getBinaryExpression(left, right, '~')
 }
 
+
+function isWhitespace (node) {
+  return getCallExpressionWithRegExp(node, '\\s|&nbsp;')
+}
+
+function isNewLine (node) {
+  return getCallExpressionWithRegExp(node, '\\n')
+}
+
+function getCallExpressionWithRegExp (node, pattern) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'MemberExpression',
+      object: {
+        type: 'Literal',
+        value: {},
+        regex: {
+          pattern,
+          flags: 'g'
+        }
+      },
+      property: {
+        type: 'Identifier',
+        name: 'test'
+      },
+      computed: false
+    },
+    arguments: [node]
+  }
+}
+
+function hasNumber(node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`
+    Object.prototype.toString.call(${code}) === '[object Number]' ||
+    Object.values(${code}).filter(value => typeof value === 'number').length > 0
+  `)
+  return tree.first('LogicalExpression')
+}
+
+function hasNumbers(node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`Array.isArray(${code}) && ${code}.filter(value => typeof value === 'number').length > 1`)
+  return tree.first('LogicalExpression')
+}
+
 const STANDARD_ACTIONS = [
   { name: ['is', 'positive'], handler: isPositive, args: 1 },
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
@@ -280,6 +327,10 @@ const STANDARD_ACTIONS = [
   { name: ['is', 'a', 'weakset'], handler: isWeakSet, args: 1 },
   { name: ['is', 'a', 'boolean'], handler: isBoolean, args: 1 },
   { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
+  { name: ['has', 'a', 'whitespace'], handler: isWhitespace, args: 1 },
+  { name: ['has', 'a', 'newline'], handler: isNewLine, args: 1 },
+  { name: ['has', 'a', 'number'], handler: hasNumber, args: 1 },
+  { name: ['has', 'numbers'], handler: hasNumbers, args: 1 },
   { name: ['or'], handler: isAlternative, args: 2 },
   { name: ['and'], handler: isConjunction, args: 2 },
   { name: ['eq'], handler: isEquals, args: 2 },
