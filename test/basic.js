@@ -1212,6 +1212,7 @@ equal(compile('{foo | round}')({ foo: 1.4 }, html => html), '1')
 equal(compile('{foo | round}')({ foo: 1.6 }, html => html), '2')
 // equal(compile('{foo | factorial}')({ foo: 5 }, html => html), '120')
 equal(compile('{foo | square}')({ foo: 4 }, html => html), '16')
+equal(compile('{foo | trunc}')({ foo: 13.33 }, html => html), '13')
 
 equal(compile('{foo | pow(3)}')({ foo: 2 }, html => html), '8')
 equal(compile('{foo | truncate(6)}')({ foo: 'foobarbaz' }, html => html), 'foo...')
@@ -1247,6 +1248,9 @@ equal(compile('{foo | eigth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html =>
 equal(compile('{foo | ninth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '9')
 equal(compile('{foo | tenth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
 equal(compile('{foo | last}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
+equal(compile('{foo | sum}')({ foo: [1, 5, 18] }, html => html), '24')
+equal(compile('{foo | average}')({ foo: [1, 5, 18] }, html => html), '8')
+// equal(compile('{foo | median}')({ foo: [18, 5, 1] }, html => html), '5')
 
 equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } } , html => html), 'null')
 equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, html => html), 'qux')
