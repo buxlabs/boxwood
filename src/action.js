@@ -253,12 +253,25 @@ function isBitwiseNegation (left, right) {
   return getBinaryExpression(left, right, '~')
 }
 
+function isTruthy (node) {
+  const argument = {
+    type: 'UnaryExpression',
+    operator: '!',
+    prefix: true,
+    argument: node
+  }
+  return negate(argument)
+}
 
-function isWhitespace (node) {
+function isFalsy (node) {
+  return negate(node)
+}
+
+function hasWhitespace (node) {
   return getCallExpressionWithRegExp(node, '\\s|&nbsp;')
 }
 
-function isNewLine (node) {
+function hasNewLine (node) {
   return getCallExpressionWithRegExp(node, '\\n')
 }
 
@@ -327,8 +340,12 @@ const STANDARD_ACTIONS = [
   { name: ['is', 'a', 'weakset'], handler: isWeakSet, args: 1 },
   { name: ['is', 'a', 'boolean'], handler: isBoolean, args: 1 },
   { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
-  { name: ['has', 'a', 'whitespace'], handler: isWhitespace, args: 1 },
-  { name: ['has', 'a', 'newline'], handler: isNewLine, args: 1 },
+  { name: ['is', 'true'], handler: isTruthy, args: 1 },
+  { name: ['is', 'false'], handler: isFalsy, args: 1 },
+  { name: ['is', 'truthy'], handler: isTruthy, args: 1 },
+  { name: ['is', 'falsy'], handler: isFalsy, args: 1 },
+  { name: ['has', 'a', 'whitespace'], handler: hasWhitespace, args: 1 },
+  { name: ['has', 'a', 'newline'], handler: hasNewLine, args: 1 },
   { name: ['has', 'a', 'number'], handler: hasNumber, args: 1 },
   { name: ['has', 'numbers'], handler: hasNumbers, args: 1 },
   { name: ['or'], handler: isAlternative, args: 2 },
@@ -349,7 +366,14 @@ const STANDARD_ACTIONS = [
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   const name = action.name.slice(0)
-  name.splice(1, 0, 'not')
+  if (name.includes('has')) {
+    name.splice(0, 1, 'does', 'not', 'have')
+  } else if (name.length === 1 && ['eq', 'gt', 'gte', 'lt', 'lte'].includes(name[0])) {
+    name.splice(0, 0, 'not')
+  } else {
+    name.splice(1, 0, 'not')
+  }
+
   return {
     name,
     handler: function () {

@@ -88,7 +88,7 @@ function collect (tree, fragment, variables, modifiers, components) {
         }
       })
     }
-    const getTest = (action, keys) => {
+    const getTest = (action, keys, values) => {
       if (!action || action.args === 1) {
         const key = keys[0]
         const [prefix] = key.split('.')
@@ -118,18 +118,22 @@ function collect (tree, fragment, variables, modifiers, components) {
 
           i += action.name.length //skip operator
 
-          const condition2 = keys[++i]
-          const [prefix2] = condition2.split('.')
-          right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
-
+          if (values[i]) {
+            right = getLiteral(values[i])
+          } else {
+            const condition2 = keys[++i]
+            const [prefix2] = condition2.split('.')
+            right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
+          }
           test = action.handler(left, right)
         }
         return test
       }
     }
     const keys = attrs.map(attr => attr.key)
+    const values = attrs.map(attr => attr.value)
     const action = findAction(keys.slice(1))
-    const test = getTest(action, keys)
+    const test = getTest(action, keys, values)
     appendIfStatement(test)
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
