@@ -1196,6 +1196,7 @@ equal(compile('{foo | pluralize}')({ foo: 'word' }, html => html), 'words')
 equal(compile('{foo | singularize}')({ foo: 'words' }, html => html), 'word')
 equal(compile('{foo | swapcase}')({ foo: 'BaR' }, html => html), 'bAr')
 equal(compile('{foo | camelize}')({ foo: 'bar_baz' }, html => html), 'barBaz')
+equal(compile('{foo | singlespace}')({ foo: 'bar   baz' }, html => html), 'bar baz')
 
 equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
 equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
