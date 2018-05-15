@@ -253,6 +253,20 @@ function isBitwiseNegation (left, right) {
   return getBinaryExpression(left, right, '~')
 }
 
+function isTruthy (node) {
+  const argument = {
+    type: 'UnaryExpression',
+    operator: '!',
+    prefix: true,
+    argument: node
+  }
+  return negate(argument)
+}
+
+function isFalsy (node) {
+  return negate(node)
+}
+
 function hasWhitespace (node) {
   return getCallExpressionWithRegExp(node, '\\s|&nbsp;')
 }
@@ -326,6 +340,10 @@ const STANDARD_ACTIONS = [
   { name: ['is', 'a', 'weakset'], handler: isWeakSet, args: 1 },
   { name: ['is', 'a', 'boolean'], handler: isBoolean, args: 1 },
   { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
+  { name: ['is', 'true'], handler: isTruthy, args: 1 },
+  { name: ['is', 'false'], handler: isFalsy, args: 1 },
+  { name: ['is', 'truthy'], handler: isTruthy, args: 1 },
+  { name: ['is', 'falsy'], handler: isFalsy, args: 1 },
   { name: ['has', 'a', 'whitespace'], handler: hasWhitespace, args: 1 },
   { name: ['has', 'a', 'newline'], handler: hasNewLine, args: 1 },
   { name: ['has', 'a', 'number'], handler: hasNumber, args: 1 },
