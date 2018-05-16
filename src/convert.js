@@ -98,7 +98,7 @@ function getTemplateNode (expression, variables, unescape) {
     return getEscapeCallExpression(node)
   }
   if (expression.type === 'Literal') {
-    return getEscapeCallExpression(expression)
+    return expression
   } else if (expression.type === 'BinaryExpression') {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
       if (node.type === 'Identifier' && !node.transformed) {

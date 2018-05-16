@@ -1278,8 +1278,7 @@ equal(compile('{foo() + bar() + 2}')({ foo: () => 0, bar: () => 1}, html => html
 equal(compile('{foo() + bar() + baz()}')({ foo: () => 0, bar: () => 1, baz: () => 2}, html => html), '3')
 equal(compile('{foo() + bar + 2}')({ foo: () => 0, bar: 1 }, html => html), '3')
 equal(compile('{foo(bar) + baz}')({ foo: (bar) => bar, bar: 2, baz: 1 }, html => html), '3')
-// equal(compile('{"<script></script>"}')(
-//   {}, html => html.replace(/</g, '&lt;').replace(/>/g, '&gt;')), '&lt;script&gt;&lt;/script&gt')
+equal(compile('{"&"}')({}, html => html.replace(/&/g, '&amp;')), '&')
 // equal(compile('{foo.bar + 1}')({ foo: { bar: 1 }  }, html => html), '2')
 equal(compile('<h5>#{index + 1} {translate("blog.author")}: {author}</h5>')(
   { index: 0, translate: () => 'author', author: 'Olek' }, html => html), '<h5>#1 author: Olek</h5>')

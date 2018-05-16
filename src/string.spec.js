@@ -18,3 +18,5 @@ assert.deepEqual(extract('{foo}-{bar}'), [{ value: '{foo}' }, { value: '-' }, { 
 assert.deepEqual(extract('{foo | uppercase}'), [{ value: '{foo}', modifiers: ['uppercase']}])
 assert.deepEqual(extract('{foo | uppercase | lowercase}'), [{ value: '{foo}', modifiers: ['uppercase', 'lowercase']}])
 assert.deepEqual(extract('{foo | uppercase | lowercase | truncate(25)}'), [{ value: '{foo}', modifiers: ['uppercase', 'lowercase', 'truncate(25)']}])
+assert.deepEqual(extract('{1}'), [{ value: '{1}' }])
+assert.deepEqual(extract('{"foo"}'), [{ value: '{"foo"}' }])

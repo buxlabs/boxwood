@@ -58,7 +58,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     })
     const body = ast.body()
     body.forEach(node => tree.append(node))
-  } else if (tag === 'script' && attrs[0].key === 'inline') {
+  } else if (tag === 'script' && attrs[0] && attrs[0].key === 'inline') {
     const leaf = fragment.children[0]
     leaf.used = true
     const ast = new AbstractSyntaxTree(leaf.content)
