@@ -1319,4 +1319,14 @@ equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => h
 
 equal(compile(`<head partial="./fixtures/partial/head.html"></head>`)({}, html => html), '<head><meta charset="utf-8"></head>')
 
+equal(compile(`{baz}<each foo in bar><each baz in foo>{baz.quz}</each></each>{baz}`)({
+ bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
+ baz: 'qux'
+}, html => html), 'qux12qux')
+
+equal(compile(`{baz}<each foo in bar><each baz in foo.quz>{baz}</each></each>{baz}`)({
+ bar: [ { quz: [1, 2, 3] }, { quz: [4, 5, 6] } ],
+ baz: 'qux'
+}, html => html), 'qux123456qux')
+
 console.timeEnd('test: success')
