@@ -66,6 +66,13 @@ function collect (tree, fragment, variables, modifiers, components) {
     const body = ast.body()
     body.forEach(node => tree.append(node))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
+    const attr = fragment.attributes.find(attr => attr.key === 'partial')
+    if (attr) {
+      const path = attr.value
+      const content = readFileSync(join(__dirname, '../test', path), 'utf8')
+      fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
+      fragment.children = parse(content)
+    }
     const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
       if (node.type === 'IfStatement') {

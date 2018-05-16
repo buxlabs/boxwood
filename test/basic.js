@@ -1317,4 +1317,6 @@ equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => html), 'qux')
 
+equal(compile(`<head partial="./fixtures/partial/head.html"></head>`)({}, html => html), '<head><meta charset="utf-8"></head>')
+
 console.timeEnd('test: success')
