@@ -8,7 +8,7 @@ const {
   getForLoop,
   getForLoopVariable
 } = require('./factory')
-const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute } = require('./convert')
+const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute, convertToExpression, convertToBinaryExpression } = require('./convert')
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
 const { getAction } = require('./action')
@@ -143,7 +143,22 @@ function collect (tree, fragment, variables, modifiers, components) {
           i += action.name.length //skip operator
 
           if (values[i]) {
-            right = getLiteral(values[i])
+            let value = values[i]
+            if (value.includes('{') && value.includes('}')) {
+              value = value.replace(/{|}/g, '')
+              const expression = convertToExpression(value)
+              if (expression.type === 'Identifier') {
+                const [prefix] = value.split('.')
+                right = getIdentifierWithOptionalPrefix(prefix, value, variables)
+              } else if (expression.type === 'Literal') {
+                right = getLiteral(expression.value)
+              } else if (expression.type === 'BinaryExpression') {
+                const nodes = [expression.left, expression.right]
+                right = convertToBinaryExpression(nodes)
+              }
+            } else {
+              right = getLiteral(value)
+            }
           } else {
             const condition2 = keys[++i]
             const [prefix2] = condition2.split('.')
