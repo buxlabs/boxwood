@@ -286,5 +286,7 @@ module.exports = {
   convertHtmlOrTextAttribute,
   convertAttribute,
   convertText,
-  convertTag
+  convertTag,
+  convertToExpression,
+  convertToBinaryExpression
 }

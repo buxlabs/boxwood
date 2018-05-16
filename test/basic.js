@@ -1165,6 +1165,20 @@ equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 equal(compile('<if foo not eq="bar">baz</if>')({ foo: 'baz' }, html => html), 'baz')
 equal(compile('<if foo not eq="bar">baz</if>')({ foo: 'bar' }, html => html), '')
 
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 'qux', bar: 'qux' }, html => html), 'baz')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 'qux', bar: 'quuux' }, html => html), '')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 10, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 10, bar: 0 }, html => html), '')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: null, bar: null }, html => html), 'baz')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: {}, bar: {} }, html => html), '')
+
+equal(compile('<if foo eq="{10}">baz</if>')({ foo: 10 }, html => html), 'baz')
+equal(compile('<if foo eq="{100 + 100}">baz</if>')({ foo: 200 }, html => html), 'baz')
+equal(compile('<if foo eq="{100 + 100 + 0}">baz</if>')({ foo: 200 }, html => html), 'baz')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 10, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 10, bar: 0 }, html => html), '')
+equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 10, bar: 0 }, html => html), '')
+
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
 
