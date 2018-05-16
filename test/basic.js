@@ -118,7 +118,7 @@ equal(compile(`
 </div>
 `)({ foo: 'foo', bar: 'bar' }, html => html), '<div>foo bar</div>')
 
-equal(compile('<ul><each todo in todos><li html="{todo.description}"></li></each></ul>')({
+equal(compile('<ul><for todo in todos><li html="{todo.description}"></li></for></ul>')({
   todos: [
     { description: 'foo' },
     { description: 'bar' },
@@ -127,7 +127,7 @@ equal(compile('<ul><each todo in todos><li html="{todo.description}"></li></each
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-equal(compile('<ul><each foo in bar><li html="{foo.baz}"></li></each></ul>')({
+equal(compile('<ul><for foo in bar><li html="{foo.baz}"></li></for></ul>')({
   bar: [
     { baz: 'foo' },
     { baz: 'bar' },
@@ -136,7 +136,7 @@ equal(compile('<ul><each foo in bar><li html="{foo.baz}"></li></each></ul>')({
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-equal(compile('<ul><each foo in bar><each baz in foo><li html="{baz.qux}"></li></each></each></ul>')({
+equal(compile('<ul><for foo in bar><for baz in foo><li html="{baz.qux}"></li></for></for></ul>')({
   bar: [
     [ { qux: 1 }, { qux: 2 } ],
     [ { qux: 3 }, { qux: 4 } ],
@@ -144,7 +144,7 @@ equal(compile('<ul><each foo in bar><each baz in foo><li html="{baz.qux}"></li><
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-equal(compile('<ul><each foo in bar><each baz in foo.qux><li html="{baz}"></li></each></each></ul>')({
+equal(compile('<ul><for foo in bar><for baz in foo.qux><li html="{baz}"></li></for></for></ul>')({
   bar: [
     { qux: [1, 2] },
     { qux: [3, 4] },
@@ -152,7 +152,7 @@ equal(compile('<ul><each foo in bar><each baz in foo.qux><li html="{baz}"></li><
   ]
 }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-equal(compile('<ul><each todo in todos><li html="{todo.text}"></li></each></ul>')({
+equal(compile('<ul><for todo in todos><li html="{todo.text}"></li></for></ul>')({
   todos: [
     { text: 'foo' },
     { text: 'bar' },
@@ -199,42 +199,42 @@ equal(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elsei
 equal(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: false, quux: true }), 'corge')
 equal(compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')({ foo: false, baz: false, quux: false }), '')
 
-equal(compile('<ul><each a in b><li html="{a.b}"></li></each></ul>')({
+equal(compile('<ul><for a in b><li html="{a.b}"></li></for></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-equal(compile('<ul><each t in b><li html="{t.b}"></li></each></ul>')({
+equal(compile('<ul><for t in b><li html="{t.b}"></li></for></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-equal(compile('<ul><each o in b><li html="{o.b}"></li></each></ul>')({
+equal(compile('<ul><for o in b><li html="{o.b}"></li></for></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-equal(compile('<ul><each e in b><li html="{e.b}"></li></each></ul>')({
+equal(compile('<ul><for e in b><li html="{e.b}"></li></for></ul>')({
   b: [
     { b: 'foo' },
     { b: 'bar' }
   ]
 }), '<ul><li>foo</li><li>bar</li></ul>')
 
-equal(compile('<each foo in foos><img src="{foo.src}"></each>')({
+equal(compile('<for foo in foos><img src="{foo.src}"></for>')({
   foos: [
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: 'bar.jpg' }
   ]
 }, html => html), '<img src="foo.jpg"><img src="bar.jpg">')
 
-equal(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if></each>')({
+equal(compile('<for foo in foos><if foo.src><img src="{foo.src}"></if></for>')({
   foos: [
     { title: 'foo', src: 'foo.jpg' },
     { title: 'bar', src: null }
@@ -248,7 +248,7 @@ equal(compile('<for foo in foos><if foo.src><img src="{foo.src}"></if></for>')({
   ]
 }, html => html), '<img src="foo.jpg">')
 
-equal(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></each>')({
+equal(compile('<for foo in foos><if foo.src><img src="{foo.src}"></if><elseif foo.href><a href="{foo.href}"></a></elseif></for>')({
   foos: [
     { title: 'foo', src: 'foo.jpg', href: null },
     { title: 'bar', src: null, href: null },
@@ -256,7 +256,7 @@ equal(compile('<each foo in foos><if foo.src><img src="{foo.src}"></if><elseif f
   ]
 }, html => html), '<img src="foo.jpg"><a href="https://buxlabs.pl"></a>')
 
-equal(compile('{foo}<each foo in bar><div>{foo.baz}</div></each>')({
+equal(compile('{foo}<for foo in bar><div>{foo.baz}</div></for>')({
   foo: 'bar',
   bar: [
     { baz: 'qux' },
@@ -265,7 +265,7 @@ equal(compile('{foo}<each foo in bar><div>{foo.baz}</div></each>')({
   ]
 }, html => html), 'bar<div>qux</div><div>quux</div><div>quuux</div>')
 
-equal(compile('<div>{foo}<each foo in bar><div>{foo.baz}</div></each></div>')({
+equal(compile('<div>{foo}<for foo in bar><div>{foo.baz}</div></for></div>')({
   foo: 'bar',
   bar: [
     { baz: 'qux' },
@@ -274,7 +274,7 @@ equal(compile('<div>{foo}<each foo in bar><div>{foo.baz}</div></each></div>')({
   ]
 }, html => html), '<div>bar<div>qux</div><div>quux</div><div>quuux</div></div>')
 
-equal(compile('<div>{foo}</div><each foo in bar><div>{foo.baz}</div></each>')({
+equal(compile('<div>{foo}</div><for foo in bar><div>{foo.baz}</div></for>')({
   foo: 'bar',
   bar: [
     { baz: 'qux' },
@@ -283,7 +283,7 @@ equal(compile('<div>{foo}</div><each foo in bar><div>{foo.baz}</div></each>')({
   ]
 }, html => html), '<div>bar</div><div>qux</div><div>quux</div><div>quuux</div>')
 
-equal(compile('<each foo in bar><div>{foo.baz}</div></each><div>{foo}</div>')({
+equal(compile('<for foo in bar><div>{foo.baz}</div></for><div>{foo}</div>')({
   foo: 'bar',
   bar: [
     { baz: 'qux' },
@@ -971,7 +971,7 @@ equal(compile('<if foo bitwise xor bar>baz</if>')({
   bar: 1
 }, html => html), '')
 
-equal(compile('<ul><each todo in="{todos}"><li html="{todo.description}"></li></each></ul>')({
+equal(compile('<ul><for todo in="{todos}"><li html="{todo.description}"></li></for></ul>')({
   todos: [
     { description: 'foo' },
     { description: 'bar' },
@@ -980,7 +980,7 @@ equal(compile('<ul><each todo in="{todos}"><li html="{todo.description}"></li></
   ]
 }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-equal(compile('<ul><each foo in="{bar}"><each baz in="{foo.qux}"><li html="{baz}"></li></each></each></ul>')({
+equal(compile('<ul><for foo in="{bar}"><for baz in="{foo.qux}"><li html="{baz}"></li></for></for></ul>')({
   bar: [
     { qux: [1, 2] },
     { qux: [3, 4] },
@@ -1319,14 +1319,23 @@ equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => h
 
 equal(compile(`<head partial="./fixtures/partial/head.html"></head>`)({}, html => html), '<head><meta charset="utf-8"></head>')
 
-equal(compile(`{baz}<each foo in bar><each baz in foo>{baz.quz}</each></each>{baz}`)({
+equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
  bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
  baz: 'qux'
 }, html => html), 'qux12qux')
 
-equal(compile(`{baz}<each foo in bar><each baz in foo.quz>{baz}</each></each>{baz}`)({
+equal(compile(`{baz}<for foo in bar><for baz in foo.quz>{baz}</for></for>{baz}`)({
  bar: [ { quz: [1, 2, 3] }, { quz: [4, 5, 6] } ],
  baz: 'qux'
 }, html => html), 'qux123456qux')
+
+equal(compile(`<each foo in bar>{foo}</each>`)({
+  bar: {
+    each: function (callback) {
+      const elements = [1, 2, 3]
+      elements.forEach(callback)
+    }
+  }
+}, html => html), '123')
 
 console.timeEnd('test: success')

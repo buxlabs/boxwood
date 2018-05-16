@@ -195,7 +195,7 @@ function collect (tree, fragment, variables, modifiers, components) {
         body: ast.body()
       }
     }
-  } else if (tag === 'each' || tag === 'for') {
+  } else if (tag === 'for') {
     const ast = new AbstractSyntaxTree('')
     const [left, operator, right] = attrs
     let range
@@ -368,7 +368,7 @@ function collect (tree, fragment, variables, modifiers, components) {
         test: null
       })
     }
-  } else if (tag === 'foreach') {
+  } else if (tag === 'foreach' || tag === 'each') {
     const ast = new AbstractSyntaxTree('')
     const [left, operator, right] = attrs
     variables.push(left.key)
@@ -385,7 +385,7 @@ function collect (tree, fragment, variables, modifiers, components) {
           object: getIdentifierWithOptionalPrefix(right.key.split('.')[0], right.key, variables),
           property: {
             type: "Identifier",
-            name: "forEach"
+            name: tag === "foreach" ? 'forEach' : 'each'
           },
           computed: false
         },
