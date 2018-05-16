@@ -1196,6 +1196,8 @@ equal(compile('{foo | pluralize}')({ foo: 'word' }, html => html), 'words')
 equal(compile('{foo | singularize}')({ foo: 'words' }, html => html), 'word')
 equal(compile('{foo | swapcase}')({ foo: 'BaR' }, html => html), 'bAr')
 equal(compile('{foo | camelize}')({ foo: 'bar_baz' }, html => html), 'barBaz')
+equal(compile('{foo | singlespace}')({ foo: 'bar   baz' }, html => html), 'bar baz')
+equal(compile('{foo | repeat(2)}')({ foo: 'fooBar' }, html => html), 'fooBarfooBar')
 
 equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
 equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
@@ -1208,6 +1210,9 @@ equal(compile('{foo | ceil}')({ foo: 1.6 }, html => html), '2')
 equal(compile('{foo | floor}')({ foo: 1.6 }, html => html), '1')
 equal(compile('{foo | round}')({ foo: 1.4 }, html => html), '1')
 equal(compile('{foo | round}')({ foo: 1.6 }, html => html), '2')
+// equal(compile('{foo | factorial}')({ foo: 5 }, html => html), '120')
+equal(compile('{foo | square}')({ foo: 4 }, html => html), '16')
+equal(compile('{foo | trunc}')({ foo: 13.33 }, html => html), '13')
 
 equal(compile('{foo | pow(3)}')({ foo: 2 }, html => html), '8')
 equal(compile('{foo | truncate(6)}')({ foo: 'foobarbaz' }, html => html), 'foo...')
@@ -1243,6 +1248,19 @@ equal(compile('{foo | eigth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html =>
 equal(compile('{foo | ninth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '9')
 equal(compile('{foo | tenth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
 equal(compile('{foo | last}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
+equal(compile('{foo | sum}')({ foo: [1, 5, 18] }, html => html), '24')
+equal(compile('{foo | average}')({ foo: [1, 5, 18] }, html => html), '8')
+// equal(compile('{foo | median}')({ foo: [18, 5, 1] }, html => html), '5')
+
+equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } } , html => html), 'null')
+equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, html => html), 'qux')
+equal(compile('{photos | first | dig("src")}')({
+  photos: [ { size: '100', src: 'baz' }, { size: '200', src: 'qux'} ]
+}, html => html), 'baz')
+equal(compile('{foo | first | dig("foo.bar.baz")}')({
+  foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
+}, html => html), 'qux')
+
 
 equal(compile('<for number in range="1...10">{number}</for>')({}, html => html), '123456789')
 equal(compile('<for number in range="1..10">{number}</for>')({}, html => html), '12345678910')
