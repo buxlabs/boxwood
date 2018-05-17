@@ -314,6 +314,7 @@ function hasNumbers(node) {
 }
 
 const STANDARD_ACTIONS = [
+  { name: ['not'], handler: negate, args: 1 },
   { name: ['is', 'positive'], handler: isPositive, args: 1 },
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
   { name: ['is', 'finite'], handler: isFinite, args: 1 },

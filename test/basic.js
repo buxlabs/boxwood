@@ -972,6 +972,34 @@ equal(compile('<if foo bitwise xor bar>baz</if>')({
   bar: 1
 }, html => html), '')
 
+equal(compile('<if not foo>baz</if>')({
+  foo: null
+}, html => html), 'baz')
+
+equal(compile('<if not foo>baz</if>')({
+  foo: undefined
+}, html => html), 'baz')
+
+equal(compile('<if not foo>baz</if>')({
+  foo: false
+}, html => html), 'baz')
+
+equal(compile('<if not foo>baz</if>')({
+  foo: {}
+}, html => html), '')
+
+equal(compile('<if not foo>baz</if>')({
+  foo: true
+}, html => html), '')
+
+equal(compile('<if not foo.bar>baz</if>')({
+  foo: { bar: {} }
+}, html => html), '')
+
+equal(compile('<if not foo.bar>baz</if>')({
+  foo: {}
+}, html => html), 'baz')
+
 equal(compile('<ul><for todo in="{todos}"><li html="{todo.description}"></li></for></ul>')({
   todos: [
     { description: 'foo' },
