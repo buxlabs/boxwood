@@ -369,17 +369,10 @@ const STANDARD_ACTIONS = [
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
   const { name } = action
-
-  if (name.length === 1) {
-    return false
-  }
-
-  if (name[0] === 'is' && name[1] === 'greater' || name[1] === 'less') {
-    return false
-  }
-
+  if (name.length === 1) return false
+  if (name[0] === 'is' && name[1] === 'greater' || name[1] === 'less') return false
+  if (name.includes('not')) return false
   return action
-
 }).map(action => {
   const name = action.name.slice(0)
   if (name.includes('has')) {
@@ -397,6 +390,7 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
 })
 
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
+ACTIONS.forEach(action => console.log(action.name))
 
 module.exports = {
   getAction (name) {
