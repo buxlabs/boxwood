@@ -5,7 +5,7 @@ const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('
 const collect = require('./src/collect')
 const { getModifier } = require('./src/modifiers')
 
-function render (source) {
+function render (source, options) {
   const htmltree = parse(source)
   const tree = new AbstractSyntaxTree('')
   const variables = [
@@ -17,7 +17,7 @@ function render (source) {
   const components = []
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components)
+    collect(tree, fragment, variables, modifiers, components, options)
   })
   modifiers.forEach(name => {
     const modifier = getModifier(name)
@@ -31,7 +31,7 @@ function render (source) {
 
 module.exports = {
   render,
-  compile (source) {
+  compile (source, options) {
     const rescue = {}
     if (source.includes('<rescue>') && source.includes('</rescue>')) {
       const start = source.indexOf('<rescue>')
@@ -40,7 +40,7 @@ module.exports = {
       source = source.substring(0, start) + source.substring(end, source.length)
       rescue.tree = render(rescue.content)
     }
-    let program = render(source)
+    let program = render(source, options)
     if (rescue.tree) {
       const tree = new AbstractSyntaxTree('')
       tree.append({

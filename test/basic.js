@@ -1,5 +1,6 @@
 const { equal } = require('assert')
 const { compile } = require('..')
+const path = require('path')
 
 console.time('test: success')
 equal(compile('')(), '')
@@ -1351,15 +1352,35 @@ equal(compile(`<for month in='{["Styczeń", "Luty", "Marzec"]}'>{month}</for>`)(
 equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz' }, html => html), 'barbaz')
 // equal(compile(`<for foo in='{[{ key: 'bar' }, { key: 'baz' }]}'>{foo.key}</for>`)({}, html => html), 'barbaz')
 
-equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button>`)(
-  {}, html => html), '<button class="btn btn-primary">foo</button>')
-equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button><button>bar</button>`)(
-  {}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
-equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`)({}, html => html), '<div>foo bar baz</div>')
-equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`)({}, html => html), '<div>foo</div><footer>bar</footer>')
-equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`)({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<partial from="./fixtures/partial/header.html">`)({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<partial from="./fixtures/partial/header.html" />`)({ title: 'foo' }, html => html), '<div>foo</div>')
+equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button>`, {
+  paths: [__dirname]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button><button>bar</button>`, {
+  paths: [__dirname]
+})({}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
+
+equal(compile(`<import button from='./button.html'><button>foo</button>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import button from='./button.html'><button>foo</button>`, {
+  paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import checkbox from='./checkbox.html'><checkbox>`, {
+  paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
+})({}, html => html), '<input type="checkbox">')
+
+equal(compile(`<import checkbox from='./checkbox.html'><checkbox>`, {
+  paths: [ path.join(__dirname, './fixtures/partial'), path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<input type="checkbox">')
+
+equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
+equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')
+equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
+equal(compile(`<partial from="./fixtures/partial/header.html">`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
+equal(compile(`<partial from="./fixtures/partial/header.html" />`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
 
 equal(compile(`<script inline>const foo = "bar"</script>{foo}`)({}, html => html), 'bar')
 equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, html => html), '2018')
@@ -1368,7 +1389,7 @@ equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => html), 'qux')
 
-equal(compile(`<head partial="./fixtures/partial/head.html"></head>`)({}, html => html), '<head><meta charset="utf-8"></head>')
+equal(compile(`<head partial="./fixtures/partial/head.html"></head>`, { paths: [__dirname] })({}, html => html), '<head><meta charset="utf-8"></head>')
 
 equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
  bar: [ [{ quz: 1 }], [{ quz: 2 }] ],

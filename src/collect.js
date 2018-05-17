@@ -12,7 +12,7 @@ const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute, c
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
 const { getAction } = require('./action')
-const { readFileSync } = require('fs')
+const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
 const { parse } = require('himalaya')
 
@@ -38,7 +38,7 @@ function findAction (keys) {
   return actions[actions.length - 1]
 }
 
-function collect (tree, fragment, variables, modifiers, components) {
+function collect (tree, fragment, variables, modifiers, components, options) {
   if (fragment.used) return
   fragment.used = true
   const tag = fragment.tagName
@@ -56,7 +56,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     fragment.children = htmlTree
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components)
+      collect(ast, current, variables, modifiers, components, options)
     })
     const body = ast.body()
     body.forEach(node => tree.append(node))
@@ -71,9 +71,14 @@ function collect (tree, fragment, variables, modifiers, components) {
     const attr = fragment.attributes.find(attr => attr.key === 'partial')
     if (attr) {
       const path = attr.value
-      const content = readFileSync(join(__dirname, '../test', path), 'utf8')
-      fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
-      fragment.children = parse(content)
+      for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+        const location = join(options.paths[i], path)
+        if (!existsSync(location)) continue
+        const content = readFileSync(location, 'utf8')
+        fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
+        fragment.children = parse(content)
+        break
+      }
     }
     const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
@@ -83,7 +88,7 @@ function collect (tree, fragment, variables, modifiers, components) {
       tree.append(getTemplateAssignmentExpression(node))
     })
     fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components)
+      collect(tree, node, variables, modifiers, components, options)
     })
     if (!SELF_CLOSING_TAGS.includes(tag)) {
       const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -102,7 +107,7 @@ function collect (tree, fragment, variables, modifiers, components) {
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components)
+      collect(ast, current, variables, modifiers, components, options)
     })
     const appendIfStatement = node => {
       tree.append({
@@ -181,7 +186,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components)
+        collect(ast, current, variables, modifiers, components, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -202,7 +207,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components)
+        collect(ast, current, variables, modifiers, components, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -236,7 +241,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     variables.push(guard)
     ast.append(getForLoopVariable(variable, name, variables, index, range))
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components)
+      collect(ast, current, variables, modifiers, components, options)
     })
     tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
     variables.pop()
@@ -251,7 +256,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     } else {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components)
+        collect(ast, current, variables, modifiers, components, options)
       })
       const body = ast.body()
       body.forEach(node => tree.append(node))
@@ -259,7 +264,7 @@ function collect (tree, fragment, variables, modifiers, components) {
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components)
+      collect(ast, current, variables, modifiers, components, options)
     })
 
     tree.append({
@@ -274,7 +279,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components)
+        collect(ast, current, variables, modifiers, components, options)
       })
       leaf.handler = {
         type: 'CatchClause',
@@ -291,7 +296,7 @@ function collect (tree, fragment, variables, modifiers, components) {
   } else if (tag === 'unless') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components)
+      collect(ast, current, variables, modifiers, components, options)
     })
     const { key } = attrs[0]
     const [prefix] = key.split('.')
@@ -314,7 +319,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components)
+        collect(ast, current, variables, modifiers, components, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -355,7 +360,7 @@ function collect (tree, fragment, variables, modifiers, components) {
       if (action) {
         const ast = new AbstractSyntaxTree('')
         walk(fragment, current => {
-          collect(ast, current, variables, modifiers, components)
+          collect(ast, current, variables, modifiers, components, options)
         })
         ast.append({
           type: 'BreakStatement',
@@ -373,7 +378,7 @@ function collect (tree, fragment, variables, modifiers, components) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components)
+        collect(ast, current, variables, modifiers, components, options)
       })
       ast.append({
         type: 'BreakStatement',
@@ -402,7 +407,7 @@ function collect (tree, fragment, variables, modifiers, components) {
       variables.push(value.key)
     }
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components)
+      collect(ast, current, variables, modifiers, components, options)
     })
     if (left) {
       variables.pop()
@@ -451,12 +456,22 @@ function collect (tree, fragment, variables, modifiers, components) {
   } else if (tag === 'import') {
     const name = attrs[0].key
     const path = attrs[1].value
-    const content = readFileSync(join(__dirname, '../test', path), 'utf8')
-    components.push({ name, content })
+    for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+      const location = join(options.paths[i], path)
+      if (!existsSync(location)) continue
+      const content = readFileSync(location, 'utf8')
+      components.push({ name, content })
+      break
+    }
   } else if (tag === 'partial') {
     const path = attrs[0].value
-    const content = readFileSync(join(__dirname, '../test', path), 'utf8')
-    fragment.children = parse(content)
+    for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+      const location = join(options.paths[i], path)
+      if (!existsSync(location)) continue
+      const content = readFileSync(location, 'utf8')
+      fragment.children = parse(content)
+      break
+    }
   }
 }
 
