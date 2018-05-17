@@ -1221,8 +1221,6 @@ equal(compile('<if foo is not falsy>baz</if>')({ foo: 'bar' }, html => html), 'b
 
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
-equal(compile('<if foo not eq="bar">baz</if>')({ foo: 'baz' }, html => html), 'baz')
-equal(compile('<if foo not eq="bar">baz</if>')({ foo: 'bar' }, html => html), '')
 
 equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 'qux', bar: 'qux' }, html => html), 'baz')
 equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 'qux', bar: 'quuux' }, html => html), '')

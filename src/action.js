@@ -367,16 +367,16 @@ const STANDARD_ACTIONS = [
   { name: ['bitwise', 'not'], handler: isBitwiseNegation, args: 2 },
 ]
 
-const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
+const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
+  const { name } = action
+  return name.length !== 1
+}).map(action => {
   const name = action.name.slice(0)
   if (name.includes('has')) {
     name.splice(0, 1, 'does', 'not', 'have')
-  } else if (name.length === 1 && ['eq', 'gt', 'gte', 'lt', 'lte'].includes(name[0])) {
-    name.splice(0, 0, 'not')
   } else {
     name.splice(1, 0, 'not')
   }
-
   return {
     name,
     handler: function () {

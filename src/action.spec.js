@@ -204,16 +204,11 @@ assert.deepEqual(getAction(['or']).handler('foo', 'bar'), {
   right: 'bar'
 })
 
-assert.deepEqual(getAction(['and']).handler('foo', 'bar'), {
-  type: 'LogicalExpression',
-  left: 'foo',
-  operator: '&&',
-  right: 'bar'
-})
-
-assert.deepEqual(getAction(['lte']).handler('foo', 'bar'), {
-  type: 'LogicalExpression',
-  left: 'foo',
-  operator: '<=',
-  right: 'bar'
-})
+assert.deepEqual(getAction(['or', 'not']), undefined)
+assert.deepEqual(getAction(['not', 'not']), undefined)
+assert.deepEqual(getAction(['and', 'not']), undefined)
+assert.deepEqual(getAction(['eq', 'not']), undefined)
+assert.deepEqual(getAction(['gt', 'not']), undefined)
+assert.deepEqual(getAction(['lt', 'not']), undefined)
+assert.deepEqual(getAction(['gte', 'not']), undefined)
+assert.deepEqual(getAction(['lte', 'not']), undefined)
