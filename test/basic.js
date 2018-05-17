@@ -1337,6 +1337,15 @@ equal(compile('<switch foo><case is positive>bar</case><case is negative>baz</ca
 equal(compile('<switch foo><case is positive>bar</case><case is negative>baz</case><default>qux</default></switch>')({ foo: -100 }, html => html), 'baz')
 equal(compile('<switch foo><case is positive>bar</case><case is negative>baz</case><default>qux</default></switch>')({ foo: 0 }, html => html), 'qux')
 equal(compile('<foreach foo in bar>{foo}</foreach>')({ bar: [1, 2, 3] }, html => html), '123')
+
+equal(compile('<foreach foo and baz in bar>{foo}{baz}</foreach>')({
+ bar: new Map([ ['qux', 1], ['quux', 2] ])
+}, html => html), '1qux2quux')
+
+equal(compile('<foreach foo in bar>{foo}</foreach>')({
+ bar: new Set([1, 2, 3, 4, 5])
+}, html => html), '12345')
+
 equal(compile('<button>{translate("buttons.search")}&nbsp;<span class="fa fa-search"></span></button>')({ translate () { return 'foo' } }, html => html), '<button>foo&nbsp;<span class="fa fa-search"></span></button>')
 equal(compile(`<for month in='{["Styczeń", "Luty", "Marzec"]}'>{month}</for>`)({}, html => html), 'StyczeńLutyMarzec')
 equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz' }, html => html), 'barbaz')

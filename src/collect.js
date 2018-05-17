@@ -387,12 +387,29 @@ function collect (tree, fragment, variables, modifiers, components) {
     }
   } else if (tag === 'foreach' || tag === 'each') {
     const ast = new AbstractSyntaxTree('')
-    const [left, operator, right] = attrs
-    variables.push(left.key)
+    let operator, left, right, key, value
+
+    if (attrs.length === 3) {
+      [left, operator, right] = attrs
+    } else if (attrs.length === 5) {
+      [key, , value, operator, right] = attrs
+    }
+
+    if (left) {
+      variables.push(left.key)
+    } else if(key && value) {
+      variables.push(key.key)
+      variables.push(value.key)
+    }
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components)
     })
-    variables.pop()
+    if (left) {
+      variables.pop()
+    } else if (left && key) {
+      variables.pop()
+      variables.pop()
+    }
     tree.append({
       type: "ExpressionStatement",
       expression: {
@@ -410,11 +427,19 @@ function collect (tree, fragment, variables, modifiers, components) {
           {
             type: "FunctionExpression",
             params: [
-              {
+              left ? {
                 type: "Identifier",
                 name: left.key
-              }
-            ],
+              } : null,
+              key ? {
+                type: 'Identifier',
+                name: key.key
+              } : null,
+              value ? {
+                type: 'Identifier',
+                name: value.key
+              } : null
+            ].filter(Boolean),
             body: {
               type: 'BlockStatement',
               body: ast.body()
