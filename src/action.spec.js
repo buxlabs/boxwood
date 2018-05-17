@@ -212,3 +212,10 @@ assert.deepEqual(getAction(['gt', 'not']), undefined)
 assert.deepEqual(getAction(['lt', 'not']), undefined)
 assert.deepEqual(getAction(['gte', 'not']), undefined)
 assert.deepEqual(getAction(['lte', 'not']), undefined)
+
+assert.deepEqual(getAction(['is', 'not', 'greater', 'than']), undefined)
+assert.deepEqual(getAction(['is', 'not', 'greater', 'than']), undefined)
+assert.deepEqual(getAction(['is', 'not', 'less', 'than']), undefined)
+assert.deepEqual(getAction(['is', 'not', 'less', 'than', 'or', 'equals']), undefined)
+
+

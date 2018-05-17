@@ -369,7 +369,17 @@ const STANDARD_ACTIONS = [
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
   const { name } = action
-  return name.length !== 1
+
+  if (name.length === 1) {
+    return false
+  }
+
+  if (name[0] === 'is' && name[1] === 'greater' || name[1] === 'less') {
+    return false
+  }
+
+  return action
+
 }).map(action => {
   const name = action.name.slice(0)
   if (name.includes('has')) {
