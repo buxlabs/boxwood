@@ -25,13 +25,15 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
 }
 
 function findAction (keys) {
+  let index = 1
+  if (keys[0] === 'not' || keys[0] === 'is') index = 0
+
   const keywords = []
   const actions = []
 
-  for (let i = 0; i < keys.length; i++) {
-    keywords.push(keys[i])
+  for (index; index < keys.length; index++) {
+    keywords.push(keys[index])
     action = getAction(keywords)
-
     if (action) actions.push(action)
   }
 
@@ -180,7 +182,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     }
     const keys = attrs.map(attr => attr.key)
     const values = attrs.map(attr => attr.value)
-    const action = findAction(keys[0] === 'not' ? keys : keys.slice(1))
+    const action = findAction(keys)
     const test = getTest(action, keys, values)
     appendIfStatement(test)
   } else if (tag === 'elseif') {
