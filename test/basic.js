@@ -1038,6 +1038,21 @@ equal(compile('<if foo is less than bar>baz</if>')({
   bar: 40
 }, html => html), 'baz')
 
+equal(compile('<if foo is less than or equals bar>baz</if>')({
+  foo: 30,
+  bar: 40
+}, html => html), 'baz')
+
+equal(compile('<if foo is less than or equals bar>baz</if>')({
+  foo: 40,
+  bar: 30
+}, html => html), '')
+
+equal(compile('<if foo is less than or equals bar>baz</if>')({
+  foo: 30,
+  bar: 30
+}, html => html), 'baz')
+
 equal(compile('<if foo is greater than bar>baz</if>')({
   foo: 100,
   bar: 50
@@ -1052,6 +1067,21 @@ equal(compile('<if foo is greater than bar>baz</if>')({
   foo: 30,
   bar: 40
 }, html => html), '')
+
+equal(compile('<if foo is greater than or equals bar>baz</if>')({
+  foo: 30,
+  bar: 40
+}, html => html), '')
+
+equal(compile('<if foo is greater than or equals bar>baz</if>')({
+  foo: 40,
+  bar: 40
+}, html => html), 'baz')
+
+equal(compile('<if foo is greater than or equals bar>baz</if>')({
+  foo: 50,
+  bar: 40
+}, html => html), 'baz')
 
 equal(compile('<if foo has a whitespace>baz</if>')({
   foo: 'foo&nbsp;bar'

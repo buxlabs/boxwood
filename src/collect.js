@@ -26,14 +26,16 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
 
 function findAction (keys) {
   const keywords = []
-  let action
+  const actions = []
 
   for (let i = 0; i < keys.length; i++) {
     keywords.push(keys[i])
     action = getAction(keywords)
 
-    if (action) return action
+    if (action) actions.push(action)
   }
+
+  return actions[actions.length - 1]
 }
 
 function collect (tree, fragment, variables, modifiers, components) {
