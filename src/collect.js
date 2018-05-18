@@ -40,7 +40,7 @@ function findAction (keys) {
   return actions[actions.length - 1]
 }
 
-function collectComponents (fragment, components, options) {
+function collectComponentsFromImport (fragment, components, options) {
   const attrs = fragment.attributes
   const name = attrs[0].key
   const path = attrs[1].value
@@ -71,7 +71,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
           current.children = children
         }
         if (current.tagName === 'import') {
-          collectComponents(current, currentComponents, options)
+          collectComponentsFromImport(current, currentComponents, options)
         }
         const component = currentComponents.find(component => component.name === current.tagName)
         if (component && !current.plain) {
@@ -485,7 +485,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       }
     })
   } else if (tag === 'import') {
-    collectComponents(fragment, components, options)
+    collectComponentsFromImport(fragment, components, options)
   } else if (tag === 'partial') {
     const path = attrs[0].value
     for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {

@@ -1008,6 +1008,9 @@ equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
   paths: [ path.join(__dirname, './fixtures/import') ]
 })({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
 
+// TODO you can nest partial attributes in imports
+// TODO you can nest partial tags in imports
+
 equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
 equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')
 equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
