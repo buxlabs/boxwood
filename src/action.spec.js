@@ -292,6 +292,10 @@ assert.deepEqual(typeof getAction(['does', 'not', 'have', 'numbers']).handler, '
 assert.deepEqual(typeof getAction(['bitwise', 'not', 'or']).handler, 'function')
 assert.deepEqual(typeof getAction(['bitwise', 'not', 'and']).handler, 'function')
 assert.deepEqual(typeof getAction(['bitwise', 'not', 'xor']).handler, 'function')
+assert.deepEqual(typeof getAction(['neq']).handler, 'function')
+assert.deepEqual(typeof getAction(['neq']).handler, 'function')
+assert.deepEqual(typeof getAction(['does', 'not', 'equal']).handler, 'function')
+assert.deepEqual(typeof getAction(['is', 'not', 'equal', 'to']).handler, 'function')
 
 assert.deepEqual(getAction(['or', 'not']), undefined)
 assert.deepEqual(getAction(['not', 'not']), undefined)

@@ -425,6 +425,24 @@ equal(compile('<if foo eq bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'b
 equal(compile('<if foo eq bar>baz</if>')({ foo: 40, bar: 42 }, html => html), '')
 equal(compile('<if foo eq bar>baz</if>')({ foo: '42', bar: 42 }, html => html), '')
 
+equal(compile('<if foo neq bar>baz</if>')({ foo: 42, bar: 42 }, html => html), '')
+equal(compile('<if foo neq bar>baz</if>')({ foo: 40, bar: 42 }, html => html), 'baz')
+equal(compile('<if foo neq bar>baz</if>')({ foo: '42', bar: 42 }, html => html), 'baz')
+equal(compile('<if foo neq="bar">baz</if>')({ foo: 'bar', bar: 'bar' }, html => html), '')
+equal(compile('<if foo neq="{42}">baz</if>')({ foo: 42, bar: 42 }, html => html), '')
+equal(compile('<if foo neq="bar">baz</if>')({ foo: 'qux', bar: 'bar' }, html => html), 'baz')
+equal(compile('<if foo neq="{42}">baz</if>')({ foo: 10, bar: 42 }, html => html), 'baz')
+
+equal(compile('<if foo does not equal="bar">baz</if>')({ foo: 'bar', bar: 'bar' }, html => html), '')
+equal(compile('<if foo does not equal="{42}">baz</if>')({ foo: 42, bar: 42 }, html => html), '')
+equal(compile('<if foo does not equal="bar">baz</if>')({ foo: 'qux', bar: 'bar' }, html => html), 'baz')
+equal(compile('<if foo does not equal="{42}">baz</if>')({ foo: 10, bar: 42 }, html => html), 'baz')
+
+equal(compile('<if foo is not equal to="bar">baz</if>')({ foo: 'bar', bar: 'bar' }, html => html), '')
+equal(compile('<if foo is not equal to="{42}">baz</if>')({ foo: 42, bar: 42 }, html => html), '')
+equal(compile('<if foo is not equal to="bar">baz</if>')({ foo: 'qux', bar: 'bar' }, html => html), 'baz')
+equal(compile('<if foo is not equal to="{42}">baz</if>')({ foo: 10, bar: 42 }, html => html), 'baz')
+
 equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 30 }, html => html), 'baz')
 equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 42 }, html => html), '')
 equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 50 }, html => html), '')
