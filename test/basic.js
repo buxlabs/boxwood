@@ -1004,9 +1004,9 @@ equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
   paths: [ path.join(__dirname, './fixtures/partial'), path.join(__dirname, './fixtures/import') ]
 })({}, html => html), '<input type="checkbox">')
 
-// equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
-//   paths: [ path.join(__dirname, './fixtures/import') ]
-// })({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
+equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
 
 equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
 equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')

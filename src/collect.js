@@ -40,6 +40,20 @@ function findAction (keys) {
   return actions[actions.length - 1]
 }
 
+function collectComponents (fragment, components, options) {
+  const attrs = fragment.attributes
+  const name = attrs[0].key
+  const path = attrs[1].value
+  for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+    const location = join(options.paths[i], path)
+    if (!existsSync(location)) continue
+    const content = readFileSync(location, 'utf8')
+    components.push({ name, content })
+    const htmlTree = parse(content)
+    break
+  }
+}
+
 function collect (tree, fragment, variables, modifiers, components, options) {
   if (fragment.used) return
   fragment.used = true
@@ -47,17 +61,28 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   const attrs = fragment.attributes
   const component = components.find(component => component.name === tag)
   if (component && !fragment.plain) {
-    const htmlTree = parse(component.content)
-    const children = fragment.children
-    walk(htmlTree, current => {
-      current.plain = true
-      if (current.type === 'element' && current.tagName === 'slot') {
-        current.children = children
-      }
-    })
-    fragment.children = htmlTree
-    // console.log(fragment)
-    // console.log(fragment.children)
+    function resolveComponent (component, fragment, variables, modifiers, components, options) {
+      const htmlTree = parse(component.content)
+      const children = fragment.children
+      const currentComponents = []
+      
+      walk(htmlTree, current => {
+        if (current.type === 'element' && current.tagName === 'slot') {
+          current.children = children
+        }
+        if (current.tagName === 'import') {
+          collectComponents(current, currentComponents, options)
+        }
+        const component = currentComponents.find(component => component.name === current.tagName)
+        if (component && !current.plain) {
+          resolveComponent(component, current, variables, modifiers, currentComponents, options)
+          current.used = true
+        }
+        current.plain = true
+      })
+      fragment.children = htmlTree
+    }
+    resolveComponent(component, fragment, variables, modifiers, components, options)
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, options)
@@ -460,15 +485,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       }
     })
   } else if (tag === 'import') {
-    const name = attrs[0].key
-    const path = attrs[1].value
-    for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-      const location = join(options.paths[i], path)
-      if (!existsSync(location)) continue
-      const content = readFileSync(location, 'utf8')
-      components.push({ name, content })
-      break
-    }
+    collectComponents(fragment, components, options)
   } else if (tag === 'partial') {
     const path = attrs[0].value
     for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
