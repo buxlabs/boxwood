@@ -25,13 +25,15 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
 }
 
 function findAction (keys) {
+  let index = 1
+  if (keys[0] === 'not' || keys[0] === 'is') index = 0
+
   const keywords = []
   const actions = []
 
-  for (let i = 0; i < keys.length; i++) {
-    keywords.push(keys[i])
+  for (index; index < keys.length; index++) {
+    keywords.push(keys[index])
     action = getAction(keywords)
-
     if (action) actions.push(action)
   }
 
@@ -120,15 +122,17 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       })
     }
     const getTest = (action, keys, values) => {
-      if (!action || action.args === 1) {
+      if (!action) {
         const key = keys[0]
         const [prefix] = key.split('.')
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
-
-        if (!action) return node
+        return node
+      } else if (action.args === 1) {
+        const key = action.name[0] === 'not' ? keys[1] : keys[0]
+        const [prefix] = key.split('.')
+        const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return action.handler(node)
-      }
-      if (action.args === 2) {
+      } else if (action.args === 2) {
         let left
         let right
         let test
@@ -178,7 +182,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     }
     const keys = attrs.map(attr => attr.key)
     const values = attrs.map(attr => attr.value)
-    const action = findAction(keys.slice(1))
+    const action = findAction(keys)
     const test = getTest(action, keys, values)
     appendIfStatement(test)
   } else if (tag === 'elseif') {

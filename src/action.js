@@ -213,28 +213,32 @@ function isAlternative(left, right) {
   return getLogicalExpression(left, right, '||')
 }
 
-function isConjunction(left, right, operator) {
+function isConjunction(left, right) {
   return getLogicalExpression(left, right, '&&')
 }
 
-function isGreaterThan(left, right, operator) {
+function isGreaterThan(left, right) {
  return getLogicalExpression(left, right, '>')
 }
 
-function isLessThan(left, right, operator) {
+function isLessThan(left, right) {
  return getLogicalExpression(left, right, '<')
 }
 
-function isGreaterThanOrEqual(left, right, operator) {
+function isGreaterThanOrEqual(left, right) {
  return getLogicalExpression(left, right, '>=')
 }
 
-function isLessThanOrEqual(left, right, operator) {
+function isLessThanOrEqual(left, right) {
  return getLogicalExpression(left, right, '<=')
 }
 
-function isEquals(left, right, operator) {
+function isEquals(left, right) {
   return getLogicalExpression(left, right, '===')
+}
+
+function notEqual(left, right) {
+  return getLogicalExpression(left, right, '!==')
 }
 
 function isBitwiseAlternative(left, right) {
@@ -314,6 +318,7 @@ function hasNumbers(node) {
 }
 
 const STANDARD_ACTIONS = [
+  { name: ['not'], handler: negate, args: 1 },
   { name: ['is', 'positive'], handler: isPositive, args: 1 },
   { name: ['is', 'negative'], handler: isNegative, args: 1 },
   { name: ['is', 'finite'], handler: isFinite, args: 1 },
@@ -351,6 +356,9 @@ const STANDARD_ACTIONS = [
   { name: ['or'], handler: isAlternative, args: 2 },
   { name: ['and'], handler: isConjunction, args: 2 },
   { name: ['eq'], handler: isEquals, args: 2 },
+  { name: ['neq'], handler: notEqual, args: 2 },
+  { name: ['does', 'not', 'equal'], handler: notEqual, args: 2 },
+  { name: ['is', 'not', 'equal', 'to'], handler: notEqual, args: 2 },
   { name: ['gt'], handler: isGreaterThan, args: 2 },
   { name: ['is', 'greater', 'than'], handler: isGreaterThan, args: 2 },
   { name: ['lt'], handler: isLessThan, args: 2 },
@@ -366,16 +374,19 @@ const STANDARD_ACTIONS = [
   { name: ['bitwise', 'not'], handler: isBitwiseNegation, args: 2 },
 ]
 
-const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
+const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
+  const { name } = action
+  if (name.length === 1) return false
+  if (name[0] === 'is' && name[1] === 'greater' || name[1] === 'less') return false
+  if (name.includes('not')) return false
+  return action
+}).map(action => {
   const name = action.name.slice(0)
   if (name.includes('has')) {
     name.splice(0, 1, 'does', 'not', 'have')
-  } else if (name.length === 1 && ['eq', 'gt', 'gte', 'lt', 'lte'].includes(name[0])) {
-    name.splice(0, 0, 'not')
   } else {
     name.splice(1, 0, 'not')
   }
-
   return {
     name,
     handler: function () {
