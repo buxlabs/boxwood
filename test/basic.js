@@ -732,8 +732,8 @@ equal(compile('<if foo does not have a whitespace>baz</if>')({ foo: ' foo bar '}
 
 equal(compile('<if foo has a newline>baz</if>')({ foo: ' foo\nbar'}, html => html), 'baz')
 equal(compile('<if foo has a newline>baz</if>')({ foo: ' foo\tbar'}, html => html), '')
-// equal(compile('<if foo does not have a newline>baz</if>')({ foo: ' foo\nbar'}, html => html), '')
-// equal(compile('<if foo does not have a newline>baz</if>')({ foo: ' foo\tbar'}, html => html), '')
+equal(compile('<if foo does not have a newline>baz</if>')({ foo: 'foo\nbar'}, html => html), '')
+equal(compile('<if foo does not have a newline>baz</if>')({ foo: ' foo\tbar'}, html => html), 'baz')
 
 equal(compile('<if foo has a number>baz</if>')({ foo: { bar: 4 }}, html => html), 'baz')
 equal(compile('<if foo has a number>baz</if>')({ foo: 'bar' }, html => html), '')
