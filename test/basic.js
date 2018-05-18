@@ -980,29 +980,33 @@ equal(compile(`<for month in='{["Styczeń", "Luty", "Marzec"]}'>{month}</for>`)(
 equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz' }, html => html), 'barbaz')
 // equal(compile(`<for foo in='{[{ key: 'bar' }, { key: 'baz' }]}'>{foo.key}</for>`)({}, html => html), 'barbaz')
 
-equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button>`, {
+equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button>`, {
   paths: [__dirname]
 })({}, html => html), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<import button from="./fixtures/import/button.html"><button>foo</button><button>bar</button>`, {
+equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button><button>bar</button>`, {
   paths: [__dirname]
 })({}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
 
-equal(compile(`<import button from='./button.html'><button>foo</button>`, {
+equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
   paths: [ path.join(__dirname, './fixtures/import') ]
 })({}, html => html), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<import button from='./button.html'><button>foo</button>`, {
+equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
   paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
 })({}, html => html), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<import checkbox from='./checkbox.html'><checkbox>`, {
+equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
   paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
 })({}, html => html), '<input type="checkbox">')
 
-equal(compile(`<import checkbox from='./checkbox.html'><checkbox>`, {
+equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
   paths: [ path.join(__dirname, './fixtures/partial'), path.join(__dirname, './fixtures/import') ]
 })({}, html => html), '<input type="checkbox">')
+
+// equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
+//   paths: [ path.join(__dirname, './fixtures/import') ]
+// })({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
 
 equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
 equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')

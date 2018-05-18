@@ -56,6 +56,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       }
     })
     fragment.children = htmlTree
+    // console.log(fragment)
+    // console.log(fragment.children)
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, options)
