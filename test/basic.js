@@ -402,603 +402,235 @@ equal(compile(`
   bar: true
 }, html => html), 'baz')
 
-equal(compile('<if foo and bar>baz</if>')({
-  foo: true,
-  bar: true
-}, html => html), 'baz')
+equal(compile('<if foo and bar>baz</if>')({ foo: true, bar: true }, html => html), 'baz')
+equal(compile('<if foo and bar>baz</if>')({ foo: false, bar: true }, html => html), '')
+equal(compile('<if foo and bar>baz</if>')({ foo: true, bar: false }, html => html), '')
 
-equal(compile('<if foo and bar>baz</if>')({
-  foo: false,
-  bar: true
-}, html => html), '')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: true }, html => html), 'qux')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: true }, html => html), '')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: false }, html => html), '')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: false }, html => html), '')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: true }, html => html), 'qux')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: true, baz: true, ban: true }, html => html), '')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: false, baz: false, ban: false }, html => html), '')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: false }, html => html), '')
 
-equal(compile('<if foo and bar>baz</if>')({
-  foo: true,
-  bar: false
-}, html => html), '')
+equal(compile('<if foo or bar>baz</if>')({ foo: true, bar: true }, html => html), 'baz')
+equal(compile('<if foo or bar>baz</if>')({ foo: true, bar: false }, html => html), 'baz')
+equal(compile('<if foo or bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
+equal(compile('<if foo or bar>baz</if>')({ foo: false, bar: false }, html => html), '')
 
-equal(compile('<if foo and bar and baz>qux</if>')({
-  foo: true,
-  bar: true,
-  baz: true
-}, html => html), 'qux')
+equal(compile('<if foo eq bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
+equal(compile('<if foo eq bar>baz</if>')({ foo: 40, bar: 42 }, html => html), '')
+equal(compile('<if foo eq bar>baz</if>')({ foo: '42', bar: 42 }, html => html), '')
 
-equal(compile('<if foo and bar and baz>qux</if>')({
-  foo: false,
-  bar: true,
-  baz: true
-}, html => html), '')
+equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 30 }, html => html), 'baz')
+equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 42 }, html => html), '')
+equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 50 }, html => html), '')
 
-equal(compile('<if foo and bar and baz>qux</if>')({
-  foo: true,
-  bar: true,
-  baz: false
-}, html => html), '')
+equal(compile('<if foo gte bar>baz</if>')({ foo: 42, bar: 30 }, html => html), 'baz')
+equal(compile('<if foo gte bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
+equal(compile('<if foo gte bar>baz</if>')({ foo: 42, bar: 50 }, html => html), '')
 
-equal(compile('<if foo and bar and baz>qux</if>')({
-  foo: false,
-  bar: true,
-  baz: false
-}, html => html), '')
+equal(compile('<if foo lt bar>baz</if>')({ foo: 42, bar: 30 }, html => html), '')
+equal(compile('<if foo lt bar>baz</if>')({ foo: 42, bar: 42 }, html => html), '')
+equal(compile('<if foo lt bar>baz</if>')({ foo: 42, bar: 50 }, html => html), 'baz')
 
-equal(compile('<if foo and bar and baz and ban>qux</if>')({
-  foo: true,
-  bar: true,
-  baz: true,
-  ban: true
-}, html => html), 'qux')
+equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 30 }, html => html), '')
+equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
+equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 50 }, html => html), 'baz')
 
-equal(compile('<if foo and bar and baz and ban>qux</if>')({
-  foo: false,
-  bar: true,
-  baz: true,
-  ban: true
-}, html => html), '')
+equal(compile('<if foo equals bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
+equal(compile('<if foo equals bar>baz</if>')({ foo: 40, bar: 42 }, html => html), '')
+equal(compile('<if foo equals bar>baz</if>')({ foo: '42', bar: 42 }, html => html), '')
 
-equal(compile('<if foo and bar and baz and ban>qux</if>')({
-  foo: false,
-  bar: false,
-  baz: false,
-  ban: false
-}, html => html), '')
-
-equal(compile('<if foo and bar and baz and ban>qux</if>')({
-  foo: true,
-  bar: true,
-  baz: true,
-  ban: false
-}, html => html), '')
-
-equal(compile('<if foo or bar>baz</if>')({
-  foo: true,
-  bar: true
-}, html => html), 'baz')
-
-equal(compile('<if foo or bar>baz</if>')({
-  foo: true,
-  bar: false
-}, html => html), 'baz')
-
-equal(compile('<if foo or bar>baz</if>')({
-  foo: false,
-  bar: true
-}, html => html), 'baz')
-
-equal(compile('<if foo or bar>baz</if>')({
-  foo: false,
-  bar: false
-}, html => html), '')
-
-equal(compile('<if foo eq bar>baz</if>')({
-  foo: 42,
-  bar: 42
-}, html => html), 'baz')
-
-equal(compile('<if foo eq bar>baz</if>')({
-  foo: 40,
-  bar: 42
-}, html => html), '')
-
-equal(compile('<if foo eq bar>baz</if>')({
-  foo: '42',
-  bar: 42
-}, html => html), '')
-
-equal(compile('<if foo gt bar>baz</if>')({
-  foo: 42,
-  bar: 30
-}, html => html), 'baz')
-
-equal(compile('<if foo gt bar>baz</if>')({
-  foo: 42,
-  bar: 42
-}, html => html), '')
-
-equal(compile('<if foo gt bar>baz</if>')({
-  foo: 42,
-  bar: 50
-}, html => html), '')
-
-equal(compile('<if foo lt bar>baz</if>')({
-  foo: 42,
-  bar: 30
-}, html => html), '')
-
-equal(compile('<if foo lt bar>baz</if>')({
-  foo: 42,
-  bar: 42
-}, html => html), '')
-
-equal(compile('<if foo lt bar>baz</if>')({
-  foo: 42,
-  bar: 50
-}, html => html), 'baz')
-
-equal(compile('<if foo gte bar>baz</if>')({
-  foo: 42,
-  bar: 30
-}, html => html), 'baz')
-
-equal(compile('<if foo gte bar>baz</if>')({
-  foo: 42,
-  bar: 42
-}, html => html), 'baz')
-
-equal(compile('<if foo gte bar>baz</if>')({
-  foo: 42,
-  bar: 50
-}, html => html), '')
-
-equal(compile('<if foo lte bar>baz</if>')({
-  foo: 42,
-  bar: 30
-}, html => html), '')
-
-equal(compile('<if foo lte bar>baz</if>')({
-  foo: 42,
-  bar: 42
-}, html => html), 'baz')
-
-equal(compile('<if foo lte bar>baz</if>')({
-  foo: 42,
-  bar: 50
-}, html => html), 'baz')
-
-equal(compile('<if foo equals bar>baz</if>')({
-  foo: 42,
-  bar: 42
-}, html => html), 'baz')
-
-equal(compile('<if foo equals bar>baz</if>')({
-  foo: 40,
-  bar: 42
-}, html => html), '')
-
-equal(compile('<if foo equals bar>baz</if>')({
-  foo: '42',
-  bar: 42
-}, html => html), '')
-
-equal(compile('<if foo is present>baz</if>')({
-  foo: {}
-}, html => html), 'baz')
-
+equal(compile('<if foo is present>baz</if>')({ foo: {} }, html => html), 'baz')
 equal(compile('<if foo is present>baz</if>')({}, html => html), '')
-
-equal(compile('<if foo is positive>baz</if>')({
-  foo: 1
-}, html => html), 'baz')
-
-equal(compile('<if foo is positive>baz</if>')({
-  foo: 0
-}, html => html), '')
-
-equal(compile('<if foo is positive>baz</if>')({
-  foo: -1
-}, html => html), '')
-
-equal(compile('<if foo is negative>baz</if>')({
-  foo: 1
-}, html => html), '')
-
-equal(compile('<if foo is negative>baz</if>')({
-  foo: 0
-}, html => html), '')
-
-equal(compile('<if foo is negative>baz</if>')({
-  foo: -1
-}, html => html), 'baz')
-
-equal(compile('<if foo is finite>baz</if>')({
-  foo: 100
-}, html => html), 'baz')
-
-equal(compile('<if foo is finite>baz</if>')({
-  foo: Infinity
-}, html => html), '')
-
-equal(compile('<if foo is finite>baz</if>')({
-  foo: -Infinity
-}, html => html), '')
-
-equal(compile('<if foo is finite>baz</if>')({
-  foo: 0
-}, html => html), 'baz')
-
-equal(compile('<if foo is finite>baz</if>')({
-  foo: NaN
-}, html => html), '')
-
-equal(compile('<if foo is finite>baz</if>')({
-  foo: 2e64
-}, html => html), 'baz')
-
-equal(compile('<if foo is infinite>baz</if>')({
-  foo: 100
-}, html => html), '')
-
-equal(compile('<if foo is infinite>baz</if>')({
-  foo: Infinity
-}, html => html), 'baz')
-
-equal(compile('<if foo is infinite>baz</if>')({
-  foo: -Infinity
-}, html => html), 'baz')
-
-equal(compile('<if foo is infinite>baz</if>')({
-  foo: 0
-}, html => html), '')
-
-equal(compile('<if foo is infinite>baz</if>')({
-  foo: NaN
-}, html => html), '')
-
-equal(compile('<if foo is infinite>baz</if>')({
-  foo: 2e1000
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: []
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: new Array()
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: [{ baz: 'bar' }, {}]
-}, html => html), '')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: ''
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: 'qux'
-}, html => html), '')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: null
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: undefined
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: {}
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: { bar: null }
-}, html => html), '')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: {
-    1: 'bar',
-    2: 'baz'
-  }
-}, html => html), '')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: { bar: 'ban' }
-}, html => html), '')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: function () {}
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: new Map()
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: new Map([['foo', 'bar'], ['baz', 'ban']])
-}, html => html), '')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: new Set()
-}, html => html), 'baz')
-
-equal(compile('<if foo is empty>baz</if>')({
-  foo: new Set([1, 'foo', 'bar'])
-}, html => html), '')
-
-equal(compile('<if foo is an array>baz</if>')({
-  foo: []
-}, html => html), 'baz')
-
-equal(compile('<if foo is an array>baz</if>')({
-  foo: []
-}, html => html), 'baz')
-
-equal(compile('<if foo is an array>baz</if>')({
-  foo: ''
-}, html => html), '')
-
-equal(compile('<if foo is an array>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is a string>baz</if>')({
-  foo: ''
-}, html => html), 'baz')
-
-equal(compile('<if foo is a string>baz</if>')({
-  foo: 'foo'
-}, html => html), 'baz')
-
-equal(compile('<if foo is a string>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is a number>baz</if>')({
-  foo: []
-}, html => html), '')
-
-equal(compile('<if foo is a number>baz</if>')({
-  foo: 13
-}, html => html), 'baz')
-
-equal(compile('<if foo is a number>baz</if>')({
-  foo: 4
-}, html => html), 'baz')
-
-equal(compile('<if foo is a number>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is a symbol>baz</if>')({
-  foo: Symbol('foo')
-}, html => html), 'baz')
-
-equal(compile('<if foo is a symbol>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is a map>baz</if>')({
-  foo: new Map()
-}, html => html), 'baz')
-
-equal(compile('<if foo is a map>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is a map>baz</if>')({
-  foo: []
-}, html => html), '')
-
-equal(compile('<if foo is a set>baz</if>')({
-  foo: new Set()
-}, html => html), 'baz')
-
-equal(compile('<if foo is a set>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is a set>baz</if>')({
-  foo: []
-}, html => html), '')
-
-equal(compile('<if foo is a boolean>baz</if>')({
-  foo: true
-}, html => html), 'baz')
-
-equal(compile('<if foo is a boolean>baz</if>')({
-  foo: false
-}, html => html), 'baz')
-
-equal(compile('<if foo is a boolean>baz</if>')({
-  foo: false
-}, html => html), 'baz')
-
-equal(compile('<if foo is a boolean>baz</if>')({
-  foo: true
-}, html => html), 'baz')
-
-equal(compile('<if foo is a boolean>baz</if>')({
-  foo: false
-}, html => html), 'baz')
-
-equal(compile('<if foo is undefined>baz</if>')({
-  foo: undefined
-}, html => html), 'baz')
-
-equal(compile('<if foo is undefined>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if foo is null>baz</if>')({
-  foo: null
-}, html => html), 'baz')
-
-equal(compile('<if foo is an object>baz</if>')({
-  foo: {}
-}, html => html), 'baz')
-
-equal(compile('<if foo is an object>baz</if>')({
-  foo: null
-}, html => html), '')
-
-equal(compile('<if foo is an object>baz</if>')({
-  foo: function () {}
-}, html => html), 'baz')
-
-equal(compile('<if foo is a regexp>baz</if>')({
-  foo: /regexp/
-}, html => html), 'baz')
-
-equal(compile('<if foo is a regexp>baz</if>')({
-  foo: new RegExp('regexp')
-}, html => html), 'baz')
-
-equal(compile('<if foo is a regexp>baz</if>')({
-  foo: ''
-}, html => html), '')
-
-equal(compile('<if foo is a date>baz</if>')({
-  foo: new Date()
-}, html => html), 'baz')
-
-equal(compile('<if foo is a date>baz</if>')({
-  foo: new Date(2018, 15, 04)
-}, html => html), 'baz')
-
-equal(compile('<if foo is a date>baz</if>')({
-  foo: '08.09.2018'
-}, html => html), '')
-
-equal(compile('<if foo is even>baz</if>')({
-  foo: 2
-}, html => html), 'baz')
-
-equal(compile('<if foo is even>baz</if>')({
-  foo: 0
-}, html => html), 'baz')
-
-equal(compile('<if foo is even>baz</if>')({
-  foo: 1
-}, html => html), '')
-
-equal(compile('<if foo is even>baz</if>')({
-  foo: 'baz'
-}, html => html), '')
-
-equal(compile('<if foo is even>baz</if>')({
-  foo: [1, 2]
-}, html => html), '')
-
-equal(compile('<if foo is even>baz</if>')({
-  foo: [1, 2].length
-}, html => html), 'baz')
-
-equal(compile('<if foo is odd>baz</if>')({
-  foo: 1
-}, html => html), 'baz')
-
-equal(compile('<if foo is odd>baz</if>')({
-  foo: 2
-}, html => html), '')
-
-equal(compile('<if foo is odd>baz</if>')({
-  foo: [1].length
-}, html => html), 'baz')
-
-equal(compile('<if foo is odd>baz</if>')({
-  foo: ''
-}, html => html), '')
-
-equal(compile('<if foo is odd>baz</if>')({
-  foo: 'bar'.length
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise or bar>baz</if>')({
-  foo: 0,
-  bar: 0
-}, html => html), '')
-
-equal(compile('<if foo bitwise or bar>baz</if>')({
-  foo: 1,
-  bar: 1
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise or bar>baz</if>')({
-  foo: 1,
-  bar: 0
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise or bar>baz</if>')({
-  foo: 0,
-  bar: 1
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise and bar>baz</if>')({
-  foo: 0,
-  bar: 0
-}, html => html), '')
-
-equal(compile('<if foo bitwise and bar>baz</if>')({
-  foo: 1,
-  bar: 1
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise and bar>baz</if>')({
-  foo: 1,
-  bar: 0
-}, html => html), '')
-
-equal(compile('<if foo bitwise and bar>baz</if>')({
-  foo: 0,
-  bar: 1
-}, html => html), '')
-
-equal(compile('<if foo bitwise xor bar>baz</if>')({
-  foo: 0,
-  bar: 0
-}, html => html), '')
-
-equal(compile('<if foo bitwise xor bar>baz</if>')({
-  foo: 0,
-  bar: 1
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise xor bar>baz</if>')({
-  foo: 1,
-  bar: 0
-}, html => html), 'baz')
-
-equal(compile('<if foo bitwise xor bar>baz</if>')({
-  foo: 1,
-  bar: 1
-}, html => html), '')
-
-equal(compile('<if not foo>baz</if>')({
-  foo: null
-}, html => html), 'baz')
-
-equal(compile('<if not foo>baz</if>')({
-  foo: undefined
-}, html => html), 'baz')
-
-equal(compile('<if not foo>baz</if>')({
-  foo: false
-}, html => html), 'baz')
-
-equal(compile('<if not foo>baz</if>')({
-  foo: {}
-}, html => html), '')
-
-equal(compile('<if not foo>baz</if>')({
-  foo: true
-}, html => html), '')
-
-equal(compile('<if not foo.bar>baz</if>')({
-  foo: { bar: {} }
-}, html => html), '')
-
-equal(compile('<if not foo.bar>baz</if>')({
-  foo: {}
-}, html => html), 'baz')
+equal(compile('<if foo.bar is not present>baz</if>')({ foo: '' }, html => html), 'baz')
+equal(compile('<if foo.bar is not present>baz</if>')({ foo: { bar: 'baz' } }, html => html), '')
+equal(compile('<if foo is not present>baz</if>')({}, html => html), 'baz')
+
+equal(compile('<if foo is positive>baz</if>')({ foo: 1 }, html => html), 'baz')
+equal(compile('<if foo is positive>baz</if>')({ foo: 0 }, html => html), '')
+equal(compile('<if foo is positive>baz</if>')({ foo: -1 }, html => html), '')
+equal(compile('<if foo is not positive>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is not positive>baz</if>')({ foo: 0 }, html => html), 'baz')
+equal(compile('<if foo is not positive>baz</if>')({ foo: -1 }, html => html), 'baz')
+
+equal(compile('<if foo is negative>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is negative>baz</if>')({ foo: 0 }, html => html), '')
+equal(compile('<if foo is negative>baz</if>')({ foo: -1 }, html => html), 'baz')
+equal(compile('<if foo is not negative>baz</if>')({ foo: 1 }, html => html), 'baz')
+equal(compile('<if foo is not negative>baz</if>')({ foo: 0 }, html => html), 'baz')
+equal(compile('<if foo is not negative>baz</if>')({ foo: -1 }, html => html), '')
+
+equal(compile('<if foo is finite>baz</if>')({ foo: 100 }, html => html), 'baz')
+equal(compile('<if foo is finite>baz</if>')({ foo: Infinity }, html => html), '')
+equal(compile('<if foo is finite>baz</if>')({ foo: -Infinity }, html => html), '')
+equal(compile('<if foo is finite>baz</if>')({ foo: 0 }, html => html), 'baz')
+equal(compile('<if foo is finite>baz</if>')({ foo: NaN }, html => html), '')
+equal(compile('<if foo is finite>baz</if>')({ foo: 2e64 }, html => html), 'baz')
+equal(compile('<if foo is not finite>baz</if>')({ foo: 100 }, html => html), '')
+equal(compile('<if foo is not finite>baz</if>')({ foo: Infinity }, html => html), 'baz')
+equal(compile('<if foo is not finite>baz</if>')({ foo: -Infinity }, html => html), 'baz')
+
+equal(compile('<if foo is infinite>baz</if>')({ foo: 100 }, html => html), '')
+equal(compile('<if foo is infinite>baz</if>')({ foo: Infinity }, html => html), 'baz')
+equal(compile('<if foo is infinite>baz</if>')({ foo: -Infinity }, html => html), 'baz')
+equal(compile('<if foo is infinite>baz</if>')({ foo: 0 }, html => html), '')
+equal(compile('<if foo is infinite>baz</if>')({ foo: NaN }, html => html), '')
+equal(compile('<if foo is infinite>baz</if>')({ foo: 2e1000 }, html => html), 'baz')
+equal(compile('<if foo is not infinite>baz</if>')({ foo: Infinity }, html => html), '')
+equal(compile('<if foo is not infinite>baz</if>')({ foo: -Infinity }, html => html), '')
+
+equal(compile('<if foo is empty>baz</if>')({ foo: [] }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: [{ baz: 'bar' }, {}] }, html => html), '')
+equal(compile('<if foo is empty>baz</if>')({ foo: '' }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: 'qux' }, html => html), '')
+equal(compile('<if foo is empty>baz</if>')({ foo: null }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: undefined }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: {} }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: { bar: null } }, html => html), '')
+equal(compile('<if foo is empty>baz</if>')({ foo: { 1: 'bar', 2: 'baz' } }, html => html), '')
+equal(compile('<if foo is empty>baz</if>')({ foo: { bar: 'ban' } }, html => html), '')
+equal(compile('<if foo is empty>baz</if>')({ foo: function () {} }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: new Map() }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: new Map([['foo', 'bar'], ['baz', 'ban']]) }, html => html), '')
+equal(compile('<if foo is empty>baz</if>')({ foo: new Set() }, html => html), 'baz')
+equal(compile('<if foo is empty>baz</if>')({ foo: new Set([1, 'foo', 'bar']) }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: [] }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: [{ baz: 'bar' }, {}] }, html => html), 'baz')
+equal(compile('<if foo is not empty>baz</if>')({ foo: '' }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: 'qux' }, html => html), 'baz')
+equal(compile('<if foo is not empty>baz</if>')({ foo: null }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: undefined }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: { bar: null } }, html => html), 'baz')
+equal(compile('<if foo is not empty>baz</if>')({ foo: { 1: 'bar', 2: 'baz' } }, html => html), 'baz')
+equal(compile('<if foo is not empty>baz</if>')({ foo: { bar: 'ban' } }, html => html), 'baz')
+equal(compile('<if foo is not empty>baz</if>')({ foo: function () {} }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: new Map() }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: new Map([['foo', 'bar'], ['baz', 'ban']]) }, html => html), 'baz')
+equal(compile('<if foo is not empty>baz</if>')({ foo: new Set() }, html => html), '')
+equal(compile('<if foo is not empty>baz</if>')({ foo: new Set([1, 'foo', 'bar']) }, html => html), 'baz')
+
+equal(compile('<if foo is an array>baz</if>')({ foo: [] }, html => html), 'baz')
+equal(compile('<if foo is an array>baz</if>')({ foo: '' }, html => html), '')
+equal(compile('<if foo is an array>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not an array>baz</if>')({ foo: [] }, html => html), '')
+equal(compile('<if foo is not an array>baz</if>')({ foo: '' }, html => html), 'baz')
+equal(compile('<if foo is not an array>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is a string>baz</if>')({ foo: '' }, html => html), 'baz')
+equal(compile('<if foo is a string>baz</if>')({ foo: 'foo' }, html => html), 'baz')
+equal(compile('<if foo is a string>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not a string>baz</if>')({ foo: '' }, html => html), '')
+equal(compile('<if foo is not a string>baz</if>')({ foo: 'foo' }, html => html), '')
+equal(compile('<if foo is not a string>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is a number>baz</if>')({ foo: [] }, html => html), '')
+equal(compile('<if foo is a number>baz</if>')({ foo: 13 }, html => html), 'baz')
+equal(compile('<if foo is a number>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not a number>baz</if>')({ foo: [] }, html => html), 'baz')
+equal(compile('<if foo is not a number>baz</if>')({ foo: 13 }, html => html), '')
+equal(compile('<if foo is not a number>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is a symbol>baz</if>')({ foo: Symbol('foo') }, html => html), 'baz')
+equal(compile('<if foo is a symbol>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not a symbol>baz</if>')({ foo: Symbol('foo') }, html => html), '')
+equal(compile('<if foo is not a symbol>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is a map>baz</if>')({ foo: new Map() }, html => html), 'baz')
+equal(compile('<if foo is a map>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is a map>baz</if>')({ foo: [] }, html => html), '')
+equal(compile('<if foo is not a map>baz</if>')({ foo: new Map() }, html => html), '')
+equal(compile('<if foo is not a map>baz</if>')({ foo: {} }, html => html), 'baz')
+equal(compile('<if foo is not a map>baz</if>')({ foo: [] }, html => html), 'baz')
+
+equal(compile('<if foo is a set>baz</if>')({ foo: new Set() }, html => html), 'baz')
+equal(compile('<if foo is a set>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is a set>baz</if>')({ foo: [] }, html => html), '')
+equal(compile('<if foo is not a set>baz</if>')({ foo: new Set() }, html => html), '')
+equal(compile('<if foo is not a set>baz</if>')({ foo: {} }, html => html), 'baz')
+equal(compile('<if foo is not a set>baz</if>')({ foo: [] }, html => html), 'baz')
+
+equal(compile('<if foo is a boolean>baz</if>')({ foo: true }, html => html), 'baz')
+equal(compile('<if foo is a boolean>baz</if>')({ foo: false }, html => html), 'baz')
+equal(compile('<if foo is not a boolean>baz</if>')({ foo: true }, html => html), '')
+equal(compile('<if foo is not a boolean>baz</if>')({ foo: '' }, html => html), 'baz')
+
+equal(compile('<if foo is undefined>baz</if>')({ foo: undefined }, html => html), 'baz')
+equal(compile('<if foo is undefined>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not undefined>baz</if>')({ foo: undefined }, html => html), '')
+equal(compile('<if foo is not undefined>baz</if>')({ foo: null }, html => html), 'baz')
+equal(compile('<if foo is not undefined>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is null>baz</if>')({ foo: null }, html => html), 'baz')
+equal(compile('<if foo is not null>baz</if>')({ foo: null }, html => html), '')
+
+equal(compile('<if foo is an object>baz</if>')({ foo: {} }, html => html), 'baz')
+equal(compile('<if foo is an object>baz</if>')({ foo: null }, html => html), '')
+equal(compile('<if foo is an object>baz</if>')({ foo: function () {} }, html => html), 'baz')
+equal(compile('<if foo is not an object>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not an object>baz</if>')({ foo: null }, html => html), 'baz')
+equal(compile('<if foo is not an object>baz</if>')({ foo: function () {} }, html => html), '')
+
+equal(compile('<if foo is a regexp>baz</if>')({ foo: /regexp/ }, html => html), 'baz')
+equal(compile('<if foo is a regexp>baz</if>')({ foo: new RegExp('regexp') }, html => html), 'baz')
+equal(compile('<if foo is a regexp>baz</if>')({ foo: '' }, html => html), '')
+equal(compile('<if foo is not a regexp>baz</if>')({ foo: /regexp/ }, html => html), '')
+equal(compile('<if foo is not a regexp>baz</if>')({ foo: new RegExp('regexp') }, html => html), '')
+equal(compile('<if foo is not a regexp>baz</if>')({ foo: '' }, html => html), 'baz')
+
+equal(compile('<if foo is a date>baz</if>')({ foo: new Date() }, html => html), 'baz')
+equal(compile('<if foo is a date>baz</if>')({ foo: new Date(2018, 15, 04) }, html => html), 'baz')
+equal(compile('<if foo is a date>baz</if>')({ foo: '08.09.2018' }, html => html), '')
+equal(compile('<if foo is not a date>baz</if>')({ foo: new Date() }, html => html), '')
+equal(compile('<if foo is not a date>baz</if>')({ foo: new Date(2018, 15, 04) }, html => html), '')
+equal(compile('<if foo is not a date>baz</if>')({ foo: '08.09.2018' }, html => html), 'baz')
+
+equal(compile('<if foo is even>baz</if>')({ foo: 2 }, html => html), 'baz')
+equal(compile('<if foo is even>baz</if>')({ foo: 0 }, html => html), 'baz')
+equal(compile('<if foo is even>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is even>baz</if>')({ foo: 'baz' }, html => html), '')
+equal(compile('<if foo is even>baz</if>')({ foo: [1, 2] }, html => html), '')
+equal(compile('<if foo is even>baz</if>')({ foo: [1, 2].length }, html => html), 'baz')
+equal(compile('<if foo is not even>baz</if>')({ foo: 2 }, html => html), '')
+equal(compile('<if foo is not even>baz</if>')({ foo: 0 }, html => html), '')
+equal(compile('<if foo is not even>baz</if>')({ foo: 1 }, html => html), 'baz')
+equal(compile('<if foo is not even>baz</if>')({ foo: 'baz' }, html => html), 'baz')
+equal(compile('<if foo is not even>baz</if>')({ foo: [1, 2] }, html => html), 'baz')
+equal(compile('<if foo is not even>baz</if>')({ foo: [1, 2].length }, html => html), '')
+
+equal(compile('<if foo is odd>baz</if>')({ foo: 1 }, html => html), 'baz')
+equal(compile('<if foo is odd>baz</if>')({ foo: 2 }, html => html), '')
+equal(compile('<if foo is odd>baz</if>')({ foo: [1].length }, html => html), 'baz')
+equal(compile('<if foo is odd>baz</if>')({ foo: '' }, html => html), '')
+equal(compile('<if foo is odd>baz</if>')({ foo: 'bar'.length }, html => html), 'baz')
+equal(compile('<if foo is not odd>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is not odd>baz</if>')({ foo: 2 }, html => html), 'baz')
+equal(compile('<if foo is not odd>baz</if>')({ foo: [1].length }, html => html), '')
+
+equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 0, bar: 0 }, html => html), '')
+equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 1, bar: 1 }, html => html), 'baz')
+equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 1, bar: 0 }, html => html), 'baz')
+equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 0, bar: 1 }, html => html), 'baz')
+equal(compile('<if foo bitwise and bar>baz</if>')({ foo: 0, bar: 0 }, html => html), '')
+equal(compile('<if foo bitwise and bar>baz</if>')({ foo: 1, bar: 1 }, html => html), 'baz')
+equal(compile('<if foo bitwise and bar>baz</if>')({ foo: 1, bar: 0 }, html => html), '')
+equal(compile('<if foo bitwise and bar>baz</if>')({ foo: 0, bar: 1 }, html => html), '')
+equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 0, bar: 0 }, html => html), '')
+equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 0, bar: 1 }, html => html), 'baz')
+equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 1, bar: 0 }, html => html), 'baz')
+equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 1, bar: 1 }, html => html), '')
+
+equal(compile('<if not foo>baz</if>')({ foo: null }, html => html), 'baz')
+equal(compile('<if not foo>baz</if>')({ foo: undefined }, html => html), 'baz')
+equal(compile('<if not foo>baz</if>')({ foo: false }, html => html), 'baz')
+equal(compile('<if not foo>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if not foo>baz</if>')({ foo: true }, html => html), '')
+equal(compile('<if not foo.bar>baz</if>')({ foo: { bar: {} } }, html => html), '')
+equal(compile('<if not foo.bar>baz</if>')({ foo: {} }, html => html), 'baz')
 
 equal(compile('<ul><for todo in="{todos}"><li html="{todo.description}"></li></for></ul>')({
   todos: [
