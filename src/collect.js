@@ -26,7 +26,6 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
 }
 
 function findAction (keys) {
-  keys = normalize(keys)
 
   let index = 1
   if (keys[0] === 'not' || keys[0] === 'is') index = 0
@@ -166,7 +165,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         let left
         let right
         let test
-
         for (let i = 0; i < keys.length; i++) {
           if (left) {
             let condition = keys[i]
@@ -210,7 +208,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         return test
       }
     }
-    const keys = attrs.map(attr => attr.key)
+    let keys = attrs.map(attr => attr.key)
+    keys = normalize(keys)
     const values = attrs.map(attr => attr.value)
     const action = findAction(keys)
     const test = getTest(action, keys, values)

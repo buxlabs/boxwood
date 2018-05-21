@@ -399,7 +399,6 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
 })
 
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
-ACTIONS.map(action => console.log(action.name))
 
 module.exports = {
   getAction (name) {
