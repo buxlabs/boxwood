@@ -15,6 +15,7 @@ const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
 const { parse } = require('himalaya')
+const { normalize } = require('./array')
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
@@ -25,6 +26,8 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
 }
 
 function findAction (keys) {
+  keys = normalize(keys)
+
   let index = 1
   if (keys[0] === 'not' || keys[0] === 'is') index = 0
 
@@ -65,7 +68,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const htmlTree = parse(component.content)
       const children = fragment.children
       const currentComponents = []
-      
+
       walk(htmlTree, current => {
         if (current.type === 'element' && current.tagName === 'slot') {
           current.children = children
@@ -155,7 +158,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return node
       } else if (action.args === 1) {
-        const key = action.name[0] === 'not' ? keys[1] : keys[0]
+        const key = keys[0]
         const [prefix] = key.split('.')
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return action.handler(node)
@@ -178,7 +181,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
           const [prefix1] = condition1.split('.')
           left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
 
-          i += action.name.length //skip operator
+          i += 1 //skip operator
 
           if (values[i]) {
             let value = values[i]

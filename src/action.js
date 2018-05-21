@@ -318,60 +318,60 @@ function hasNumbers(node) {
 }
 
 const STANDARD_ACTIONS = [
-  { name: ['not'], handler: negate, args: 1 },
-  { name: ['is', 'positive'], handler: isPositive, args: 1 },
-  { name: ['is', 'negative'], handler: isNegative, args: 1 },
-  { name: ['is', 'finite'], handler: isFinite, args: 1 },
-  { name: ['is', 'infinite'], handler: isInfinite, args: 1 },
-  { name: ['is', 'present'], handler: isPresent, args: 1 },
-  { name: ['are', 'present'], handler: isPresent, args: 1 },
-  { name: ['is', 'empty'], handler: isEmpty, args: 1 },
-  { name: ['are', 'empty'], handler: isEmpty, args: 1 },
-  { name: ['is', 'null'], handler: isNull, args: 1 },
-  { name: ['is', 'undefined'], handler: isUndefined, args: 1 },
-  { name: ['is', 'void'], handler: isUndefined, args: 1 },
-  { name: ['is', 'even'], handler: isEven, args: 1 },
-  { name: ['is', 'odd'], handler: isOdd, args: 1 },
-  { name: ['is', 'an', 'array'], handler: isArray, args: 1 },
-  { name: ['is', 'an', 'object'], handler: isObject, args: 1 },
-  { name: ['is', 'a', 'regexp'], handler: isRegExp, args: 1 },
-  { name: ['is', 'a', 'regex'], handler: isRegExp, args: 1 },
-  { name: ['is', 'a', 'number'], handler: isNumber, args: 1 },
-  { name: ['is', 'a', 'string'], handler: isString, args: 1 },
-  { name: ['is', 'a', 'symbol'], handler: isSymbol, args: 1 },
-  { name: ['is', 'a', 'map'], handler: isMap, args: 1 },
-  { name: ['is', 'a', 'weakmap'], handler: isWeakMap, args: 1 },
-  { name: ['is', 'a', 'set'], handler: isSet, args: 1 },
-  { name: ['is', 'a', 'weakset'], handler: isWeakSet, args: 1 },
-  { name: ['is', 'a', 'boolean'], handler: isBoolean, args: 1 },
-  { name: ['is', 'a', 'date'], handler: isDate, args: 1 },
-  { name: ['is', 'true'], handler: isTruthy, args: 1 },
-  { name: ['is', 'false'], handler: isFalsy, args: 1 },
-  { name: ['is', 'truthy'], handler: isTruthy, args: 1 },
-  { name: ['is', 'falsy'], handler: isFalsy, args: 1 },
-  { name: ['has', 'a', 'whitespace'], handler: hasWhitespace, args: 1 },
-  { name: ['has', 'a', 'newline'], handler: hasNewLine, args: 1 },
-  { name: ['has', 'a', 'number'], handler: hasNumber, args: 1 },
-  { name: ['has', 'numbers'], handler: hasNumbers, args: 1 },
-  { name: ['or'], handler: isAlternative, args: 2 },
-  { name: ['and'], handler: isConjunction, args: 2 },
-  { name: ['eq'], handler: isEquals, args: 2 },
-  { name: ['neq'], handler: notEqual, args: 2 },
-  { name: ['does', 'not', 'equal'], handler: notEqual, args: 2 },
-  { name: ['is', 'not', 'equal', 'to'], handler: notEqual, args: 2 },
-  { name: ['gt'], handler: isGreaterThan, args: 2 },
-  { name: ['is', 'greater', 'than'], handler: isGreaterThan, args: 2 },
-  { name: ['lt'], handler: isLessThan, args: 2 },
-  { name: ['is', 'less', 'than'], handler: isLessThan, args: 2 },
-  { name: ['gte'], handler: isGreaterThanOrEqual, args: 2 },
-  { name: ['is', 'greater', 'than', 'or', 'equals'], handler: isGreaterThanOrEqual, args: 2 },
-  { name: ['lte'], handler: isLessThanOrEqual, args: 2 },
-  { name: ['is', 'less', 'than', 'or', 'equals'], handler: isLessThanOrEqual, args: 2 },
-  { name: ['equals'], handler: isEquals, args: 2 },
-  { name: ['bitwise', 'or'], handler: isBitwiseAlternative, args: 2 },
-  { name: ['bitwise', 'and'], handler: isBitwiseConjunction, args: 2 },
-  { name: ['bitwise', 'xor'], handler: isBitwiseAlternativeNegation, args: 2 },
-  { name: ['bitwise', 'not'], handler: isBitwiseNegation, args: 2 },
+  { name: 'not', handler: negate, args: 1 },
+  { name: 'is_positive', handler: isPositive, args: 1 },
+  { name: 'is_negative', handler: isNegative, args: 1 },
+  { name: 'is_finite', handler: isFinite, args: 1 },
+  { name: 'is_infinite', handler: isInfinite, args: 1 },
+  { name: 'is_present', handler: isPresent, args: 1 },
+  { name: 'are_present', handler: isPresent, args: 1 },
+  { name: 'is_empty', handler: isEmpty, args: 1 },
+  { name: 'are_empty', handler: isEmpty, args: 1 },
+  { name: 'is_null', handler: isNull, args: 1 },
+  { name: 'is_undefined', handler: isUndefined, args: 1 },
+  { name: 'is_void', handler: isUndefined, args: 1 },
+  { name: 'is_even', handler: isEven, args: 1 },
+  { name: 'is_odd', handler: isOdd, args: 1 },
+  { name: 'is_an_array', handler: isArray, args: 1 },
+  { name: 'is_an_object', handler: isObject, args: 1 },
+  { name: 'is_a_regexp', handler: isRegExp, args: 1 },
+  { name: 'is_a_regex', handler: isRegExp, args: 1 },
+  { name: 'is_a_number', handler: isNumber, args: 1 },
+  { name: 'is_a_string', handler: isString, args: 1 },
+  { name: 'is_a_symbol', handler: isSymbol, args: 1 },
+  { name: 'is_a_map', handler: isMap, args: 1 },
+  { name: 'is_a_weakmap', handler: isWeakMap, args: 1 },
+  { name: 'is_a_set', handler: isSet, args: 1 },
+  { name: 'is_a_weakset', handler: isWeakSet, args: 1 },
+  { name: 'is_a_boolean', handler: isBoolean, args: 1 },
+  { name: 'is_a_date', handler: isDate, args: 1 },
+  { name: 'is_true', handler: isTruthy, args: 1 },
+  { name: 'is_false', handler: isFalsy, args: 1 },
+  { name: 'is_truthy', handler: isTruthy, args: 1 },
+  { name: 'is_falsy', handler: isFalsy, args: 1 },
+  { name: 'has_a_whitespace', handler: hasWhitespace, args: 1 },
+  { name: 'has_a_newline', handler: hasNewLine, args: 1 },
+  { name: 'has_a_number', handler: hasNumber, args: 1 },
+  { name: 'has_numbers', handler: hasNumbers, args: 1 },
+  { name: 'or', handler: isAlternative, args: 2 },
+  { name: 'and', handler: isConjunction, args: 2 },
+  { name: 'eq', handler: isEquals, args: 2 },
+  { name: 'neq', handler: notEqual, args: 2 },
+  { name: 'does_not_equal', handler: notEqual, args: 2 },
+  { name: 'is_not_equal_to', handler: notEqual, args: 2 },
+  { name: 'gt', handler: isGreaterThan, args: 2 },
+  { name: 'is_greater_than', handler: isGreaterThan, args: 2 },
+  { name: 'lt', handler: isLessThan, args: 2 },
+  { name: 'is_less_than', handler: isLessThan, args: 2 },
+  { name: 'gte', handler: isGreaterThanOrEqual, args: 2 },
+  { name: 'is_greater_than_or_equals', handler: isGreaterThanOrEqual, args: 2 },
+  { name: 'lte', handler: isLessThanOrEqual, args: 2 },
+  { name: 'is_less_than_or_equals', handler: isLessThanOrEqual, args: 2 },
+  { name: 'equals', handler: isEquals, args: 2 },
+  { name: 'bitwise_or', handler: isBitwiseAlternative, args: 2 },
+  { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
+  { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },
+  { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 },
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
@@ -381,11 +381,13 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
   if (name.includes('not')) return false
   return action
 }).map(action => {
-  const name = action.name.slice(0)
+  let { name } = action
   if (name.includes('has')) {
-    name.splice(0, 1, 'does', 'not', 'have')
+    name = 'does_not_have_' + name.substring(4)
   } else {
-    name.splice(1, 0, 'not')
+    let temp = name.split('_')
+    temp.splice(1, 0, 'not')
+    name = temp.join('_')
   }
   return {
     name,
@@ -397,11 +399,12 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
 })
 
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
+ACTIONS.map(action => console.log(action.name))
 
 module.exports = {
   getAction (name) {
     for (let action of ACTIONS) {
-      if (action.name.join('') === name.join('')) {
+      if (action.name === name.join('')) {
         return action
       }
     }
