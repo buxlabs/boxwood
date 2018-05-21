@@ -64,6 +64,11 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
     for (let j = 0, jlen = ACTIONS.length; j < jlen; j++) {
       let action = ACTIONS[j]
       if (action[0] !== attribute) continue
+      if (action.length === 1) {
+        result.push(attribute)
+        found = true
+        break
+      }
       i++
       attribute = array[i]
       for (let k = 1, klen = action.length; k < klen; k++) {
