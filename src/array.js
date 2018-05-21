@@ -1,9 +1,60 @@
 const ACTIONS = [
-  { alias: ['is', 'positive'], name: 'is_positive' },
-  { alias: ['is', 'negative'], name: 'is_negative' }
+  ['is', 'positive'],
+  ['is', 'negative'],
+  ['is', 'finite'],
+  ['is', 'infinite'],
+  ['is', 'present'],
+  ['are', 'present'],
+  ['is', 'empty'],
+  ['are', 'empty'],
+  ['is', 'null'],
+  ['is', 'undefined'],
+  ['is', 'void'],
+  ['is', 'even'],
+  ['is', 'odd'],
+  ['is', 'an', 'array'],
+  ['is', 'an', 'object'],
+  ['is', 'a', 'regexp'],
+  ['is', 'a', 'regex'],
+  ['is', 'a', 'number'],
+  ['is', 'a', 'string'],
+  ['is', 'a', 'symbol'],
+  ['is', 'a', 'map'],
+  ['is', 'a', 'weakmap'],
+  ['is', 'a', 'set'],
+  ['is', 'a', 'weakset'],
+  ['is', 'a', 'boolean'],
+  ['is', 'a', 'date'],
+  ['is', 'true'],
+  ['is', 'false'],
+  ['is', 'truthy'],
+  ['is', 'falsy'],
+  ['has', 'a', 'whitespace'],
+  ['has', 'a', 'newline'],
+  ['has', 'a', 'number'],
+  ['has', 'numbers'],
+  ['or'],
+  ['and'],
+  ['eq'],
+  ['neq'],
+  ['does', 'not', 'equal'],
+  ['is', 'not', 'equal', 'to'],
+  ['gt'],
+  ['is', 'greater', 'than', 'or', 'equals'],
+  ['is', 'greater', 'than'],
+  ['lt'],
+  ['is', 'less', 'than', 'or', 'equals'],
+  ['is', 'less', 'than'],
+  ['gte'],
+  ['lte'],
+  ['equals'],
+  ['bitwise', 'or'],
+  ['bitwise', 'and'],
+  ['bitwise', 'xor'],
+  ['bitwise', 'not']
 ]
 
-function normalize (array) { //['foo', 'is', 'negative']
+function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
   const result = []
   let index
   for (let i = 0, ilen = array.length; i < ilen; i++) {
@@ -12,23 +63,25 @@ function normalize (array) { //['foo', 'is', 'negative']
     index = i
     for (let j = 0, jlen = ACTIONS.length; j < jlen; j++) {
       let action = ACTIONS[j]
-      if (action.alias[0] !== attribute) continue
+      if (action[0] !== attribute) continue
       i++
       attribute = array[i]
-      for (let k = 1, klen = action.alias.length; k < klen; k++) {
-        let part = action.alias[k]
+      for (let k = 1, klen = action.length; k < klen; k++) {
+        let part = action[k]
         if (part !== attribute) {
           i = index
           attribute = array[i]
           break
         }
-        i++
-        attribute = array[i]
         if (k === klen - 1) {
-          result.push(action.name)
+          result.push(action.join('_'))
           found = true
+        } else {
+          i++
+          attribute = array[i]
         }
       }
+      if (found) break
     }
     if (!found) result.push(attribute)
   }
