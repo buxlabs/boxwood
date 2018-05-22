@@ -129,7 +129,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, options)
     })
-    const appendIfStatement = node => {
+    function appendIfStatement (node) {
       tree.append({
         type: 'IfStatement',
         test: node,
@@ -139,13 +139,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         }
       })
     }
-    const getTest = (action, keys, values) => {
-      if (!action) {
-        const key = keys[0]
-        const [prefix] = key.split('.')
-        const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
-        return node
-      } else if (action.args === 1) {
+    function getTest (action, keys, values) {
+      if (action.args === 1) {
         let key = keys[0]
         if (keys[0] === 'not') {
           key = keys[1]
@@ -154,7 +149,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return action.handler(node)
       } else if (action.args === 2) {
-
         const condition1 = keys[0]
         const [prefix1] = condition1.split('.')
         let left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
@@ -188,7 +182,15 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     let keys = attributes.map(attr => attr.key)
     const values = attributes.map(attr => attr.value)
     const actions = findActions(attributes)
-    if (actions.length > 1) {
+    if (actions.length === 0) {
+      const key = keys[0]
+      const [prefix] = key.split('.')
+      const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
+      appendIfStatement(node)
+    } else if (actions.length === 1) {
+      const test = getTest(actions[0], keys, values)
+      appendIfStatement(test)
+    } else {
       const expression = { type: 'LogicalExpression' }
       for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
         let attribute = attributes[i]
@@ -202,9 +204,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         }
       }
 
-    } else {
-      const test = getTest(actions[0], keys, values)
-      appendIfStatement(test)
     }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
