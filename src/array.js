@@ -77,6 +77,7 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
       let action = ACTIONS[j]
       if (action[0] !== attribute.key) continue
       if (action.length === 1) {
+        attribute.type = action[0] === 'not' ? 'Action' : 'Identifier'
         result.push(attribute)
         found = true
         break
@@ -91,7 +92,7 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
           break
         }
         if (k === klen - 1) {
-          result.push({ key: action.join('_'), value: attribute.value })
+          result.push({ key: action.join('_'), value: attribute.value, type: 'Action' })
           found = true
         } else {
           i++
@@ -100,7 +101,10 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
       }
       if (found) break
     }
-    if (!found) result.push(attribute)
+    if (!found) {
+      attribute.type = attribute.key === 'not' ? 'Action' : 'Identifier'
+      result.push(attribute)
+    }
   }
   return result
 }

@@ -499,6 +499,7 @@ equal(compile('<if foo are not present>bar</if>')({ foo: 'qux' }, html => html),
 equal(compile('<if foo is positive>baz</if>')({ foo: 1 }, html => html), 'baz')
 equal(compile('<if foo is positive>baz</if>')({ foo: 0 }, html => html), '')
 equal(compile('<if foo is positive>baz</if>')({ foo: -1 }, html => html), '')
+equal(compile('<if foo is_positive>baz</if>')({ foo: 1 }, html => html), 'baz')
 equal(compile('<if foo is not positive>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not positive>baz</if>')({ foo: 0 }, html => html), 'baz')
 equal(compile('<if foo is not positive>baz</if>')({ foo: -1 }, html => html), 'baz')
