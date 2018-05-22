@@ -1047,4 +1047,8 @@ equal(compile(`<each foo in bar>{foo}</each>`)({
   }
 }, html => html), '123')
 
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: false, bar: 'baz', baz: 'baz'}, html => html), '')
+// equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'ban'}, html => html), '')
+
 console.timeEnd('test: success')

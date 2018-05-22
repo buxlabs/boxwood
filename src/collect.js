@@ -25,19 +25,10 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
   return variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
 }
 
-function findAction (keys, index = 1) {
-  const keywords = []
-  const actions = []
-
-  if (keys[0] === 'not' || keys[0] === 'is') index = 0
-
-  for (index; index < keys.length; index++) {
-    keywords.push(keys[index])
-    action = getAction(keywords)
-    if (action) actions.push(action)
-  }
-
-  return actions[actions.length - 1]
+function findActions (attributes) {
+  return attributes
+    .filter(attr => attr.type === 'Action')
+    .map(attr => getAction(attr.key))
 }
 
 function collectComponentsFromImport (fragment, components, options) {
@@ -212,8 +203,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     let attributes = normalize(attrs)
     let keys = attributes.map(attr => attr.key)
     const values = attributes.map(attr => attr.value)
-    const action = findAction(keys)
-    const test = getTest(action, keys, values)
+    const actions = findActions(attributes)
+    const test = getTest(actions[0], keys, values)
     appendIfStatement(test)
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
@@ -391,7 +382,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     if (leaf) {
       const attributes = normalize(attrs)
       const keys = attributes.map(attr => attr.key)
-      const action = findAction(keys, 0)
+      const actions = findActions(attributes)
+      const action = actions[0]
       if (action) {
         const ast = new AbstractSyntaxTree('')
         walk(fragment, current => {

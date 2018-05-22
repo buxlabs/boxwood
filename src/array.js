@@ -77,7 +77,7 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
       let action = ACTIONS[j]
       if (action[0] !== attribute.key) continue
       if (action.length === 1) {
-        attribute.type = action[0] === 'not' ? 'Action' : 'Identifier'
+        attribute.type = 'Action'
         result.push(attribute)
         found = true
         break
