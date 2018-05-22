@@ -154,50 +154,34 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return action.handler(node)
       } else if (action.args === 2) {
-        let left
+
+        const condition1 = keys[0]
+        const [prefix1] = condition1.split('.')
+        let left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
         let right
-        let test
-        for (let i = 0; i < keys.length; i++) {
-          if (left) {
-            let condition = keys[i]
-            let prefix = condition.split('.')
-
-            right = getIdentifierWithOptionalPrefix(prefix, condition, variables)
-            test = action.handler(left, right)
-            continue
-          }
-
-          const condition1 = keys[i]
-          const [prefix1] = condition1.split('.')
-          left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
-
-          i += 1 //skip operator
-
-          if (values[i]) {
-            let value = values[i]
-            if (value.includes('{') && value.includes('}')) {
-              value = value.replace(/{|}/g, '')
-              const expression = convertToExpression(value)
-              if (expression.type === 'Identifier') {
-                const [prefix] = value.split('.')
-                right = getIdentifierWithOptionalPrefix(prefix, value, variables)
-              } else if (expression.type === 'Literal') {
-                right = getLiteral(expression.value)
-              } else if (expression.type === 'BinaryExpression') {
-                const nodes = [expression.left, expression.right]
-                right = convertToBinaryExpression(nodes)
-              }
-            } else {
-              right = getLiteral(value)
+        let value = values[1]
+        if (value) {
+          if (value.includes('{') && value.includes('}')) {
+            value = value.replace(/{|}/g, '')
+            const expression = convertToExpression(value)
+            if (expression.type === 'Identifier') {
+              const [prefix] = value.split('.')
+              right = getIdentifierWithOptionalPrefix(prefix, value, variables)
+            } else if (expression.type === 'Literal') {
+              right = getLiteral(expression.value)
+            } else if (expression.type === 'BinaryExpression') {
+              const nodes = [expression.left, expression.right]
+              right = convertToBinaryExpression(nodes)
             }
           } else {
-            const condition2 = keys[++i]
-            const [prefix2] = condition2.split('.')
-            right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
+            right = getLiteral(value)
           }
-          test = action.handler(left, right)
+        } else {
+          const condition2 = keys[2]
+          const [prefix2] = condition2.split('.')
+          right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
         }
-        return test
+        return action.handler(left, right)
       }
     }
     let attributes = normalize(attrs)
@@ -205,6 +189,18 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     const values = attributes.map(attr => attr.value)
     const actions = findActions(attributes)
     if (actions.length > 1) {
+      const expression = { type: 'LogicalExpression' }
+      for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
+        let attribute = attributes[i]
+        if (attribute.type === 'Action') {
+          const action = actions.find(action => action.name === attribute.key)
+          if (action) {
+            if (action.args === 2) {
+              
+            }
+          }
+        }
+      }
 
     } else {
       const test = getTest(actions[0], keys, values)
