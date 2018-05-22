@@ -204,8 +204,12 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     let keys = attributes.map(attr => attr.key)
     const values = attributes.map(attr => attr.value)
     const actions = findActions(attributes)
-    const test = getTest(actions[0], keys, values)
-    appendIfStatement(test)
+    if (actions.length > 1) {
+
+    } else {
+      const test = getTest(actions[0], keys, values)
+      appendIfStatement(test)
+    }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
     if (leaf) {
