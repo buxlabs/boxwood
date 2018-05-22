@@ -75,7 +75,7 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
     index = i
     for (let j = 0, jlen = ACTIONS.length; j < jlen; j++) {
       let action = ACTIONS[j]
-      if (action[0] !== attribute) continue
+      if (action[0] !== attribute.key) continue
       if (action.length === 1) {
         result.push(attribute)
         found = true
@@ -85,13 +85,13 @@ function normalize (array) { //['foo', 'is', 'greater', 'than', 'bar']
       attribute = array[i]
       for (let k = 1, klen = action.length; k < klen; k++) {
         let part = action[k]
-        if (part !== attribute) {
+        if (part !== attribute.key) {
           i = index
           attribute = array[i]
           break
         }
         if (k === klen - 1) {
-          result.push(action.join('_'))
+          result.push({ key: action.join('_'), value: attribute.value })
           found = true
         } else {
           i++

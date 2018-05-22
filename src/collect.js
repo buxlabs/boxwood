@@ -25,13 +25,11 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
   return variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
 }
 
-function findAction (keys) {
-
-  let index = 1
-  if (keys[0] === 'not' || keys[0] === 'is') index = 0
-
+function findAction (keys, index = 1) {
   const keywords = []
   const actions = []
+
+  if (keys[0] === 'not' || keys[0] === 'is') index = 0
 
   for (index; index < keys.length; index++) {
     keywords.push(keys[index])
@@ -157,7 +155,10 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return node
       } else if (action.args === 1) {
-        const key = keys[0]
+        let key = keys[0]
+        if (keys[0] === 'not') {
+          key = keys[1]
+        }
         const [prefix] = key.split('.')
         const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
         return action.handler(node)
@@ -208,9 +209,9 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         return test
       }
     }
-    let keys = attrs.map(attr => attr.key)
-    keys = normalize(keys)
-    const values = attrs.map(attr => attr.value)
+    let attributes = normalize(attrs)
+    let keys = attributes.map(attr => attr.key)
+    const values = attributes.map(attr => attr.value)
     const action = findAction(keys)
     const test = getTest(action, keys, values)
     appendIfStatement(test)
@@ -388,8 +389,9 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === 'case') {
     let leaf = tree.last('SwitchStatement')
     if (leaf) {
-      const keys = attrs.map(attr => attr.key)
-      const action = findAction(keys)
+      const attributes = normalize(attrs)
+      const keys = attributes.map(attr => attr.key)
+      const action = findAction(keys, 0)
       if (action) {
         const ast = new AbstractSyntaxTree('')
         walk(fragment, current => {
