@@ -914,6 +914,8 @@ equal(compile('{foo | increment}')({ foo: 5 }, html => html), 6)
 equal(compile('{foo | decrement}')({ foo: 5 }, html => html), 4)
 equal(compile('{foo | clamp(2, 8)}')({ foo: 10 }, html => html), 8)
 equal(compile('{foo | clamp(2, 8)}')({ foo: 6 }, html => html), 6)
+equal(compile('{foo | int}')({ foo: 10 }, html => html), 10)
+equal(compile('{foo | float}')({ foo: 10.25 }, html => html), 10.25)
 
 equal(compile('{Math.pow(foo, 3)}')({ foo: 2 }, html => html), '8')
 
