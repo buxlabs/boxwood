@@ -6,7 +6,13 @@ const aliases = {
   inspect: 'prettify',
   upcase: 'uppercase',
   downcase: 'lowercase',
-  titlecase: 'titleize'
+  titlecase: 'titleize',
+  plus: 'add',
+  minus: 'subtract',
+  uncapitalize: 'lowerfirst',
+  abbreviate: 'truncate',
+  rotate: 'reverse',
+  mean: 'average'
 }
 
 function getModifierName (modifier) {

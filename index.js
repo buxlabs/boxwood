@@ -63,7 +63,6 @@ module.exports = {
       })
       program = tree
     }
-    // console.log(program.toString())
     return new Function(OBJECT_VARIABLE, ESCAPE_VARIABLE, program.toString()) // eslint-disable-line
   }
 }
