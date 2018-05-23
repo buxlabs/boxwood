@@ -1054,4 +1054,29 @@ equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', ba
 equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz'}, html => html), 'qux')
 equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
 
+equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
+equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: false }, html => html), '')
+equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: false }, html => html), '')
+equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: true }, html => html), '')
+
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: 10, bar: true }, html => html), 'baz')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: -10, bar: true }, html => html), '')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: -10, bar: false }, html => html), '')
+
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: 10, bar: true }, html => html), '')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: -10, bar: true }, html => html), 'baz')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: -10, bar: false }, html => html), '')
+
+equal(compile('<if foo is not positive and not bar>baz</if>')({ foo: 10, bar: true }, html => html), '')
+equal(compile('<if foo is not positive and not bar>baz</if>')({ foo: -10, bar: true }, html => html), '')
+equal(compile('<if foo is not positive and not bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
+equal(compile('<if foo is not positive and not bar>baz</if>')({ foo: -10, bar: false }, html => html), 'baz')
+
+equal(compile('<if foo and not bar>baz</if>')({ foo: false, bar: true }, html => html), '')
+equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: false }, html => html), 'baz')
+equal(compile('<if foo and not bar>baz</if>')({ foo: false, bar: false }, html => html), '')
+equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: true }, html => html), '')
+
 console.timeEnd('test: success')

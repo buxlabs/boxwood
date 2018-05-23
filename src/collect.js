@@ -206,10 +206,24 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         } else if (attribute.type === 'Action') {
           const action = actions.find(action => action.name === attribute.key)
           if (action) {
-            if (attribute.value) {
-              stack.push(convertValueToNode(attribute.value, variables))
+            if (action.name === 'not') {
+              i++
+              attribute = attributes[i]
+              const value = attribute.key
+              const [prefix] = value.split('.')
+              const node = {
+                type: 'UnaryExpression',
+                operator: '!',
+                argument: getIdentifierWithOptionalPrefix(prefix, value, variables),
+                prefix: true
+              }
+              stack.push(node)
+            } else {
+              if (attribute.value) {
+                stack.push(convertValueToNode(attribute.value, variables))
+              }
+              expressions.push(action)
             }
-            expressions.push(action)
           }
         }
       }
@@ -217,6 +231,12 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       for (let i = 0, ilen = expressions.length; i < ilen; i += 1) {
         const expression = expressions[i]
         const params = expression.args
+        if (params === 1) {
+          const left = stack.shift()
+          const logical = expression.handler(left)
+          stack.unshift(logical)
+          result.push(logical)
+        }
         if (params === 2) {
           const left = stack.shift()
           const right = stack.shift()
