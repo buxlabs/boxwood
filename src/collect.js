@@ -45,6 +45,23 @@ function collectComponentsFromImport (fragment, components, options) {
   }
 }
 
+function convertValueToNode (value, variables) {
+  if (value.includes('{') && value.includes('}')) {
+    value = value.replace(/{|}/g, '')
+    const expression = convertToExpression(value)
+    if (expression.type === 'Identifier') {
+      const [prefix] = value.split('.')
+      return getIdentifierWithOptionalPrefix(prefix, value, variables)
+    } else if (expression.type === 'Literal') {
+      return getLiteral(expression.value)
+    } else if (expression.type === 'BinaryExpression') {
+      const nodes = [expression.left, expression.right]
+      return convertToBinaryExpression(nodes)
+    }
+  }
+  return getLiteral(value)
+}
+
 function collect (tree, fragment, variables, modifiers, components, options) {
   if (fragment.used) return
   fragment.used = true
@@ -155,21 +172,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         let right
         let value = values[1]
         if (value) {
-          if (value.includes('{') && value.includes('}')) {
-            value = value.replace(/{|}/g, '')
-            const expression = convertToExpression(value)
-            if (expression.type === 'Identifier') {
-              const [prefix] = value.split('.')
-              right = getIdentifierWithOptionalPrefix(prefix, value, variables)
-            } else if (expression.type === 'Literal') {
-              right = getLiteral(expression.value)
-            } else if (expression.type === 'BinaryExpression') {
-              const nodes = [expression.left, expression.right]
-              right = convertToBinaryExpression(nodes)
-            }
-          } else {
-            right = getLiteral(value)
-          }
+          right = convertValueToNode(value, variables)
         } else {
           const condition2 = keys[2]
           const [prefix2] = condition2.split('.')
@@ -203,6 +206,9 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         } else if (attribute.type === 'Action') {
           const action = actions.find(action => action.name === attribute.key)
           if (action) {
+            if (attribute.value) {
+              stack.push(convertValueToNode(attribute.value, variables))
+            }
             expressions.push(action)
           }
         }

@@ -1051,4 +1051,7 @@ equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', ba
 equal(compile('<if foo and bar equals baz>qux</if>')({ foo: false, bar: 'baz', baz: 'baz'}, html => html), '')
 equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'ban'}, html => html), '')
 
+equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz'}, html => html), 'qux')
+equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
+
 console.timeEnd('test: success')
