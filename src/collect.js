@@ -191,19 +191,36 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const test = getTest(actions[0], keys, values)
       appendIfStatement(test)
     } else {
-      const expression = { type: 'LogicalExpression' }
+      const stack = []
+      const expressions = []
       for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
         let attribute = attributes[i]
-        if (attribute.type === 'Action') {
+        if (attribute.type === 'Identifier') {
+          const value = attribute.key
+          const [prefix] = value.split('.')
+          const node = getIdentifierWithOptionalPrefix(prefix, value, variables)
+          stack.push(node)
+        } else if (attribute.type === 'Action') {
           const action = actions.find(action => action.name === attribute.key)
           if (action) {
-            if (action.args === 2) {
-              
-            }
+            expressions.push(action)
           }
         }
       }
-
+      const result = []
+      for (let i = 0, ilen = expressions.length; i < ilen; i += 1) {
+        const expression = expressions[i]
+        const params = expression.args
+        if (params === 2) {
+          const left = stack.shift()
+          const right = stack.shift()
+          const logical = expression.handler(left, right)
+          stack.unshift(logical)
+          result.push(logical)
+        }
+      }
+      const test = result[result.length - 1]
+      appendIfStatement(test)
     }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
