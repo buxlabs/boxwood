@@ -45,6 +45,32 @@ function collectComponentsFromImport (fragment, components, options) {
   }
 }
 
+function collectComponentsFromPartial (fragment, options) {
+  const path = fragment.attributes[0].value
+  for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+    const location = join(options.paths[i], path)
+    if (!existsSync(location)) continue
+    const content = readFileSync(location, 'utf8')
+    fragment.children = parse(content)
+    break
+  }
+}
+
+function collectComponentsFromPartialAttribute (fragment, options) {
+  const attr = fragment.attributes.find(attr => attr.key === 'partial')
+  if (attr) {
+    const path = attr.value
+    for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+      const location = join(options.paths[i], path)
+      if (!existsSync(location)) continue
+      const content = readFileSync(location, 'utf8')
+      fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
+      fragment.children = parse(content)
+      break
+    }
+  }
+}
+
 function convertValueToNode (value, variables) {
   if (value.includes('{') && value.includes('}')) {
     value = value.replace(/{|}/g, '')
@@ -80,6 +106,11 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         }
         if (current.tagName === 'import') {
           collectComponentsFromImport(current, currentComponents, options)
+        } else if (current.tagName === 'partial') {
+          collectComponentsFromPartial(current, options)
+          current.used = true
+        } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
+          collectComponentsFromPartialAttribute(current, options)
         }
         const component = currentComponents.find(component => component.name === current.tagName)
         if (component && !current.plain) {
@@ -105,18 +136,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     const body = ast.body()
     body.forEach(node => tree.append(node))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    const attr = fragment.attributes.find(attr => attr.key === 'partial')
-    if (attr) {
-      const path = attr.value
-      for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-        const location = join(options.paths[i], path)
-        if (!existsSync(location)) continue
-        const content = readFileSync(location, 'utf8')
-        fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
-        fragment.children = parse(content)
-        break
-      }
-    }
+    collectComponentsFromPartialAttribute(fragment, options)
     const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
       if (node.type === 'IfStatement') {
@@ -525,14 +545,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === 'import') {
     collectComponentsFromImport(fragment, components, options)
   } else if (tag === 'partial') {
-    const path = attrs[0].value
-    for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-      const location = join(options.paths[i], path)
-      if (!existsSync(location)) continue
-      const content = readFileSync(location, 'utf8')
-      fragment.children = parse(content)
-      break
-    }
+    collectComponentsFromPartial(fragment, options)
   }
 }
 
