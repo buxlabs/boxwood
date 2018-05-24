@@ -33,7 +33,8 @@ module.exports = {
     'default',
     'foreach',
     'import',
-    'partial'
+    'partial',
+    'render'
   ],
   UNESCAPED_NAMES: [
     'value',

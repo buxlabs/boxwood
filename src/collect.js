@@ -45,7 +45,7 @@ function collectComponentsFromImport (fragment, components, options) {
   }
 }
 
-function collectComponentsFromPartial (fragment, options) {
+function collectComponentsFromPartialOrRender (fragment, options) {
   const path = fragment.attributes[0].value
   for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
     const location = join(options.paths[i], path)
@@ -106,8 +106,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         }
         if (current.tagName === 'import') {
           collectComponentsFromImport(current, currentComponents, options)
-        } else if (current.tagName === 'partial') {
-          collectComponentsFromPartial(current, options)
+        } else if (current.tagName === 'partial' || current.tagName === 'render') {
+          collectComponentsFromPartialOrRender(current, options)
         } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
           collectComponentsFromPartialAttribute(current, options)
         }
@@ -543,8 +543,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     })
   } else if (tag === 'import') {
     collectComponentsFromImport(fragment, components, options)
-  } else if (tag === 'partial') {
-    collectComponentsFromPartial(fragment, options)
+  } else if (tag === 'partial' || tag === 'render') {
+    collectComponentsFromPartialOrRender(fragment, options)
     fragment.children.forEach(node => {
       collect(tree, node, variables, modifiers, components, options)
     })
