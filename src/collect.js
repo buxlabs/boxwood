@@ -108,7 +108,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
           collectComponentsFromImport(current, currentComponents, options)
         } else if (current.tagName === 'partial') {
           collectComponentsFromPartial(current, options)
-          current.used = true
         } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
           collectComponentsFromPartialAttribute(current, options)
         }
@@ -546,6 +545,9 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     collectComponentsFromImport(fragment, components, options)
   } else if (tag === 'partial') {
     collectComponentsFromPartial(fragment, options)
+    fragment.children.forEach(node => {
+      collect(tree, node, variables, modifiers, components, options)
+    })
   }
 }
 
