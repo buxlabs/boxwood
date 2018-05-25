@@ -134,6 +134,9 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     ast.each('VariableDeclarator', node => variables.push(node.id.name))
     const body = ast.body()
     body.forEach(node => tree.append(node))
+  } else if (tag === '!doctype') {
+    const node = new AbstractSyntaxTree('"<!doctype html>"')
+    tree.append(getTemplateAssignmentExpression(node.body()[0]))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
     collectComponentsFromPartialAttribute(fragment, options)
     const nodes = convertTag(fragment, variables, modifiers)

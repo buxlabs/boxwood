@@ -4,6 +4,7 @@ const path = require('path')
 
 console.time('test: success')
 equal(compile('')(), '')
+equal(compile('<!DOCTYPE html>')(), '<!doctype html>')
 equal(compile('<!-- foo -->')(), '')
 equal(compile('hello world')(), 'hello world')
 equal(compile('<div></div>')(), '<div></div>')

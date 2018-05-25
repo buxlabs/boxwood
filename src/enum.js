@@ -15,7 +15,7 @@ module.exports = {
   SELF_CLOSING_TAGS: [
     'area', 'base', 'br', 'col', 'command',
     'embed', 'hr', 'img', 'input', 'keygen', 'link',
-    'meta', 'param', 'source', 'track', 'wbr'
+    'meta', 'param', 'source', 'track', 'wbr', '!doctype'
   ],
   SPECIAL_TAGS: [
     'if',
