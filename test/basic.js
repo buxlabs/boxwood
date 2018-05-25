@@ -591,6 +591,13 @@ equal(compile('<if foo is not a number>baz</if>')({ foo: [] }, html => html), 'b
 equal(compile('<if foo is not a number>baz</if>')({ foo: 13 }, html => html), '')
 equal(compile('<if foo is not a number>baz</if>')({ foo: {} }, html => html), 'baz')
 
+equal(compile('<if foo is numeric>baz</if>')({ foo: '-10' }, html => html), 'baz')
+equal(compile('<if foo is numeric>baz</if>')({ foo: '0' }, html => html), 'baz')
+equal(compile('<if foo is numeric>baz</if>')({ foo: '0xFF' }, html => html), 'baz')
+equal(compile('<if foo is not numeric>baz</if>')({ foo: true }, html => html), 'baz')
+equal(compile('<if foo is not numeric>baz</if>')({ foo: null }, html => html), 'baz')
+equal(compile('<if foo is not numeric>baz</if>')({ foo: undefined }, html => html), 'baz')
+
 equal(compile('<if foo is a symbol>baz</if>')({ foo: Symbol('foo') }, html => html), 'baz')
 equal(compile('<if foo is a symbol>baz</if>')({ foo: {} }, html => html), '')
 equal(compile('<if foo is not a symbol>baz</if>')({ foo: Symbol('foo') }, html => html), '')

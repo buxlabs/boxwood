@@ -167,6 +167,14 @@ function isNumber(node) {
   return getObjectWithConstructorBinaryExpression(node, 'Number')
 }
 
+function isNumeric(node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`
+    (typeof ${code} === 'string' || typeof ${code} === 'number') && !isNaN(Number(${code}))
+  `)
+  return tree.first('LogicalExpression')
+}
+
 function isString(node) {
   return getObjectWithConstructorBinaryExpression(node, 'String')
 }
@@ -361,6 +369,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_void', handler: isUndefined, args: 1 },
   { name: 'is_even', handler: isEven, args: 1 },
   { name: 'is_odd', handler: isOdd, args: 1 },
+  { name: 'is_numeric', handler: isNumeric, args: 1 },
   { name: 'is_an_array', handler: isArray, args: 1 },
   { name: 'is_an_object', handler: isObject, args: 1 },
   { name: 'is_a_regexp', handler: isRegExp, args: 1 },
