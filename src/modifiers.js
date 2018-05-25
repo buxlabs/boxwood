@@ -30,7 +30,9 @@ module.exports = {
       utilities.math[name] ||
       utilities.json[name] ||
       utilities.array[name] ||
-      utilities.object[name]
+      utilities.object[name] ||
+      utilities.collection[name] ||
+      utilities.date[name]
     if (!method) return null
     const leaf = new AbstractSyntaxTree(method.toString())
     const fn = leaf.body()[0]

@@ -841,7 +841,7 @@ equal(compile('<div class="{foo | uppercase}"></div>')({ foo: 'bar' }, html => h
 equal(compile('<input checked="{query | trim}">')({ query: '' }, html => html), '<input>')
 equal(compile('<input checked="{query | trim}">')({ query: '   ' }, html => html), '<input>')
 equal(compile('<input checked="{query | trim}">')({ query: 'bar' }, html => html), '<input checked>')
-// equal(compile('<div>{foo | whitespacestrip}</div>')({ foo: 'b  ar' }, html => html), '<div>bar</div>')
+equal(compile('<div>{foo | whitespacestrip}</div>')({ foo: 'b  ar' }, html => html), '<div>bar</div>')
 equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
 equal(compile('{foo | upcase}')({ foo: 'bar' }, html => html), 'BAR')
 equal(compile('{foo | lowercase}')({ foo: 'BAR' }, html => html), 'bar')
@@ -876,10 +876,15 @@ equal(compile(`{foo | replace('bar', 'baz')}`)({ foo: 'foo baz' }, html => html)
 equal(compile(`{foo | replace(${/\s/g},'')}`)({ foo: 'foo baz' }, html => html), 'foobaz')
 equal(compile(`{foo | strip}`)({ foo: ' foo baz ' }, html => html), 'foo baz')
 equal(compile(`{foo | strip('baz')}`)({ foo: 'foo baz' }, html => html), 'foo')
-// equal(compile(`{foo | strip('o')}`)({ foo: 'foo' }, html => html), 'f')
+equal(compile(`{foo | strip('o')}`)({ foo: 'foo' }, html => html), 'f')
 equal(compile(`{foo | strip(['o', 'a'])}`)({ foo: 'foo bar' }, html => html), 'f br')
 equal(compile(`{foo | squeeze}`)({ foo: 'yellow moon' }, html => html), 'yelow mon')
 equal(compile(`{foo | squeeze('a-o')}`)({ foo: 'foo baar baazz  ban' }, html => html), 'fo bar bazz ban')
+equal(compile(`{foo | index('ello')}`)({ foo: 'hello world' }, html => html), '1')
+equal(compile(`{foo | chop}`)({ foo: 'foo barz' }, html => html), 'foo bar')
+equal(compile(`{foo | chomp('barz') | trim}`)({ foo: 'foo barz' }, html => html), 'foo')
+equal(compile(`{foo | dot}`)({ foo: 'foo bar ban' }, html => html), 'foo bar ban.')
+equal(compile(`{foo | crop(10)}`)({ foo: 'foo bar ban baz' }, html => html), 'foo bar...')
 
 equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
 equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
@@ -925,7 +930,7 @@ equal(compile('{Number.isFinite(foo)}')({ foo: Infinity }, html => html), 'false
 
 equal(compile('{foo | reverse}')({ foo: 'bar' }, html => html), 'rab')
 equal(compile('{foo | rotate}')({ foo: 'bar' }, html => html), 'rab')
-// equal(compile('{foo | reverse}')({ foo: [1, 2, 3, 4] }, html => html), [4, 3, 2, 1])
+equal(compile('{foo | reverse}')({ foo: [1, 2, 3, 4] }, html => html), [4, 3, 2, 1])
 equal(compile('{foo | size}')({ foo: 'bar' }, html => html), '3')
 equal(compile('{foo | size}')({ foo: [1, 2] }, html => html), '2')
 equal(compile('{foo | size}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
@@ -971,6 +976,10 @@ equal(compile('{photos | first | dig("src")}')({
 equal(compile('{foo | first | dig("foo.bar.baz")}')({
   foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
 }, html => html), 'qux')
+
+equal(compile('{foo | format}')({ foo: new Date('2018/05/25')} , html => html), '25-05-2018')
+equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25')} , html => html), '25.05.2018')
+equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25'} , html => html), '05.2018')
 
 equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
 equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
