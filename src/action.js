@@ -48,6 +48,12 @@ function isPresent(node) {
   return getVoidBinaryExpression(node, '!==')
 }
 
+function isAlpha(node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z]/g.test(char))`)
+  return tree.first('CallExpression')
+}
+
 function getVoid () {
   return { type: 'UnaryExpression', operator: 'void', prefix: true, argument: getLiteral(0) }
 }
@@ -346,6 +352,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_finite', handler: isFinite, args: 1 },
   { name: 'is_infinite', handler: isInfinite, args: 1 },
   { name: 'is_present', handler: isPresent, args: 1 },
+  { name: 'is_alpha', handler: isAlpha, args: 1 },
   { name: 'are_present', handler: isPresent, args: 1 },
   { name: 'is_empty', handler: isEmpty, args: 1 },
   { name: 'are_empty', handler: isEmpty, args: 1 },
