@@ -1058,6 +1058,14 @@ equal(compile(`<import layout from='./layout-with-render.html'/><layout>bar</lay
   paths: [ path.join(__dirname, './fixtures/import') ]
 })({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
 
+equal(compile(`<require button from="./fixtures/import/button.html"/><button>foo</button>`, {
+  paths: [__dirname]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import layout from='./layout-with-require.html'/><layout>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
+
 equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
 equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')
 equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')

@@ -33,6 +33,7 @@ module.exports = {
     'default',
     'foreach',
     'import',
+    'require',
     'partial',
     'render'
   ],

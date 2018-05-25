@@ -106,7 +106,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         if (current.type === 'element' && current.tagName === 'slot') {
           current.children = children
         }
-        if (current.tagName === 'import') {
+        if (current.tagName === 'import' || current.tagName === 'require') {
           collectComponentsFromImport(current, currentComponents, options)
         } else if (current.tagName === 'partial' || current.tagName === 'render') {
           collectComponentsFromPartialOrRender(current, options)
@@ -567,7 +567,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         ]
       }
     })
-  } else if (tag === 'import') {
+  } else if (tag === 'import' || tag === 'require') {
     collectComponentsFromImport(fragment, components, options)
   } else if (tag === 'partial' || tag === 'render') {
     collectComponentsFromPartialOrRender(fragment, options)
