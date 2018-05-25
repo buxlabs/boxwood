@@ -319,6 +319,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         } else if(right.value.includes('..')) {
           range = right.value.split('..').map(Number)
           range[1] += 1
+        } else {
+          range = [0, Number(right.value) + 1]
         }
       }
       const variable = left.key

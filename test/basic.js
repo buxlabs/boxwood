@@ -971,9 +971,9 @@ equal(compile('{foo | first | dig("foo.bar.baz")}')({
   foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
 }, html => html), 'qux')
 
-
-equal(compile('<for number in range="1...10">{number}</for>')({}, html => html), '123456789')
-equal(compile('<for number in range="1..10">{number}</for>')({}, html => html), '12345678910')
+equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
+equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
+equal(compile('<for number in range="10">{number}</for>')({}, html => html), '012345678910')
 
 equal(compile('{foo + 1}')({ foo: 0 }, html => html), '1')
 equal(compile('{1 + foo}')({ foo: 0 }, html => html), '1')
