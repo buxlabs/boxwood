@@ -124,6 +124,35 @@ module.exports = {
       kind: 'var'
     }
   },
+  getForInLoopVariable (key, value, parent) {
+    return {
+      type: 'VariableDeclaration',
+      declarations: [
+        {
+          type: 'VariableDeclarator',
+          id: getIdentifier(value),
+          init: {
+            type: 'MemberExpression',
+            object: parent,
+            property: getIdentifier(key),
+            computed: true
+          }
+        }
+      ],
+      kind: 'var'
+    }
+  },
+  getForInLoop (key, parent, body) {
+    return {
+      type: 'ForInStatement',
+      left: getIdentifier(key),
+      right: parent,
+      body: {
+        type: 'BlockStatement',
+        body
+      }
+    }
+  },
   getIdentifier,
   getLiteral
 }

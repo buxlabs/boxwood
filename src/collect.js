@@ -6,7 +6,9 @@ const {
   getTemplateAssignmentExpression,
   getObjectMemberExpression,
   getForLoop,
-  getForLoopVariable
+  getForLoopVariable,
+  getForInLoop,
+  getForInLoopVariable
 } = require('./factory')
 const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute, convertToExpression, convertToBinaryExpression } = require('./convert')
 const { walk } = require('./parser')
@@ -307,35 +309,56 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       }
     }
   } else if (tag === 'for') {
-    const ast = new AbstractSyntaxTree('')
-    const [left, operator, right] = attrs
-    let range
-    if (right && right.key === 'range' && right.value) {
-      if (right.value.includes('...')) {
-        range = right.value.split('...').map(Number)
-      } else if(right.value.includes('..')) {
-        range = right.value.split('..').map(Number)
-        range[1] += 1
+    if (attrs.length <= 3) {
+      const ast = new AbstractSyntaxTree('')
+      const [left, operator, right] = attrs
+      let range
+      if (right && right.key === 'range' && right.value) {
+        if (right.value.includes('...')) {
+          range = right.value.split('...').map(Number)
+        } else if(right.value.includes('..')) {
+          range = right.value.split('..').map(Number)
+          range[1] += 1
+        }
       }
-    }
-    const variable = left.key
-    let parent = operator.value || `{${right.key}}`
-    const name = convertAttribute('html', parent, variables)
+      const variable = left.key
+      let parent = operator.value || `{${right.key}}`
+      const name = convertAttribute('html', parent, variables)
 
-    variables.push(variable)
-    parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
-    const index = getFreeIdentifier(variables.concat(parent))
-    variables.push(index)
-    const guard = getFreeIdentifier(variables.concat(parent))
-    variables.push(guard)
-    ast.append(getForLoopVariable(variable, name, variables, index, range))
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
-    })
-    tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
-    variables.pop()
-    variables.pop()
-    variables.pop()
+      variables.push(variable)
+      parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
+      const index = getFreeIdentifier(variables.concat(parent))
+      variables.push(index)
+      const guard = getFreeIdentifier(variables.concat(parent))
+      variables.push(guard)
+      ast.append(getForLoopVariable(variable, name, variables, index, range))
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, options)
+      })
+      tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
+      variables.pop()
+      variables.pop()
+      variables.pop()
+    } else if (attrs.length === 5) {
+      const ast = new AbstractSyntaxTree('')
+      const [key, , value, operator, right] = attrs
+      const keyIdentifier = key.key
+      const valueIdentifier = value.key
+      variables.push(keyIdentifier)
+      variables.push(valueIdentifier)
+
+
+      let parent = `{${right.key}}`
+      const name = convertAttribute('html', parent, variables)
+      ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
+
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, options)
+      })
+      tree.append(getForInLoop(keyIdentifier, name, ast.body()))
+      variables.pop()
+      variables.pop()
+    }
   } else if (tag === 'slot') {
     if (attrs && attrs.length > 0) {
       const leaf = convertHtmlOrTextAttribute(fragment, variables)

@@ -1140,4 +1140,6 @@ equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: false }, html =>
 equal(compile('<if foo and not bar>baz</if>')({ foo: false, bar: false }, html => html), '')
 equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: true }, html => html), '')
 
+equal(compile('<for key and value in foo>{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
+
 console.timeEnd('test: success')
