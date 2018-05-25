@@ -359,6 +359,38 @@ function respondsTo (left, right) {
   }
 }
 
+function startsWith (left, right) {
+  return {
+    type: "CallExpression",
+    callee: {
+      type: "MemberExpression",
+      object: left,
+      property: {
+        type: "Identifier",
+        name: "startsWith"
+      },
+      computed: false
+    },
+    arguments: [right]
+  }
+}
+
+function endsWith (left, right) {
+  return {
+    type: "CallExpression",
+    callee: {
+      type: "MemberExpression",
+      object: left,
+      property: {
+        type: "Identifier",
+        name: "endsWith"
+      },
+      computed: false
+    },
+    arguments: [right]
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: isPositive, args: 1 },
@@ -395,6 +427,8 @@ const STANDARD_ACTIONS = [
   { name: 'is_truthy', handler: isTruthy, args: 1 },
   { name: 'is_falsy', handler: isFalsy, args: 1 },
   { name: 'responds_to', handler: respondsTo, args: 2 },
+  { name: 'starts_with', handler: startsWith, args: 2 },
+  { name: 'ends_with', handler: endsWith, args: 2 },
   { name: 'has_a_whitespace', handler: hasWhitespace, args: 1 },
   { name: 'has_a_newline', handler: hasNewLine, args: 1 },
   { name: 'has_a_number', handler: hasNumber, args: 1 },
