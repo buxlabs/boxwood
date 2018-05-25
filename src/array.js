@@ -13,6 +13,7 @@ const STANDARD_ACTIONS = [
   ['is', 'even'],
   ['is', 'odd'],
   ['is', 'alpha'],
+  ['is', 'alphanumeric'],
   ['is', 'numeric'],
   ['is', 'an', 'array'],
   ['is', 'an', 'object'],

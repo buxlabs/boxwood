@@ -506,6 +506,13 @@ equal(compile('<if foo is not alpha>baz</if>')({ foo: 'BaR' }, html => html), ''
 equal(compile('<if foo is not alpha>baz</if>')({ foo: '123' }, html => html), 'baz')
 equal(compile('<if foo is not alpha>baz</if>')({ foo: 'bar baz' }, html => html), 'baz')
 
+equal(compile('<if foo is alphanumeric>baz</if>')({ foo: '1234' }, html => html), 'baz')
+equal(compile('<if foo is alphanumeric>baz</if>')({ foo: '1234bar' }, html => html), 'baz')
+equal(compile('<if foo is alphanumeric>baz</if>')({ foo: '' }, html => html), 'baz')
+equal(compile('<if foo is not alphanumeric>baz</if>')({ foo: '1234' }, html => html), '')
+equal(compile('<if foo is not alphanumeric>baz</if>')({ foo: '' }, html => html), '')
+equal(compile('<if foo is not alphanumeric>baz</if>')({ foo: '1234bar' }, html => html), '')
+
 equal(compile('<if foo is negative>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is negative>baz</if>')({ foo: 0 }, html => html), '')
 equal(compile('<if foo is negative>baz</if>')({ foo: -1 }, html => html), 'baz')

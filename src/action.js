@@ -50,7 +50,13 @@ function isPresent(node) {
 
 function isAlpha(node) {
   const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z]/g.test(char))`)
+  const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z]/.test(char))`)
+  return tree.first('CallExpression')
+}
+
+function isAlphaNumeric(node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z0-9]/.test(char))`)
   return tree.first('CallExpression')
 }
 
@@ -361,6 +367,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_infinite', handler: isInfinite, args: 1 },
   { name: 'is_present', handler: isPresent, args: 1 },
   { name: 'is_alpha', handler: isAlpha, args: 1 },
+  { name: 'is_alphanumeric', handler: isAlphaNumeric, args: 1 },
   { name: 'are_present', handler: isPresent, args: 1 },
   { name: 'is_empty', handler: isEmpty, args: 1 },
   { name: 'are_empty', handler: isEmpty, args: 1 },
