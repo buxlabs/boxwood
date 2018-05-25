@@ -317,6 +317,28 @@ function hasNumbers(node) {
   return tree.first('LogicalExpression')
 }
 
+function respondsTo (left, right) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'UnaryExpression',
+      operator: 'typeof',
+      prefix: true,
+      argument: {
+        type: 'MemberExpression',
+        object: left,
+        property: right.property,
+        computed: false
+      }
+    },
+    operator: '===',
+    right: {
+      type: 'Literal',
+      value: 'function'
+    }
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: isPositive, args: 1 },
@@ -349,6 +371,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_false', handler: isFalsy, args: 1 },
   { name: 'is_truthy', handler: isTruthy, args: 1 },
   { name: 'is_falsy', handler: isFalsy, args: 1 },
+  { name: 'responds_to', handler: respondsTo, args: 2 },
   { name: 'has_a_whitespace', handler: hasWhitespace, args: 1 },
   { name: 'has_a_newline', handler: hasNewLine, args: 1 },
   { name: 'has_a_number', handler: hasNumber, args: 1 },
