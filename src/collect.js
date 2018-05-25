@@ -339,7 +339,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.pop()
       variables.pop()
       variables.pop()
-    } else if (attrs.length === 5) {
+    } else if (attrs.length <= 5) {
       const ast = new AbstractSyntaxTree('')
       const [key, , value, operator, right] = attrs
       const keyIdentifier = key.key
@@ -348,7 +348,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.push(valueIdentifier)
 
 
-      let parent = `{${right.key}}`
+      let parent = operator.value || `{${right.key}}`
       const name = convertAttribute('html', parent, variables)
       ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
