@@ -1,5 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getIdentifier, getLiteral } = require('./factory')
+const { string: { singularize } } = require('pure-utilities')
 
 function isPositive (node) {
   return getCompareWithZeroBinaryExpression(node, '>')
@@ -464,6 +465,9 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
   let { name } = action
   if (name.includes('has')) {
     name = 'does_not_have_' + name.substring(4)
+  } else if (name.includes('with')) {
+    const index = name.indexOf('_with')
+    name = 'does_not_' + singularize(name.substr(0, index)) + name.substr(index)
   } else {
     let temp = name.split('_')
     temp.splice(1, 0, 'not')

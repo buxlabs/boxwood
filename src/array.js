@@ -1,3 +1,5 @@
+const { string: { singularize } } = require('pure-utilities')
+
 const STANDARD_ACTIONS = [
   ['is', 'positive'],
   ['is', 'negative'],
@@ -63,6 +65,8 @@ const STANDARD_ACTIONS = [
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   if (action[0] === 'has') {
     return ['does', 'not', 'have'].concat(action.slice(1))
+  } else if (action[1] === 'with') {
+    return ['does', 'not'].concat(singularize(action[0]), action[1])
   } else {
     let array = action.slice(0)
     array.splice(1, 0, 'not')

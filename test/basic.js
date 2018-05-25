@@ -857,11 +857,11 @@ equal(compile('<if foo eq="{bar}">baz</if>')({ foo: 10, bar: 0 }, html => html),
 
 equal(compile('<if foo starts with bar>baz</if>')({ foo: 'ban qux', bar: 'ban' }, html => html), 'baz')
 equal(compile('<if foo starts with bar>baz</if>')({ foo: 'ban qux', bar: 'qux' }, html => html), '')
-equal(compile('<if foo starts not with bar>baz</if>')({ foo: 'ban qux', bar: 'qux' }, html => html), 'baz')
+equal(compile('<if foo does not start with bar>baz</if>')({ foo: 'ban qux', bar: 'qux' }, html => html), 'baz')
 
 equal(compile('<if foo ends with bar>baz</if>')({ foo: 'ban qux', bar: 'qux' }, html => html), 'baz')
 equal(compile('<if foo ends with bar>baz</if>')({ foo: 'ban qux', bar: 'baz' }, html => html), '')
-equal(compile('<if foo ends not with bar>baz</if>')({ foo: 'ban qux', bar: 'baz' }, html => html), 'baz')
+equal(compile('<if foo does not end with bar>baz</if>')({ foo: 'ban qux', bar: 'baz' }, html => html), 'baz')
 
 equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
 equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
