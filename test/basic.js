@@ -1196,4 +1196,10 @@ equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar: {} } }, html => 
 equal(compile('<for key and value in foo>{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
 equal(compile('<for key and value in="{foo}">{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
 
+equal(compile('<style></style>')({}, html => html), '<style></style>')
+equal(compile('<script></script>')({}, html => html), '<script></script>')
+
+// equal(compile('<style>.foo{color:red}</style>')({}, html => html), '<style>.foo{color:red}</style>')
+// equal(compile('<script>console.log({ foo: "bar" })</script>')({}, html => html), '<script>console.log({ foo: "bar" })</script>')
+
 console.timeEnd('test: success')
