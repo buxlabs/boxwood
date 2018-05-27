@@ -970,7 +970,6 @@ equal(compile('{foo | size}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
 
 equal(compile('{JSON.stringify(foo, null, 2)}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
 equal(compile('{JSON.stringify(foo, null, 4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
-equal(compile('{console.log(foo)}')({ foo: 1 }, html => html), 'undefined')
 equal(compile('{foo | json}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
 equal(compile('{foo | json(4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
 equal(compile('{foo | inspect}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
