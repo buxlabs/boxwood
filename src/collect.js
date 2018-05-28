@@ -103,8 +103,17 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const currentComponents = []
 
       walk(htmlTree, current => {
-        if (current.type === 'element' && current.tagName === 'slot') {
-          current.children = children
+        if (current.tagName === 'slot') {
+          if (current.attributes.length === 0) {
+            current.children = children
+          } else {
+            const name = current.attributes[0].key
+            walk(children, leaf => {
+              if (leaf.tagName === 'slot' && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
+                current.children = leaf.children
+              }
+            })
+          }
         }
         if (current.tagName === 'import' || current.tagName === 'require') {
           collectComponentsFromImport(current, currentComponents, options)
@@ -372,19 +381,12 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.pop()
     }
   } else if (tag === 'slot') {
-    if (attrs && attrs.length > 0) {
-      const leaf = convertHtmlOrTextAttribute(fragment, variables)
-      if (leaf) {
-        tree.append(getTemplateAssignmentExpression(leaf))
-      }
-    } else {
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
-      })
-      const body = ast.body()
-      body.forEach(node => tree.append(node))
-    }
+    const ast = new AbstractSyntaxTree('')
+    walk(fragment, current => {
+      collect(ast, current, variables, modifiers, components, options)
+    })
+    const body = ast.body()
+    body.forEach(node => tree.append(node))
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {

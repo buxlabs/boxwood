@@ -18,27 +18,6 @@ equal(compile('<input    value="100">')(), '<input value="100">')
 equal(compile('{hello}, world!')({ hello: 'Hello' }, html => html), 'Hello, world!')
 equal(compile('<div>{hello}, world!</div>')({ hello: 'Hello' }, html => html), '<div>Hello, world!</div>')
 equal(compile('{foo}{bar}')({ foo: 'foo', bar: 'bar' }, html => html), 'foobar')
-equal(compile('<slot html="foo"/>')(), 'foo')
-equal(compile('<slot text="foo"/>')({}, html => html.replace('foo', 'bar')), 'bar')
-equal(compile('<slot html="foo"></slot>')(), 'foo')
-equal(compile('<slot text="foo"></slot>')({}, html => html.replace('foo', 'bar')), 'bar')
-equal(compile('<slot html="{foo}"/>')({ foo: 'bar' }), 'bar')
-equal(compile('<slot html={foo} />')({ foo: 'bar' }), 'bar')
-equal(compile('<slot html={foo.bar} />')({ foo: { bar: 'baz' } }), 'baz')
-equal(compile('<slot text="{foo}"/>')({ foo: 'bar' }, html => html.replace('bar', 'foo')), 'foo')
-equal(compile('<slot text="{foo.bar}"/>')({ foo: { bar: 'baz' } }, html => html.replace('baz', 'qux')), 'qux')
-equal(compile('<slot html="{foo}"></slot>')({ foo: 'bar' }), 'bar')
-equal(compile('<slot html="{foo} bar"></slot>')({ foo: 'baz' }), 'baz bar')
-equal(compile('<slot html="foo {bar}"></slot>')({ bar: 'baz' }), 'foo baz')
-equal(compile('<slot html="foo {bar} baz"></slot>')({ bar: 'qux' }), 'foo qux baz')
-equal(compile('<slot html="foo    {bar}    baz"></slot>')({ bar: 'qux' }), 'foo qux baz')
-equal(compile('<slot html="  foo {bar} baz  "></slot>')({ bar: 'qux' }), 'foo qux baz')
-equal(compile('<slot text="{foo}"></slot>')({ foo: 'bar' }, html => html.replace('bar', 'foo')), 'foo')
-equal(compile('<slot text={foo}></slot>')({ foo: 'bar' }, html => html.replace('bar', 'foo')), 'foo')
-equal(compile('<slot text="{foo} baz"></slot>')({ foo: 'bar' }, html => html.replace('bar', 'foo')), 'foo baz')
-equal(compile('<slot text="foo {bar}"></slot>')({ bar: 'baz' }, html => html.replace('bar', 'foo')), 'foo baz')
-equal(compile('<slot html.bind="foo"></slot>')({ foo: 'bar' }), 'bar')
-equal(compile('<slot text.bind="foo"></slot>')({ foo: 'bar' }, html => html.replace('bar', 'foo')), 'foo')
 equal(compile('<div html="foo"></div>')(), '<div>foo</div>')
 equal(compile('<div text="foo"></div>')({}, html => html.replace('foo', 'bar')), '<div>bar</div>')
 equal(compile('<div>{foo}</div>')({ foo: 'bar' }, html => html.replace('bar', 'baz')), '<div>baz</div>')
@@ -1128,6 +1107,15 @@ equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => html), 'qux')
 
 equal(compile(`<head partial="./fixtures/partial/head.html"></head>`, { paths: [__dirname] })({}, html => html), '<head><meta charset="utf-8"></head>')
+equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1>foo</h1><h2>bar</h2></header>')
+equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1>foo</h1><h2></h2></header>')
+equal(compile(`<import header from="./fixtures/slots/header.html"/><header></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1></h1><h2></h2></header>')
 
 equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
  bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
