@@ -1198,8 +1198,11 @@ equal(compile('<for key and value in="{foo}">{key}{value}</for>')({ foo: { bar: 
 
 equal(compile('<style></style>')({}, html => html), '<style></style>')
 equal(compile('<script></script>')({}, html => html), '<script></script>')
+equal(compile('<template></template>')({}, html => html), '<template></template>')
 
 equal(compile('<style>.foo{color:red}</style>')({}, html => html), '<style>.foo{color:red}</style>')
-// equal(compile('<script>console.log({ foo: "bar" })</script>')({}, html => html), '<script>console.log({ foo: "bar" })</script>')
+equal(compile('<script>console.log({ foo: "bar" })</script>')({}, html => html), '<script>console.log({ foo: "bar" })</script>')
+equal(compile('<template><div></div></template>')({}, html => html), '<template><div></div></template>')
+equal(compile('<template><div>{}</div></template>')({}, html => html), '<template><div>{}</div></template>')
 
 console.timeEnd('test: success')
