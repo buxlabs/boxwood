@@ -136,6 +136,15 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     ast.each('VariableDeclarator', node => variables.push(node.id.name))
     const body = ast.body()
     body.forEach(node => tree.append(node))
+  } else if (tag === 'style') {
+    tree.append(getTemplateAssignmentExpression(getLiteral(`<${tag}>`)))
+    if (fragment.children.length > 0) {
+      fragment.children.forEach(node => {
+        node.used = true
+        tree.append(getTemplateAssignmentExpression(getLiteral(node.content)))
+      })
+    }
+    tree.append(getTemplateAssignmentExpression(getLiteral(`</${tag}>`)))
   } else if (tag === '!doctype') {
     const node = new AbstractSyntaxTree('"<!doctype html>"')
     tree.append(getTemplateAssignmentExpression(node.body()[0]))
