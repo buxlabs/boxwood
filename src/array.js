@@ -37,6 +37,7 @@ const STANDARD_ACTIONS = [
   ['is', 'divisible', 'by'],
   ['is', 'prime'],
   ['is', 'sooner', 'than'],
+  ['is', 'later', 'than'],
   ['responds', 'to'],
   ['starts', 'with'],
   ['ends', 'with'],

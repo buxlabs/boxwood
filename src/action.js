@@ -420,7 +420,8 @@ function isPrime (node) {
   return tree.first('CallExpression')
 }
 
-function isSoonerThan (left, right) {
+
+function geDateComparisonCallExpression (left, right, operator) {
   function getTime (node) {
     return {
       type: 'CallExpression',
@@ -439,9 +440,18 @@ function isSoonerThan (left, right) {
   return {
     type: 'BinaryExpression',
     left: getTime(left),
-    operator: '<',
+    operator,
     right: getTime(right)
   }
+}
+
+
+function isSoonerThan (left, right) {
+  return geDateComparisonCallExpression(left, right, '<')
+}
+
+function isLaterThan (left, right) {
+  return geDateComparisonCallExpression(left, right, '>')
 }
 
 const STANDARD_ACTIONS = [
@@ -482,6 +492,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_divisible_by', handler: isDivisible, args: 2 },
   { name: 'is_prime', handler: isPrime, args: 1 },
   { name: 'is_sooner_than', handler: isSoonerThan, args: 2 },
+  { name: 'is_later_than', handler: isLaterThan, args: 2 },
   { name: 'responds_to', handler: respondsTo, args: 2 },
   { name: 'starts_with', handler: startsWith, args: 2 },
   { name: 'ends_with', handler: endsWith, args: 2 },
