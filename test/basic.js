@@ -893,10 +893,10 @@ equal(compile('<if foo is not after bar>baz</if>')({
   bar: new Date(2018, 5, 29)
 }, html => html), 'baz')
 
-equal(compile('<if foo is digit>baz</if>')({ foo: 0 }, html => html), 'baz')
-equal(compile('<if foo is digit>baz</if>')({ foo: 7 }, html => html), 'baz')
-equal(compile('<if foo is digit>baz</if>')({ foo: 10 }, html => html), '')
-equal(compile('<if foo is not digit>baz</if>')({ foo: 10 }, html => html), 'baz')
+equal(compile('<if foo is a digit>baz</if>')({ foo: 0 }, html => html), 'baz')
+equal(compile('<if foo is a digit>baz</if>')({ foo: 7 }, html => html), 'baz')
+equal(compile('<if foo is a digit>baz</if>')({ foo: 10 }, html => html), '')
+equal(compile('<if foo is not a digit>baz</if>')({ foo: 10 }, html => html), 'baz')
 
 equal(compile('<if foo is decimal>baz</if>')({ foo: 2.01 }, html => html), 'baz')
 equal(compile('<if foo is decimal>baz</if>')({ foo: 1.11 }, html => html), 'baz')

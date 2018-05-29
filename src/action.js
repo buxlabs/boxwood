@@ -520,7 +520,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_a_regexp', handler: isRegExp, args: 1 },
   { name: 'is_a_regex', handler: isRegExp, args: 1 },
   { name: 'is_a_number', handler: isNumber, args: 1 },
-  { name: 'is_digit', handler: isDigit, args: 1 },
+  { name: 'is_a_digit', handler: isDigit, args: 1 },
   { name: 'is_decimal', handler: isDecimal, args: 1 },
   { name: 'is_a_string', handler: isString, args: 1 },
   { name: 'is_a_symbol', handler: isSymbol, args: 1 },
