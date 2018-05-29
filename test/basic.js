@@ -577,6 +577,11 @@ equal(compile('<if foo is not a number>baz</if>')({ foo: [] }, html => html), 'b
 equal(compile('<if foo is not a number>baz</if>')({ foo: 13 }, html => html), '')
 equal(compile('<if foo is not a number>baz</if>')({ foo: {} }, html => html), 'baz')
 
+equal(compile('<if foo is a multiple of bar>baz</if>')({ foo: 100, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo is a multiple of bar>baz</if>')({ foo: 0, bar: 11 }, html => html), 'baz')
+equal(compile('<if foo is a multiple of bar>baz</if>')({ foo: 42, bar: 9 }, html => html), '')
+equal(compile('<if foo is not a multiple of bar>baz</if>')({ foo: 42, bar: 9 }, html => html), 'baz')
+
 equal(compile('<if foo is numeric>baz</if>')({ foo: '-10' }, html => html), 'baz')
 equal(compile('<if foo is numeric>baz</if>')({ foo: '0' }, html => html), 'baz')
 equal(compile('<if foo is numeric>baz</if>')({ foo: '0xFF' }, html => html), 'baz')
@@ -827,6 +832,94 @@ equal(compile('<if foo is not divisible by={bar}>baz</if>')({ foo: 5, bar: 10 },
 equal(compile('<if foo is divisible by five>baz</if>')({ foo: 10 }, html => html), 'baz')
 equal(compile('<if foo is divisible by five>baz</if>')({ foo: 6 }, html => html), '')
 equal(compile('<if foo is not divisible by five>baz</if>')({ foo: 6 }, html => html), 'baz')
+
+equal(compile('<if foo is prime>baz</if>')({ foo: 3 }, html => html), 'baz')
+equal(compile('<if foo is prime>baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is prime>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is not prime>baz</if>')({ foo: 1 }, html => html), 'baz')
+
+equal(compile('<if foo is palindrome>baz</if>')({ foo: 'madam' }, html => html), 'baz')
+equal(compile('<if foo is palindrome>baz</if>')({ foo: 'foo' }, html => html), '')
+equal(compile('<if foo is not palindrome>baz</if>')({ foo: 'foo' }, html => html), 'baz')
+
+equal(compile('<if foo is sooner than bar>baz</if>')({
+  foo: new Date(2018, 4, 1),
+  bar: new Date(2018, 4, 29)
+}, html => html), 'baz')
+
+equal(compile('<if foo is sooner than bar>baz</if>')({
+  foo: new Date(2018, 4, 29),
+  bar: new Date(2018, 4, 11)
+}, html => html), '')
+
+equal(compile('<if foo is not sooner than bar>baz</if>')({
+  foo: new Date(2018, 4, 29),
+  bar: new Date(2018, 4, 11)
+}, html => html), 'baz')
+
+equal(compile('<if foo is later than bar>baz</if>')({
+  foo: new Date(2018, 4, 29),
+  bar: new Date(2018, 4, 11)
+}, html => html), 'baz')
+
+equal(compile('<if foo is later than bar>baz</if>')({
+  foo: new Date(2018, 4, 1),
+  bar: new Date(2018, 4, 29)
+}, html => html), '')
+
+equal(compile('<if foo is not later than bar>baz</if>')({
+  foo: new Date(2018, 4, 1),
+  bar: new Date(2018, 4, 29)
+}, html => html), 'baz')
+
+equal(compile('<if foo is before bar>baz</if>')({
+  foo: new Date(2018, 5, 27),
+  bar: new Date(2018, 5, 29)
+}, html => html), 'baz')
+
+equal(compile('<if foo is before bar>baz</if>')({
+  foo: new Date(2018, 5, 29),
+  bar: new Date(2018, 5, 27)
+}, html => html), '')
+
+equal(compile('<if foo is not before bar>baz</if>')({
+  foo: new Date(2018, 5, 29),
+  bar: new Date(2018, 5, 27)
+}, html => html), 'baz')
+
+equal(compile('<if foo is after bar>baz</if>')({
+  foo: new Date(2018, 5, 29),
+  bar: new Date(2018, 5, 27)
+}, html => html), 'baz')
+
+equal(compile('<if foo is after bar>baz</if>')({
+  foo: new Date(2018, 5, 27),
+  bar: new Date(2018, 5, 29)
+}, html => html), '')
+
+equal(compile('<if foo is not after bar>baz</if>')({
+  foo: new Date(2018, 5, 27),
+  bar: new Date(2018, 5, 29)
+}, html => html), 'baz')
+
+equal(compile('<if foo is a digit>baz</if>')({ foo: 0 }, html => html), 'baz')
+equal(compile('<if foo is a digit>baz</if>')({ foo: 7 }, html => html), 'baz')
+equal(compile('<if foo is a digit>baz</if>')({ foo: 10 }, html => html), '')
+equal(compile('<if foo is not a digit>baz</if>')({ foo: 10 }, html => html), 'baz')
+
+equal(compile('<if foo is decimal>baz</if>')({ foo: 2.01 }, html => html), 'baz')
+equal(compile('<if foo is decimal>baz</if>')({ foo: 1.11 }, html => html), 'baz')
+equal(compile('<if foo is decimal>baz</if>')({ foo: 2.00 }, html => html), '')
+equal(compile('<if foo is decimal>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is not decimal>baz</if>')({ foo: 10 }, html => html), 'baz')
+
+equal(compile('<if foo is frozen>baz</if>')({ foo: Object.freeze({}) }, html => html), 'baz')
+equal(compile('<if foo is frozen>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not frozen>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is sealed>baz</if>')({ foo: Object.seal({}) }, html => html), 'baz')
+equal(compile('<if foo is sealed>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not sealed>baz</if>')({ foo: {} }, html => html), 'baz')
 
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
@@ -1169,6 +1262,16 @@ equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', ba
 
 equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz'}, html => html), 'qux')
 equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
+
+equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'ipsum'}, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'dolor'}, html => html), '')
+equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), 'baz')
+equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), '')
+
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'ipsum'}, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'dolor'}, html => html), '')
+equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
+equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), '')
 
 equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
 equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: false }, html => html), '')
