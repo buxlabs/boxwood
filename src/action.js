@@ -420,6 +420,30 @@ function isPrime (node) {
   return tree.first('CallExpression')
 }
 
+function isSoonerThan (left, right) {
+  function getTime (node) {
+    return {
+      type: 'CallExpression',
+      callee: {
+        type: 'MemberExpression',
+        object: node,
+        property: {
+          type: 'Identifier',
+          name: 'getTime'
+        },
+        computed: false
+      },
+      arguments: []
+    }
+  }
+  return {
+    type: 'BinaryExpression',
+    left: getTime(left),
+    operator: '<',
+    right: getTime(right)
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: isPositive, args: 1 },
@@ -457,6 +481,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_falsy', handler: isFalsy, args: 1 },
   { name: 'is_divisible_by', handler: isDivisible, args: 2 },
   { name: 'is_prime', handler: isPrime, args: 1 },
+  { name: 'is_sooner_than', handler: isSoonerThan, args: 2 },
   { name: 'responds_to', handler: respondsTo, args: 2 },
   { name: 'starts_with', handler: startsWith, args: 2 },
   { name: 'ends_with', handler: endsWith, args: 2 },

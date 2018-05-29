@@ -833,6 +833,21 @@ equal(compile('<if foo is prime>baz</if>')({ foo: 5 }, html => html), 'baz')
 equal(compile('<if foo is prime>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not prime>baz</if>')({ foo: 1 }, html => html), 'baz')
 
+equal(compile('<if foo is sooner than bar>baz</if>')({
+  foo: new Date(2018, 4, 1),
+  bar: new Date(2018, 4, 29)
+}, html => html), 'baz')
+
+equal(compile('<if foo is sooner than bar>baz</if>')({
+  foo: new Date(2018, 4, 29),
+  bar: new Date(2018, 4, 11)
+}, html => html), '')
+
+equal(compile('<if foo is not sooner than bar>baz</if>')({
+  foo: new Date(2018, 4, 29),
+  bar: new Date(2018, 4, 11)
+}, html => html), 'baz')
+
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 
