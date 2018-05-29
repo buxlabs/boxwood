@@ -657,10 +657,10 @@ equal(compile('<if foo is not a regex>baz</if>')({ foo: new RegExp('regex') }, h
 equal(compile('<if foo is not a regex>baz</if>')({ foo: '' }, html => html), 'baz')
 
 equal(compile('<if foo is a date>baz</if>')({ foo: new Date() }, html => html), 'baz')
-equal(compile('<if foo is a date>baz</if>')({ foo: new Date(2018, 15, 04) }, html => html), 'baz')
+equal(compile('<if foo is a date>baz</if>')({ foo: new Date(2018, 15, 4) }, html => html), 'baz')
 equal(compile('<if foo is a date>baz</if>')({ foo: '08.09.2018' }, html => html), '')
 equal(compile('<if foo is not a date>baz</if>')({ foo: new Date() }, html => html), '')
-equal(compile('<if foo is not a date>baz</if>')({ foo: new Date(2018, 15, 04) }, html => html), '')
+equal(compile('<if foo is not a date>baz</if>')({ foo: new Date(2018, 15, 4) }, html => html), '')
 equal(compile('<if foo is not a date>baz</if>')({ foo: '08.09.2018' }, html => html), 'baz')
 
 equal(compile('<if foo is even>baz</if>')({ foo: 2 }, html => html), 'baz')
@@ -897,6 +897,8 @@ equal(compile(`{foo | chop}`)({ foo: 'foo barz' }, html => html), 'foo bar')
 equal(compile(`{foo | chomp('barz') | trim}`)({ foo: 'foo barz' }, html => html), 'foo')
 equal(compile(`{foo | dot}`)({ foo: 'foo bar ban' }, html => html), 'foo bar ban.')
 equal(compile(`{foo | crop(10)}`)({ foo: 'foo bar ban baz' }, html => html), 'foo bar...')
+equal(compile(`{foo | slugify('_')}`)({ foo: 'loremIpsum dolor $pec!al chars' }, html => html), 'loremipsum_dolor_pecal_chars')
+equal(compile(`{foo | hyphenate}`)({ foo: '%# lorem ipsum  ? $  dolor' }, html => html), 'lorem-ipsum-dolor')
 
 equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
 equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
@@ -991,6 +993,11 @@ equal(compile('{foo | first | dig("foo.bar.baz")}')({
 equal(compile('{foo | format}')({ foo: new Date('2018/05/25')} , html => html), '25-05-2018')
 equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25')} , html => html), '25.05.2018')
 equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25'} , html => html), '05.2018')
+
+equal(compile('{foo | day}')({ foo: new Date('2018/05/29')} , html => html), 29)
+equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29')} , html => html), 2)
+equal(compile('{foo | month}')({ foo: '2018/05/29'} , html => html), 4)
+equal(compile('{foo | year}')({ foo: '2018/05/29'} , html => html), 2018)
 
 equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
 equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
