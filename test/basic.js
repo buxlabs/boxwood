@@ -863,6 +863,36 @@ equal(compile('<if foo is not later than bar>baz</if>')({
   bar: new Date(2018, 4, 29)
 }, html => html), 'baz')
 
+equal(compile('<if foo is before bar>baz</if>')({
+  foo: new Date(2018, 5, 27),
+  bar: new Date(2018, 5, 29)
+}, html => html), 'baz')
+
+equal(compile('<if foo is before bar>baz</if>')({
+  foo: new Date(2018, 5, 29),
+  bar: new Date(2018, 5, 27)
+}, html => html), '')
+
+equal(compile('<if foo is not before bar>baz</if>')({
+  foo: new Date(2018, 5, 29),
+  bar: new Date(2018, 5, 27)
+}, html => html), 'baz')
+
+equal(compile('<if foo is after bar>baz</if>')({
+  foo: new Date(2018, 5, 29),
+  bar: new Date(2018, 5, 27)
+}, html => html), 'baz')
+
+equal(compile('<if foo is after bar>baz</if>')({
+  foo: new Date(2018, 5, 27),
+  bar: new Date(2018, 5, 29)
+}, html => html), '')
+
+equal(compile('<if foo is not after bar>baz</if>')({
+  foo: new Date(2018, 5, 27),
+  bar: new Date(2018, 5, 29)
+}, html => html), 'baz')
+
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 
