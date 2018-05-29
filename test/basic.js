@@ -1209,5 +1209,7 @@ equal(compile('<style>.foo{color:red}</style>')({}, html => html), '<style>.foo{
 equal(compile('<script>console.log({ foo: "bar" })</script>')({}, html => html), '<script>console.log({ foo: "bar" })</script>')
 equal(compile('<template><div></div></template>')({}, html => html), '<template><div></div></template>')
 equal(compile('<template><div>{}</div></template>')({}, html => html), '<template><div>{}</div></template>')
+equal(compile('<script type="text/javascript" src="./main.js"></script>')({}, html => html), '<script type="text/javascript" src="./main.js"></script>')
+equal(compile('<style type="text/css">.foo{color:red}</style>')({}, html => html), '<style type="text/css">.foo{color:red}</style>')
 
 console.timeEnd('test: success')

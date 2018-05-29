@@ -146,7 +146,13 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     const body = ast.body()
     body.forEach(node => tree.append(node))
   } else if (tag === 'style' || tag === 'script' || tag === 'template') {
-    tree.append(getTemplateAssignmentExpression(getLiteral(`<${tag}>`)))
+    tree.append(getTemplateAssignmentExpression(getLiteral(`<${tag}`)))
+    if (fragment.attributes.length > 0) {
+      fragment.attributes.forEach(attribute => {
+        tree.append(getTemplateAssignmentExpression(getLiteral(` ${attribute.key}="${attribute.value}"`)))
+      })
+    }
+    tree.append(getTemplateAssignmentExpression(getLiteral(`>`)))
     if (fragment.children.length > 0) {
       fragment.children.forEach(node => {
         node.used = true
