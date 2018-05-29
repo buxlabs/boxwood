@@ -1,0 +1,9 @@
+<h1>{title}</h1>
+<h2>{subtitle}</h2>
+<if todos.length>
+  <ul>
+    <for todo in todos>
+      <li>{todo.description}</li>
+    </for>
+  </ul>
+</if>
