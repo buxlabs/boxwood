@@ -24,7 +24,7 @@ function isInfinite (node) {
   return tree.first('LogicalExpression')
 }
 
-function isEmpty(node) {
+function isEmpty (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`
       ${code} == null || (Array.isArray(${code}) || Object.prototype.toString.call(${code}) === '[object String]') && ${code}.length === 0 ||
@@ -37,25 +37,25 @@ function isEmpty(node) {
   return tree.first('LogicalExpression')
 }
 
-function isNull(left) {
+function isNull (left) {
   return getBinaryExpression(left, getLiteral(null), '===')
 }
 
-function isUndefined(node) {
+function isUndefined (node) {
   return getVoidBinaryExpression(node, '===')
 }
 
-function isPresent(node) {
+function isPresent (node) {
   return getVoidBinaryExpression(node, '!==')
 }
 
-function isAlpha(node) {
+function isAlpha (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z]/.test(char))`)
   return tree.first('CallExpression')
 }
 
-function isAlphaNumeric(node) {
+function isAlphaNumeric (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z0-9]/.test(char))`)
   return tree.first('CallExpression')
@@ -65,7 +65,7 @@ function getVoid () {
   return { type: 'UnaryExpression', operator: 'void', prefix: true, argument: getLiteral(0) }
 }
 
-function getVoidBinaryExpression(left, operator) {
+function getVoidBinaryExpression (left, operator) {
   return getBinaryExpression(left, getVoid(), operator)
 }
 
@@ -73,15 +73,15 @@ function getModuloWithZeroBinaryExpression(left, operator) {
   return getBinaryExpression(getBinaryExpression(left, getLiteral(2), '%'), getLiteral(0), operator)
 }
 
-function isEven(node) {
+function isEven (node) {
   return getModuloWithZeroBinaryExpression(node, '===')
 }
 
-function isOdd(node) {
+function isOdd (node) {
   return getModuloWithZeroBinaryExpression(node, '!==')
 }
 
-function isArray(node) {
+function isArray (node) {
   return {
     type: 'CallExpression',
     callee: {
@@ -94,7 +94,7 @@ function isArray(node) {
   }
 }
 
-function isObject(node) {
+function isObject (node) {
   return {
     type: 'LogicalExpression',
     left: {
@@ -138,7 +138,7 @@ function isObject(node) {
   }
 }
 
-function isFrozen(node) {
+function isFrozen (node) {
   return {
     type: 'CallExpression',
     callee: {
@@ -157,7 +157,7 @@ function isFrozen(node) {
   }
 }
 
-function isSealed(node) {
+function isSealed (node) {
   return {
     type: 'CallExpression',
     callee: {
@@ -204,15 +204,15 @@ function getObjectWithConstructorBinaryExpression(node, constructor) {
   }
 }
 
-function isRegExp(node) {
+function isRegExp (node) {
   return getObjectWithConstructorBinaryExpression(node, 'RegExp')
 }
 
-function isNumber(node) {
+function isNumber (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Number')
 }
 
-function isDigit(node) {
+function isDigit (node) {
   return {
     type: 'BinaryExpression',
     left: {
@@ -255,7 +255,7 @@ function isDecimal(node) {
     }
   }
 }
-function isNumeric(node) {
+function isNumeric (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`
     (typeof ${code} === 'string' || typeof ${code} === 'number') && !isNaN(Number(${code}))
@@ -263,39 +263,39 @@ function isNumeric(node) {
   return tree.first('LogicalExpression')
 }
 
-function isString(node) {
+function isString (node) {
   return getObjectWithConstructorBinaryExpression(node, 'String')
 }
 
-function isSymbol(node) {
+function isSymbol (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Symbol')
 }
 
-function isMap(node) {
+function isMap (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Map')
 }
 
-function isWeakMap(node) {
+function isWeakMap (node) {
   return getObjectWithConstructorBinaryExpression(node, 'WeakMap')
 }
 
-function isSet(node) {
+function isSet (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Set')
 }
 
-function isWeakSet(node) {
+function isWeakSet (node) {
   return getObjectWithConstructorBinaryExpression(node, 'WeakSet')
 }
 
-function isBoolean(node) {
+function isBoolean (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Boolean')
 }
 
-function isDate(node) {
+function isDate (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Date')
 }
 
-function negate(argument) {
+function negate (argument) {
   return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
 }
 
@@ -303,55 +303,84 @@ function getExpression (type, left, right, operator) {
   return { type, left, right, operator }
 }
 
-function getLogicalExpression(left, right, operator) {
+function getLogicalExpression (left, right, operator) {
   return getExpression('LogicalExpression', left, right, operator)
 }
 
-function getBinaryExpression(left, right, operator) {
+function getBinaryExpression (left, right, operator) {
   return getExpression('BinaryExpression', left, right, operator)
 }
 
-function isAlternative(left, right) {
+function isAlternative (left, right) {
   return getLogicalExpression(left, right, '||')
 }
 
-function isConjunction(left, right) {
+function isConjunction (left, right) {
   return getLogicalExpression(left, right, '&&')
 }
 
-function isGreaterThan(left, right) {
+function isGreaterThan (left, right) {
  return getLogicalExpression(left, right, '>')
 }
 
-function isLessThan(left, right) {
+function isLessThan (left, right) {
  return getLogicalExpression(left, right, '<')
 }
 
-function isGreaterThanOrEqual(left, right) {
+function isGreaterThanOrEqual (left, right) {
  return getLogicalExpression(left, right, '>=')
 }
 
-function isLessThanOrEqual(left, right) {
+function isLessThanOrEqual (left, right) {
  return getLogicalExpression(left, right, '<=')
 }
 
-function isEquals(left, right) {
+function isEquals (left, right) {
   return getLogicalExpression(left, right, '===')
 }
 
-function notEqual(left, right) {
+function includes (left, right) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'CallExpression',
+      callee: {
+        type: 'MemberExpression',
+        object: left,
+        property: {
+          type: 'Identifier',
+          name: 'indexOf'
+        },
+        computed: false
+      },
+      arguments: [right]
+    },
+    operator: '!==',
+    right: {
+      type: 'UnaryExpression',
+      operator: '-',
+      prefix: true,
+      argument: {
+        type: 'Literal',
+        value: 1
+      }
+    }
+  }
+}
+
+function notEqual (left, right) {
   return getLogicalExpression(left, right, '!==')
 }
 
-function isBitwiseAlternative(left, right) {
+function isBitwiseAlternative (left, right) {
   return getBinaryExpression(left, right, '|')
 }
 
-function isBitwiseConjunction(left, right) {
+function isBitwiseConjunction (left, right) {
  return getBinaryExpression(left, right, '&')
 }
 
-function isBitwiseAlternativeNegation(left, right) {
+function isBitwiseAlternativeNegation (left, right) {
   return getBinaryExpression(left, right, '^')
 }
 
@@ -404,7 +433,7 @@ function getCallExpressionWithRegExp (node, pattern) {
   }
 }
 
-function hasNumber(node) {
+function hasNumber (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`
     Object.prototype.toString.call(${code}) === '[object Number]' ||
@@ -413,7 +442,7 @@ function hasNumber(node) {
   return tree.first('LogicalExpression')
 }
 
-function hasNumbers(node) {
+function hasNumbers (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`Array.isArray(${code}) && ${code}.filter(value => typeof value === 'number').length > 1`)
   return tree.first('LogicalExpression')
@@ -602,6 +631,8 @@ const STANDARD_ACTIONS = [
   { name: 'lte', handler: isLessThanOrEqual, args: 2 },
   { name: 'is_less_than_or_equals', handler: isLessThanOrEqual, args: 2 },
   { name: 'equals', handler: isEquals, args: 2 },
+  { name: 'includes', handler: includes, args: 2 },
+  { name: 'contains', handler: includes, args: 2 },
   { name: 'bitwise_or', handler: isBitwiseAlternative, args: 2 },
   { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
   { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },

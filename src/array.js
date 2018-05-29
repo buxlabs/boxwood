@@ -66,6 +66,8 @@ const STANDARD_ACTIONS = [
   ['gte'],
   ['lte'],
   ['equals'],
+  ['includes'],
+  ['contains'],
   ['bitwise', 'or'],
   ['bitwise', 'and'],
   ['bitwise', 'xor'],

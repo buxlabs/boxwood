@@ -1254,6 +1254,16 @@ equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', ba
 equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz'}, html => html), 'qux')
 equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
 
+equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'ipsum'}, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'dolor'}, html => html), '')
+equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), 'baz')
+equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), '')
+
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'ipsum'}, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'dolor'}, html => html), '')
+equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
+equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), '')
+
 equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
 equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: false }, html => html), '')
 equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: false }, html => html), '')
