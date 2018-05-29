@@ -908,6 +908,10 @@ equal(compile('<if foo is frozen>baz</if>')({ foo: Object.freeze({}) }, html => 
 equal(compile('<if foo is frozen>baz</if>')({ foo: {} }, html => html), '')
 equal(compile('<if foo is not frozen>baz</if>')({ foo: {} }, html => html), 'baz')
 
+equal(compile('<if foo is sealed>baz</if>')({ foo: Object.seal({}) }, html => html), 'baz')
+equal(compile('<if foo is sealed>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not sealed>baz</if>')({ foo: {} }, html => html), 'baz')
+
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 

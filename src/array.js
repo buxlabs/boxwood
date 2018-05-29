@@ -20,6 +20,7 @@ const STANDARD_ACTIONS = [
   ['is', 'an', 'array'],
   ['is', 'an', 'object'],
   ['is', 'frozen'],
+  ['is', 'sealed'],
   ['is', 'a', 'regexp'],
   ['is', 'a', 'regex'],
   ['is', 'a', 'number'],
