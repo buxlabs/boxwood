@@ -174,6 +174,49 @@ function isNumber(node) {
   return getObjectWithConstructorBinaryExpression(node, 'Number')
 }
 
+function isDigit(node) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'CallExpression',
+      callee: {
+        type: 'MemberExpression',
+        object: {
+          type: 'Literal',
+          value: '0123456789'
+        },
+        property: {
+          type: 'Identifier',
+          name: 'indexOf'
+        },
+        computed: false
+      },
+      arguments: [node]
+    },
+    operator: '!==',
+    right: {
+      type: 'UnaryExpression',
+      operator: '-',
+      prefix: true,
+      argument: {
+        type: 'Literal',
+        value: 1
+      }
+    }
+  }
+}
+
+function isDecimal(node) {
+  return {
+    type: 'BinaryExpression',
+    left: node,
+    operator: '%',
+    right: {
+      type: 'Literal',
+      value: 1
+    }
+  }
+}
 function isNumeric(node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`
@@ -477,6 +520,8 @@ const STANDARD_ACTIONS = [
   { name: 'is_a_regexp', handler: isRegExp, args: 1 },
   { name: 'is_a_regex', handler: isRegExp, args: 1 },
   { name: 'is_a_number', handler: isNumber, args: 1 },
+  { name: 'is_digit', handler: isDigit, args: 1 },
+  { name: 'is_decimal', handler: isDecimal, args: 1 },
   { name: 'is_a_string', handler: isString, args: 1 },
   { name: 'is_a_symbol', handler: isSymbol, args: 1 },
   { name: 'is_a_map', handler: isMap, args: 1 },
