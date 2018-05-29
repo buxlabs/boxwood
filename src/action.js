@@ -530,6 +530,13 @@ function isPrime (node) {
   return tree.first('CallExpression')
 }
 
+function isPalindrome (node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`
+    ${code} === ${code}.split('').reverse().join('')
+  `)
+  return tree.first('BinaryExpression')
+}
 
 function geDateComparisonCallExpression (left, right, operator) {
   function getTime (node) {
@@ -605,6 +612,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_falsy', handler: isFalsy, args: 1 },
   { name: 'is_divisible_by', handler: isDivisible, args: 2 },
   { name: 'is_prime', handler: isPrime, args: 1 },
+  { name: 'is_palindrome', handler: isPalindrome, args: 1 },
   { name: 'is_sooner_than', handler: isSoonerThan, args: 2 },
   { name: 'is_before', handler: isSoonerThan, args: 2 },
   { name: 'is_later_than', handler: isLaterThan, args: 2 },

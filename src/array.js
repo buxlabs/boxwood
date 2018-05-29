@@ -40,6 +40,7 @@ const STANDARD_ACTIONS = [
   ['is', 'falsy'],
   ['is', 'divisible', 'by'],
   ['is', 'prime'],
+  ['is', 'palindrome'],
   ['is', 'sooner', 'than'],
   ['is', 'before'],
   ['is', 'later', 'than'],

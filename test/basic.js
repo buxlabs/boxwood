@@ -833,6 +833,10 @@ equal(compile('<if foo is prime>baz</if>')({ foo: 5 }, html => html), 'baz')
 equal(compile('<if foo is prime>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not prime>baz</if>')({ foo: 1 }, html => html), 'baz')
 
+equal(compile('<if foo is palindrome>baz</if>')({ foo: 'madam' }, html => html), 'baz')
+equal(compile('<if foo is palindrome>baz</if>')({ foo: 'foo' }, html => html), '')
+equal(compile('<if foo is not palindrome>baz</if>')({ foo: 'foo' }, html => html), 'baz')
+
 equal(compile('<if foo is sooner than bar>baz</if>')({
   foo: new Date(2018, 4, 1),
   bar: new Date(2018, 4, 29)
