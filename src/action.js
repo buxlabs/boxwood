@@ -138,6 +138,25 @@ function isObject(node) {
   }
 }
 
+function isFrozen(node) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'MemberExpression',
+      object: {
+        type: 'Identifier',
+        name: 'Object'
+      },
+      property: {
+        type: 'Identifier',
+        name: 'isFrozen'
+      },
+      computed: false
+    },
+    arguments: [node]
+  }
+}
+
 function getObjectWithConstructorBinaryExpression(node, constructor) {
   return {
     type: 'BinaryExpression',
@@ -517,6 +536,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_numeric', handler: isNumeric, args: 1 },
   { name: 'is_an_array', handler: isArray, args: 1 },
   { name: 'is_an_object', handler: isObject, args: 1 },
+  { name: 'is_frozen', handler: isFrozen, args: 1 },
   { name: 'is_a_regexp', handler: isRegExp, args: 1 },
   { name: 'is_a_regex', handler: isRegExp, args: 1 },
   { name: 'is_a_number', handler: isNumber, args: 1 },

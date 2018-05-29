@@ -904,6 +904,10 @@ equal(compile('<if foo is decimal>baz</if>')({ foo: 2.00 }, html => html), '')
 equal(compile('<if foo is decimal>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not decimal>baz</if>')({ foo: 10 }, html => html), 'baz')
 
+equal(compile('<if foo is frozen>baz</if>')({ foo: Object.freeze({}) }, html => html), 'baz')
+equal(compile('<if foo is frozen>baz</if>')({ foo: {} }, html => html), '')
+equal(compile('<if foo is not frozen>baz</if>')({ foo: {} }, html => html), 'baz')
+
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 
