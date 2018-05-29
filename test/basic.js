@@ -818,6 +818,16 @@ equal(compile('<if foo is falsy>baz</if>')({ foo: [] }, html => html), '')
 equal(compile('<if foo is not falsy>baz</if>')({ foo: true }, html => html), 'baz')
 equal(compile('<if foo is not falsy>baz</if>')({ foo: 'bar' }, html => html), 'baz')
 
+equal(compile('<if foo is divisible by bar>baz</if>')({ foo: 10, bar: 5 }, html => html), 'baz')
+equal(compile('<if foo is not divisible by bar>baz</if>')({ foo: 5, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo is divisible by="{10}">baz</if>')({ foo: 10 }, html => html), 'baz')
+equal(compile('<if foo is not divisible by="{10}">baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is divisible by={bar}>baz</if>')({ foo: 10, bar: 5 }, html => html), 'baz')
+equal(compile('<if foo is not divisible by={bar}>baz</if>')({ foo: 5, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo is divisible by five>baz</if>')({ foo: 10 }, html => html), 'baz')
+equal(compile('<if foo is divisible by five>baz</if>')({ foo: 6 }, html => html), '')
+equal(compile('<if foo is not divisible by five>baz</if>')({ foo: 6 }, html => html), 'baz')
+
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 

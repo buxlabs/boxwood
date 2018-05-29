@@ -362,13 +362,13 @@ function respondsTo (left, right) {
 
 function startsWith (left, right) {
   return {
-    type: "CallExpression",
+    type: 'CallExpression',
     callee: {
-      type: "MemberExpression",
+      type: 'MemberExpression',
       object: left,
       property: {
-        type: "Identifier",
-        name: "startsWith"
+        type: 'Identifier',
+        name: 'startsWith'
       },
       computed: false
     },
@@ -378,17 +378,34 @@ function startsWith (left, right) {
 
 function endsWith (left, right) {
   return {
-    type: "CallExpression",
+    type: 'CallExpression',
     callee: {
-      type: "MemberExpression",
+      type: 'MemberExpression',
       object: left,
       property: {
-        type: "Identifier",
-        name: "endsWith"
+        type: 'Identifier',
+        name: 'endsWith'
       },
       computed: false
     },
     arguments: [right]
+  }
+}
+
+function isDivisible (left, right) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'BinaryExpression',
+      left,
+      operator: '%',
+      right
+    },
+    operator: '===',
+    right: {
+      type: 'Literal',
+      value: 0
+    }
   }
 }
 
@@ -427,6 +444,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_false', handler: isFalsy, args: 1 },
   { name: 'is_truthy', handler: isTruthy, args: 1 },
   { name: 'is_falsy', handler: isFalsy, args: 1 },
+  { name: 'is_divisible_by', handler: isDivisible, args: 2 },
   { name: 'responds_to', handler: respondsTo, args: 2 },
   { name: 'starts_with', handler: startsWith, args: 2 },
   { name: 'ends_with', handler: endsWith, args: 2 },

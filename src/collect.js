@@ -217,9 +217,26 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         if (value) {
           right = convertValueToNode(value, variables)
         } else {
+          const digits = new Map([
+            ['zero', 0],
+            ['one', 1],
+            ['two', 2],
+            ['three', 3],
+            ['four', 4],
+            ['five', 5],
+            ['six', 6],
+            ['seven', 7],
+            ['eight', 8],
+            ['nine', 9],
+            ['ten', 10]
+          ])
           const condition2 = keys[2]
           const [prefix2] = condition2.split('.')
-          right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
+          if (digits.has(condition2)) {
+            right = getLiteral(digits.get(condition2))
+          } else {
+            right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
+          }
         }
         return action.handler(left, right)
       }
@@ -367,7 +384,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const valueIdentifier = value.key
       variables.push(keyIdentifier)
       variables.push(valueIdentifier)
-
 
       let parent = operator.value || `{${right.key}}`
       const name = convertAttribute('html', parent, variables)
