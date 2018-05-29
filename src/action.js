@@ -409,6 +409,17 @@ function isDivisible (left, right) {
   }
 }
 
+function isPrime (node) {
+  const code = AbstractSyntaxTree.generate(node)
+  const tree = new AbstractSyntaxTree(`
+    (number => {
+      for (let i = 2; i < number; i++) if(number % i === 0) return false
+      return number !== 1
+    })(${code})
+  `)
+  return tree.first('CallExpression')
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: isPositive, args: 1 },
@@ -445,6 +456,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_truthy', handler: isTruthy, args: 1 },
   { name: 'is_falsy', handler: isFalsy, args: 1 },
   { name: 'is_divisible_by', handler: isDivisible, args: 2 },
+  { name: 'is_prime', handler: isPrime, args: 1 },
   { name: 'responds_to', handler: respondsTo, args: 2 },
   { name: 'starts_with', handler: startsWith, args: 2 },
   { name: 'ends_with', handler: endsWith, args: 2 },

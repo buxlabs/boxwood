@@ -35,6 +35,7 @@ const STANDARD_ACTIONS = [
   ['is', 'truthy'],
   ['is', 'falsy'],
   ['is', 'divisible', 'by'],
+  ['is', 'prime'],
   ['responds', 'to'],
   ['starts', 'with'],
   ['ends', 'with'],

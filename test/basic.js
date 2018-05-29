@@ -828,6 +828,11 @@ equal(compile('<if foo is divisible by five>baz</if>')({ foo: 10 }, html => html
 equal(compile('<if foo is divisible by five>baz</if>')({ foo: 6 }, html => html), '')
 equal(compile('<if foo is not divisible by five>baz</if>')({ foo: 6 }, html => html), 'baz')
 
+equal(compile('<if foo is prime>baz</if>')({ foo: 3 }, html => html), 'baz')
+equal(compile('<if foo is prime>baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is prime>baz</if>')({ foo: 1 }, html => html), '')
+equal(compile('<if foo is not prime>baz</if>')({ foo: 1 }, html => html), 'baz')
+
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'bar' }, html => html), 'baz')
 equal(compile('<if foo eq="bar">baz</if>')({ foo: 'baz' }, html => html), '')
 
