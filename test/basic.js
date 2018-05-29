@@ -577,6 +577,11 @@ equal(compile('<if foo is not a number>baz</if>')({ foo: [] }, html => html), 'b
 equal(compile('<if foo is not a number>baz</if>')({ foo: 13 }, html => html), '')
 equal(compile('<if foo is not a number>baz</if>')({ foo: {} }, html => html), 'baz')
 
+equal(compile('<if foo is a multiple of bar>baz</if>')({ foo: 100, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo is a multiple of bar>baz</if>')({ foo: 0, bar: 11 }, html => html), 'baz')
+equal(compile('<if foo is a multiple of bar>baz</if>')({ foo: 42, bar: 9 }, html => html), '')
+equal(compile('<if foo is not a multiple of bar>baz</if>')({ foo: 42, bar: 9 }, html => html), 'baz')
+
 equal(compile('<if foo is numeric>baz</if>')({ foo: '-10' }, html => html), 'baz')
 equal(compile('<if foo is numeric>baz</if>')({ foo: '0' }, html => html), 'baz')
 equal(compile('<if foo is numeric>baz</if>')({ foo: '0xFF' }, html => html), 'baz')

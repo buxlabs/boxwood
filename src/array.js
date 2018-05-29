@@ -24,6 +24,7 @@ const STANDARD_ACTIONS = [
   ['is', 'a', 'regexp'],
   ['is', 'a', 'regex'],
   ['is', 'a', 'number'],
+  ['is', 'a', 'multiple', 'of'],
   ['is', 'a', 'digit'],
   ['is', 'decimal'],
   ['is', 'a', 'string'],

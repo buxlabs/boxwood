@@ -212,6 +212,23 @@ function isNumber (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Number')
 }
 
+function isMultiple (left, right) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'BinaryExpression',
+      left,
+      operator: '%',
+      right
+    },
+    operator: '===',
+    right: {
+      type: 'Literal',
+      value: 0
+    }
+  }
+}
+
 function isDigit (node) {
   return {
     type: 'BinaryExpression',
@@ -596,6 +613,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_a_regexp', handler: isRegExp, args: 1 },
   { name: 'is_a_regex', handler: isRegExp, args: 1 },
   { name: 'is_a_number', handler: isNumber, args: 1 },
+  { name: 'is_a_multiple_of', handler: isMultiple, args: 2 },
   { name: 'is_a_digit', handler: isDigit, args: 1 },
   { name: 'is_decimal', handler: isDecimal, args: 1 },
   { name: 'is_a_string', handler: isString, args: 1 },
