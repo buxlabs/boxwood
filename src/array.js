@@ -70,6 +70,7 @@ const STANDARD_ACTIONS = [
   ['equals'],
   ['includes'],
   ['contains'],
+  ['matches'],
   ['bitwise', 'or'],
   ['bitwise', 'and'],
   ['bitwise', 'xor'],

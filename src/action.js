@@ -385,6 +385,22 @@ function includes (left, right) {
   }
 }
 
+function matches (left, right) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'MemberExpression',
+      object: left,
+      property: {
+        type: 'Identifier',
+        name: 'match'
+      },
+      computed: false
+    },
+    arguments: [right]
+  }
+}
+
 function notEqual (left, right) {
   return getLogicalExpression(left, right, '!==')
 }
@@ -659,6 +675,7 @@ const STANDARD_ACTIONS = [
   { name: 'equals', handler: isEquals, args: 2 },
   { name: 'includes', handler: includes, args: 2 },
   { name: 'contains', handler: includes, args: 2 },
+  { name: 'matches', handler: matches, args: 2 },
   { name: 'bitwise_or', handler: isBitwiseAlternative, args: 2 },
   { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
   { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },
