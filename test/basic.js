@@ -1051,6 +1051,9 @@ equal(compile('{foo | reverse}')({ foo: [1, 2, 3, 4] }, html => html), [4, 3, 2,
 equal(compile('{foo | size}')({ foo: 'bar' }, html => html), '3')
 equal(compile('{foo | size}')({ foo: [1, 2] }, html => html), '2')
 equal(compile('{foo | size}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
+equal(compile('{foo | count}')({ foo: 'bar' }, html => html), '3')
+equal(compile('{foo | count}')({ foo: [1, 2] }, html => html), '2')
+equal(compile('{foo | count}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
 
 equal(compile('{JSON.stringify(foo, null, 2)}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
 equal(compile('{JSON.stringify(foo, null, 4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')

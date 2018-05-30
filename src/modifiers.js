@@ -12,7 +12,8 @@ const aliases = {
   uncapitalize: 'lowerfirst',
   abbreviate: 'truncate',
   rotate: 'reverse',
-  mean: 'average'
+  mean: 'average',
+  count: 'size'
 }
 
 function getModifierName (modifier) {
