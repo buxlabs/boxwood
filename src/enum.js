@@ -47,5 +47,9 @@ module.exports = {
     'multiple',
     'required',
     'html'
+  ],
+  OPERATORS: [
+    'or',
+    'and'
   ]
 }

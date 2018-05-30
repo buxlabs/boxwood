@@ -12,12 +12,26 @@ const {
 } = require('./factory')
 const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute, convertToExpression, convertToBinaryExpression } = require('./convert')
 const { walk } = require('./parser')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS_MAP, BITWISE_OPERATORS_MAP } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, BITWISE_OPERATORS_MAP, OPERATORS } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
 const { parse } = require('himalaya')
 const { normalize } = require('./array')
+
+const digits = new Map([
+  ['zero', 0],
+  ['one', 1],
+  ['two', 2],
+  ['three', 3],
+  ['four', 4],
+  ['five', 5],
+  ['six', 6],
+  ['seven', 7],
+  ['eight', 8],
+  ['nine', 9],
+  ['ten', 10]
+])
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
@@ -223,19 +237,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         if (value) {
           right = convertValueToNode(value, variables)
         } else {
-          const digits = new Map([
-            ['zero', 0],
-            ['one', 1],
-            ['two', 2],
-            ['three', 3],
-            ['four', 4],
-            ['five', 5],
-            ['six', 6],
-            ['seven', 7],
-            ['eight', 8],
-            ['nine', 9],
-            ['ten', 10]
-          ])
           const condition2 = keys[2]
           const [prefix2] = condition2.split('.')
           if (digits.has(condition2)) {
@@ -267,7 +268,12 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         if (attribute.type === 'Identifier') {
           const value = attribute.key
           const [prefix] = value.split('.')
-          const node = getIdentifierWithOptionalPrefix(prefix, value, variables)
+          let node
+          if (digits.has(value)) {
+            node = getLiteral(digits.get(value))
+          } else {
+            node = getIdentifierWithOptionalPrefix(prefix, value, variables)
+          }
           stack.push(node)
         } else if (attribute.type === 'Action') {
           const action = actions.find(action => action.name === attribute.key)
@@ -304,11 +310,24 @@ function collect (tree, fragment, variables, modifiers, components, options) {
           result.push(logical)
         }
         if (params === 2) {
-          const left = stack.shift()
-          const right = stack.shift()
-          const logical = expression.handler(left, right)
-          stack.unshift(logical)
-          result.push(logical)
+          let next = expressions[i + 1]
+          if (OPERATORS.includes(expression.name) && next && !OPERATORS.includes(next.name)) {
+              let id1 = stack.shift()
+              let id2 = stack.shift()
+              let id3 = stack.shift()
+              let rightExpression = next
+              const logical = rightExpression.handler(id2, id3)
+              const conjunction = expression.handler(logical, id1)
+              stack.unshift(conjunction)
+              result.push(conjunction)
+              i++
+          } else {
+            const left = stack.shift()
+            const right = stack.shift()
+            const logical = expression.handler(left, right)
+            stack.unshift(logical)
+            result.push(logical)
+          }
         }
       }
       const test = result[result.length - 1]
