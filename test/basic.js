@@ -1103,6 +1103,22 @@ equal(compile('{foo | first | dig("foo.bar.baz")}')({
   foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
 }, html => html), 'qux')
 
+equal(compile('{foo | values }')({
+  foo: { bar: 1, baz: 2, ban: 'qux' }
+} , html => html), [1, 2, 'qux'])
+
+equal(compile('{foo | values | first}')({
+  foo: { bar: 1, baz: 2, ban: 'qux' }
+} , html => html), '1')
+
+equal(compile('{foo | keys }')({
+  foo: { bar: 1, baz: 2, ban: 'qux' }
+} , html => html), ['bar', 'baz', 'ban'])
+
+equal(compile('{foo | keys | last}')({
+  foo: { bar: 1, baz: 2, ban: 'qux' }
+} , html => html), 'ban')
+
 equal(compile('{foo | format}')({ foo: new Date('2018/05/25')} , html => html), '25-05-2018')
 equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25')} , html => html), '25.05.2018')
 equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25'} , html => html), '05.2018')
