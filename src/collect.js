@@ -10,9 +10,9 @@ const {
   getForInLoop,
   getForInLoopVariable
 } = require('./factory')
-const { convertHtmlOrTextAttribute, convertText, convertTag, convertAttribute, convertToExpression, convertToBinaryExpression } = require('./convert')
+const { convertText, convertTag, convertAttribute, convertToExpression, convertToBinaryExpression } = require('./convert')
 const { walk } = require('./parser')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, BITWISE_OPERATORS_MAP, OPERATORS } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
@@ -56,7 +56,6 @@ function collectComponentsFromImport (fragment, components, options) {
     if (!existsSync(location)) continue
     const content = readFileSync(location, 'utf8')
     components.push({ name, content })
-    const htmlTree = parse(content)
     break
   }
 }
@@ -104,6 +103,82 @@ function convertValueToNode (value, variables) {
   return getLiteral(value)
 }
 
+function resolveComponent (component, fragment, variables, modifiers, components, options) {
+  const htmlTree = parse(component.content)
+  const children = fragment.children
+  const currentComponents = []
+
+  walk(htmlTree, current => {
+    if (current.tagName === 'slot') {
+      if (current.attributes.length === 0) {
+        current.children = children
+      } else {
+        const name = current.attributes[0].key
+        walk(children, leaf => {
+          if (leaf.tagName === 'slot' && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
+            current.children = leaf.children
+          }
+        })
+      }
+    }
+    if (current.tagName === 'import' || current.tagName === 'require') {
+      collectComponentsFromImport(current, currentComponents, options)
+    } else if (current.tagName === 'partial' || current.tagName === 'render') {
+      collectComponentsFromPartialOrRender(current, options)
+    } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
+      collectComponentsFromPartialAttribute(current, options)
+    }
+    const component = currentComponents.find(component => component.name === current.tagName)
+    if (component && !current.plain) {
+      resolveComponent(component, current, variables, modifiers, currentComponents, options)
+      current.used = true
+    }
+    current.plain = true
+  })
+  fragment.children = htmlTree
+}
+
+function appendIfStatement (node, tree, ast) {
+  tree.append({
+    type: 'IfStatement',
+    test: node,
+    consequent: {
+      type: 'BlockStatement',
+      body: ast.body()
+    }
+  })
+}
+
+function getTest (action, keys, values, variables) {
+  if (action.args === 1) {
+    let key = keys[0]
+    if (keys[0] === 'not') {
+      key = keys[1]
+    }
+    const [prefix] = key.split('.')
+    const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
+    return action.handler(node)
+  } else if (action.args === 2) {
+    const condition1 = keys[0]
+    const [prefix1] = condition1.split('.')
+    let left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
+    let right
+    let value = values[1]
+    if (value) {
+      right = convertValueToNode(value, variables)
+    } else {
+      const condition2 = keys[2]
+      const [prefix2] = condition2.split('.')
+      if (digits.has(condition2)) {
+        right = getLiteral(digits.get(condition2))
+      } else {
+        right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
+      }
+    }
+    return action.handler(left, right)
+  }
+}
+
 function collect (tree, fragment, variables, modifiers, components, options) {
   if (fragment.used) return
   fragment.used = true
@@ -111,40 +186,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   const attrs = fragment.attributes
   const component = components.find(component => component.name === tag)
   if (component && !fragment.plain) {
-    function resolveComponent (component, fragment, variables, modifiers, components, options) {
-      const htmlTree = parse(component.content)
-      const children = fragment.children
-      const currentComponents = []
-
-      walk(htmlTree, current => {
-        if (current.tagName === 'slot') {
-          if (current.attributes.length === 0) {
-            current.children = children
-          } else {
-            const name = current.attributes[0].key
-            walk(children, leaf => {
-              if (leaf.tagName === 'slot' && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
-                current.children = leaf.children
-              }
-            })
-          }
-        }
-        if (current.tagName === 'import' || current.tagName === 'require') {
-          collectComponentsFromImport(current, currentComponents, options)
-        } else if (current.tagName === 'partial' || current.tagName === 'render') {
-          collectComponentsFromPartialOrRender(current, options)
-        } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-          collectComponentsFromPartialAttribute(current, options)
-        }
-        const component = currentComponents.find(component => component.name === current.tagName)
-        if (component && !current.plain) {
-          resolveComponent(component, current, variables, modifiers, currentComponents, options)
-          current.used = true
-        }
-        current.plain = true
-      })
-      fragment.children = htmlTree
-    }
     resolveComponent(component, fragment, variables, modifiers, components, options)
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
@@ -204,45 +245,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, options)
     })
-    function appendIfStatement (node) {
-      tree.append({
-        type: 'IfStatement',
-        test: node,
-        consequent: {
-          type: 'BlockStatement',
-          body: ast.body()
-        }
-      })
-    }
-    function getTest (action, keys, values) {
-      if (action.args === 1) {
-        let key = keys[0]
-        if (keys[0] === 'not') {
-          key = keys[1]
-        }
-        const [prefix] = key.split('.')
-        const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
-        return action.handler(node)
-      } else if (action.args === 2) {
-        const condition1 = keys[0]
-        const [prefix1] = condition1.split('.')
-        let left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
-        let right
-        let value = values[1]
-        if (value) {
-          right = convertValueToNode(value, variables)
-        } else {
-          const condition2 = keys[2]
-          const [prefix2] = condition2.split('.')
-          if (digits.has(condition2)) {
-            right = getLiteral(digits.get(condition2))
-          } else {
-            right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
-          }
-        }
-        return action.handler(left, right)
-      }
-    }
     let attributes = normalize(attrs)
     let keys = attributes.map(attr => attr.key)
     const values = attributes.map(attr => attr.value)
@@ -251,10 +253,10 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const key = keys[0]
       const [prefix] = key.split('.')
       const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
-      appendIfStatement(node)
+      appendIfStatement(node, tree, ast)
     } else if (actions.length === 1) {
-      const test = getTest(actions[0], keys, values)
-      appendIfStatement(test)
+      const test = getTest(actions[0], keys, values, variables)
+      appendIfStatement(test, tree, ast)
     } else {
       const stack = []
       const expressions = []
@@ -307,15 +309,15 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         if (params === 2) {
           let next = expressions[i + 1]
           if (OPERATORS.includes(expression.name) && next && !OPERATORS.includes(next.name)) {
-              let id1 = stack.shift()
-              let id2 = stack.shift()
-              let id3 = stack.shift()
-              let rightExpression = next
-              const logical = rightExpression.handler(id2, id3)
-              const conjunction = expression.handler(logical, id1)
-              stack.unshift(conjunction)
-              result.push(conjunction)
-              i++
+            let id1 = stack.shift()
+            let id2 = stack.shift()
+            let id3 = stack.shift()
+            let rightExpression = next
+            const logical = rightExpression.handler(id2, id3)
+            const conjunction = expression.handler(logical, id1)
+            stack.unshift(conjunction)
+            result.push(conjunction)
+            i++
           } else {
             const left = stack.shift()
             const right = stack.shift()
@@ -326,7 +328,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
         }
       }
       const test = result[result.length - 1]
-      appendIfStatement(test)
+      appendIfStatement(test, tree, ast)
     }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
@@ -372,7 +374,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       if (right && right.key === 'range' && right.value) {
         if (right.value.includes('...')) {
           range = right.value.split('...').map(Number)
-        } else if(right.value.includes('..')) {
+        } else if (right.value.includes('..')) {
           range = right.value.split('..').map(Number)
           range[1] += 1
         } else {
@@ -518,7 +520,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     let leaf = tree.last('SwitchStatement')
     if (leaf) {
       const attributes = normalize(attrs)
-      const keys = attributes.map(attr => attr.key)
       const actions = findActions(attributes)
       const action = actions[0]
       if (action) {
@@ -556,17 +557,17 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     }
   } else if (tag === 'foreach' || tag === 'each') {
     const ast = new AbstractSyntaxTree('')
-    let operator, left, right, key, value
+    let left, right, key, value
 
     if (attrs.length === 3) {
-      [left, operator, right] = attrs
+      [left, , right] = attrs
     } else if (attrs.length === 5) {
-      [key, , value, operator, right] = attrs
+      [key, , value, , right] = attrs
     }
 
     if (left) {
       variables.push(left.key)
-    } else if(key && value) {
+    } else if (key && value) {
       variables.push(key.key)
       variables.push(value.key)
     }
@@ -580,24 +581,24 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.pop()
     }
     tree.append({
-      type: "ExpressionStatement",
+      type: 'ExpressionStatement',
       expression: {
-        type: "CallExpression",
+        type: 'CallExpression',
         callee: {
-          type: "MemberExpression",
+          type: 'MemberExpression',
           object: getIdentifierWithOptionalPrefix(right.key.split('.')[0], right.key, variables),
           property: {
-            type: "Identifier",
-            name: tag === "foreach" ? 'forEach' : 'each'
+            type: 'Identifier',
+            name: tag === 'foreach' ? 'forEach' : 'each'
           },
           computed: false
         },
         arguments: [
           {
-            type: "FunctionExpression",
+            type: 'FunctionExpression',
             params: [
               left ? {
-                type: "Identifier",
+                type: 'Identifier',
                 name: left.key
               } : null,
               key ? {

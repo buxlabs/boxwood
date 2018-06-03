@@ -745,29 +745,29 @@ equal(compile('<div>1 + 2 = {1 + 2}</div>')({
   foo: 'bar'
 }, html => html), '<div>1 + 2 = 3</div>')
 
-equal(compile('<if foo has a whitespace>baz</if>')({ foo: 'foo&nbsp;bar'}, html => html), 'baz')
-equal(compile('<if foo has a whitespace>baz</if>')({ foo: 'foobar'}, html => html), '')
-equal(compile('<if foo has a whitespace>baz</if>')({ foo: '\n'}, html => html), 'baz')
-equal(compile('<if foo has a whitespace>baz</if>')({ foo: '&nbsp;'}, html => html), 'baz')
-equal(compile('<if foo does not have a whitespace>baz</if>')({ foo: 'foobar'}, html => html), 'baz')
-equal(compile('<if foo does not have a whitespace>baz</if>')({ foo: ' foo bar '}, html => html), '')
+equal(compile('<if foo has a whitespace>baz</if>')({ foo: 'foo&nbsp;bar' }, html => html), 'baz')
+equal(compile('<if foo has a whitespace>baz</if>')({ foo: 'foobar' }, html => html), '')
+equal(compile('<if foo has a whitespace>baz</if>')({ foo: '\n' }, html => html), 'baz')
+equal(compile('<if foo has a whitespace>baz</if>')({ foo: '&nbsp;' }, html => html), 'baz')
+equal(compile('<if foo does not have a whitespace>baz</if>')({ foo: 'foobar' }, html => html), 'baz')
+equal(compile('<if foo does not have a whitespace>baz</if>')({ foo: ' foo bar ' }, html => html), '')
 
-equal(compile('<if foo has a newline>baz</if>')({ foo: ' foo\nbar'}, html => html), 'baz')
-equal(compile('<if foo has a newline>baz</if>')({ foo: ' foo\tbar'}, html => html), '')
-equal(compile('<if foo does not have a newline>baz</if>')({ foo: 'foo\nbar'}, html => html), '')
-equal(compile('<if foo does not have a newline>baz</if>')({ foo: ' foo\tbar'}, html => html), 'baz')
+equal(compile('<if foo has a newline>baz</if>')({ foo: ' foo\nbar' }, html => html), 'baz')
+equal(compile('<if foo has a newline>baz</if>')({ foo: ' foo\tbar' }, html => html), '')
+equal(compile('<if foo does not have a newline>baz</if>')({ foo: 'foo\nbar' }, html => html), '')
+equal(compile('<if foo does not have a newline>baz</if>')({ foo: ' foo\tbar' }, html => html), 'baz')
 
-equal(compile('<if foo has a number>baz</if>')({ foo: { bar: 4 }}, html => html), 'baz')
+equal(compile('<if foo has a number>baz</if>')({ foo: { bar: 4 } }, html => html), 'baz')
 equal(compile('<if foo has a number>baz</if>')({ foo: 'bar' }, html => html), '')
-equal(compile('<if foo has a number>baz</if>')({ foo: { bar: '4' }}, html => html), '')
+equal(compile('<if foo has a number>baz</if>')({ foo: { bar: '4' } }, html => html), '')
 equal(compile('<if foo has a number>baz</if>')({ foo: [1, 2, 3] }, html => html), 'baz')
 equal(compile('<if foo has a number>baz</if>')({ foo: [{}, 'bar', 'baz'] }, html => html), '')
 equal(compile('<if foo has a number>baz</if>')({ foo: [{}, 4, 'bar'] }, html => html), 'baz')
 equal(compile('<if foo has a number>baz</if>')({ foo: 4 }, html => html), 'baz')
 equal(compile('<if foo does not have a number>baz</if>')({ foo: 4 }, html => html), '')
-equal(compile('<if foo does not have a number>baz</if>')({ foo: { bar: 4 }}, html => html), '')
+equal(compile('<if foo does not have a number>baz</if>')({ foo: { bar: 4 } }, html => html), '')
 equal(compile('<if foo does not have a number>baz</if>')({ foo: 'bar' }, html => html), 'baz')
-equal(compile('<if foo does not have a number>baz</if>')({ foo: { bar: '4' }}, html => html), 'baz')
+equal(compile('<if foo does not have a number>baz</if>')({ foo: { bar: '4' } }, html => html), 'baz')
 equal(compile('<if foo does not have a number>baz</if>')({ foo: [{}, 4, 'bar'] }, html => html), '')
 
 equal(compile('<if foo has numbers>baz</if>')({ foo: { bar: 100 } }, html => html), '')
@@ -970,7 +970,7 @@ equal(compile('{foo | lowercase}')({ foo: 'BAR' }, html => html), 'bar')
 equal(compile('{foo | downcase}')({ foo: 'BAR' }, html => html), 'bar')
 equal(compile('{foo | dasherize}')({ foo: 'foo_bar' }, html => html), 'foo-bar')
 equal(compile('{foo | constantize}')({ foo: 'bar' }, html => html), 'BAR')
-equal(compile('{foo | underscore}')({ foo: 'foo-bar'}, html => html), 'foo_bar')
+equal(compile('{foo | underscore}')({ foo: 'foo-bar' }, html => html), 'foo_bar')
 equal(compile('{foo | capitalize}')({ foo: 'bar' }, html => html), 'Bar')
 equal(compile('{foo | unescape}')({ foo: '&amp;' }, html => html), '&')
 equal(compile('{foo | lowerfirst}')({ foo: 'FOO' }, html => html), 'fOO')
@@ -1094,10 +1094,10 @@ equal(compile('{foo | nth(3)}')({ foo: [1, 2, 3, 4, 5] }, html => html), '3')
 equal(compile('{foo | unique}')({ foo: [1, 1, 2, 10, 2, 33] }, html => html), [1, 2, 10, 33])
 equal(compile('{foo | compact}')({ foo: [0, 1, false, 2, '', 3] }, html => html), [1, 2, 3])
 
-equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } } , html => html), 'null')
+equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } }, html => html), 'null')
 equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, html => html), 'qux')
 equal(compile('{photos | first | dig("src")}')({
-  photos: [ { size: '100', src: 'baz' }, { size: '200', src: 'qux'} ]
+  photos: [ { size: '100', src: 'baz' }, { size: '200', src: 'qux' } ]
 }, html => html), 'baz')
 equal(compile('{foo | first | dig("foo.bar.baz")}')({
   foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
@@ -1105,28 +1105,28 @@ equal(compile('{foo | first | dig("foo.bar.baz")}')({
 
 equal(compile('{foo | values }')({
   foo: { bar: 1, baz: 2, ban: 'qux' }
-} , html => html), [1, 2, 'qux'])
+}, html => html), [1, 2, 'qux'])
 
 equal(compile('{foo | values | first}')({
   foo: { bar: 1, baz: 2, ban: 'qux' }
-} , html => html), '1')
+}, html => html), '1')
 
 equal(compile('{foo | keys }')({
   foo: { bar: 1, baz: 2, ban: 'qux' }
-} , html => html), ['bar', 'baz', 'ban'])
+}, html => html), ['bar', 'baz', 'ban'])
 
 equal(compile('{foo | keys | last}')({
   foo: { bar: 1, baz: 2, ban: 'qux' }
-} , html => html), 'ban')
+}, html => html), 'ban')
 
-equal(compile('{foo | format}')({ foo: new Date('2018/05/25')} , html => html), '25-05-2018')
-equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25')} , html => html), '25.05.2018')
-equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25'} , html => html), '05.2018')
+equal(compile('{foo | format}')({ foo: new Date('2018/05/25') }, html => html), '25-05-2018')
+equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25') }, html => html), '25.05.2018')
+equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25' }, html => html), '05.2018')
 
-equal(compile('{foo | day}')({ foo: new Date('2018/05/29')} , html => html), 29)
-equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29')} , html => html), 2)
-equal(compile('{foo | month}')({ foo: '2018/05/29'} , html => html), 4)
-equal(compile('{foo | year}')({ foo: '2018/05/29'} , html => html), 2018)
+equal(compile('{foo | day}')({ foo: new Date('2018/05/29') }, html => html), 29)
+equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29') }, html => html), 2)
+equal(compile('{foo | month}')({ foo: '2018/05/29' }, html => html), 4)
+equal(compile('{foo | year}')({ foo: '2018/05/29' }, html => html), 2018)
 
 equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
 equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
@@ -1141,8 +1141,8 @@ equal(compile('{foo + bar}')({
 }, html => html.replace(/</g, '&lt;').replace(/>/g, '&gt;')), '&lt;script&gt;alert("foo")&lt;/script&gt;hello')
 equal(compile('{foo + bar + baz}')({ foo: 0, bar: 1, baz: 2 }, html => html), '3')
 equal(compile('{foo() + 1}')({ foo: () => 0 }, html => html), '1')
-equal(compile('{foo() + bar() + 2}')({ foo: () => 0, bar: () => 1}, html => html), '3')
-equal(compile('{foo() + bar() + baz()}')({ foo: () => 0, bar: () => 1, baz: () => 2}, html => html), '3')
+equal(compile('{foo() + bar() + 2}')({ foo: () => 0, bar: () => 1 }, html => html), '3')
+equal(compile('{foo() + bar() + baz()}')({ foo: () => 0, bar: () => 1, baz: () => 2 }, html => html), '3')
 equal(compile('{foo() + bar + 2}')({ foo: () => 0, bar: 1 }, html => html), '3')
 equal(compile('{foo(bar) + baz}')({ foo: (bar) => bar, bar: 2, baz: 1 }, html => html), '3')
 equal(compile('{"&"}')({}, html => html.replace(/&/g, '&amp;')), '&')
@@ -1163,11 +1163,11 @@ equal(compile('<switch foo><case is positive>bar</case><case is negative>baz</ca
 equal(compile('<foreach foo in bar>{foo}</foreach>')({ bar: [1, 2, 3] }, html => html), '123')
 
 equal(compile('<foreach foo and baz in bar>{foo}{baz}</foreach>')({
- bar: new Map([ ['qux', 1], ['quux', 2] ])
+  bar: new Map([ ['qux', 1], ['quux', 2] ])
 }, html => html), '1qux2quux')
 
 equal(compile('<foreach foo in bar>{foo}</foreach>')({
- bar: new Set([1, 2, 3, 4, 5])
+  bar: new Set([1, 2, 3, 4, 5])
 }, html => html), '12345')
 
 equal(compile('<button>{translate("buttons.search")}&nbsp;<span class="fa fa-search"></span></button>')({ translate () { return 'foo' } }, html => html), '<button>foo&nbsp;<span class="fa fa-search"></span></button>')
@@ -1240,7 +1240,7 @@ equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, htm
 equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
-equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' }}, html => html), 'qux')
+equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' } }, html => html), 'qux')
 
 equal(compile(`<head partial="./fixtures/partial/head.html"></head>`, { paths: [__dirname] })({}, html => html), '<head><meta charset="utf-8"></head>')
 equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
@@ -1254,13 +1254,13 @@ equal(compile(`<import header from="./fixtures/slots/header.html"/><header></hea
 })({}, html => html), '<header><h1></h1><h2></h2></header>')
 
 equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
- bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
- baz: 'qux'
+  bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
+  baz: 'qux'
 }, html => html), 'qux12qux')
 
 equal(compile(`{baz}<for foo in bar><for baz in foo.quz>{baz}</for></for>{baz}`)({
- bar: [ { quz: [1, 2, 3] }, { quz: [4, 5, 6] } ],
- baz: 'qux'
+  bar: [ { quz: [1, 2, 3] }, { quz: [4, 5, 6] } ],
+  baz: 'qux'
 }, html => html), 'qux123456qux')
 
 equal(compile(`<each foo in bar>{foo}</each>`)({
@@ -1282,25 +1282,25 @@ equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: tru
 equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: false, baz: false, ban: false }, html => html), '')
 equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: false }, html => html), '')
 
-equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
-equal(compile('<if foo and bar equals baz>qux</if>')({ foo: false, bar: 'baz', baz: 'baz'}, html => html), '')
-equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'ban'}, html => html), '')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: false, bar: 'baz', baz: 'baz' }, html => html), '')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'ban' }, html => html), '')
 
-equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz'}, html => html), 'qux')
-equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz'}, html => html), 'qux')
+equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz' }, html => html), 'qux')
+equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
 
-equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'ipsum'}, html => html), 'baz')
-equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'dolor'}, html => html), '')
+equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'ipsum' }, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'dolor' }, html => html), '')
 equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), 'baz')
 equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), '')
 
-equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'ipsum'}, html => html), 'baz')
-equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'dolor'}, html => html), '')
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'ipsum' }, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'dolor' }, html => html), '')
 equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
 equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), '')
 
-equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /ipsum/}, html => html), 'baz')
-equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /dolor/}, html => html), '')
+equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /ipsum/ }, html => html), 'baz')
+equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /dolor/ }, html => html), '')
 
 equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
 equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: false }, html => html), '')

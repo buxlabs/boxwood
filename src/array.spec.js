@@ -57,7 +57,7 @@ const { normalize } = require('./array')
 // // assert.deepEqual(normalize(['bitwise', 'not']), '')
 assert.deepEqual(normalize([
   { key: 'not', value: null }, { key: 'foo', value: null }
-]), [{ key: 'not', value: null, type: 'Action' }, { key: 'foo', value: null, type: 'Identifier' } ])
+]), [{ key: 'not', value: null, type: 'Action' }, { key: 'foo', value: null, type: 'Identifier' }])
 
 assert.deepEqual(normalize([
   { key: 'foo', value: null },

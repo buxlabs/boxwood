@@ -4,7 +4,7 @@ const {
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
 const { extract, getName } = require('./string')
-const { getModifierName } = require ('./modifiers')
+const { getModifierName } = require('./modifiers')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 
 function convertToBinaryExpression (nodes) {
@@ -82,12 +82,7 @@ function convertIdentifier (node, variables) {
   if (variables.includes(node.name)) {
     return node
   } else {
-    return {
-      type: 'MemberExpression',
-      computed: false,
-      object: getIdentifier(OBJECT_VARIABLE),
-      property: node
-    }
+    return getObjectMemberExpression(node.name)
   }
 }
 
@@ -103,7 +98,6 @@ function getTemplateNode (expression, variables, unescape) {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
       if (node.type === 'Identifier' && !node.transformed) {
         node.transformed = true
-        const { name } = node
         const object = getIdentifier(OBJECT_VARIABLE)
         object.transformed = true
         node = {
@@ -126,11 +120,7 @@ function getTemplateNode (expression, variables, unescape) {
       if (expression.object.type === 'Identifier') {
         let leaf = {
           type: 'MemberExpression',
-          object: {
-            type: 'MemberExpression',
-            object: getIdentifier(OBJECT_VARIABLE),
-            property: expression.object
-          },
+          object: getObjectMemberExpression(expression.object.name),
           property: expression.property
         }
         if (unescape) return leaf
@@ -140,11 +130,7 @@ function getTemplateNode (expression, variables, unescape) {
         while (leaf.object.type === 'MemberExpression') {
           leaf = leaf.object
         }
-        leaf.object = {
-          type: 'MemberExpression',
-          object: getIdentifier(OBJECT_VARIABLE),
-          property: leaf.object
-        }
+        leaf.object = getObjectMemberExpression(leaf.object.name)
         if (unescape) return expression
         return getEscapeCallExpression(expression)
       }
@@ -174,7 +160,6 @@ function getTemplateNode (expression, variables, unescape) {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
       if (node.type === 'Identifier' && !node.transformed) {
         node.transformed = true
-        const { name } = node
         const object = getIdentifier(OBJECT_VARIABLE)
         object.transformed = true
         node = {
@@ -197,7 +182,7 @@ function convertText (text, variables, currentModifiers) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
       if (modifiers) {
-        modifiers.forEach(modifier =>  currentModifiers.push(modifier))
+        modifiers.forEach(modifier => currentModifiers.push(modifier))
       }
       return modify(getTemplateNode(expression, variables), modifiers)
     }
@@ -210,7 +195,7 @@ function convertText (text, variables, currentModifiers) {
   return nodes
 }
 
-function modify(node, modifiers) {
+function modify (node, modifiers) {
   if (modifiers) {
     return modifiers.reduce((leaf, modifier) => {
       const tree = new AbstractSyntaxTree(modifier)
@@ -240,14 +225,14 @@ function modify(node, modifiers) {
 
 function convertTag (fragment, variables, currentModifiers) {
   let node = fragment.tagName
-  let nodes = []
+  let parts = []
   let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
   if (tag) {
     const property = tag.key === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
-    nodes.push(getLiteral('<'))
-    nodes.push(getObjectMemberExpression(property))
+    parts.push(getLiteral('<'))
+    parts.push(getObjectMemberExpression(property))
   } else {
-    nodes.push(getLiteral(`<${node}`))
+    parts.push(getLiteral(`<${node}`))
   }
   let allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag' && attr.key !== 'tag.bind')
   if (allowed.length) {
@@ -255,9 +240,9 @@ function convertTag (fragment, variables, currentModifiers) {
       if (BOOLEAN_ATTRIBUTES.includes(getName(attr.key))) {
         const expression = getLiteral(` ${getName(attr.key)}`)
         if (!attr.value) {
-          nodes.push(expression)
+          parts.push(expression)
         } else {
-          nodes.push({
+          parts.push({
             type: 'IfStatement',
             test: convertAttribute(attr.key, attr.value, variables, currentModifiers),
             consequent: {
@@ -267,19 +252,19 @@ function convertTag (fragment, variables, currentModifiers) {
           })
         }
       } else {
-        nodes.push(getLiteral(` ${getName(attr.key)}="`))
+        parts.push(getLiteral(` ${getName(attr.key)}="`))
         let { value } = attr
-        nodes.push(convertAttribute(attr.key, value, variables, currentModifiers))
-        nodes.push(getLiteral('"'))
+        parts.push(convertAttribute(attr.key, value, variables, currentModifiers))
+        parts.push(getLiteral('"'))
       }
     })
   }
-  nodes.push(getLiteral('>'))
+  parts.push(getLiteral('>'))
   const leaf = convertHtmlOrTextAttribute(fragment, variables, currentModifiers)
   if (leaf) {
-    nodes.push(leaf)
+    parts.push(leaf)
   }
-  return nodes
+  return parts
 }
 
 module.exports = {

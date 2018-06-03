@@ -69,7 +69,7 @@ function getVoidBinaryExpression (left, operator) {
   return getBinaryExpression(left, getVoid(), operator)
 }
 
-function getModuloWithZeroBinaryExpression(left, operator) {
+function getModuloWithZeroBinaryExpression (left, operator) {
   return getBinaryExpression(getBinaryExpression(left, getLiteral(2), '%'), getLiteral(0), operator)
 }
 
@@ -176,7 +176,7 @@ function isSealed (node) {
   }
 }
 
-function getObjectWithConstructorBinaryExpression(node, constructor) {
+function getObjectWithConstructorBinaryExpression (node, constructor) {
   return {
     type: 'BinaryExpression',
     left: {
@@ -261,7 +261,7 @@ function isDigit (node) {
   }
 }
 
-function isDecimal(node) {
+function isDecimal (node) {
   return {
     type: 'BinaryExpression',
     left: node,
@@ -337,19 +337,19 @@ function isConjunction (left, right) {
 }
 
 function isGreaterThan (left, right) {
- return getLogicalExpression(left, right, '>')
+  return getLogicalExpression(left, right, '>')
 }
 
 function isLessThan (left, right) {
- return getLogicalExpression(left, right, '<')
+  return getLogicalExpression(left, right, '<')
 }
 
 function isGreaterThanOrEqual (left, right) {
- return getLogicalExpression(left, right, '>=')
+  return getLogicalExpression(left, right, '>=')
 }
 
 function isLessThanOrEqual (left, right) {
- return getLogicalExpression(left, right, '<=')
+  return getLogicalExpression(left, right, '<=')
 }
 
 function isEquals (left, right) {
@@ -410,7 +410,7 @@ function isBitwiseAlternative (left, right) {
 }
 
 function isBitwiseConjunction (left, right) {
- return getBinaryExpression(left, right, '&')
+  return getBinaryExpression(left, right, '&')
 }
 
 function isBitwiseAlternativeNegation (left, right) {
@@ -595,7 +595,6 @@ function geDateComparisonCallExpression (left, right, operator) {
   }
 }
 
-
 function isSoonerThan (left, right) {
   return geDateComparisonCallExpression(left, right, '<')
 }
@@ -679,13 +678,13 @@ const STANDARD_ACTIONS = [
   { name: 'bitwise_or', handler: isBitwiseAlternative, args: 2 },
   { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
   { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },
-  { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 },
+  { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 }
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
   const { name } = action
   if (name.length === 1) return false
-  if (name[0] === 'is' && name[1] === 'greater' || name[1] === 'less') return false
+  if (name[0] === 'is' && (name[1] === 'greater' || name[1] === 'less')) return false
   if (name.includes('not')) return false
   return action
 }).map(action => {
