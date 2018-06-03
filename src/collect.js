@@ -160,24 +160,19 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     const body = ast.body()
     body.forEach(node => tree.append(node))
   } else if (tag === 'style' || tag === 'script' || tag === 'template') {
-    tree.append(getTemplateAssignmentExpression(getLiteral(`<${tag}`)))
-    if (fragment.attributes.length > 0) {
-      fragment.attributes.forEach(attribute => {
-        tree.append(getTemplateAssignmentExpression(getLiteral(` ${attribute.key}="${attribute.value}"`)))
-      })
-    }
-    tree.append(getTemplateAssignmentExpression(getLiteral(`>`)))
-    if (fragment.children.length > 0) {
-      fragment.children.forEach(node => {
-        node.used = true
-        tree.append(getTemplateAssignmentExpression(getLiteral(node.content)))
-      })
-    }
-    tree.append(getTemplateAssignmentExpression(getLiteral(`</${tag}>`)))
-  }
-  else if (tag === '!doctype') {
-    const node = new AbstractSyntaxTree('"<!doctype html>"')
-    tree.append(getTemplateAssignmentExpression(node.body()[0]))
+    let content = `<${tag}`
+    fragment.attributes.forEach(attribute => {
+      content += ` ${attribute.key}="${attribute.value}"`
+    })
+    content += '>'
+    fragment.children.forEach(node => {
+      node.used = true
+      content += node.content
+    })
+    content += `</${tag}>`
+    tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+  } else if (tag === '!doctype') {
+    tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
     collectComponentsFromPartialAttribute(fragment, options)
     const nodes = convertTag(fragment, variables, modifiers)

@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "standard",
     "test": "node test/basic.js && node test/examples.js && node src/string.spec.js && node src/array.spec.js",
+    "benchmark": "node test/benchmark.js",
     "watch": "watch 'npm test --silent' ."
   },
   "engines": {
