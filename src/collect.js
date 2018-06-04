@@ -509,38 +509,39 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       }
     }
   } else if (tag === 'switch') {
-    const { key } = attrs[0]
-    const [prefix] = key.split('.')
     tree.append({
       type: 'SwitchStatement',
       discriminant: {
         type: 'Literal',
         value: true
       },
-      condition: getIdentifierWithOptionalPrefix(prefix, key, variables),
+      attribute: attrs[0],
       cases: []
     })
   } else if (tag === 'case') {
     let leaf = tree.last('SwitchStatement')
     if (leaf) {
-      const attributes = normalize(attrs)
-      const actions = findActions(attributes)
-      const action = actions[0]
-      if (action) {
-        const ast = new AbstractSyntaxTree('')
-        walk(fragment, current => {
-          collect(ast, current, variables, modifiers, components, options)
-        })
-        ast.append({
-          type: 'BreakStatement',
-          label: null
-        })
-        leaf.cases.push({
-          type: 'SwitchCase',
-          consequent: ast.body(),
-          test: action.handler(leaf.condition)
-        })
-      }
+      const attributes = [leaf.attribute]
+      attrs.forEach(attr => {
+        attributes.push(attr)
+        if (OPERATORS.includes(attr.key)) {
+          attributes.push(leaf.attribute)
+        }
+      })
+      const condition = getCondition(attributes, variables)
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, options)
+      })
+      ast.append({
+        type: 'BreakStatement',
+        label: null
+      })
+      leaf.cases.push({
+        type: 'SwitchCase',
+        consequent: ast.body(),
+        test: condition
+      })
     }
   } else if (tag === 'default') {
     let leaf = tree.last('SwitchStatement')
