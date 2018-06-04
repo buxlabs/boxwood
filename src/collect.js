@@ -179,16 +179,16 @@ function getTest (action, keys, values, variables) {
   }
 }
 
-function getLeftNodeFromIdentifier (identifier, variables) {
-  if (!identifier) return null
-  const key = identifier.key
+function getLeftNodeFromIdentifier (last, variables) {
+  if (!last) return null
+  const key = last.key
   const [prefix] = key.split('.')
   return getIdentifierWithOptionalPrefix(prefix, key, variables)
 
 }
-function getRightNodeFromIdentifier (identifier, variables) {
-  if (!identifier) return null
-  const key = identifier.key
+function getRightNodeFromIdentifier (current, next, variables) {
+  if (current.value) return convertValueToNode(current.value, variables)
+  const key = next.key
   const [prefix] = key.split('.')
   if (digits.has(key)) {
     return getLiteral(digits.get(key))
@@ -297,15 +297,16 @@ function collect (tree, fragment, variables, modifiers, components, options) {
             expressions.push(action)
           } else {
             if (action.args === 1) {
-              const id1 = attributes[i - 1]
-              const left = getLeftNodeFromIdentifier(id1, variables)
+              const previous = attributes[i - 1]
+              const left = getLeftNodeFromIdentifier(previous, variables)
               expressions.push(action.handler(left))
             } if (action.args === 2) {
-              const id1 = attributes[i - 1]
-              const id2 = attributes[i + 1]
+              const previous = attributes[i - 1]
+              const current = attributes[i]
+              const next = attributes[i + 1]
               i += 1
-              const left = getLeftNodeFromIdentifier(id1, variables)
-              const right = getRightNodeFromIdentifier(id2, variables)
+              const left = getLeftNodeFromIdentifier(previous, variables)
+              const right = getRightNodeFromIdentifier(current, next, variables)
               expressions.push(action.handler(left, right))
             }
           }

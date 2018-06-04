@@ -1271,17 +1271,17 @@ equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: 
 equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: false }, html => html), '')
 equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: false }, html => html), '')
 
-// equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: true }, html => html), 'qux')
-// equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: true, baz: true, ban: true }, html => html), '')
-// equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: false, baz: false, ban: false }, html => html), '')
-// equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: false }, html => html), '')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: true }, html => html), 'qux')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: true, baz: true, ban: true }, html => html), '')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: false, baz: false, ban: false }, html => html), '')
+equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: false }, html => html), '')
 
-// equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
-// equal(compile('<if foo and bar equals baz>qux</if>')({ foo: false, bar: 'baz', baz: 'baz' }, html => html), '')
-// equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'ban' }, html => html), '')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: false, bar: 'baz', baz: 'baz' }, html => html), '')
+equal(compile('<if foo and bar equals baz>qux</if>')({ foo: true, bar: 'baz', baz: 'ban' }, html => html), '')
 
-// equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz' }, html => html), 'qux')
-// equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
+equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz' }, html => html), 'qux')
+equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
 
 equal(compile('<if foo is divisible by three and foo is divisible by five>bar</if>')({ foo: 15 }, html => html), 'bar')
 equal(compile('<if foo is divisible by three and foo is divisible by five>bar</if>')({ foo: 14 }, html => html), '')
@@ -1307,15 +1307,15 @@ equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /dolor/
 // equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: false }, html => html), '')
 // equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: true }, html => html), '')
 
-// equal(compile('<if foo is positive and bar>baz</if>')({ foo: 10, bar: true }, html => html), 'baz')
-// equal(compile('<if foo is positive and bar>baz</if>')({ foo: -10, bar: true }, html => html), '')
-// equal(compile('<if foo is positive and bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
-// equal(compile('<if foo is positive and bar>baz</if>')({ foo: -10, bar: false }, html => html), '')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: 10, bar: true }, html => html), 'baz')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: -10, bar: true }, html => html), '')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
+equal(compile('<if foo is positive and bar>baz</if>')({ foo: -10, bar: false }, html => html), '')
 
-// equal(compile('<if foo is not positive and bar>baz</if>')({ foo: 10, bar: true }, html => html), '')
-// equal(compile('<if foo is not positive and bar>baz</if>')({ foo: -10, bar: true }, html => html), 'baz')
-// equal(compile('<if foo is not positive and bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
-// equal(compile('<if foo is not positive and bar>baz</if>')({ foo: -10, bar: false }, html => html), '')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: 10, bar: true }, html => html), '')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: -10, bar: true }, html => html), 'baz')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: 10, bar: false }, html => html), '')
+equal(compile('<if foo is not positive and bar>baz</if>')({ foo: -10, bar: false }, html => html), '')
 
 // equal(compile('<if foo is not positive and not bar>baz</if>')({ foo: 10, bar: true }, html => html), '')
 // equal(compile('<if foo is not positive and not bar>baz</if>')({ foo: -10, bar: true }, html => html), '')
@@ -1344,7 +1344,7 @@ equal(compile('<template><div>{}</div></template>')({}, html => html), '<templat
 equal(compile('<script type="text/javascript" src="./main.js"></script>')({}, html => html), '<script type="text/javascript" src="./main.js"></script>')
 equal(compile('<style type="text/css">.foo{color:red}</style>')({}, html => html), '<style type="text/css">.foo{color:red}</style>')
 
-// equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 1, bar: 1, baz: 0 }, html => html), 'baz')
-// equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 0, bar: 0, baz: 0 }, html => html), '')
+equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 1, bar: 1, baz: 0 }, html => html), 'baz')
+equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 0, bar: 0, baz: 0 }, html => html), '')
 
 console.timeEnd('test: success')
