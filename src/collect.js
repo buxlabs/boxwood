@@ -275,6 +275,57 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const test = getTest(actions[0], keys, values, variables)
       appendIfStatement(test, tree, ast)
     } else {
+
+          // 1   1         1     2           3     3         3     4           5     5        5
+      // [{id}, {action}, {id}, {operator}, {id}, {action}, {id}, {operator}, {id}, {action}, {id}]
+      // 1      2           3  
+      // [{id}, {operator}, {id}]
+      // [{condition}, {operator}, {condition}, {operator}, {condition}]
+
+      const expressions = []
+      for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
+        const attribute = attributes[i]
+        if (attribute.type === 'Identifier') {
+          const next = attributes[i + 1]
+          if (!next || OPERATORS.includes(next.key)) {
+            const node = getLeftNodeFromIdentifier(attribute, variables)
+            expressions.push(node)
+          }
+        } else if (attribute.type === 'Action') {
+          const action = actions.find(action => action.name === attribute.key)
+          if (OPERATORS.includes(attribute.key)) {
+            expressions.push(action)
+          } else {
+            if (action.args === 1) {
+              const id1 = attributes[i - 1]
+              const left = getLeftNodeFromIdentifier(id1, variables)
+              expressions.push(action.handler(left))
+            } if (action.args === 2) {
+              const id1 = attributes[i - 1]
+              const id2 = attributes[i + 1]
+              i += 1
+              const left = getLeftNodeFromIdentifier(id1, variables)
+              const right = getRightNodeFromIdentifier(id2, variables)
+              expressions.push(action.handler(left, right))
+            }
+          }
+        }
+      }
+      const stack = []
+      const conditions = []
+      for (let i = 0, ilen = expressions.length; i < ilen; i += 1) {
+        const expression = expressions[i]
+        if (OPERATORS.includes(expression.name)) {
+          const left = stack.shift() || expressions[i - 1]
+          const right = expressions[i + 1]
+          i += 1
+          const condition = expression.handler(left, right)
+          stack.push(condition)
+          conditions.push(condition)
+        }
+      }
+      const condition = conditions[conditions.length - 1]
+      appendIfStatement(condition, tree, ast)
     }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')

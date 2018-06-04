@@ -1266,10 +1266,10 @@ equal(compile(`<each foo in bar>{foo}</each>`)({
   }
 }, html => html), '123')
 
-// equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: true }, html => html), 'qux')
-// equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: true }, html => html), '')
-// equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: false }, html => html), '')
-// equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: false }, html => html), '')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: true }, html => html), 'qux')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: true }, html => html), '')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: true, bar: true, baz: false }, html => html), '')
+equal(compile('<if foo and bar and baz>qux</if>')({ foo: false, bar: true, baz: false }, html => html), '')
 
 // equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: true, bar: true, baz: true, ban: true }, html => html), 'qux')
 // equal(compile('<if foo and bar and baz and ban>qux</if>')({ foo: false, bar: true, baz: true, ban: true }, html => html), '')
@@ -1283,11 +1283,11 @@ equal(compile(`<each foo in bar>{foo}</each>`)({
 // equal(compile('<if foo and bar equals="baz">qux</if>')({ foo: true, bar: 'baz' }, html => html), 'qux')
 // equal(compile('<if foo and bar equals="{baz}">qux</if>')({ foo: true, bar: 'baz', baz: 'baz' }, html => html), 'qux')
 
-// equal(compile('<if foo is divisible by three and foo is divisible by five>bar</if>')({ foo: 15 }, html => html), 'bar')
-// equal(compile('<if foo is divisible by three and foo is divisible by five>bar</if>')({ foo: 14 }, html => html), '')
-// equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if>')({ foo: 12 }, html => html), 'bar')
-// equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if>')({ foo: 10 }, html => html), 'bar')
-// equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if>')({ foo: 8 }, html => html), '')
+equal(compile('<if foo is divisible by three and foo is divisible by five>bar</if>')({ foo: 15 }, html => html), 'bar')
+equal(compile('<if foo is divisible by three and foo is divisible by five>bar</if>')({ foo: 14 }, html => html), '')
+equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if>')({ foo: 12 }, html => html), 'bar')
+equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if>')({ foo: 10 }, html => html), 'bar')
+equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if>')({ foo: 8 }, html => html), '')
 
 equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'ipsum' }, html => html), 'baz')
 equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'dolor' }, html => html), '')
