@@ -1003,6 +1003,10 @@ equal(compile(`{foo | dot}`)({ foo: 'foo bar ban' }, html => html), 'foo bar ban
 equal(compile(`{foo | crop(10)}`)({ foo: 'foo bar ban baz' }, html => html), 'foo bar...')
 equal(compile(`{foo | slugify('_')}`)({ foo: 'loremIpsum dolor $pec!al chars' }, html => html), 'loremipsum_dolor_pecal_chars')
 equal(compile(`{foo | hyphenate}`)({ foo: '%# lorem ipsum  ? $  dolor' }, html => html), 'lorem-ipsum-dolor')
+equal(compile(`{foo | initials}`)({ foo: 'Foo Bar' }, html => html), 'FB')
+equal(compile(`{foo | initials(".")}`)({ foo: 'Foo Bar' }, html => html), 'F.B')
+equal(compile(`{foo | tail}`)({ foo: 'Lorem ipsum dolor sit amet, consectetur' }, html => html), '...dolor sit amet, consectetur')
+equal(compile(`{foo | htmlstrip}`)({ foo: 'Hello <b><i>world!</i></b>'}, html => html), 'Hello world!')
 
 equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
 equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
@@ -1040,6 +1044,10 @@ equal(compile('{foo | clamp(2, 8)}')({ foo: 10 }, html => html), 8)
 equal(compile('{foo | clamp(2, 8)}')({ foo: 6 }, html => html), 6)
 equal(compile('{foo | int}')({ foo: 10 }, html => html), 10)
 equal(compile('{foo | float}')({ foo: 10.25 }, html => html), 10.25)
+equal(compile('{foo | percentage}')({ foo: 0.25 }, html => html), '25%')
+equal(compile('{foo | fixed}')({ foo: 10.5 }, html => html), '11')
+equal(compile('{foo | fixed(2)}')({ foo: 100.521 }, html => html), '100.52')
+equal(compile('{foo | monetize}')({ foo: 25 }, html => html), '25,00 zł')
 
 equal(compile('{Math.pow(foo, 3)}')({ foo: 2 }, html => html), '8')
 

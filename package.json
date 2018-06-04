@@ -31,7 +31,7 @@
     "abstract-syntax-tree": "^1.0.1",
     "himalaya": "^1.1.0",
     "himalaya-walk": "^1.0.0",
-    "pure-utilities": "^1.0.6"
+    "pure-utilities": "^1.0.7"
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
