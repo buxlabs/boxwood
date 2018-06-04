@@ -275,20 +275,17 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const test = getTest(actions[0], keys, values, variables)
       appendIfStatement(test, tree, ast)
     } else {
-
-          // 1   1         1     2           3     3         3     4           5     5        5
-      // [{id}, {action}, {id}, {operator}, {id}, {action}, {id}, {operator}, {id}, {action}, {id}]
-      // 1      2           3  
-      // [{id}, {operator}, {id}]
-      // [{condition}, {operator}, {condition}, {operator}, {condition}]
-
       const expressions = []
       for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
         const attribute = attributes[i]
         if (attribute.type === 'Identifier') {
+          const last = attributes[i - 1]
           const next = attributes[i + 1]
           if (!next || OPERATORS.includes(next.key)) {
-            const node = getLeftNodeFromIdentifier(attribute, variables)
+            let node = getLeftNodeFromIdentifier(attribute, variables)
+            if (last && last.key === 'not') {
+              node = { type: 'UnaryExpression', operator: '!', prefix: true, argument: node }
+            }
             expressions.push(node)
           }
         } else if (attribute.type === 'Action') {
@@ -297,9 +294,16 @@ function collect (tree, fragment, variables, modifiers, components, options) {
             expressions.push(action)
           } else {
             if (action.args === 1) {
-              const previous = attributes[i - 1]
-              const left = getLeftNodeFromIdentifier(previous, variables)
-              expressions.push(action.handler(left))
+              if (action.name === 'not') {
+                const next = attributes[i + 1]
+                i += 1
+                const left = getLeftNodeFromIdentifier(next, variables)
+                expressions.push(action.handler(left))
+              } else {
+                const previous = attributes[i - 1]
+                const left = getLeftNodeFromIdentifier(previous, variables)
+                expressions.push(action.handler(left))
+              }
             } if (action.args === 2) {
               const previous = attributes[i - 1]
               const current = attributes[i]
