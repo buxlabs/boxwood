@@ -179,6 +179,23 @@ function getTest (action, keys, values, variables) {
   }
 }
 
+function getLeftNodeFromIdentifier (identifier, variables) {
+  if (!identifier) return null
+  const key = identifier.key
+  const [prefix] = key.split('.')
+  return getIdentifierWithOptionalPrefix(prefix, key, variables)
+
+}
+function getRightNodeFromIdentifier (identifier, variables) {
+  if (!identifier) return null
+  const key = identifier.key
+  const [prefix] = key.split('.')
+  if (digits.has(key)) {
+    return getLiteral(digits.get(key))
+  }
+  return getIdentifierWithOptionalPrefix(prefix, key, variables)
+}
+
 function collect (tree, fragment, variables, modifiers, components, options) {
   if (fragment.used) return
   fragment.used = true
@@ -258,53 +275,6 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const test = getTest(actions[0], keys, values, variables)
       appendIfStatement(test, tree, ast)
     } else {
-      const operations = actions.filter(action => OPERATORS.includes(action.name))
-      const expressions = actions.filter(action => !OPERATORS.includes(action.name))
-      const identifiers = attributes.filter(attribute => attribute.type === 'Identifier')
-      const logicals = expressions.map(expression => {
-        if (expression.args === 1) {
-          return getTest(expression, keys, values, variables)
-        } else if (expression.args === 2) {
-          const id1 = identifiers.shift()
-          const id2 = identifiers.shift()
-
-          const condition1 = id1.key
-          const [prefix1] = condition1.split('.')
-          let left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
-
-          const condition2 = id2.key
-          const [prefix2] = condition2.split('.')
-          let right
-          if (digits.has(condition2)) {
-            right = getLiteral(digits.get(condition2))
-          } else {
-            right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
-          }
-          return expression.handler(left, right)
-        }
-      })
-      if (operations.length === 1) {
-        const conditions = operations.map(operation => {
-          const left = logicals.shift() || identifiers.shift()
-          const right = logicals.shift() || identifiers.shift()
-          return operation.handler(left, right)
-        })
-      } else {
-        operations[0].reduce((previous, current) => {
-          const left = logicals.shift() || identifiers.shift()
-          const right = logicals.shift() || identifiers.shift()
-
-          // if (!previous.right) return previous.right = previous.handler(current)
-          return previous.handler(left, right)
-        })
-        console.log(operations)
-      }
-
-      // if (conditions.length === 1) {
-      //   appendIfStatement(conditions[0], tree, ast)
-      // } else {
-
-      // }
     }
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
