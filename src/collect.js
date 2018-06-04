@@ -196,6 +196,77 @@ function getRightNodeFromIdentifier (current, next, variables) {
   return getIdentifierWithOptionalPrefix(prefix, key, variables)
 }
 
+function getCondition (attrs, variables) {
+  let attributes = normalize(attrs)
+  let keys = attributes.map(attr => attr.key)
+  const values = attributes.map(attr => attr.value)
+  const actions = findActions(attributes)
+  if (actions.length === 0) {
+    const key = keys[0]
+    const [prefix] = key.split('.')
+    return getIdentifierWithOptionalPrefix(prefix, key, variables)
+    return node
+  } else if (actions.length === 1) {
+    return getTest(actions[0], keys, values, variables)
+  } else {
+    const expressions = []
+    for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
+      const attribute = attributes[i]
+      if (attribute.type === 'Identifier') {
+        const last = attributes[i - 1]
+        const next = attributes[i + 1]
+        if (!next || OPERATORS.includes(next.key)) {
+          let node = getLeftNodeFromIdentifier(attribute, variables)
+          if (last && last.key === 'not') {
+            node = { type: 'UnaryExpression', operator: '!', prefix: true, argument: node }
+          }
+          expressions.push(node)
+        }
+      } else if (attribute.type === 'Action') {
+        const action = actions.find(action => action.name === attribute.key)
+        if (OPERATORS.includes(attribute.key)) {
+          expressions.push(action)
+        } else {
+          if (action.args === 1) {
+            if (action.name === 'not') {
+              const next = attributes[i + 1]
+              i += 1
+              const left = getLeftNodeFromIdentifier(next, variables)
+              expressions.push(action.handler(left))
+            } else {
+              const previous = attributes[i - 1]
+              const left = getLeftNodeFromIdentifier(previous, variables)
+              expressions.push(action.handler(left))
+            }
+          } if (action.args === 2) {
+            const previous = attributes[i - 1]
+            const current = attributes[i]
+            const next = attributes[i + 1]
+            i += 1
+            const left = getLeftNodeFromIdentifier(previous, variables)
+            const right = getRightNodeFromIdentifier(current, next, variables)
+            expressions.push(action.handler(left, right))
+          }
+        }
+      }
+    }
+    const stack = []
+    const conditions = []
+    for (let i = 0, ilen = expressions.length; i < ilen; i += 1) {
+      const expression = expressions[i]
+      if (OPERATORS.includes(expression.name)) {
+        const left = stack.shift() || expressions[i - 1]
+        const right = expressions[i + 1]
+        i += 1
+        const condition = expression.handler(left, right)
+        stack.push(condition)
+        conditions.push(condition)
+      }
+    }
+    return conditions[conditions.length - 1]
+  }
+}
+
 function collect (tree, fragment, variables, modifiers, components, options) {
   if (fragment.used) return
   fragment.used = true
@@ -262,76 +333,8 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, options)
     })
-    let attributes = normalize(attrs)
-    let keys = attributes.map(attr => attr.key)
-    const values = attributes.map(attr => attr.value)
-    const actions = findActions(attributes)
-    if (actions.length === 0) {
-      const key = keys[0]
-      const [prefix] = key.split('.')
-      const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
-      appendIfStatement(node, tree, ast)
-    } else if (actions.length === 1) {
-      const test = getTest(actions[0], keys, values, variables)
-      appendIfStatement(test, tree, ast)
-    } else {
-      const expressions = []
-      for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
-        const attribute = attributes[i]
-        if (attribute.type === 'Identifier') {
-          const last = attributes[i - 1]
-          const next = attributes[i + 1]
-          if (!next || OPERATORS.includes(next.key)) {
-            let node = getLeftNodeFromIdentifier(attribute, variables)
-            if (last && last.key === 'not') {
-              node = { type: 'UnaryExpression', operator: '!', prefix: true, argument: node }
-            }
-            expressions.push(node)
-          }
-        } else if (attribute.type === 'Action') {
-          const action = actions.find(action => action.name === attribute.key)
-          if (OPERATORS.includes(attribute.key)) {
-            expressions.push(action)
-          } else {
-            if (action.args === 1) {
-              if (action.name === 'not') {
-                const next = attributes[i + 1]
-                i += 1
-                const left = getLeftNodeFromIdentifier(next, variables)
-                expressions.push(action.handler(left))
-              } else {
-                const previous = attributes[i - 1]
-                const left = getLeftNodeFromIdentifier(previous, variables)
-                expressions.push(action.handler(left))
-              }
-            } if (action.args === 2) {
-              const previous = attributes[i - 1]
-              const current = attributes[i]
-              const next = attributes[i + 1]
-              i += 1
-              const left = getLeftNodeFromIdentifier(previous, variables)
-              const right = getRightNodeFromIdentifier(current, next, variables)
-              expressions.push(action.handler(left, right))
-            }
-          }
-        }
-      }
-      const stack = []
-      const conditions = []
-      for (let i = 0, ilen = expressions.length; i < ilen; i += 1) {
-        const expression = expressions[i]
-        if (OPERATORS.includes(expression.name)) {
-          const left = stack.shift() || expressions[i - 1]
-          const right = expressions[i + 1]
-          i += 1
-          const condition = expression.handler(left, right)
-          stack.push(condition)
-          conditions.push(condition)
-        }
-      }
-      const condition = conditions[conditions.length - 1]
-      appendIfStatement(condition, tree, ast)
-    }
+    const condition = getCondition(attrs, variables)
+    appendIfStatement(condition, tree, ast)
   } else if (tag === 'elseif') {
     let leaf = tree.last('IfStatement')
     if (leaf) {
@@ -342,11 +345,10 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
       }
-      const { key } = attrs[0]
-      const [prefix] = key.split('.')
+      const condition = getCondition(attrs, variables)
       leaf.alternate = {
         type: 'IfStatement',
-        test: getIdentifierWithOptionalPrefix(prefix, key, variables),
+        test: condition,
         consequent: {
           type: 'BlockStatement',
           body: ast.body()
