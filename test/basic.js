@@ -702,8 +702,7 @@ equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 0, bar: 0 }, html => ht
 equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 0, bar: 1 }, html => html), 'baz')
 equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 1, bar: 0 }, html => html), 'baz')
 equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 1, bar: 1 }, html => html), '')
-equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 1, bar: 1, baz: 0 }, html => html), 'baz')
-equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 0, bar: 0, baz: 0 }, html => html), '')
+
 
 equal(compile('<if not foo>baz</if>')({ foo: null }, html => html), 'baz')
 equal(compile('<if not foo>baz</if>')({ foo: undefined }, html => html), 'baz')
@@ -1343,5 +1342,8 @@ equal(compile('<template><div></div></template>')({}, html => html), '<template>
 equal(compile('<template><div>{}</div></template>')({}, html => html), '<template><div>{}</div></template>')
 equal(compile('<script type="text/javascript" src="./main.js"></script>')({}, html => html), '<script type="text/javascript" src="./main.js"></script>')
 equal(compile('<style type="text/css">.foo{color:red}</style>')({}, html => html), '<style type="text/css">.foo{color:red}</style>')
+
+equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 1, bar: 1, baz: 0 }, html => html), 'baz')
+equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 0, bar: 0, baz: 0 }, html => html), '')
 
 console.timeEnd('test: success')
