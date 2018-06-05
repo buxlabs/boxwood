@@ -1096,6 +1096,9 @@ equal(compile('{foo | nth(3)}')({ foo: [1, 2, 3, 4, 5] }, html => html), '3')
 equal(compile('{foo | unique}')({ foo: [1, 1, 2, 10, 2, 33] }, html => html), [1, 2, 10, 33])
 equal(compile('{foo | compact}')({ foo: [0, 1, false, 2, '', 3] }, html => html), [1, 2, 3])
 
+equal(compile('{foo | split(",")}')({ foo: 'foo,bar' }, html => html), ['foo', 'bar'])
+equal(compile('{foo | split(",") | first}')({ foo: 'foo,bar' }, html => html), 'foo')
+equal(compile('{foo | split(",") | second}')({ foo: 'foo,bar' }, html => html), 'bar')
 equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } }, html => html), 'null')
 equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, html => html), 'qux')
 equal(compile('{photos | first | dig("src")}')({
