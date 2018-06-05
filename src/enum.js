@@ -24,6 +24,7 @@ module.exports = {
     'each',
     'for',
     'slot',
+    'yield',
     'try',
     'catch',
     'unless',

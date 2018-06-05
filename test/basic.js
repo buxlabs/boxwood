@@ -1255,6 +1255,10 @@ equal(compile(`<import header from="./fixtures/slots/header.html"/><header></hea
   paths: [__dirname]
 })({}, html => html), '<header><h1></h1><h2></h2></header>')
 
+equal(compile(`<import header from="./fixtures/yields/header.html"/><header></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1></h1><h2></h2></header>')
+
 equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
   bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
   baz: 'qux'

@@ -109,13 +109,13 @@ function resolveComponent (component, fragment, variables, modifiers, components
   const currentComponents = []
 
   walk(htmlTree, current => {
-    if (current.tagName === 'slot') {
+    if (current.tagName === 'slot' || current.tagName === 'yield') {
       if (current.attributes.length === 0) {
         current.children = children
       } else {
         const name = current.attributes[0].key
         walk(children, leaf => {
-          if (leaf.tagName === 'slot' && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
+          if ((leaf.tagName === 'slot' || leaf.tagName === 'yield') && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
             current.children = leaf.children
           }
         })
@@ -422,7 +422,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.pop()
       variables.pop()
     }
-  } else if (tag === 'slot') {
+  } else if (tag === 'slot' || tag === 'yield') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, options)
