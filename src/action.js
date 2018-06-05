@@ -339,7 +339,6 @@ function isSoonerThan (left, right) {
 function isLaterThan (left, right) {
   return geDateComparisonCallExpression(left, right, '>')
 }
-
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
@@ -415,7 +414,8 @@ const STANDARD_ACTIONS = [
   { name: 'bitwise_or', handler: isBitwiseAlternative, args: 2 },
   { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
   { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },
-  { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 }
+  { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 },
+  { name: 'is_an_email', handler: getCondition('isEmail'), args: 1 }
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
