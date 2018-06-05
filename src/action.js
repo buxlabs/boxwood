@@ -1,27 +1,23 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getIdentifier, getLiteral } = require('./factory')
 const { string: { singularize } } = require('pure-utilities')
+const conditions = require('pure-conditions')
 
-function isPositive (node) {
-  return getCompareWithZeroBinaryExpression(node, '>')
-}
-
-function isNegative (node) {
-  return getCompareWithZeroBinaryExpression(node, '<')
-}
-
-function getCompareWithZeroBinaryExpression (left, operator) {
-  return getBinaryExpression(left, getLiteral(0), operator)
-}
-
-function isFinite (node) {
-  return { type: 'CallExpression', callee: getIdentifier('isFinite'), arguments: [node] }
-}
-
-function isInfinite (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`${code} === Number.POSITIVE_INFINITY || ${code} === Number.NEGATIVE_INFINITY`)
-  return tree.first('LogicalExpression')
+function getCondition (name) {
+  return function (node) {
+    const source = 'function ' + conditions[name].toString()
+    const tree = new AbstractSyntaxTree(source)
+    const fn = tree.first('FunctionDeclaration')
+    const param = fn.params[0]
+    const body = tree.first('ReturnStatement').argument
+    AbstractSyntaxTree.replace(body, leaf => {
+      if (leaf.type === 'Identifier' && leaf.name === param.name) {
+        return node
+      }
+      return leaf
+    })
+    return body
+  }
 }
 
 function isEmpty (node) {
@@ -39,14 +35,6 @@ function isEmpty (node) {
 
 function isNull (left) {
   return getBinaryExpression(left, getLiteral(null), '===')
-}
-
-function isUndefined (node) {
-  return getVoidBinaryExpression(node, '===')
-}
-
-function isPresent (node) {
-  return getVoidBinaryExpression(node, '!==')
 }
 
 function isAlpha (node) {
@@ -605,19 +593,19 @@ function isLaterThan (left, right) {
 
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
-  { name: 'is_positive', handler: isPositive, args: 1 },
-  { name: 'is_negative', handler: isNegative, args: 1 },
-  { name: 'is_finite', handler: isFinite, args: 1 },
-  { name: 'is_infinite', handler: isInfinite, args: 1 },
-  { name: 'is_present', handler: isPresent, args: 1 },
+  { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
+  { name: 'is_negative', handler: getCondition('isNegative'), args: 1 },
+  { name: 'is_finite', handler: getCondition('isFinite'), args: 1 },
+  { name: 'is_infinite', handler: getCondition('isInfinite'), args: 1 },
+  { name: 'is_present', handler: getCondition('isPresent'), args: 1 },
   { name: 'is_alpha', handler: isAlpha, args: 1 },
   { name: 'is_alphanumeric', handler: isAlphaNumeric, args: 1 },
-  { name: 'are_present', handler: isPresent, args: 1 },
+  { name: 'are_present', handler: getCondition('isPresent'), args: 1 },
   { name: 'is_empty', handler: isEmpty, args: 1 },
   { name: 'are_empty', handler: isEmpty, args: 1 },
   { name: 'is_null', handler: isNull, args: 1 },
-  { name: 'is_undefined', handler: isUndefined, args: 1 },
-  { name: 'is_void', handler: isUndefined, args: 1 },
+  { name: 'is_undefined', handler: getCondition('isUndefined'), args: 1 },
+  { name: 'is_void', handler: getCondition('isUndefined'), args: 1 },
   { name: 'is_even', handler: isEven, args: 1 },
   { name: 'is_odd', handler: isOdd, args: 1 },
   { name: 'is_numeric', handler: isNumeric, args: 1 },
