@@ -33,42 +33,6 @@ function isEmpty (node) {
   return tree.first('LogicalExpression')
 }
 
-function isNull (left) {
-  return getBinaryExpression(left, getLiteral(null), '===')
-}
-
-function isAlpha (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z]/.test(char))`)
-  return tree.first('CallExpression')
-}
-
-function isAlphaNumeric (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`[...${code}].every(char => /[A-Za-z0-9]/.test(char))`)
-  return tree.first('CallExpression')
-}
-
-function getVoid () {
-  return { type: 'UnaryExpression', operator: 'void', prefix: true, argument: getLiteral(0) }
-}
-
-function getVoidBinaryExpression (left, operator) {
-  return getBinaryExpression(left, getVoid(), operator)
-}
-
-function getModuloWithZeroBinaryExpression (left, operator) {
-  return getBinaryExpression(getBinaryExpression(left, getLiteral(2), '%'), getLiteral(0), operator)
-}
-
-function isEven (node) {
-  return getModuloWithZeroBinaryExpression(node, '===')
-}
-
-function isOdd (node) {
-  return getModuloWithZeroBinaryExpression(node, '!==')
-}
-
 function isArray (node) {
   return {
     type: 'CallExpression',
@@ -126,44 +90,6 @@ function isObject (node) {
   }
 }
 
-function isFrozen (node) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: {
-        type: 'Identifier',
-        name: 'Object'
-      },
-      property: {
-        type: 'Identifier',
-        name: 'isFrozen'
-      },
-      computed: false
-    },
-    arguments: [node]
-  }
-}
-
-function isSealed (node) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: {
-        type: 'Identifier',
-        name: 'Object'
-      },
-      property: {
-        type: 'Identifier',
-        name: 'isSealed'
-      },
-      computed: false
-    },
-    arguments: [node]
-  }
-}
-
 function getObjectWithConstructorBinaryExpression (node, constructor) {
   return {
     type: 'BinaryExpression',
@@ -192,14 +118,6 @@ function getObjectWithConstructorBinaryExpression (node, constructor) {
   }
 }
 
-function isRegExp (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'RegExp')
-}
-
-function isNumber (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'Number')
-}
-
 function isMultiple (left, right) {
   return {
     type: 'BinaryExpression',
@@ -217,49 +135,6 @@ function isMultiple (left, right) {
   }
 }
 
-function isDigit (node) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'CallExpression',
-      callee: {
-        type: 'MemberExpression',
-        object: {
-          type: 'Literal',
-          value: '0123456789'
-        },
-        property: {
-          type: 'Identifier',
-          name: 'indexOf'
-        },
-        computed: false
-      },
-      arguments: [node]
-    },
-    operator: '!==',
-    right: {
-      type: 'UnaryExpression',
-      operator: '-',
-      prefix: true,
-      argument: {
-        type: 'Literal',
-        value: 1
-      }
-    }
-  }
-}
-
-function isDecimal (node) {
-  return {
-    type: 'BinaryExpression',
-    left: node,
-    operator: '%',
-    right: {
-      type: 'Literal',
-      value: 1
-    }
-  }
-}
 function isNumeric (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`
@@ -268,36 +143,8 @@ function isNumeric (node) {
   return tree.first('LogicalExpression')
 }
 
-function isString (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'String')
-}
-
-function isSymbol (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'Symbol')
-}
-
-function isMap (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'Map')
-}
-
-function isWeakMap (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'WeakMap')
-}
-
-function isSet (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'Set')
-}
-
-function isWeakSet (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'WeakSet')
-}
-
 function isBoolean (node) {
   return getObjectWithConstructorBinaryExpression(node, 'Boolean')
-}
-
-function isDate (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'Date')
 }
 
 function negate (argument) {
@@ -409,51 +256,6 @@ function isBitwiseNegation (left, right) {
   return getBinaryExpression(left, right, '~')
 }
 
-function isTruthy (node) {
-  const argument = {
-    type: 'UnaryExpression',
-    operator: '!',
-    prefix: true,
-    argument: node
-  }
-  return negate(argument)
-}
-
-function isFalsy (node) {
-  return negate(node)
-}
-
-function hasWhitespace (node) {
-  return getCallExpressionWithRegExp(node, '\\s|&nbsp;')
-}
-
-function hasNewLine (node) {
-  return getCallExpressionWithRegExp(node, '\\n')
-}
-
-function getCallExpressionWithRegExp (node, pattern) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: {
-        type: 'Literal',
-        value: {},
-        regex: {
-          pattern,
-          flags: 'g'
-        }
-      },
-      property: {
-        type: 'Identifier',
-        name: 'test'
-      },
-      computed: false
-    },
-    arguments: [node]
-  }
-}
-
 function hasNumber (node) {
   const code = AbstractSyntaxTree.generate(node)
   const tree = new AbstractSyntaxTree(`
@@ -551,14 +353,6 @@ function isPrime (node) {
   return tree.first('CallExpression')
 }
 
-function isPalindrome (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`
-    ${code} === ${code}.split('').reverse().join('')
-  `)
-  return tree.first('BinaryExpression')
-}
-
 function geDateComparisonCallExpression (left, right, operator) {
   function getTime (node) {
     return {
@@ -598,42 +392,42 @@ const STANDARD_ACTIONS = [
   { name: 'is_finite', handler: getCondition('isFinite'), args: 1 },
   { name: 'is_infinite', handler: getCondition('isInfinite'), args: 1 },
   { name: 'is_present', handler: getCondition('isPresent'), args: 1 },
-  { name: 'is_alpha', handler: isAlpha, args: 1 },
-  { name: 'is_alphanumeric', handler: isAlphaNumeric, args: 1 },
+  { name: 'is_alpha', handler: getCondition('isAlpha'), args: 1 },
+  { name: 'is_alphanumeric', handler: getCondition('isAlphaNumeric'), args: 1 },
   { name: 'are_present', handler: getCondition('isPresent'), args: 1 },
   { name: 'is_empty', handler: isEmpty, args: 1 },
   { name: 'are_empty', handler: isEmpty, args: 1 },
-  { name: 'is_null', handler: isNull, args: 1 },
+  { name: 'is_null', handler: getCondition('isNull'), args: 1 },
   { name: 'is_undefined', handler: getCondition('isUndefined'), args: 1 },
   { name: 'is_void', handler: getCondition('isUndefined'), args: 1 },
-  { name: 'is_even', handler: isEven, args: 1 },
-  { name: 'is_odd', handler: isOdd, args: 1 },
+  { name: 'is_even', handler: getCondition('isEven'), args: 1 },
+  { name: 'is_odd', handler: getCondition('isOdd'), args: 1 },
   { name: 'is_numeric', handler: isNumeric, args: 1 },
   { name: 'is_an_array', handler: isArray, args: 1 },
   { name: 'is_an_object', handler: isObject, args: 1 },
-  { name: 'is_frozen', handler: isFrozen, args: 1 },
-  { name: 'is_sealed', handler: isSealed, args: 1 },
-  { name: 'is_a_regexp', handler: isRegExp, args: 1 },
-  { name: 'is_a_regex', handler: isRegExp, args: 1 },
-  { name: 'is_a_number', handler: isNumber, args: 1 },
+  { name: 'is_frozen', handler: getCondition('isFrozen'), args: 1 },
+  { name: 'is_sealed', handler: getCondition('isSealed'), args: 1 },
+  { name: 'is_a_regexp', handler: getCondition('isRegExp'), args: 1 },
+  { name: 'is_a_regex', handler: getCondition('isRegExp'), args: 1 },
+  { name: 'is_a_number', handler: getCondition('isNumber'), args: 1 },
   { name: 'is_a_multiple_of', handler: isMultiple, args: 2 },
-  { name: 'is_a_digit', handler: isDigit, args: 1 },
-  { name: 'is_decimal', handler: isDecimal, args: 1 },
-  { name: 'is_a_string', handler: isString, args: 1 },
-  { name: 'is_a_symbol', handler: isSymbol, args: 1 },
-  { name: 'is_a_map', handler: isMap, args: 1 },
-  { name: 'is_a_weakmap', handler: isWeakMap, args: 1 },
-  { name: 'is_a_set', handler: isSet, args: 1 },
-  { name: 'is_a_weakset', handler: isWeakSet, args: 1 },
+  { name: 'is_a_digit', handler: getCondition('isDigit'), args: 1 },
+  { name: 'is_decimal', handler: getCondition('isDecimal'), args: 1 },
+  { name: 'is_a_string', handler: getCondition('isString'), args: 1 },
+  { name: 'is_a_symbol', handler: getCondition('isSymbol'), args: 1 },
+  { name: 'is_a_map', handler: getCondition('isMap'), args: 1 },
+  { name: 'is_a_weakmap', handler: getCondition('isWeakMap'), args: 1 },
+  { name: 'is_a_set', handler: getCondition('isSet'), args: 1 },
+  { name: 'is_a_weakset', handler: getCondition('isWeakSet'), args: 1 },
   { name: 'is_a_boolean', handler: isBoolean, args: 1 },
-  { name: 'is_a_date', handler: isDate, args: 1 },
-  { name: 'is_true', handler: isTruthy, args: 1 },
-  { name: 'is_false', handler: isFalsy, args: 1 },
-  { name: 'is_truthy', handler: isTruthy, args: 1 },
-  { name: 'is_falsy', handler: isFalsy, args: 1 },
+  { name: 'is_a_date', handler: getCondition('isDate'), args: 1 },
+  { name: 'is_true', handler: getCondition('isTruthy'), args: 1 },
+  { name: 'is_false', handler: getCondition('isFalsy'), args: 1 },
+  { name: 'is_truthy', handler: getCondition('isTruthy'), args: 1 },
+  { name: 'is_falsy', handler: getCondition('isFalsy'), args: 1 },
   { name: 'is_divisible_by', handler: isDivisible, args: 2 },
   { name: 'is_prime', handler: isPrime, args: 1 },
-  { name: 'is_palindrome', handler: isPalindrome, args: 1 },
+  { name: 'is_palindrome', handler: getCondition('isPalindrome'), args: 1 },
   { name: 'is_sooner_than', handler: isSoonerThan, args: 2 },
   { name: 'is_before', handler: isSoonerThan, args: 2 },
   { name: 'is_later_than', handler: isLaterThan, args: 2 },
@@ -641,8 +435,8 @@ const STANDARD_ACTIONS = [
   { name: 'responds_to', handler: respondsTo, args: 2 },
   { name: 'starts_with', handler: startsWith, args: 2 },
   { name: 'ends_with', handler: endsWith, args: 2 },
-  { name: 'has_a_whitespace', handler: hasWhitespace, args: 1 },
-  { name: 'has_a_newline', handler: hasNewLine, args: 1 },
+  { name: 'has_a_whitespace', handler: getCondition('hasWhitespace'), args: 1 },
+  { name: 'has_a_newline', handler: getCondition('hasNewLine'), args: 1 },
   { name: 'has_a_number', handler: hasNumber, args: 1 },
   { name: 'has_numbers', handler: hasNumbers, args: 1 },
   { name: 'or', handler: isAlternative, args: 2 },
