@@ -690,6 +690,8 @@ equal(compile('<if foo is not odd>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not odd>baz</if>')({ foo: 2 }, html => html), 'baz')
 equal(compile('<if foo is not odd>baz</if>')({ foo: [1].length }, html => html), '')
 
+
+
 equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 0, bar: 0 }, html => html), '')
 equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 1, bar: 1 }, html => html), 'baz')
 equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 1, bar: 0 }, html => html), 'baz')
@@ -1361,5 +1363,8 @@ equal(compile('<style type="text/css">.foo{color:red}</style>')({}, html => html
 
 equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 1, bar: 1, baz: 0 }, html => html), 'baz')
 equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 0, bar: 0, baz: 0 }, html => html), '')
+
+equal(compile('<if foo is an email>baz</if>')({ foo: 'as@ts.eu' }, html => html), 'baz')
+equal(compile('<if foo is an email>baz</if>')({ foo: 'asts.eu' }, html => html), '')
 
 console.timeEnd('test: success')

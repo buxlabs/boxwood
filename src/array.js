@@ -35,6 +35,7 @@ const STANDARD_ACTIONS = [
   ['is', 'a', 'weakset'],
   ['is', 'a', 'boolean'],
   ['is', 'a', 'date'],
+  ['is', 'an', 'email'],
   ['is', 'true'],
   ['is', 'false'],
   ['is', 'truthy'],
