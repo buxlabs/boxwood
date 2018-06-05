@@ -33,19 +33,6 @@ function isEmpty (node) {
   return tree.first('LogicalExpression')
 }
 
-function isArray (node) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: getIdentifier('Array'),
-      property: getIdentifier('isArray'),
-      computed: false
-    },
-    arguments: [node]
-  }
-}
-
 function isObject (node) {
   return {
     type: 'LogicalExpression',
@@ -90,34 +77,6 @@ function isObject (node) {
   }
 }
 
-function getObjectWithConstructorBinaryExpression (node, constructor) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'CallExpression',
-      callee: {
-        type: 'MemberExpression',
-        object: {
-          type: 'MemberExpression',
-          object: {
-            type: 'MemberExpression',
-            object: getIdentifier('Object'),
-            property: getIdentifier('prototype'),
-            computed: false
-          },
-          property: getIdentifier('toString'),
-          computed: false
-        },
-        property: getIdentifier('call'),
-        computed: false
-      },
-      arguments: [node]
-    },
-    operator: '===',
-    right: getLiteral(`[object ${constructor}]`)
-  }
-}
-
 function isMultiple (left, right) {
   return {
     type: 'BinaryExpression',
@@ -141,10 +100,6 @@ function isNumeric (node) {
     (typeof ${code} === 'string' || typeof ${code} === 'number') && !isNaN(Number(${code}))
   `)
   return tree.first('LogicalExpression')
-}
-
-function isBoolean (node) {
-  return getObjectWithConstructorBinaryExpression(node, 'Boolean')
 }
 
 function negate (argument) {
@@ -403,7 +358,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_even', handler: getCondition('isEven'), args: 1 },
   { name: 'is_odd', handler: getCondition('isOdd'), args: 1 },
   { name: 'is_numeric', handler: isNumeric, args: 1 },
-  { name: 'is_an_array', handler: isArray, args: 1 },
+  { name: 'is_an_array', handler: getCondition('isArray'), args: 1 },
   { name: 'is_an_object', handler: isObject, args: 1 },
   { name: 'is_frozen', handler: getCondition('isFrozen'), args: 1 },
   { name: 'is_sealed', handler: getCondition('isSealed'), args: 1 },
@@ -419,7 +374,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_a_weakmap', handler: getCondition('isWeakMap'), args: 1 },
   { name: 'is_a_set', handler: getCondition('isSet'), args: 1 },
   { name: 'is_a_weakset', handler: getCondition('isWeakSet'), args: 1 },
-  { name: 'is_a_boolean', handler: isBoolean, args: 1 },
+  { name: 'is_a_boolean', handler: getCondition('isBoolean'), args: 1 },
   { name: 'is_a_date', handler: getCondition('isDate'), args: 1 },
   { name: 'is_true', handler: getCondition('isTruthy'), args: 1 },
   { name: 'is_false', handler: getCondition('isFalsy'), args: 1 },
