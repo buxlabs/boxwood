@@ -77,6 +77,7 @@ const STANDARD_ACTIONS = [
   ['bitwise', 'xor'],
   ['bitwise', 'not'],
   ['have', 'more', 'than'],
+  ['have', 'less', 'than'],
   ['have', 'many'],
   ['have']
 ]

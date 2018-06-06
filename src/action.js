@@ -340,7 +340,7 @@ function isLaterThan (left, right) {
   return geDateComparisonCallExpression(left, right, '>')
 }
 
-function haveMoreThan (left, right) {
+function haveElements (left, right, operator) {
   return {
     type: 'BinaryExpression',
     left: {
@@ -352,46 +352,26 @@ function haveMoreThan (left, right) {
       },
       computed: false
     },
-    operator: '>',
+    operator,
     right
   }
+}
+
+function haveMoreThan (left, right) {
+  return haveElements(left, right, '>')
+}
+
+function haveLessThan (left, right) {
+  return haveElements(left, right, '<')
 }
 
 function have (left, right) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'length'
-      },
-      computed: false
-    },
-    operator: '===',
-    right
-  }
+  return haveElements(left, right, '===')
 }
 
 function haveMany (left) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'length'
-      },
-      computed: false
-    },
-    operator: '>',
-    right: {
-      type: 'Literal',
-      value: 1
-    }
-  }
+  const right = { type: 'Literal', value: 1 }
+  return haveElements(left, right, '>')
 }
 
 const STANDARD_ACTIONS = [
@@ -472,8 +452,9 @@ const STANDARD_ACTIONS = [
   { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 },
   { name: 'is_an_email', handler: getCondition('isEmail'), args: 1 },
   { name: 'have_more_than', handler: haveMoreThan, args: 2 },
-  { name: 'have', handler: have, args: 2 },
-  { name: 'have_many', handler: haveMany, args: 1 }
+  { name: 'have_less_than', handler: haveLessThan, args: 2 },
+  { name: 'have_many', handler: haveMany, args: 1 },
+  { name: 'have', handler: have, args: 2 }
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {

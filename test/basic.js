@@ -1372,6 +1372,10 @@ equal(compile('<if foo have more than four item>baz</if>')({ foo: [1, 2, 3, 4, 5
 equal(compile('<if photos have more than two photo>baz</if>')({ photos: [{}, {}] }, html => html), '')
 equal(compile('<if photos do not have more than two photo>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
 
+equal(compile('<if foo have less than six element>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), 'baz')
+equal(compile('<if photos have less than two photo>baz</if>')({ photos: [{}, {}] }, html => html), '')
+equal(compile('<if photos do not have less than two photo>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
+
 equal(compile('<if photos have two photo>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
 equal(compile('<if photos have zero photo>baz</if>')({ photos: [] }, html => html), 'baz')
 equal(compile('<if photos have one photo>baz</if>')({ photos: [] }, html => html), '')
