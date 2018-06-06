@@ -154,63 +154,35 @@ function appendIfStatement (node, tree, ast) {
 
 function getTest (action, keys, values, variables) {
   if (action.args === 1) {
-    let key = keys[0]
-    if (keys[0] === 'not') {
-      key = keys[1]
-    }
-    const [prefix] = key.split('.')
-    const node = getIdentifierWithOptionalPrefix(prefix, key, variables)
+    const key = keys[0] === 'not' ? keys[1] : keys[0]
+    const node = getLiteralOrIdentifier(key, variables)
     return action.handler(node)
   } else if (action.args === 2) {
-    const condition1 = keys[0]
-    const [prefix1] = condition1.split('.')
-    let left = getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
-    let right
-    let value = values[1]
-    if (value) {
-      right = convertValueToNode(value, variables)
-    } else {
-      const condition2 = keys[2]
-      const [prefix2] = condition2.split('.')
-      if (digits.has(condition2)) {
-        right = getLiteral(digits.get(condition2))
-      } else {
-        right = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
-      }
-    }
+    let left = getLiteralOrIdentifier(keys[0], variables)
+    let right = values[1] ? convertValueToNode(values[1], variables) : getLiteralOrIdentifier(keys[2], variables)
     return action.handler(left, right)
   } else if (action.args === 3) {
-    const condition1 = keys[0]
-    const [prefix1] = condition1.split('.')
-
-    const condition2 = keys[2]
-    const [prefix2] = condition2.split('.')
-
-    const condition3 = keys[4]
-    const [prefix3] = condition3.split('.')
-
-    const node =  getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
-    const startRange = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
-    const endRange = getIdentifierWithOptionalPrefix(prefix3, condition3, variables)
+    const node =  getLiteralOrIdentifier(keys[0], variables)
+    const startRange = getLiteralOrIdentifier(keys[2], variables)
+    const endRange = getLiteralOrIdentifier(keys[4], variables)
     return action.handler(node, startRange, endRange)
   }
 }
 
-function getLeftNodeFromIdentifier (last, variables) {
+function getLeftNodeFromAttribute (last, variables) {
   if (!last) return null
-  const key = last.key
-  const [prefix] = key.split('.')
-  return getIdentifierWithOptionalPrefix(prefix, key, variables)
-
+  return getLiteralOrIdentifier(last, variables)
 }
-function getRightNodeFromIdentifier (current, next, variables) {
+
+function getRightNodeFromAttribute (current, next, variables) {
   if (current.value) return convertValueToNode(current.value, variables)
-  const key = next.key
+  return getLiteralOrIdentifier(next, variables)
+}
+
+function getLiteralOrIdentifier (attribute, variables) {
+  const key = attribute.key || attribute
   const [prefix] = key.split('.')
-  if (digits.has(key)) {
-    return getLiteral(digits.get(key))
-  }
-  return getIdentifierWithOptionalPrefix(prefix, key, variables)
+  return digits.has(key) ? getLiteral(digits.get(key)) : getIdentifierWithOptionalPrefix(prefix, key, variables)
 }
 
 function getCondition (attrs, variables) {
@@ -233,7 +205,7 @@ function getCondition (attrs, variables) {
         const last = attributes[i - 1]
         const next = attributes[i + 1]
         if (!next || OPERATORS.includes(next.key)) {
-          let node = getLeftNodeFromIdentifier(attribute, variables)
+          let node = getLeftNodeFromAttribute(attribute, variables)
           if (last && last.key === 'not') {
             node = { type: 'UnaryExpression', operator: '!', prefix: true, argument: node }
           }
@@ -248,21 +220,26 @@ function getCondition (attrs, variables) {
             if (action.name === 'not') {
               const next = attributes[i + 1]
               i += 1
-              const left = getLeftNodeFromIdentifier(next, variables)
+              const left = getLeftNodeFromAttribute(next, variables)
               expressions.push(action.handler(left))
             } else {
               const previous = attributes[i - 1]
-              const left = getLeftNodeFromIdentifier(previous, variables)
+              const left = getLeftNodeFromAttribute(previous, variables)
               expressions.push(action.handler(left))
             }
-          } if (action.args === 2) {
+          } else if (action.args === 2) {
             const previous = attributes[i - 1]
             const current = attributes[i]
             const next = attributes[i + 1]
             i += 1
-            const left = getLeftNodeFromIdentifier(previous, variables)
-            const right = getRightNodeFromIdentifier(current, next, variables)
+            const left = getLeftNodeFromAttribute(previous, variables)
+            const right = getRightNodeFromAttribute(current, next, variables)
             expressions.push(action.handler(left, right))
+          } else if (action.args === 3) {
+            const node = getLiteralOrIdentifier(attributes[i - 1], variables)
+            const startRange = getLiteralOrIdentifier(attributes[i + 1], variables)
+            const endRange = getLiteralOrIdentifier(attributes[i + 3], variables)
+            expressions.push(action.handler(node, startRange, endRange))
           }
         }
       }

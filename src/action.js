@@ -378,17 +378,22 @@ function haveMany (left) {
   return haveElements(left, right, '>')
 }
 
-function isBetween (node, start, end) {
+function isBetween (left, start, end) {
   return {
-    type: 'BinaryExpression',
+    type: 'LogicalExpression',
     left: {
       type: 'BinaryExpression',
-      left: start,
-      operator: '<=',
-      right: node
+      left,
+      operator: '>=',
+      right: start
     },
-    operator: '<=',
-    right: end
+    operator: '&&',
+    right: {
+      type: 'BinaryExpression',
+      left,
+      operator: '<=',
+      right: end
+    }
   }
 }
 
