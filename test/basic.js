@@ -1418,6 +1418,9 @@ equal(compile('<if foo is between bar and baz>baz</if>')({ foo: 10, bar: 10, baz
 equal(compile('<if foo is between bar and baz>baz</if>')({ foo: 20, bar: 10, baz: 20 }, html => html), 'baz')
 equal(compile('<if foo is between bar and baz>baz</if>')({ foo: 50, bar: 10, baz: 20 }, html => html), '')
 equal(compile('<if foo is not between bar and baz>baz</if>')({ foo: 50, bar: 10, baz : 20}, html => html), 'baz')
+equal(compile('<if foo is between one and ten>baz</if>')({ foo: 10 }, html => html), 'baz')
+equal(compile('<if foo is between six and nine>baz</if>')({ foo: 5 }, html => html), '')
+equal(compile('<if foo is not between six and nine>baz</if>')({ foo: 5 }, html => html), 'baz')
 
 equal(compile('<if foo is between bar and baz and qux>baz</if>')({ foo: 15, bar: 10, baz: 20, qux: true }, html => html), 'baz')
 equal(compile('<if foo is between bar and baz and qux>baz</if>')({ foo: 10, bar: 10, baz: 20, qux: false }, html => html), '')

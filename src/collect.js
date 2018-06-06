@@ -191,6 +191,9 @@ function getLeftNodeFromIdentifier (last, variables) {
   if (!last) return null
   const key = last.key || last
   const [prefix] = key.split('.')
+  if (digits.has(key)) {
+    return getLiteral(digits.get(key))
+  }
   return getIdentifierWithOptionalPrefix(prefix, key, variables)
 
 }
