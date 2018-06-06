@@ -44,7 +44,10 @@ function getIdentifierWithOptionalPrefix (prefix, key, variables) {
 function findActions (attributes) {
   return attributes
     .filter(attr => attr.type === 'Action')
-    .map(attr => getAction(attr.key))
+    .map((attr, index, array) => {
+      if (attr.key === 'is_between') array.splice([index + 1], 1)
+      return getAction(attr.key)
+    }).filter(Boolean)
 }
 
 function collectComponentsFromImport (fragment, components, options) {
