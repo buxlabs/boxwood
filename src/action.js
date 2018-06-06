@@ -341,6 +341,10 @@ function isLaterThan (left, right) {
 }
 
 function haveElements (left, right, operator) {
+  if (right.type !== 'Literal') {
+    right = { type: 'Literal', value: 0 }
+    operator = '>'
+  }
   return {
     type: 'BinaryExpression',
     left: {
@@ -454,13 +458,18 @@ const STANDARD_ACTIONS = [
   { name: 'have_more_than', handler: haveMoreThan, args: 2 },
   { name: 'have_less_than', handler: haveLessThan, args: 2 },
   { name: 'have_many', handler: haveMany, args: 1 },
-  { name: 'have', handler: have, args: 2 }
+  { name: 'have', handler: have, args: 2 },
+  { name: 'has_more_than', handler: haveMoreThan, args: 2 },
+  { name: 'has_less_than', handler: haveLessThan, args: 2 },
+  { name: 'has_many', handler: haveMany, args: 1 },
+  { name: 'has', handler: have, args: 2 }
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action
   if (name.includes('has')) {
     name = 'does_not_have_' + name.substring(4)
+    if (name[name.length - 1] === '_') name = name.slice(0, -1)
   } else if (name.includes('have')) {
     name = 'do_not_' + name
   } else if (name.includes('with')) {

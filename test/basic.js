@@ -1382,7 +1382,35 @@ equal(compile('<if photos have one photo>baz</if>')({ photos: [] }, html => html
 equal(compile('<if photos do not have one photo>baz</if>')({ photos: [] }, html => html), 'baz')
 
 equal(compile('<if photos have many pictures>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
-equal(compile('<if photos have many pictures>baz</if>')({ photos: [{} ] }, html => html), '')
-equal(compile('<if photos do not have many pictures>baz</if>')({ photos: [{} ] }, html => html), 'baz')
+equal(compile('<if photos have many pictures>baz</if>')({ photos: [{}] }, html => html), '')
+equal(compile('<if photos do not have many pictures>baz</if>')({ photos: [{}] }, html => html), 'baz')
+
+equal(compile('<if photos have elements>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
+equal(compile('<if photos have elements>baz</if>')({ photos: [{}] }, html => html), 'baz')
+equal(compile('<if photos have elements>baz</if>')({ photos: [] }, html => html), '')
+equal(compile('<if photos do not have elements>baz</if>')({ photos: [] }, html => html), 'baz')
+
+equal(compile('<if foo has more than one element>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), 'baz')
+equal(compile('<if foo has more than four item>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), 'baz')
+equal(compile('<if photo has more than two picture>baz</if>')({ photo: [{}, {}] }, html => html), '')
+equal(compile('<if photo does not have more than two picture>baz</if>')({ photo: [{}, {}] }, html => html), 'baz')
+
+equal(compile('<if foo has less than six element>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), 'baz')
+equal(compile('<if photo has less than two item>baz</if>')({ photo: [{}, {}] }, html => html), '')
+equal(compile('<if photo does not have less than two item>baz</if>')({ photo: [{}, {}] }, html => html), 'baz')
+
+equal(compile('<if photo has two element>baz</if>')({ photo: [{}, {}] }, html => html), 'baz')
+equal(compile('<if photo has zero item>baz</if>')({ photo: [] }, html => html), 'baz')
+equal(compile('<if photo has one picture>baz</if>')({ photo: [] }, html => html), '')
+equal(compile('<if photo does not have one element>baz</if>')({ photo: [] }, html => html), 'baz')
+
+equal(compile('<if photo has many pictures>baz</if>')({ photo: [{}, {}] }, html => html), 'baz')
+equal(compile('<if photo has many pictures>baz</if>')({ photo: [{}] }, html => html), '')
+equal(compile('<if photo does not have many pictures>baz</if>')({ photo: [{} ] }, html => html), 'baz')
+
+equal(compile('<if foo has items>baz</if>')({ foo: [{}, {}] }, html => html), 'baz')
+equal(compile('<if foo has items>baz</if>')({ foo: [{}] }, html => html), 'baz')
+equal(compile('<if foo has items>baz</if>')({ foo: [] }, html => html), '')
+equal(compile('<if foo does not have items>baz</if>')({ foo: [] }, html => html), 'baz')
 
 console.timeEnd('test: success')

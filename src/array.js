@@ -79,7 +79,11 @@ const STANDARD_ACTIONS = [
   ['have', 'more', 'than'],
   ['have', 'less', 'than'],
   ['have', 'many'],
-  ['have']
+  ['have'],
+  ['has', 'more', 'than'],
+  ['has', 'less', 'than'],
+  ['has', 'many'],
+  ['has']
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
