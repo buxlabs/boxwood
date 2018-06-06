@@ -75,12 +75,17 @@ const STANDARD_ACTIONS = [
   ['bitwise', 'or'],
   ['bitwise', 'and'],
   ['bitwise', 'xor'],
-  ['bitwise', 'not']
+  ['bitwise', 'not'],
+  ['have', 'more', 'than'],
+  ['have', 'many'],
+  ['have']
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   if (action[0] === 'has') {
     return ['does', 'not', 'have'].concat(action.slice(1))
+  } else if (action[0] === 'have') {
+    return ['do', 'not'].concat(action)
   } else if (action[1] === 'with') {
     return ['does', 'not'].concat(singularize(action[0]), action[1])
   } else {

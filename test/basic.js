@@ -1367,4 +1367,18 @@ equal(compile('<if foo bitwise and bar or baz>baz</if>')({ foo: 0, bar: 0, baz: 
 equal(compile('<if foo is an email>baz</if>')({ foo: 'as@ts.eu' }, html => html), 'baz')
 equal(compile('<if foo is an email>baz</if>')({ foo: 'asts.eu' }, html => html), '')
 
+equal(compile('<if foo have more than one element>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), 'baz')
+equal(compile('<if foo have more than four item>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), 'baz')
+equal(compile('<if photos have more than two photo>baz</if>')({ photos: [{}, {}] }, html => html), '')
+equal(compile('<if photos do not have more than two photo>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
+
+equal(compile('<if photos have two photo>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
+equal(compile('<if photos have zero photo>baz</if>')({ photos: [] }, html => html), 'baz')
+equal(compile('<if photos have one photo>baz</if>')({ photos: [] }, html => html), '')
+equal(compile('<if photos do not have one photo>baz</if>')({ photos: [] }, html => html), 'baz')
+
+equal(compile('<if photos have many pictures>baz</if>')({ photos: [{}, {}] }, html => html), 'baz')
+equal(compile('<if photos have many pictures>baz</if>')({ photos: [{} ] }, html => html), '')
+equal(compile('<if photos do not have many pictures>baz</if>')({ photos: [{} ] }, html => html), 'baz')
+
 console.timeEnd('test: success')

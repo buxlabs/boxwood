@@ -339,6 +339,61 @@ function isSoonerThan (left, right) {
 function isLaterThan (left, right) {
   return geDateComparisonCallExpression(left, right, '>')
 }
+
+function haveMoreThan (left, right) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'MemberExpression',
+      object: left,
+      property: {
+        type: 'Identifier',
+        name: 'length'
+      },
+      computed: false
+    },
+    operator: '>',
+    right
+  }
+}
+
+function have (left, right) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'MemberExpression',
+      object: left,
+      property: {
+        type: 'Identifier',
+        name: 'length'
+      },
+      computed: false
+    },
+    operator: '===',
+    right
+  }
+}
+
+function haveMany (left) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'MemberExpression',
+      object: left,
+      property: {
+        type: 'Identifier',
+        name: 'length'
+      },
+      computed: false
+    },
+    operator: '>',
+    right: {
+      type: 'Literal',
+      value: 1
+    }
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
@@ -415,19 +470,18 @@ const STANDARD_ACTIONS = [
   { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
   { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },
   { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 },
-  { name: 'is_an_email', handler: getCondition('isEmail'), args: 1 }
+  { name: 'is_an_email', handler: getCondition('isEmail'), args: 1 },
+  { name: 'have_more_than', handler: haveMoreThan, args: 2 },
+  { name: 'have', handler: have, args: 2 },
+  { name: 'have_many', handler: haveMany, args: 1 }
 ]
 
-const NEGATED_ACTIONS = STANDARD_ACTIONS.filter(action => {
-  const { name } = action
-  if (name.length === 1) return false
-  if (name[0] === 'is' && (name[1] === 'greater' || name[1] === 'less')) return false
-  if (name.includes('not')) return false
-  return action
-}).map(action => {
+const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action
   if (name.includes('has')) {
     name = 'does_not_have_' + name.substring(4)
+  } else if (name.includes('have')) {
+    name = 'do_not_' + name
   } else if (name.includes('with')) {
     const index = name.indexOf('_with')
     name = 'does_not_' + singularize(name.substr(0, index)) + name.substr(index)
