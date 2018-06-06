@@ -180,25 +180,16 @@ function getTest (action, keys, values, variables) {
     }
     return action.handler(left, right)
   } else if (action.args === 3) {
-    const condition1 = keys[0]
-    const [prefix1] = condition1.split('.')
-
-    const condition2 = keys[2]
-    const [prefix2] = condition2.split('.')
-
-    const condition3 = keys[4]
-    const [prefix3] = condition3.split('.')
-
-    const node =  getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
-    const startRange = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
-    const endRange = getIdentifierWithOptionalPrefix(prefix3, condition3, variables)
+    const node =  getLeftNodeFromIdentifier(keys[0], variables)
+    const startRange = getLeftNodeFromIdentifier(keys[2], variables)
+    const endRange = getLeftNodeFromIdentifier(keys[4], variables)
     return action.handler(node, startRange, endRange)
   }
 }
 
 function getLeftNodeFromIdentifier (last, variables) {
   if (!last) return null
-  const key = last.key
+  const key = last.key || last
   const [prefix] = key.split('.')
   return getIdentifierWithOptionalPrefix(prefix, key, variables)
 
@@ -255,7 +246,7 @@ function getCondition (attrs, variables) {
               const left = getLeftNodeFromIdentifier(previous, variables)
               expressions.push(action.handler(left))
             }
-          } if (action.args === 2) {
+          } else if (action.args === 2) {
             const previous = attributes[i - 1]
             const current = attributes[i]
             const next = attributes[i + 1]
@@ -263,6 +254,11 @@ function getCondition (attrs, variables) {
             const left = getLeftNodeFromIdentifier(previous, variables)
             const right = getRightNodeFromIdentifier(current, next, variables)
             expressions.push(action.handler(left, right))
+          } else if (action.args === 3) {
+            const node =  getLeftNodeFromIdentifier(attributes[i - 1], variables)
+            const startRange = getLeftNodeFromIdentifier(attributes[i + 1], variables)
+            const endRange = getLeftNodeFromIdentifier(attributes[i + 3], variables)
+            expressions.push(action.handler(node, startRange, endRange))
           }
         }
       }
