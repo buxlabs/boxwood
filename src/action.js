@@ -378,6 +378,20 @@ function haveMany (left) {
   return haveElements(left, right, '>')
 }
 
+function isBetween (node, start, end) {
+  return {
+    type: 'BinaryExpression',
+    left: {
+      type: 'BinaryExpression',
+      left: start,
+      operator: '<=',
+      right: node
+    },
+    operator: '<=',
+    right: end
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
@@ -462,7 +476,8 @@ const STANDARD_ACTIONS = [
   { name: 'has_more_than', handler: haveMoreThan, args: 2 },
   { name: 'has_less_than', handler: haveLessThan, args: 2 },
   { name: 'has_many', handler: haveMany, args: 1 },
-  { name: 'has', handler: have, args: 2 }
+  { name: 'has', handler: have, args: 2 },
+  { name: 'is_between', handler: isBetween, args: 3 }
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
