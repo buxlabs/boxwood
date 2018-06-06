@@ -179,6 +179,20 @@ function getTest (action, keys, values, variables) {
       }
     }
     return action.handler(left, right)
+  } else if (action.args === 3) {
+    const condition1 = keys[0]
+    const [prefix1] = condition1.split('.')
+
+    const condition2 = keys[2]
+    const [prefix2] = condition2.split('.')
+
+    const condition3 = keys[4]
+    const [prefix3] = condition3.split('.')
+
+    const node =  getIdentifierWithOptionalPrefix(prefix1, condition1, variables)
+    const startRange = getIdentifierWithOptionalPrefix(prefix2, condition2, variables)
+    const endRange = getIdentifierWithOptionalPrefix(prefix3, condition3, variables)
+    return action.handler(node, startRange, endRange)
   }
 }
 
