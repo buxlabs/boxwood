@@ -61,6 +61,7 @@ const STANDARD_ACTIONS = [
   ['and'],
   ['eq'],
   ['neq'],
+  ['is', 'different', 'than'],
   ['does', 'not', 'equal'],
   ['is', 'not', 'equal', 'to'],
   ['gt'],

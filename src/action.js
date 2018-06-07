@@ -485,6 +485,7 @@ const STANDARD_ACTIONS = [
   { name: 'and', handler: isConjunction, args: 2 },
   { name: 'eq', handler: isEquals, args: 2 },
   { name: 'neq', handler: notEqual, args: 2 },
+  { name: 'is_different_than', handler: notEqual, args: 2 },
   { name: 'does_not_equal', handler: notEqual, args: 2 },
   { name: 'is_not_equal_to', handler: notEqual, args: 2 },
   { name: 'gt', handler: isGreaterThan, args: 2 },

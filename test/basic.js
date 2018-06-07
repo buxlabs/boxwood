@@ -1472,4 +1472,9 @@ equal(compile('<if foo does not have length of at most bar>baz</if>')({ foo: [1,
 equal(compile('<if foo has length of at most five>baz</if>')({ foo: 'lorem ipsum', bar: 5 }, html => html), '')
 equal(compile('<if foo does not have length of at most bar>baz</if>')({ foo: 'lorem ipsum', bar: 5 }, html => html), 'baz')
 
+equal(compile('<if foo is different than bar>baz</if>')({ foo: 5, bar: 1 }, html => html), 'baz')
+equal(compile('<if foo is different than bar>baz</if>')({ foo: 'lorem', bar: 'ipsum' }, html => html), 'baz')
+equal(compile('<if foo is different than bar>baz</if>')({ foo: 5, bar: 5 }, html => html), '')
+equal(compile('<if foo is different than bar>baz</if>')({ foo: 'lorem', bar: 'lorem' }, html => html), '')
+
 console.timeEnd('test: success')
