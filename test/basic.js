@@ -1447,6 +1447,13 @@ equal(compile('<if foo is at least eight>baz</if>')({ foo: 5 }, html => html), '
 equal(compile('<if foo is not at least bar>baz</if>')({ foo: 10, bar: 20 }, html => html), 'baz')
 equal(compile('<if foo is not at least eight>baz</if>')({ foo: 5 }, html => html), 'baz')
 
+equal(compile('<if foo is at most bar>baz</if>')({ foo: 20, bar: 20 }, html => html), 'baz')
+equal(compile('<if foo is at most bar>baz</if>')({ foo: 30, bar: 20 }, html => html), '')
+equal(compile('<if foo is not at most bar>baz</if>')({ foo: 30, bar: 20 }, html => html), 'baz')
+equal(compile('<if foo is at most eight>baz</if>')({ foo: 6 }, html => html), 'baz')
+equal(compile('<if foo is at most eight>baz</if>')({ foo: 10 }, html => html), '')
+equal(compile('<if foo is not at most eight>baz</if>')({ foo: 10 }, html => html), 'baz')
+
 equal(compile('<if foo has length of bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 5 }, html => html), 'baz')
 equal(compile('<if foo has length of bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 10 }, html => html), '')
 equal(compile('<if foo does not have length of bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 10 }, html => html), 'baz')

@@ -503,6 +503,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_below', handler: isLessThan, args: 2 },
   { name: 'is_above', handler: isGreaterThan, args: 2 },
   { name: 'is_at_least', handler: isGreaterThanOrEqual, args: 2 },
+  { name: 'is_at_most', handler: isLessThanOrEqual, args: 2 },
   { name: 'has_length_of', handler: hasLengthOf, args: 2 }
 ]
 
