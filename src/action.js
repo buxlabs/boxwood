@@ -427,6 +427,29 @@ function hasLengthOfAtMost (left ,right) {
   return hasLength(left, right, '<=')
 }
 
+function isUrl (node) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'MemberExpression',
+      object: {
+        type: 'Literal',
+        value: {},
+        regex: {
+          pattern: '((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[\\-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9\\.\\-]+|(?:www\\.|[\\-;:&=\\+\\$,\\w]+@)[A-Za-z0-9\\.\\-]+)((?:\\/[\\+~%\\/\\.\\w\\-_]*)?\\??(?:[\\-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*))?)',
+          flags: ''
+        }
+      },
+      property: {
+        type: 'Identifier',
+        name: 'test'
+      },
+      computed: false
+    },
+    arguments: [node]
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
@@ -521,6 +544,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_length_of', handler: hasLengthOf, args: 2 },
   { name: 'has_length_of_at_least', handler: hasLengthOfAtLeast, args: 2 },
   { name: 'has_length_of_at_most', handler: hasLengthOfAtMost, args: 2 },
+  { name: 'is_a_url', handler: isUrl, args: 1 },
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {

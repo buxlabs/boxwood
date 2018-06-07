@@ -95,7 +95,8 @@ const STANDARD_ACTIONS = [
   ['has', 'length', 'of', 'at', 'least'],
   ['has', 'length', 'of', 'at', 'most'],
   ['has', 'length', 'of'],
-  ['has']
+  ['has'],
+  ['is', 'a', 'url']
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
