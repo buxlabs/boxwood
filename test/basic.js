@@ -1440,4 +1440,11 @@ equal(compile('<if foo is above nine>baz</if>')({ foo: 5 }, html => html), '')
 equal(compile('<if foo is not above bar>baz</if>')({ foo: 20, bar: 20 }, html => html), 'baz')
 equal(compile('<if foo is not above nine>baz</if>')({ foo: 5 }, html => html), 'baz')
 
+equal(compile('<if foo is at least bar>baz</if>')({ foo: 20, bar: 20 }, html => html), 'baz')
+equal(compile('<if foo is at least four>baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is at least bar>baz</if>')({ foo: 10, bar: 20 }, html => html), '')
+equal(compile('<if foo is at least eight>baz</if>')({ foo: 5 }, html => html), '')
+equal(compile('<if foo is not at least bar>baz</if>')({ foo: 10, bar: 20 }, html => html), 'baz')
+equal(compile('<if foo is not at least eight>baz</if>')({ foo: 5 }, html => html), 'baz')
+
 console.timeEnd('test: success')
