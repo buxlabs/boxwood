@@ -1460,4 +1460,16 @@ equal(compile('<if foo does not have length of bar>baz</if>')({ foo: [1, 2, 3, 4
 equal(compile('<if foo has length of five>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 5 }, html => html), 'baz')
 equal(compile('<if foo has length of six>baz</if>')({ foo: [1, 2, 3, 4, 5] }, html => html), '')
 
+equal(compile('<if foo has length of at least bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 5 }, html => html), 'baz')
+equal(compile('<if foo has length of at least bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 10 }, html => html), '')
+equal(compile('<if foo does not have length of at least bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 10 }, html => html), 'baz')
+equal(compile('<if foo has length of at least five>baz</if>')({ foo: 'lorem ipsum', bar: 5 }, html => html), 'baz')
+equal(compile('<if foo has length of at least bar>baz</if>')({ foo: 'lorem ipsum', bar: 100 }, html => html), '')
+
+equal(compile('<if foo has length of at most bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 5 }, html => html), 'baz')
+equal(compile('<if foo has length of at most bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 1 }, html => html), '')
+equal(compile('<if foo does not have length of at most bar>baz</if>')({ foo: [1, 2, 3, 4, 5], bar: 1 }, html => html), 'baz')
+equal(compile('<if foo has length of at most five>baz</if>')({ foo: 'lorem ipsum', bar: 5 }, html => html), '')
+equal(compile('<if foo does not have length of at most bar>baz</if>')({ foo: 'lorem ipsum', bar: 5 }, html => html), 'baz')
+
 console.timeEnd('test: success')

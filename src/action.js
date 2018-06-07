@@ -397,7 +397,7 @@ function isBetween (left, start, end) {
   }
 }
 
-function hasLengthOf (left ,right) {
+function hasLength (left, right, operator) {
   return {
     type: 'BinaryExpression',
     left: {
@@ -409,9 +409,22 @@ function hasLengthOf (left ,right) {
       },
       computed: false
     },
-    operator: '===',
+    operator,
     right
   }
+
+}
+
+function hasLengthOf (left ,right) {
+  return hasLength(left, right, '===')
+}
+
+function hasLengthOfAtLeast (left ,right) {
+  return hasLength(left, right, '>=')
+}
+
+function hasLengthOfAtMost (left ,right) {
+  return hasLength(left, right, '<=')
 }
 
 const STANDARD_ACTIONS = [
@@ -504,7 +517,9 @@ const STANDARD_ACTIONS = [
   { name: 'is_above', handler: isGreaterThan, args: 2 },
   { name: 'is_at_least', handler: isGreaterThanOrEqual, args: 2 },
   { name: 'is_at_most', handler: isLessThanOrEqual, args: 2 },
-  { name: 'has_length_of', handler: hasLengthOf, args: 2 }
+  { name: 'has_length_of', handler: hasLengthOf, args: 2 },
+  { name: 'has_length_of_at_least', handler: hasLengthOfAtLeast, args: 2 },
+  { name: 'has_length_of_at_most', handler: hasLengthOfAtMost, args: 2 },
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
