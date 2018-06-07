@@ -482,7 +482,9 @@ const STANDARD_ACTIONS = [
   { name: 'has_less_than', handler: haveLessThan, args: 2 },
   { name: 'has_many', handler: haveMany, args: 1 },
   { name: 'has', handler: have, args: 2 },
-  { name: 'is_between', handler: isBetween, args: 3 }
+  { name: 'is_between', handler: isBetween, args: 3 },
+  { name: 'is_below', handler: isLessThan, args: 2 },
+  { name: 'is_above', handler: isGreaterThan, args: 2 }
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {

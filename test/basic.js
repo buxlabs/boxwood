@@ -1426,4 +1426,18 @@ equal(compile('<if foo is between bar and baz and qux>baz</if>')({ foo: 15, bar:
 equal(compile('<if foo is between bar and baz and qux>baz</if>')({ foo: 10, bar: 10, baz: 20, qux: false }, html => html), '')
 equal(compile('<if foo is not between bar and baz and qux>baz</if>')({ foo: 0, bar: 10, baz: 20, qux: true }, html => html), 'baz')
 
+equal(compile('<if foo is below bar>baz</if>')({ foo: 5, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo is below bar>baz</if>')({ foo: 20, bar: 20 }, html => html), '')
+equal(compile('<if foo is below six>baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is below three>baz</if>')({ foo: 5 }, html => html), '')
+equal(compile('<if foo is not below three>baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is not below bar>baz</if>')({ foo: 20, bar: 20 }, html => html), 'baz')
+
+equal(compile('<if foo is above bar>baz</if>')({ foo: 15, bar: 10 }, html => html), 'baz')
+equal(compile('<if foo is above bar>baz</if>')({ foo: 20, bar: 20 }, html => html), '')
+equal(compile('<if foo is above two>baz</if>')({ foo: 5 }, html => html), 'baz')
+equal(compile('<if foo is above nine>baz</if>')({ foo: 5 }, html => html), '')
+equal(compile('<if foo is not above bar>baz</if>')({ foo: 20, bar: 20 }, html => html), 'baz')
+equal(compile('<if foo is not above nine>baz</if>')({ foo: 5 }, html => html), 'baz')
+
 console.timeEnd('test: success')
