@@ -1,5 +1,8 @@
 const { string: { singularize } } = require('pure-utilities')
 
+/*Tne order of actions is important.
+  Actions With shorten names can override longer actions containing the same words.
+*/
 const STANDARD_ACTIONS = [
   ['is', 'positive'],
   ['is', 'negative'],
@@ -83,11 +86,12 @@ const STANDARD_ACTIONS = [
   ['has', 'more', 'than'],
   ['has', 'less', 'than'],
   ['has', 'many'],
-  ['has'],
   ['is', 'between'],
   ['is', 'below'],
   ['is', 'above'],
-  ['is', 'at', 'least']
+  ['is', 'at', 'least'],
+  ['has', 'length', 'of'],
+  ['has']
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
