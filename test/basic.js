@@ -1484,4 +1484,9 @@ equal(compile('<if foo is a url><a href="{foo}">{bar}</a></if>')({
 
 equal(compile('<if foo is a url><a href="{foo}">{bar}</a></if>')({}, html => html), '')
 
+equal(compile('<content for title>foo</content><title content="title"></title>')({}, html => html), '<title>foo</title>')
+equal(compile('<import meta from="./fixtures/partial/meta.html"><content for title>foo</content><meta></meta>', {
+  paths: [__dirname]
+})({}, html => html), '<title>foo</title>')
+
 console.timeEnd('test: success')

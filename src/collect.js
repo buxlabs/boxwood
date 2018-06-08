@@ -261,7 +261,7 @@ function getCondition (attrs, variables) {
   }
 }
 
-function collect (tree, fragment, variables, modifiers, components, options) {
+function collect (tree, fragment, variables, modifiers, components, store, options) {
   if (fragment.used) return
   fragment.used = true
   const tag = fragment.tagName
@@ -271,10 +271,16 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     resolveComponent(component, fragment, variables, modifiers, components, options)
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
+      collect(ast, current, variables, modifiers, components, store, options)
     })
     const body = ast.body()
     body.forEach(node => tree.append(node))
+  } else if (tag === 'content') {
+    const { key } = attrs[1]
+    store[key] = fragment
+    fragment.children.forEach(child => {
+      child.used = true
+    })
   } else if (tag === 'script' && attrs[0] && attrs[0].key === 'inline') {
     const leaf = fragment.children[0]
     leaf.used = true
@@ -297,6 +303,16 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === '!doctype') {
     tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
+    if (attrs && attrs.map(attr => attr.key).includes('content')) {
+      const { value } = attrs[0]
+      if (store[value]) {
+        fragment.children = store[value].children
+        fragment.children.forEach(child => {
+          child.used = false
+        })
+      }
+      fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
+    }
     collectComponentsFromPartialAttribute(fragment, options)
     const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
@@ -306,7 +322,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       tree.append(getTemplateAssignmentExpression(node))
     })
     fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components, options)
+      collect(tree, node, variables, modifiers, components, store, options)
     })
     if (!SELF_CLOSING_TAGS.includes(tag)) {
       const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -325,7 +341,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
+      collect(ast, current, variables, modifiers, components, store, options)
     })
     const condition = getCondition(attrs, variables)
     appendIfStatement(condition, tree, ast)
@@ -334,7 +350,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -354,7 +370,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -391,7 +407,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.push(guard)
       ast.append(getForLoopVariable(variable, name, variables, index, range))
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
       variables.pop()
@@ -410,7 +426,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       tree.append(getForInLoop(keyIdentifier, name, ast.body()))
       variables.pop()
@@ -419,14 +435,14 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === 'slot' || tag === 'yield') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
+      collect(ast, current, variables, modifiers, components, store, options)
     })
     const body = ast.body()
     body.forEach(node => tree.append(node))
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
+      collect(ast, current, variables, modifiers, components, store, options)
     })
 
     tree.append({
@@ -441,7 +457,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       leaf.handler = {
         type: 'CatchClause',
@@ -458,7 +474,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === 'unless') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
+      collect(ast, current, variables, modifiers, components, store, options)
     })
     const { key } = attrs[0]
     const [prefix] = key.split('.')
@@ -481,7 +497,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -525,7 +541,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       const condition = getCondition(attributes, variables)
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       ast.append({
         type: 'BreakStatement',
@@ -542,7 +558,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, options)
+        collect(ast, current, variables, modifiers, components, store, options)
       })
       ast.append({
         type: 'BreakStatement',
@@ -571,7 +587,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
       variables.push(value.key)
     }
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, options)
+      collect(ast, current, variables, modifiers, components, store, options)
     })
     if (left) {
       variables.pop()
@@ -622,7 +638,7 @@ function collect (tree, fragment, variables, modifiers, components, options) {
   } else if (tag === 'partial' || tag === 'render') {
     collectComponentsFromPartialOrRender(fragment, options)
     fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components, options)
+      collect(tree, node, variables, modifiers, components, store, options)
     })
   }
 }

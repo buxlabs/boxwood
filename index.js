@@ -15,9 +15,10 @@ function render (source, options) {
   ].concat(GLOBAL_VARIABLES)
   const modifiers = []
   const components = []
+  const store = {}
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components, options)
+    collect(tree, fragment, variables, modifiers, components, store, options)
   })
   modifiers.forEach(name => {
     const modifier = getModifier(name)

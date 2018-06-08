@@ -36,7 +36,8 @@ module.exports = {
     'import',
     'require',
     'partial',
-    'render'
+    'render',
+    'content'
   ],
   UNESCAPED_NAMES: [
     'value',
