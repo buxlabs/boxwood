@@ -1488,5 +1488,6 @@ equal(compile('<content for title>foo</content><title content="title"></title>')
 equal(compile('<import meta from="./fixtures/partial/meta.html"><content for title>foo</content><meta></meta>', {
   paths: [__dirname]
 })({}, html => html), '<title>foo</title>')
+equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}')({foo: 100}, html => html), '$100.00')
 
 console.timeEnd('test: success')

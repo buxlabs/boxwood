@@ -3,17 +3,22 @@ const { string: { singlespace } } = require('pure-utilities')
 function extract (value) {
   let objects = []
   let string = ''
+  let depth = 0
   singlespace(value.trim()).split('').forEach(character => {
     if (character === '{') {
-      if (string) {
+      depth++
+      if (string && depth === 1) {
         objects.push({ value: string })
         string = ''
       }
     }
     string += character
     if (character === '}') {
-      objects.push({ value: string })
-      string = ''
+      if (depth === 1) {
+        objects.push({ value: string })
+        string = ''
+      }
+      depth--
     }
   })
   objects.push({ value: string })

@@ -20,3 +20,5 @@ assert.deepEqual(extract('{foo | uppercase | lowercase}'), [{ value: '{foo}', mo
 assert.deepEqual(extract('{foo | uppercase | lowercase | truncate(25)}'), [{ value: '{foo}', modifiers: ['uppercase', 'lowercase', 'truncate(25)'] }])
 assert.deepEqual(extract('{1}'), [{ value: '{1}' }])
 assert.deepEqual(extract('{"foo"}'), [{ value: '{"foo"}' }])
+assert.deepEqual(extract('{foo | monetize({ currency: "$", ending: false, space: false })}'), [{value: '{foo}', modifiers: ['monetize({ currency: "$", ending: false, space: false })']}])
+assert.deepEqual(extract('{foo | bar({baz: 25}) | monetize({ currency: "$", ending: false, space: false })}'), [{value: '{foo}', modifiers: ['bar({baz: 25})', 'monetize({ currency: "$", ending: false, space: false })']}])
