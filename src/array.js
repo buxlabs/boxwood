@@ -106,6 +106,8 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
     return ['do', 'not'].concat(action)
   } else if (action[1] === 'with') {
     return ['does', 'not'].concat(singularize(action[0]), action[1])
+  } else if (action[0] === 'or') {
+    return ['nor']
   } else {
     let array = action.slice(0)
     array.splice(1, 0, 'not')
@@ -115,7 +117,7 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
 
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
 
-function normalize (array) { // ['foo', 'is', 'greater', 'than', 'bar']
+function normalize (array) {
   const result = []
   let index
   for (let i = 0, ilen = array.length; i < ilen; i++) {

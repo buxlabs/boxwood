@@ -462,6 +462,8 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   } else if (name.includes('with')) {
     const index = name.indexOf('_with')
     name = 'does_not_' + singularize(name.substr(0, index)) + name.substr(index)
+  } else if (name === 'or') {
+    name = 'nor'
   } else {
     let temp = name.split('_')
     temp.splice(1, 0, 'not')

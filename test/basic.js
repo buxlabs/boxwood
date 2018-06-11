@@ -391,6 +391,9 @@ equal(compile('<if foo or bar>baz</if>')({ foo: true, bar: false }, html => html
 equal(compile('<if foo or bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
 equal(compile('<if foo or bar>baz</if>')({ foo: false, bar: false }, html => html), '')
 
+equal(compile('<if foo nor bar>baz</if>')({ foo: false, bar: true }, html => html), '')
+equal(compile('<if foo nor bar>baz</if>')({ foo: false, bar: false }, html => html), 'baz')
+
 equal(compile('<if foo eq bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
 equal(compile('<if foo eq bar>baz</if>')({ foo: 40, bar: 42 }, html => html), '')
 equal(compile('<if foo eq bar>baz</if>')({ foo: '42', bar: 42 }, html => html), '')
