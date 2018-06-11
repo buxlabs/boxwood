@@ -11,7 +11,6 @@ const aliases = {
   minus: 'subtract',
   uncapitalize: 'lowerfirst',
   abbreviate: 'truncate',
-  rotate: 'reverse',
   mean: 'average',
   count: 'size',
   length: 'size'
