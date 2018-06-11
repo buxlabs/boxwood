@@ -303,6 +303,17 @@ function collect (tree, fragment, variables, modifiers, components, store, optio
   } else if (tag === '!doctype') {
     tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
+    if (tag === 'svg') {
+      const { value: path } = fragment.attributes[0]
+      for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+        const location = join(options.paths[i], path)
+        if (!existsSync(location)) continue
+        const content = parse(readFileSync(location, 'utf8'))[0]
+        fragment.attributes = content.attributes
+        fragment.children = content.children
+        break
+      }
+    }
     if (attrs && attrs.map(attr => attr.key).includes('content')) {
       const { value } = attrs[0]
       if (store[value]) {

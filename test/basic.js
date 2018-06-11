@@ -1490,4 +1490,6 @@ equal(compile('<import meta from="./fixtures/partial/meta.html"><content for tit
 })({}, html => html), '<title>foo</title>')
 equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}')({foo: 100}, html => html), '$100.00')
 
+equal(compile('<svg from="./fixtures/svg/rectangle.svg" />', { paths: [__dirname] })({}, html => html), '<svg width="400" height="100"><rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)"></rect></svg>')
+equal(compile('<svg from="./fixtures/svg/stroke.svg" />', { paths: [__dirname] })({}, html => html), '<svg height="80" width="300"><g fill="none"><path stroke="red" d="M5 20 l215 0"></path></g></svg>')
 console.timeEnd('test: success')
