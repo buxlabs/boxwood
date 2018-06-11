@@ -92,6 +92,7 @@ const STANDARD_ACTIONS = [
   ['is', 'above'],
   ['is', 'at', 'least'],
   ['is', 'at', 'most'],
+  ['is', 'in'],
   ['has', 'length', 'of', 'at', 'least'],
   ['has', 'length', 'of', 'at', 'most'],
   ['has', 'length', 'of'],
