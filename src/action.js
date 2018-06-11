@@ -81,6 +81,35 @@ function isAlternative (left, right) {
   return getLogicalExpression(left, right, '||')
 }
 
+function isExclusiveAlternative (left, right) {
+  return {
+    type: 'LogicalExpression',
+    left: {
+      type: 'LogicalExpression',
+      left: {
+        type: 'UnaryExpression',
+        operator: '!',
+        prefix: true,
+        argument: left
+      },
+      operator: '&&',
+      right
+    },
+    operator: '||',
+    right: {
+      type: 'BinaryExpression',
+      left,
+      operator: '&',
+      right: {
+        type: 'UnaryExpression',
+        operator: '!',
+        prefix: true,
+        argument: right
+      }
+    }
+  }
+}
+
 function isConjunction (left, right) {
   return getLogicalExpression(left, right, '&&')
 }
@@ -410,6 +439,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_a_number', handler: getCondition('hasNumber'), args: 1 },
   { name: 'has_numbers', handler: getCondition('hasNumbers'), args: 1 },
   { name: 'or', handler: isAlternative, args: 2 },
+  { name: 'xor', handler: isExclusiveAlternative, args: 2 },
   { name: 'and', handler: isConjunction, args: 2 },
   { name: 'eq', handler: isEquals, args: 2 },
   { name: 'neq', handler: notEqual, args: 2 },

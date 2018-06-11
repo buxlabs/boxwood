@@ -394,6 +394,11 @@ equal(compile('<if foo or bar>baz</if>')({ foo: true, bar: false }, html => html
 equal(compile('<if foo or bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
 equal(compile('<if foo or bar>baz</if>')({ foo: false, bar: false }, html => html), '')
 
+equal(compile('<if foo xor bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
+equal(compile('<if foo xor bar>baz</if>')({ foo: true, bar: false }, html => html), 'baz')
+equal(compile('<if foo xor bar>baz</if>')({ foo: false, bar: false }, html => html), '')
+equal(compile('<if foo xor bar>baz</if>')({ foo: true, bar: true }, html => html), '')
+
 equal(compile('<if foo nor bar>baz</if>')({ foo: false, bar: true }, html => html), '')
 equal(compile('<if foo nor bar>baz</if>')({ foo: false, bar: false }, html => html), 'baz')
 
@@ -695,8 +700,6 @@ equal(compile('<if foo is odd>baz</if>')({ foo: 'bar'.length }, html => html), '
 equal(compile('<if foo is not odd>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not odd>baz</if>')({ foo: 2 }, html => html), 'baz')
 equal(compile('<if foo is not odd>baz</if>')({ foo: [1].length }, html => html), '')
-
-
 
 equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 0, bar: 0 }, html => html), '')
 equal(compile('<if foo bitwise or bar>baz</if>')({ foo: 1, bar: 1 }, html => html), 'baz')
