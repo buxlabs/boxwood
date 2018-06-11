@@ -8,29 +8,40 @@ function getCondition (name) {
     const source = 'function ' + conditions[name].toString()
     const tree = new AbstractSyntaxTree(source)
     const fn = tree.first('FunctionDeclaration')
+    const { body } = fn.body
     const param = fn.params[0]
-    const body = tree.first('ReturnStatement').argument
-    AbstractSyntaxTree.replace(body, leaf => {
-      if (leaf.type === 'Identifier' && leaf.name === param.name) {
-        return node
+    if (body.length === 1) {
+      const statement = body[0].argument
+      AbstractSyntaxTree.replace(statement, leaf => {
+        if (leaf.type === 'Identifier' && leaf.name === param.name) {
+          return node
+        }
+        return leaf
+      })
+      return statement
+    } else {
+      AbstractSyntaxTree.replace({ type: 'BlockStatement', body }, leaf => {
+        if (leaf.type === 'Identifier' && leaf.name === param.name) {
+          return node
+        }
+        return leaf
+      })
+      return {
+        type: 'CallExpression',
+        callee: {
+          type: 'FunctionExpression',
+          generator: false,
+          expression: false,
+          params: [],
+          body: {
+            type: 'BlockStatement',
+            body
+          }
+        },
+        arguments: []
       }
-      return leaf
-    })
-    return body
+    }
   }
-}
-
-function isEmpty (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`
-      ${code} == null || (Array.isArray(${code}) || Object.prototype.toString.call(${code}) === '[object String]') && ${code}.length === 0 ||
-      (Object.prototype.toString.call(${code}) === '[object Set]' ||
-       Object.prototype.toString.call(${code}) === '[object Map]') && ${code}.size === 0 ||
-      (Object.prototype.toString.call(${code}) === '[object Object]' ||
-       Object.prototype.toString.call(${code}) === '[object Function]') && Object.keys(${code}).length === 0
-    `)
-
-  return tree.first('LogicalExpression')
 }
 
 function isObject (node) {
@@ -460,16 +471,16 @@ const STANDARD_ACTIONS = [
   { name: 'is_alpha', handler: getCondition('isAlpha'), args: 1 },
   { name: 'is_alphanumeric', handler: getCondition('isAlphaNumeric'), args: 1 },
   { name: 'are_present', handler: getCondition('isPresent'), args: 1 },
-  { name: 'is_empty', handler: isEmpty, args: 1 },
-  { name: 'are_empty', handler: isEmpty, args: 1 },
+  { name: 'is_empty', handler: getCondition('isEmpty'), args: 1 },
+  { name: 'are_empty', handler: getCondition('isEmpty'), args: 1 },
   { name: 'is_null', handler: getCondition('isNull'), args: 1 },
   { name: 'is_undefined', handler: getCondition('isUndefined'), args: 1 },
   { name: 'is_void', handler: getCondition('isUndefined'), args: 1 },
   { name: 'is_even', handler: getCondition('isEven'), args: 1 },
   { name: 'is_odd', handler: getCondition('isOdd'), args: 1 },
-  { name: 'is_numeric', handler: isNumeric, args: 1 },
+  { name: 'is_numeric', handler: getCondition('isNumeric'), args: 1 },
   { name: 'is_an_array', handler: getCondition('isArray'), args: 1 },
-  { name: 'is_an_object', handler: isObject, args: 1 },
+  { name: 'is_an_object', handler: getCondition('isObject'), args: 1 },
   { name: 'is_frozen', handler: getCondition('isFrozen'), args: 1 },
   { name: 'is_sealed', handler: getCondition('isSealed'), args: 1 },
   { name: 'is_a_regexp', handler: getCondition('isRegExp'), args: 1 },
@@ -491,7 +502,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_truthy', handler: getCondition('isTruthy'), args: 1 },
   { name: 'is_falsy', handler: getCondition('isFalsy'), args: 1 },
   { name: 'is_divisible_by', handler: isDivisible, args: 2 },
-  { name: 'is_prime', handler: isPrime, args: 1 },
+  { name: 'is_prime', handler: getCondition('isPrime'), args: 1 },
   { name: 'is_palindrome', handler: getCondition('isPalindrome'), args: 1 },
   { name: 'is_sooner_than', handler: isSoonerThan, args: 2 },
   { name: 'is_before', handler: isSoonerThan, args: 2 },
