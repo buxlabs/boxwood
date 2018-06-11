@@ -13,7 +13,8 @@ const aliases = {
   abbreviate: 'truncate',
   rotate: 'reverse',
   mean: 'average',
-  count: 'size'
+  count: 'size',
+  length: 'size'
 }
 
 function getModifierName (modifier) {
