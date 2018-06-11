@@ -44,50 +44,6 @@ function getCondition (name) {
   }
 }
 
-function isObject (node) {
-  return {
-    type: 'LogicalExpression',
-    left: {
-      type: 'LogicalExpression',
-      left: {
-        type: 'BinaryExpression',
-        left: {
-          type: 'UnaryExpression',
-          operator: 'typeof',
-          prefix: true,
-          argument: node
-        },
-        operator: '===',
-        right: getLiteral('function')
-      },
-      operator: '||',
-      right: {
-        type: 'BinaryExpression',
-        left: {
-          type: 'UnaryExpression',
-          operator: 'typeof',
-          prefix: true,
-          argument: node
-        },
-        operator: '===',
-        right: getLiteral('object')
-      }
-    },
-    operator: '&&',
-    right: {
-      type: 'UnaryExpression',
-      operator: '!',
-      prefix: true,
-      argument: {
-        type: 'UnaryExpression',
-        operator: '!',
-        prefix: true,
-        argument: node
-      }
-    }
-  }
-}
-
 function isMultiple (left, right) {
   return {
     type: 'BinaryExpression',
@@ -103,14 +59,6 @@ function isMultiple (left, right) {
       value: 0
     }
   }
-}
-
-function isNumeric (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`
-    (typeof ${code} === 'string' || typeof ${code} === 'number') && !isNaN(Number(${code}))
-  `)
-  return tree.first('LogicalExpression')
 }
 
 function negate (argument) {
@@ -222,21 +170,6 @@ function isBitwiseNegation (left, right) {
   return getBinaryExpression(left, right, '~')
 }
 
-function hasNumber (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`
-    Object.prototype.toString.call(${code}) === '[object Number]' ||
-    Object.values(${code}).filter(value => typeof value === 'number').length > 0
-  `)
-  return tree.first('LogicalExpression')
-}
-
-function hasNumbers (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`Array.isArray(${code}) && ${code}.filter(value => typeof value === 'number').length > 1`)
-  return tree.first('LogicalExpression')
-}
-
 function respondsTo (left, right) {
   return {
     type: 'BinaryExpression',
@@ -308,17 +241,6 @@ function isDivisible (left, right) {
   }
 }
 
-function isPrime (node) {
-  const code = AbstractSyntaxTree.generate(node)
-  const tree = new AbstractSyntaxTree(`
-    (number => {
-      for (let i = 2; i < number; i++) if(number % i === 0) return false
-      return number !== 1
-    })(${code})
-  `)
-  return tree.first('CallExpression')
-}
-
 function geDateComparisonCallExpression (left, right, operator) {
   function getTime (node) {
     return {
@@ -384,11 +306,6 @@ function have (left, right) {
   return haveElements(left, right, '===')
 }
 
-function haveMany (left) {
-  const right = { type: 'Literal', value: 1 }
-  return haveElements(left, right, '>')
-}
-
 function isBetween (left, start, end) {
   return {
     type: 'LogicalExpression',
@@ -436,29 +353,6 @@ function hasLengthOfAtLeast (left ,right) {
 
 function hasLengthOfAtMost (left ,right) {
   return hasLength(left, right, '<=')
-}
-
-function isUrl (node) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: {
-        type: 'Literal',
-        value: {},
-        regex: {
-          pattern: '((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[\\-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9\\.\\-]+|(?:www\\.|[\\-;:&=\\+\\$,\\w]+@)[A-Za-z0-9\\.\\-]+)((?:\\/[\\+~%\\/\\.\\w\\-_]*)?\\??(?:[\\-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*))?)',
-          flags: ''
-        }
-      },
-      property: {
-        type: 'Identifier',
-        name: 'test'
-      },
-      computed: false
-    },
-    arguments: [node]
-  }
 }
 
 const STANDARD_ACTIONS = [
@@ -513,8 +407,8 @@ const STANDARD_ACTIONS = [
   { name: 'ends_with', handler: endsWith, args: 2 },
   { name: 'has_a_whitespace', handler: getCondition('hasWhitespace'), args: 1 },
   { name: 'has_a_newline', handler: getCondition('hasNewLine'), args: 1 },
-  { name: 'has_a_number', handler: hasNumber, args: 1 },
-  { name: 'has_numbers', handler: hasNumbers, args: 1 },
+  { name: 'has_a_number', handler: getCondition('hasNumber'), args: 1 },
+  { name: 'has_numbers', handler: getCondition('hasNumbers'), args: 1 },
   { name: 'or', handler: isAlternative, args: 2 },
   { name: 'and', handler: isConjunction, args: 2 },
   { name: 'eq', handler: isEquals, args: 2 },
@@ -541,11 +435,11 @@ const STANDARD_ACTIONS = [
   { name: 'is_an_email', handler: getCondition('isEmail'), args: 1 },
   { name: 'have_more_than', handler: haveMoreThan, args: 2 },
   { name: 'have_less_than', handler: haveLessThan, args: 2 },
-  { name: 'have_many', handler: haveMany, args: 1 },
+  { name: 'have_many', handler: getCondition('haveMany'), args: 1 },
   { name: 'have', handler: have, args: 2 },
   { name: 'has_more_than', handler: haveMoreThan, args: 2 },
   { name: 'has_less_than', handler: haveLessThan, args: 2 },
-  { name: 'has_many', handler: haveMany, args: 1 },
+  { name: 'has_many', handler: getCondition('haveMany'), args: 1 },
   { name: 'has', handler: have, args: 2 },
   { name: 'is_between', handler: isBetween, args: 3 },
   { name: 'is_below', handler: isLessThan, args: 2 },
@@ -555,7 +449,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_length_of', handler: hasLengthOf, args: 2 },
   { name: 'has_length_of_at_least', handler: hasLengthOfAtLeast, args: 2 },
   { name: 'has_length_of_at_most', handler: hasLengthOfAtMost, args: 2 },
-  { name: 'is_a_url', handler: isUrl, args: 1 },
+  { name: 'is_a_url', handler: getCondition('isUrl'), args: 1 },
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
