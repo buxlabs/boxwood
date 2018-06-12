@@ -4,25 +4,27 @@ const { string: { singularize } } = require('pure-utilities')
 const conditions = require('pure-conditions')
 
 function getCondition (name) {
-  return function (node) {
+  return function (...args) {
     const source = 'function ' + conditions[name].toString()
     const tree = new AbstractSyntaxTree(source)
     const fn = tree.first('FunctionDeclaration')
     const { body } = fn.body
-    const param = fn.params[0]
+    const params = fn.params.map(param => param.name)
     if (body.length === 1) {
       const statement = body[0].argument
       AbstractSyntaxTree.replace(statement, leaf => {
-        if (leaf.type === 'Identifier' && leaf.name === param.name) {
-          return node
+        const index = params.indexOf(leaf.name)
+        if (leaf.type === 'Identifier' && index >= 0) {
+          return args[index]
         }
         return leaf
       })
       return statement
     } else {
       AbstractSyntaxTree.replace({ type: 'BlockStatement', body }, leaf => {
-        if (leaf.type === 'Identifier' && leaf.name === param.name) {
-          return node
+        const index = params.indexOf(leaf.name)
+        if (leaf.type === 'Identifier' && index >= 0) {
+          return args[index]
         }
         return leaf
       })
