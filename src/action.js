@@ -50,47 +50,6 @@ function negate (argument) {
   return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
 }
 
-function haveElements (left, right, operator) {
-  if (right.type !== 'Literal') {
-    right = { type: 'Literal', value: 0 }
-    operator = '>'
-  }
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'length'
-      },
-      computed: false
-    },
-    operator,
-    right
-  }
-}
-
-function have (left, right) {
-  return haveElements(left, right, '===')
-}
-
-function isIn (left, right) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: right,
-      property: {
-        type: 'Identifier',
-        name: 'includes'
-      },
-      computed: false
-    },
-    arguments: [left]
-  }
-}
-
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
@@ -173,11 +132,11 @@ const STANDARD_ACTIONS = [
   { name: 'have_more_than', handler: getCondition('haveMoreThan'), args: 2 },
   { name: 'have_less_than', handler: getCondition('haveLessThan'), args: 2 },
   { name: 'have_many', handler: getCondition('haveMany'), args: 1 },
-  { name: 'have', handler: have, args: 2 },
+  { name: 'have', handler: getCondition('have'), args: 2 },
   { name: 'has_more_than', handler: getCondition('haveMoreThan'), args: 2 },
   { name: 'has_less_than', handler: getCondition('haveLessThan'), args: 2 },
   { name: 'has_many', handler: getCondition('haveMany'), args: 1 },
-  { name: 'has', handler: have, args: 2 },
+  { name: 'has', handler: getCondition('have'), args: 2 },
   { name: 'is_between', handler: getCondition('isBetween'), args: 3 },
   { name: 'is_below', handler: getCondition('isLessThan'), args: 2 },
   { name: 'is_above', handler: getCondition('isGreaterThan'), args: 2 },
@@ -187,7 +146,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_length_of_at_least', handler: getCondition('hasLengthOfAtLeast'), args: 2 },
   { name: 'has_length_of_at_most', handler: getCondition('hasLengthOfAtMost'), args: 2 },
   { name: 'is_a_url', handler: getCondition('isUrl'), args: 1 },
-  { name: 'is_in', handler: isIn, args: 2}
+  { name: 'is_in', handler: getCondition('isIn'), args: 2}
 ]
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action
