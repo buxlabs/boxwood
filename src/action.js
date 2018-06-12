@@ -386,6 +386,22 @@ function hasLengthOfAtMost (left ,right) {
   return hasLength(left, right, '<=')
 }
 
+function isIn (left, right) {
+  return {
+    type: 'CallExpression',
+    callee: {
+      type: 'MemberExpression',
+      object: right,
+      property: {
+        type: 'Identifier',
+        name: 'includes'
+      },
+      computed: false
+    },
+    arguments: [left]
+  }
+}
+
 const STANDARD_ACTIONS = [
   { name: 'not', handler: negate, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
@@ -482,6 +498,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_length_of_at_least', handler: hasLengthOfAtLeast, args: 2 },
   { name: 'has_length_of_at_most', handler: hasLengthOfAtMost, args: 2 },
   { name: 'is_a_url', handler: getCondition('isUrl'), args: 1 },
+  { name: 'is_in', handler: isIn, args: 2}
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {

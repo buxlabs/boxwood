@@ -1494,6 +1494,11 @@ equal(compile('<if foo is different than bar>baz</if>')({ foo: 'lorem', bar: 'ip
 equal(compile('<if foo is different than bar>baz</if>')({ foo: 5, bar: 5 }, html => html), '')
 equal(compile('<if foo is different than bar>baz</if>')({ foo: 'lorem', bar: 'lorem' }, html => html), '')
 
+equal(compile('<if foo is in bar>baz</if>')({ foo: 5, bar: [1,2,3,4]}, html => html), '')
+equal(compile('<if foo is in bar>baz</if>')({ foo: 4, bar: [1,2,3,4]}, html => html), 'baz')
+equal(compile('<if foo is in bar>baz</if>')({ foo: '5', bar: '1234'}, html => html), '')
+equal(compile('<if foo is in bar>baz</if>')({ foo: '4', bar: '1234'}, html => html), 'baz')
+
 equal(compile('<if foo is a url><a href="{foo}">{bar}</a></if>')({
  foo: 'https://buxlabs.pl/narzędzia/js',
  bar: 'click me'
