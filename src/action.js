@@ -46,159 +46,8 @@ function getCondition (name) {
   }
 }
 
-function isMultiple (left, right) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'BinaryExpression',
-      left,
-      operator: '%',
-      right
-    },
-    operator: '===',
-    right: {
-      type: 'Literal',
-      value: 0
-    }
-  }
-}
-
 function negate (argument) {
   return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
-}
-
-function getExpression (type, left, right, operator) {
-  return { type, left, right, operator }
-}
-
-function getLogicalExpression (left, right, operator) {
-  return getExpression('LogicalExpression', left, right, operator)
-}
-
-function getBinaryExpression (left, right, operator) {
-  return getExpression('BinaryExpression', left, right, operator)
-}
-
-function isAlternative (left, right) {
-  return getLogicalExpression(left, right, '||')
-}
-
-function isExclusiveAlternative (left, right) {
-  return {
-    type: 'LogicalExpression',
-    left: {
-      type: 'LogicalExpression',
-      left: {
-        type: 'UnaryExpression',
-        operator: '!',
-        prefix: true,
-        argument: left
-      },
-      operator: '&&',
-      right
-    },
-    operator: '||',
-    right: {
-      type: 'BinaryExpression',
-      left,
-      operator: '&',
-      right: {
-        type: 'UnaryExpression',
-        operator: '!',
-        prefix: true,
-        argument: right
-      }
-    }
-  }
-}
-
-function isConjunction (left, right) {
-  return getLogicalExpression(left, right, '&&')
-}
-
-function isGreaterThan (left, right) {
-  return getLogicalExpression(left, right, '>')
-}
-
-function isLessThan (left, right) {
-  return getLogicalExpression(left, right, '<')
-}
-
-function isGreaterThanOrEqual (left, right) {
-  return getLogicalExpression(left, right, '>=')
-}
-
-function isLessThanOrEqual (left, right) {
-  return getLogicalExpression(left, right, '<=')
-}
-
-function isEquals (left, right) {
-  return getLogicalExpression(left, right, '===')
-}
-
-function includes (left, right) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'CallExpression',
-      callee: {
-        type: 'MemberExpression',
-        object: left,
-        property: {
-          type: 'Identifier',
-          name: 'indexOf'
-        },
-        computed: false
-      },
-      arguments: [right]
-    },
-    operator: '!==',
-    right: {
-      type: 'UnaryExpression',
-      operator: '-',
-      prefix: true,
-      argument: {
-        type: 'Literal',
-        value: 1
-      }
-    }
-  }
-}
-
-function matches (left, right) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'match'
-      },
-      computed: false
-    },
-    arguments: [right]
-  }
-}
-
-function notEqual (left, right) {
-  return getLogicalExpression(left, right, '!==')
-}
-
-function isBitwiseAlternative (left, right) {
-  return getBinaryExpression(left, right, '|')
-}
-
-function isBitwiseConjunction (left, right) {
-  return getBinaryExpression(left, right, '&')
-}
-
-function isBitwiseAlternativeNegation (left, right) {
-  return getBinaryExpression(left, right, '^')
-}
-
-function isBitwiseNegation (left, right) {
-  return getBinaryExpression(left, right, '~')
 }
 
 function respondsTo (left, right) {
@@ -223,87 +72,6 @@ function respondsTo (left, right) {
   }
 }
 
-function startsWith (left, right) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'startsWith'
-      },
-      computed: false
-    },
-    arguments: [right]
-  }
-}
-
-function endsWith (left, right) {
-  return {
-    type: 'CallExpression',
-    callee: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'endsWith'
-      },
-      computed: false
-    },
-    arguments: [right]
-  }
-}
-
-function isDivisible (left, right) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'BinaryExpression',
-      left,
-      operator: '%',
-      right
-    },
-    operator: '===',
-    right: {
-      type: 'Literal',
-      value: 0
-    }
-  }
-}
-
-function geDateComparisonCallExpression (left, right, operator) {
-  function getTime (node) {
-    return {
-      type: 'CallExpression',
-      callee: {
-        type: 'MemberExpression',
-        object: node,
-        property: {
-          type: 'Identifier',
-          name: 'getTime'
-        },
-        computed: false
-      },
-      arguments: []
-    }
-  }
-  return {
-    type: 'BinaryExpression',
-    left: getTime(left),
-    operator,
-    right: getTime(right)
-  }
-}
-
-function isSoonerThan (left, right) {
-  return geDateComparisonCallExpression(left, right, '<')
-}
-
-function isLaterThan (left, right) {
-  return geDateComparisonCallExpression(left, right, '>')
-}
-
 function haveElements (left, right, operator) {
   if (right.type !== 'Literal') {
     right = { type: 'Literal', value: 0 }
@@ -325,65 +93,8 @@ function haveElements (left, right, operator) {
   }
 }
 
-function haveMoreThan (left, right) {
-  return haveElements(left, right, '>')
-}
-
-function haveLessThan (left, right) {
-  return haveElements(left, right, '<')
-}
-
 function have (left, right) {
   return haveElements(left, right, '===')
-}
-
-function isBetween (left, start, end) {
-  return {
-    type: 'LogicalExpression',
-    left: {
-      type: 'BinaryExpression',
-      left,
-      operator: '>=',
-      right: start
-    },
-    operator: '&&',
-    right: {
-      type: 'BinaryExpression',
-      left,
-      operator: '<=',
-      right: end
-    }
-  }
-}
-
-function hasLength (left, right, operator) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'MemberExpression',
-      object: left,
-      property: {
-        type: 'Identifier',
-        name: 'length'
-      },
-      computed: false
-    },
-    operator,
-    right
-  }
-
-}
-
-function hasLengthOf (left ,right) {
-  return hasLength(left, right, '===')
-}
-
-function hasLengthOfAtLeast (left ,right) {
-  return hasLength(left, right, '>=')
-}
-
-function hasLengthOfAtMost (left ,right) {
-  return hasLength(left, right, '<=')
 }
 
 function isIn (left, right) {
@@ -427,7 +138,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_a_regexp', handler: getCondition('isRegExp'), args: 1 },
   { name: 'is_a_regex', handler: getCondition('isRegExp'), args: 1 },
   { name: 'is_a_number', handler: getCondition('isNumber'), args: 1 },
-  { name: 'is_a_multiple_of', handler: isMultiple, args: 2 },
+  { name: 'is_a_multiple_of', handler: getCondition('isMultiple'), args: 2 },
   { name: 'is_a_digit', handler: getCondition('isDigit'), args: 1 },
   { name: 'is_decimal', handler: getCondition('isDecimal'), args: 1 },
   { name: 'is_a_string', handler: getCondition('isString'), args: 1 },
@@ -442,65 +153,64 @@ const STANDARD_ACTIONS = [
   { name: 'is_false', handler: getCondition('isFalsy'), args: 1 },
   { name: 'is_truthy', handler: getCondition('isTruthy'), args: 1 },
   { name: 'is_falsy', handler: getCondition('isFalsy'), args: 1 },
-  { name: 'is_divisible_by', handler: isDivisible, args: 2 },
+  { name: 'is_divisible_by', handler: getCondition('isDivisible'), args: 2 },
   { name: 'is_prime', handler: getCondition('isPrime'), args: 1 },
   { name: 'is_palindrome', handler: getCondition('isPalindrome'), args: 1 },
-  { name: 'is_sooner_than', handler: isSoonerThan, args: 2 },
-  { name: 'is_before', handler: isSoonerThan, args: 2 },
-  { name: 'is_later_than', handler: isLaterThan, args: 2 },
-  { name: 'is_after', handler: isLaterThan, args: 2 },
+  { name: 'is_sooner_than', handler: getCondition('isSoonerThan'), args: 2 },
+  { name: 'is_before', handler: getCondition('isSoonerThan'), args: 2 },
+  { name: 'is_later_than', handler: getCondition('isLaterThan'), args: 2 },
+  { name: 'is_after', handler: getCondition('isLaterThan'), args: 2 },
   { name: 'responds_to', handler: respondsTo, args: 2 },
-  { name: 'starts_with', handler: startsWith, args: 2 },
-  { name: 'ends_with', handler: endsWith, args: 2 },
+  { name: 'starts_with', handler: getCondition('startsWith'), args: 2 },
+  { name: 'ends_with', handler: getCondition('endsWith'), args: 2 },
   { name: 'has_a_whitespace', handler: getCondition('hasWhitespace'), args: 1 },
   { name: 'has_a_newline', handler: getCondition('hasNewLine'), args: 1 },
   { name: 'has_a_number', handler: getCondition('hasNumber'), args: 1 },
   { name: 'has_numbers', handler: getCondition('hasNumbers'), args: 1 },
-  { name: 'or', handler: isAlternative, args: 2 },
-  { name: 'xor', handler: isExclusiveAlternative, args: 2 },
-  { name: 'and', handler: isConjunction, args: 2 },
-  { name: 'eq', handler: isEquals, args: 2 },
-  { name: 'neq', handler: notEqual, args: 2 },
-  { name: 'is_different_than', handler: notEqual, args: 2 },
-  { name: 'does_not_equal', handler: notEqual, args: 2 },
-  { name: 'is_not_equal_to', handler: notEqual, args: 2 },
-  { name: 'gt', handler: isGreaterThan, args: 2 },
-  { name: 'is_greater_than', handler: isGreaterThan, args: 2 },
-  { name: 'lt', handler: isLessThan, args: 2 },
-  { name: 'is_less_than', handler: isLessThan, args: 2 },
-  { name: 'gte', handler: isGreaterThanOrEqual, args: 2 },
-  { name: 'is_greater_than_or_equals', handler: isGreaterThanOrEqual, args: 2 },
-  { name: 'lte', handler: isLessThanOrEqual, args: 2 },
-  { name: 'is_less_than_or_equals', handler: isLessThanOrEqual, args: 2 },
-  { name: 'equals', handler: isEquals, args: 2 },
-  { name: 'includes', handler: includes, args: 2 },
-  { name: 'contains', handler: includes, args: 2 },
-  { name: 'matches', handler: matches, args: 2 },
-  { name: 'bitwise_or', handler: isBitwiseAlternative, args: 2 },
-  { name: 'bitwise_and', handler: isBitwiseConjunction, args: 2 },
-  { name: 'bitwise_xor', handler: isBitwiseAlternativeNegation, args: 2 },
-  { name: 'bitwise_not', handler: isBitwiseNegation, args: 2 },
+  { name: 'or', handler: getCondition('isAlternative'), args: 2 },
+  { name: 'xor', handler: getCondition('isExclusiveAlternative'), args: 2 },
+  { name: 'and', handler: getCondition('isConjunction'), args: 2 },
+  { name: 'eq', handler: getCondition('isEquals'), args: 2 },
+  { name: 'neq', handler: getCondition('notEqual'), args: 2 },
+  { name: 'is_different_than', handler: getCondition('notEqual'), args: 2 },
+  { name: 'does_not_equal', handler: getCondition('notEqual'), args: 2 },
+  { name: 'is_not_equal_to', handler: getCondition('notEqual'), args: 2 },
+  { name: 'gt', handler: getCondition('isGreaterThan'), args: 2 },
+  { name: 'is_greater_than', handler: getCondition('isGreaterThan'), args: 2 },
+  { name: 'lt', handler: getCondition('isLessThan'), args: 2 },
+  { name: 'is_less_than', handler: getCondition('isLessThan'), args: 2 },
+  { name: 'gte', handler: getCondition('isGreaterThanOrEqual'), args: 2 },
+  { name: 'is_greater_than_or_equals', handler: getCondition('isGreaterThanOrEqual'), args: 2 },
+  { name: 'lte', handler: getCondition('isLessThanOrEqual'), args: 2 },
+  { name: 'is_less_than_or_equals', handler: getCondition('isLessThanOrEqual'), args: 2 },
+  { name: 'equals', handler: getCondition('isEquals'), args: 2 },
+  { name: 'includes', handler: getCondition('includes'), args: 2 },
+  { name: 'contains', handler: getCondition('includes'), args: 2 },
+  { name: 'matches', handler: getCondition('matches'), args: 2 },
+  { name: 'bitwise_or', handler: getCondition('isBitwiseAlternative'), args: 2 },
+  { name: 'bitwise_and', handler: getCondition('isBitwiseConjunction'), args: 2 },
+  { name: 'bitwise_xor', handler: getCondition('isBitwiseAlternativeNegation'), args: 2 },
+  { name: 'bitwise_not', handler: getCondition('isBitwiseNegation'), args: 1 },
   { name: 'is_an_email', handler: getCondition('isEmail'), args: 1 },
-  { name: 'have_more_than', handler: haveMoreThan, args: 2 },
-  { name: 'have_less_than', handler: haveLessThan, args: 2 },
+  { name: 'have_more_than', handler: getCondition('haveMoreThan'), args: 2 },
+  { name: 'have_less_than', handler: getCondition('haveLessThan'), args: 2 },
   { name: 'have_many', handler: getCondition('haveMany'), args: 1 },
   { name: 'have', handler: have, args: 2 },
-  { name: 'has_more_than', handler: haveMoreThan, args: 2 },
-  { name: 'has_less_than', handler: haveLessThan, args: 2 },
+  { name: 'has_more_than', handler: getCondition('haveMoreThan'), args: 2 },
+  { name: 'has_less_than', handler: getCondition('haveLessThan'), args: 2 },
   { name: 'has_many', handler: getCondition('haveMany'), args: 1 },
   { name: 'has', handler: have, args: 2 },
-  { name: 'is_between', handler: isBetween, args: 3 },
-  { name: 'is_below', handler: isLessThan, args: 2 },
-  { name: 'is_above', handler: isGreaterThan, args: 2 },
-  { name: 'is_at_least', handler: isGreaterThanOrEqual, args: 2 },
-  { name: 'is_at_most', handler: isLessThanOrEqual, args: 2 },
-  { name: 'has_length_of', handler: hasLengthOf, args: 2 },
-  { name: 'has_length_of_at_least', handler: hasLengthOfAtLeast, args: 2 },
-  { name: 'has_length_of_at_most', handler: hasLengthOfAtMost, args: 2 },
+  { name: 'is_between', handler: getCondition('isBetween'), args: 3 },
+  { name: 'is_below', handler: getCondition('isLessThan'), args: 2 },
+  { name: 'is_above', handler: getCondition('isGreaterThan'), args: 2 },
+  { name: 'is_at_least', handler: getCondition('isGreaterThanOrEqual'), args: 2 },
+  { name: 'is_at_most', handler: getCondition('isLessThanOrEqual'), args: 2 },
+  { name: 'has_length_of', handler: getCondition('hasLengthOf'), args: 2 },
+  { name: 'has_length_of_at_least', handler: getCondition('hasLengthOfAtLeast'), args: 2 },
+  { name: 'has_length_of_at_most', handler: getCondition('hasLengthOfAtMost'), args: 2 },
   { name: 'is_a_url', handler: getCondition('isUrl'), args: 1 },
   { name: 'is_in', handler: isIn, args: 2}
 ]
-
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action
   if (name.includes('has')) {
