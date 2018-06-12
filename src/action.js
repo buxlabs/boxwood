@@ -50,28 +50,6 @@ function negate (argument) {
   return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
 }
 
-function respondsTo (left, right) {
-  return {
-    type: 'BinaryExpression',
-    left: {
-      type: 'UnaryExpression',
-      operator: 'typeof',
-      prefix: true,
-      argument: {
-        type: 'MemberExpression',
-        object: left,
-        property: right.property,
-        computed: false
-      }
-    },
-    operator: '===',
-    right: {
-      type: 'Literal',
-      value: 'function'
-    }
-  }
-}
-
 function haveElements (left, right, operator) {
   if (right.type !== 'Literal') {
     right = { type: 'Literal', value: 0 }
@@ -160,7 +138,7 @@ const STANDARD_ACTIONS = [
   { name: 'is_before', handler: getCondition('isSoonerThan'), args: 2 },
   { name: 'is_later_than', handler: getCondition('isLaterThan'), args: 2 },
   { name: 'is_after', handler: getCondition('isLaterThan'), args: 2 },
-  { name: 'responds_to', handler: respondsTo, args: 2 },
+  { name: 'responds_to', handler: getCondition('respondsTo'), args: 2 },
   { name: 'starts_with', handler: getCondition('startsWith'), args: 2 },
   { name: 'ends_with', handler: getCondition('endsWith'), args: 2 },
   { name: 'has_a_whitespace', handler: getCondition('hasWhitespace'), args: 1 },

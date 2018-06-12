@@ -1361,8 +1361,9 @@ equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: false }, html =>
 equal(compile('<if foo and not bar>baz</if>')({ foo: false, bar: false }, html => html), '')
 equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: true }, html => html), '')
 
-equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar: function () {} } }, html => html), 'baz')
-equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar: {} } }, html => html), '')
+equal(compile('<if foo responds to={"bar"}>baz</if>')({ foo: { bar () {} } }, html => html), 'baz')
+equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar () {} }, bar: 'bar' }, html => html), 'baz')
+equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar: [] }, bar: 'bar' }, html => html), '')
 
 equal(compile('<for key and value in foo>{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
 equal(compile('<for key and value in="{foo}">{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
