@@ -4,6 +4,7 @@ const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } 
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./src/factory')
 const collect = require('./src/collect')
 const { getModifier } = require('./src/modifiers')
+const { array: { unique } } = require('pure-utilities')
 
 function render (source, options) {
   const htmltree = parse(source)
@@ -20,10 +21,12 @@ function render (source, options) {
   walk(htmltree, fragment => {
     collect(tree, fragment, variables, modifiers, components, store, options)
   })
-  modifiers.forEach(name => {
+  const used = []
+  unique(modifiers).forEach(name => {
     const modifier = getModifier(name)
-    if (modifier) {
+    if (modifier && !used.includes(modifier.id.name)) {
       tree.prepend(modifier)
+      used.push(modifier.id.name)
     }
   })
   tree.append(getTemplateReturnStatement())
