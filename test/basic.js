@@ -470,6 +470,11 @@ equal(compile('<if foo.bar is not present>baz</if>')({ foo: { bar: 'baz' } }, ht
 equal(compile('<if foo is not present>baz</if>')({}, html => html), 'baz')
 equal(compile('<if foo is not present>bar</if>')({ foo: undefined }, html => html), 'bar')
 
+equal(compile('<if foo is defined>baz</if>')({ foo: {} }, html => html), 'baz')
+equal(compile('<if foo is defined>{bar}</if>')({ foo: {}, bar: 'ban' }, html => html), 'ban')
+equal(compile('<if foo is defined>{bar}</if>')({ foo: null , bar: null }, html => html), 'null')
+equal(compile('<if foo is defined>baz</if>')({ foo: undefined }, html => html), '')
+
 equal(compile('<if foo are present>bar</if>')({ foo: undefined }, html => html), '')
 equal(compile('<if foo are present>bar</if>')({ foo: [] }, html => html), 'bar')
 equal(compile('<if foo are present>bar</if>')({ foo: 'qux' }, html => html), 'bar')
@@ -1515,4 +1520,5 @@ equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , sepa
 
 equal(compile('<svg from="./fixtures/svg/rectangle.svg" />', { paths: [__dirname] })({}, html => html), '<svg width="400" height="100"><rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)"></rect></svg>')
 equal(compile('<svg from="./fixtures/svg/stroke.svg" />', { paths: [__dirname] })({}, html => html), '<svg height="80" width="300"><g fill="none"><path stroke="red" d="M5 20 l215 0"></path></g></svg>')
+
 console.timeEnd('test: success')

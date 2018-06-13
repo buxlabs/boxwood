@@ -146,7 +146,8 @@ const STANDARD_ACTIONS = [
   { name: 'has_length_of_at_least', handler: getCondition('hasLengthOfAtLeast'), args: 2 },
   { name: 'has_length_of_at_most', handler: getCondition('hasLengthOfAtMost'), args: 2 },
   { name: 'is_a_url', handler: getCondition('isUrl'), args: 1 },
-  { name: 'is_in', handler: getCondition('isIn'), args: 2}
+  { name: 'is_in', handler: getCondition('isIn'), args: 2 },
+  { name: 'is_defined', handler: getCondition('isPresent'), args: 1 },
 ]
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action
