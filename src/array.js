@@ -96,10 +96,19 @@ const STANDARD_ACTIONS = [
   ['has', 'length', 'of', 'at', 'least'],
   ['has', 'length', 'of', 'at', 'most'],
   ['has', 'length', 'of'],
+  ['has', 'extension', 'of'],
   ['has'],
   ['is', 'a', 'url'],
   ['xor'],
-  ['is', 'defined']
+  ['is', 'defined'],
+  ['is', 'an', 'video'],
+  ['is', 'an', 'audio'],
+  ['is', 'an', 'image'],
+  ['is', 'an', 'empty', 'array'],
+  ['is', 'an', 'empty', 'string'],
+  ['is', 'an', 'empty', 'object'],
+  ['is', 'an', 'empty', 'set'],
+  ['is', 'an', 'empty', 'map'],
 ]
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {

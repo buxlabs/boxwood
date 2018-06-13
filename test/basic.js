@@ -572,6 +572,22 @@ equal(compile('<if foo are not empty>baz</if>')({ foo: [1, 2, 3, 4] }, html => h
 equal(compile('<if foo are not empty>baz</if>')({ foo: [[], [], []] }, html => html), 'baz')
 equal(compile('<if foo are not empty>baz</if>')({ foo: [{ baz: 'bar' }, {}] }, html => html), 'baz')
 
+equal(compile('<if foo is an empty array>baz</if>')({ foo: [] }, html => html), 'baz')
+equal(compile('<if foo is an empty array>baz</if>')({ foo: [1, 2, 3, 4] }, html => html), '')
+equal(compile('<if foo is not an empty array>baz</if>')({ foo: [1, 2, 3, 4] }, html => html), 'baz')
+
+equal(compile('<if foo is an empty string>baz</if>')({ foo: '' }, html => html), 'baz')
+equal(compile('<if foo is an empty string>baz</if>')({ foo: 'foo' }, html => html), '')
+equal(compile('<if foo is not an empty string>baz</if>')({ foo: 'foo' }, html => html), 'baz')
+
+equal(compile('<if foo is an empty set>baz</if>')({ foo: new Set([]) }, html => html), 'baz')
+equal(compile('<if foo is an empty set>baz</if>')({ foo: new Set([1, 2, 3, 4]) }, html => html), '')
+equal(compile('<if foo is not an empty set>baz</if>')({ foo: new Set([1, 2, 3, 4]) }, html => html), 'baz')
+
+equal(compile('<if foo is an empty map>baz</if>')({ foo: new Map([]) }, html => html), 'baz')
+equal(compile('<if foo is an empty map>baz</if>')({ foo: new Map([ [{}, 'bar'] ]) }, html => html), '')
+equal(compile('<if foo is not an empty map>baz</if>')({ foo: new Map([ [{}, 'bar'] ]) }, html => html), 'baz')
+
 equal(compile('<if foo is an array>baz</if>')({ foo: [] }, html => html), 'baz')
 equal(compile('<if foo is an array>baz</if>')({ foo: '' }, html => html), '')
 equal(compile('<if foo is an array>baz</if>')({ foo: {} }, html => html), '')
@@ -727,6 +743,26 @@ equal(compile('<if not foo>baz</if>')({ foo: {} }, html => html), '')
 equal(compile('<if not foo>baz</if>')({ foo: true }, html => html), '')
 equal(compile('<if not foo.bar>baz</if>')({ foo: { bar: {} } }, html => html), '')
 equal(compile('<if not foo.bar>baz</if>')({ foo: {} }, html => html), 'baz')
+
+equal(compile('<if foo is an video>baz</if>')({ foo: 'foo.flv' }, html => html), 'baz')
+equal(compile('<if foo is an video>baz</if>')({ foo: 'foo.mp3' }, html => html), '')
+equal(compile('<if foo is an video>baz</if>')({ foo: 'fooflv' }, html => html), '')
+equal(compile('<if foo is not an video>baz</if>')({ foo: 'fooflv' }, html => html), 'baz')
+
+equal(compile('<if foo is an image>baz</if>')({ foo: 'foo.png' }, html => html), 'baz')
+equal(compile('<if foo is an image>baz</if>')({ foo: 'foo.svg' }, html => html), 'baz')
+equal(compile('<if foo is an image>baz</if>')({ foo: 'foobmp' }, html => html), '')
+equal(compile('<if foo is not an image>baz</if>')({ foo: 'foobmp' }, html => html), 'baz')
+
+equal(compile('<if foo is an audio>baz</if>')({ foo: 'foo.flac' }, html => html), 'baz')
+equal(compile('<if foo is an audio>baz</if>')({ foo: 'foo.ogg' }, html => html), 'baz')
+equal(compile('<if foo is an audio>baz</if>')({ foo: 'foomp3' }, html => html), '')
+equal(compile('<if foo is not an audio>baz</if>')({ foo: 'foomp3' }, html => html), 'baz')
+
+equal(compile('<if foo has extension of bar>baz</if>')({ foo: 'foo.mp3', bar: 'mp3'}, html => html), 'baz')
+equal(compile('<if foo has extension of={"jpg"}>baz</if>')({ foo: 'foo.jpg' }, html => html), 'baz')
+equal(compile('<if foo has extension of bar>baz</if>')({ foo: 'foo.mp3', bar: '.ogg'}, html => html), '')
+equal(compile('<if foo does not have extension of bar>baz</if>')({ foo: 'foo.mp3', bar: '.ogg'}, html => html), 'baz')
 
 equal(compile('<ul><for todo in="{todos}"><li html="{todo.description}"></li></for></ul>')({
   todos: [
