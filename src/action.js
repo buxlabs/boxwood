@@ -108,7 +108,6 @@ const STANDARD_ACTIONS = [
   { name: 'xor', handler: getCondition('isExclusiveAlternative'), args: 2 },
   { name: 'and', handler: getCondition('isConjunction'), args: 2 },
   { name: 'eq', handler: getCondition('isEquals'), args: 2 },
-  { name: 'neq', handler: getCondition('notEqual'), args: 2 },
   { name: 'is_different_than', handler: getCondition('notEqual'), args: 2 },
   { name: 'does_not_equal', handler: getCondition('notEqual'), args: 2 },
   { name: 'is_not_equal_to', handler: getCondition('notEqual'), args: 2 },
@@ -172,6 +171,8 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
     name = 'nor'
   } else if (name === 'and') {
     name = 'nand'
+  } else if (name === 'eq') {
+    name = 'neq'
   } else if (name === 'responds_to') {
     name = 'does_not_respond_to'
   } else if (name === 'matches') {

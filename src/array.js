@@ -60,7 +60,6 @@ const STANDARD_ACTIONS = [
   ['or'],
   ['and'],
   ['eq'],
-  ['neq'],
   ['is', 'different', 'than'],
   ['does', 'not', 'equal'],
   ['is', 'not', 'equal', 'to'],
@@ -122,6 +121,8 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
     return ['nor']
   } else if (action[0] === 'and') {
     return ['nand']
+  } else if (action[0] === 'eq') {
+    return ['neq']
   } else if (action[0] === 'responds') {
     return ['does', 'not', 'respond', 'to']
   } else if (action[0] === 'matches') {
