@@ -122,6 +122,14 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
     return ['nor']
   } else if (action[0] === 'and') {
     return ['nand']
+  } else if (action[0] === 'responds') {
+    return ['does', 'not', 'respond', 'to']
+  } else if (action[0] === 'matches') {
+    return ['does', 'not', 'match']
+  } else if (action[0] === 'contains') {
+    return ['does', 'not', 'contain']
+  } else if (action[0] === 'includes') {
+    return ['does', 'not', 'include']
   } else {
     let array = action.slice(0)
     array.splice(1, 0, 'not')

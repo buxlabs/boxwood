@@ -1366,16 +1366,19 @@ equal(compile('<if foo is divisible by three or foo is divisible by five>bar</if
 
 equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'ipsum' }, html => html), 'baz')
 equal(compile('<if foo includes bar>baz</if>')({ foo: 'lorem ipsum', bar: 'dolor' }, html => html), '')
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'ipsum' }, html => html), 'baz')
+equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'dolor' }, html => html), '')
+equal(compile('<if foo does not include={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
+
+equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
+equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), '')
+equal(compile('<if foo does not contain={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
 equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), 'baz')
 equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: 'lorem ipsum' }, html => html), '')
 
-equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'ipsum' }, html => html), 'baz')
-equal(compile('<if foo includes bar>baz</if>')({ foo: ['lorem', 'ipsum'], bar: 'dolor' }, html => html), '')
-equal(compile('<if foo contains={"ipsum"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), 'baz')
-equal(compile('<if foo contains={"dolor"}>baz</if>')({ foo: ['lorem', 'ipsum'] }, html => html), '')
-
 equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /ipsum/ }, html => html), 'baz')
 equal(compile('<if foo matches bar>baz</if>')({ foo: 'lorem ipsum', bar: /dolor/ }, html => html), '')
+equal(compile('<if foo does not match bar>baz</if>')({ foo: 'lorem ipsum', bar: /dolor/ }, html => html), 'baz')
 
 equal(compile('<if not foo and bar>baz</if>')({ foo: false, bar: true }, html => html), 'baz')
 equal(compile('<if not foo and bar>baz</if>')({ foo: true, bar: false }, html => html), '')
@@ -1405,6 +1408,7 @@ equal(compile('<if foo and not bar>baz</if>')({ foo: true, bar: true }, html => 
 equal(compile('<if foo responds to={"bar"}>baz</if>')({ foo: { bar () {} } }, html => html), 'baz')
 equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar () {} }, bar: 'bar' }, html => html), 'baz')
 equal(compile('<if foo responds to bar>baz</if>')({ foo: { bar: [] }, bar: 'bar' }, html => html), '')
+equal(compile('<if foo does not respond to bar>baz</if>')({ foo: { bar: [] }, bar: 'bar' }, html => html), 'baz')
 
 equal(compile('<for key and value in foo>{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
 equal(compile('<for key and value in="{foo}">{key}{value}</for>')({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')

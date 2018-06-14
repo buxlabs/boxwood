@@ -170,8 +170,16 @@ const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
     name = 'does_not_' + singularize(name.substr(0, index)) + name.substr(index)
   } else if (name === 'or') {
     name = 'nor'
-  } else if( name === 'and') {
+  } else if (name === 'and') {
     name = 'nand'
+  } else if (name === 'responds_to') {
+    name = 'does_not_respond_to'
+  } else if (name === 'matches') {
+    name = 'does_not_match'
+  } else if (name === 'contains') {
+    name = 'does_not_contain'
+  } else if (name === 'inlcudes') {
+    name = 'does_not_include'
   } else {
     let temp = name.split('_')
     temp.splice(1, 0, 'not')
