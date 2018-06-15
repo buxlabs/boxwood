@@ -1191,6 +1191,12 @@ equal(compile('{foo | day}')({ foo: new Date('2018/05/29') }, html => html), 29)
 equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29') }, html => html), 2)
 equal(compile('{foo | month}')({ foo: '2018/05/29' }, html => html), 4)
 equal(compile('{foo | year}')({ foo: '2018/05/29' }, html => html), 2018)
+equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, html => html), 'Friday, 29th of June 2018')
+equal(compile('{foo | prettydate}')({ foo: new Date('2018/06/1') }, html => html), 'Friday, 1st of June 2018')
+
+equal(compile('{foo | celsius}')({ foo: '70°F' }, html => html), '21°C')
+equal(compile('{foo | fahrenheit}')({ foo: '21°C' }, html => html), '70°F')
+equal(compile('{foo | kelvin}')({ foo: '70°F' }, html => html), '294K')
 
 equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
 equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
