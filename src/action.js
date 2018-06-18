@@ -2,6 +2,7 @@ const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getIdentifier, getLiteral } = require('./factory')
 const { string: { singularize } } = require('pure-utilities')
 const conditions = require('pure-conditions')
+const negate = require('negate-sentence')
 
 function getCondition (name) {
   return function (...args) {
@@ -46,12 +47,12 @@ function getCondition (name) {
   }
 }
 
-function negate (argument) {
+function negateAction (argument) {
   return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
 }
 
 const STANDARD_ACTIONS = [
-  { name: 'not', handler: negate, args: 1 },
+  { name: 'not', handler: negateAction, args: 1 },
   { name: 'is_positive', handler: getCondition('isPositive'), args: 1 },
   { name: 'is_negative', handler: getCondition('isNegative'), args: 1 },
   { name: 'is_finite', handler: getCondition('isFinite'), args: 1 },
@@ -158,37 +159,11 @@ const STANDARD_ACTIONS = [
 ]
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action
-  if (name.includes('has')) {
-    name = 'does_not_have_' + name.substring(4)
-    if (name[name.length - 1] === '_') name = name.slice(0, -1)
-  } else if (name.includes('have')) {
-    name = 'do_not_' + name
-  } else if (name.includes('with')) {
-    const index = name.indexOf('_with')
-    name = 'does_not_' + singularize(name.substr(0, index)) + name.substr(index)
-  } else if (name === 'or') {
-    name = 'nor'
-  } else if (name === 'and') {
-    name = 'nand'
-  } else if (name === 'eq') {
-    name = 'neq'
-  } else if (name === 'responds_to') {
-    name = 'does_not_respond_to'
-  } else if (name === 'matches') {
-    name = 'does_not_match'
-  } else if (name === 'contains') {
-    name = 'does_not_contain'
-  } else if (name === 'inlcudes') {
-    name = 'does_not_include'
-  } else {
-    let temp = name.split('_')
-    temp.splice(1, 0, 'not')
-    name = temp.join('_')
-  }
+  name = negate(name.replace(/_/g, ' ')).replace(/\s/g, '_')
   return {
     name,
     handler: function () {
-      return negate(action.handler.apply(this, arguments))
+      return negateAction(action.handler.apply(this, arguments))
     },
     args: action.args
   }
