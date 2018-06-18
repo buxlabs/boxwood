@@ -425,6 +425,8 @@ equal(compile('<if foo is not equal to="bar">baz</if>')({ foo: 'qux', bar: 'bar'
 equal(compile('<if foo is not equal to="{42}">baz</if>')({ foo: 10, bar: 42 }, html => html), 'baz')
 
 equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 30 }, html => html), 'baz')
+equal(compile('<if foo gt two>baz</if>')({ foo: 42 }, html => html), 'baz')
+equal(compile('<if foo gt two>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 42 }, html => html), '')
 equal(compile('<if foo gt bar>baz</if>')({ foo: 42, bar: 50 }, html => html), '')
 
@@ -439,6 +441,7 @@ equal(compile('<if foo lt bar>baz</if>')({ foo: 42, bar: 50 }, html => html), 'b
 equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 30 }, html => html), '')
 equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
 equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 50 }, html => html), 'baz')
+// equal(compile('<if foo lte="{bar.baz - 2}"></if>')({ foo: 2, bar: { baz: 10 } }, html => html), 'baz')
 
 equal(compile('<if foo equals bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
 equal(compile('<if foo equals bar>baz</if>')({ foo: 40, bar: 42 }, html => html), '')
@@ -457,6 +460,41 @@ equal(compile('<if foo is greater than bar>baz</if>')({ foo: 30, bar: 40 }, html
 equal(compile('<if foo is greater than or equals bar>baz</if>')({ foo: 30, bar: 40 }, html => html), '')
 equal(compile('<if foo is greater than or equals bar>baz</if>')({ foo: 40, bar: 40 }, html => html), 'baz')
 equal(compile('<if foo is greater than or equals bar>baz</if>')({ foo: 50, bar: 40 }, html => html), 'baz')
+
+equal(compile('<if foo["bar"].baz>ban</if>')({
+ foo: { bar: { baz: 'baz' } }
+}, html => html), 'ban')
+
+equal(compile('<if foo["bar"].baz>ban</if>')({
+ foo: { bar: {} }
+}, html => html), '')
+
+equal(compile('<if not foo["bar"].baz>ban</if>')({
+ foo: { bar: {} }
+}, html => html), 'ban')
+
+// equal(compile('<if foo[qux].baz>ban</if>')({
+//  foo: { bar: { baz: 'baz' } },
+//  qux: 'bar'
+// }, html => html), 'ban')
+
+equal(compile('<if foo().bar("baz")>baz</if>')({
+  foo () {
+    return { bar (string) {return string} }
+  }
+}, html => html), 'baz')
+
+equal(compile('<if foo().bar("")>baz</if>')({
+  foo () {
+    return { bar (string) {return string} }
+  }
+}, html => html), '')
+
+equal(compile('<if not foo().bar("")>baz</if>')({
+  foo () {
+    return { bar (string) {return string} }
+  }
+}, html => html), 'baz')
 
 equal(compile('<if foo is present>bar</if>')({ foo: null }, html => html), 'bar')
 equal(compile('<if foo is present>bar</if>')({ foo: false }, html => html), 'bar')
