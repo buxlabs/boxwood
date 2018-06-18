@@ -1,3 +1,4 @@
+const negate = require('negate-sentence')
 const { string: { singularize } } = require('pure-utilities')
 
 /*Tne order of actions is important.
@@ -109,34 +110,7 @@ const STANDARD_ACTIONS = [
   ['is', 'an', 'empty', 'map'],
 ]
 
-const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
-  if (action[0] === 'has') {
-    return ['does', 'not', 'have'].concat(action.slice(1))
-  } else if (action[0] === 'have') {
-    return ['do', 'not'].concat(action)
-  } else if (action[1] === 'with') {
-    return ['does', 'not'].concat(singularize(action[0]), action[1])
-  } else if (action[0] === 'or') {
-    return ['nor']
-  } else if (action[0] === 'and') {
-    return ['nand']
-  } else if (action[0] === 'eq') {
-    return ['neq']
-  } else if (action[0] === 'responds') {
-    return ['does', 'not', 'respond', 'to']
-  } else if (action[0] === 'matches') {
-    return ['does', 'not', 'match']
-  } else if (action[0] === 'contains') {
-    return ['does', 'not', 'contain']
-  } else if (action[0] === 'includes') {
-    return ['does', 'not', 'include']
-  } else {
-    let array = action.slice(0)
-    array.splice(1, 0, 'not')
-    return array
-  }
-})
-
+const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => negate(action.join(' ')).split(' '))
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
 
 function normalize (array) {
