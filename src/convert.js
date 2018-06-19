@@ -127,6 +127,9 @@ function getTemplateNode (expression, variables, unescape) {
         return getEscapeCallExpression(leaf)
       } else if (expression.object.type === 'MemberExpression') {
         let leaf = expression.object
+        if (leaf.computed && leaf.property.type === 'Identifier') {
+          leaf.property = convertIdentifier(leaf.property, variables)
+        }
         while (leaf.object.type === 'MemberExpression') {
           leaf = leaf.object
         }
@@ -151,7 +154,11 @@ function getTemplateNode (expression, variables, unescape) {
         while (node.object && node.object.type === 'MemberExpression') {
           node = node.object
         }
-        node.object = convertIdentifier(node.object, variables)
+        if (node.type === 'CallExpression') {
+          node.callee = convertIdentifier(node.callee, variables)
+        } else {
+          node.object = convertIdentifier(node.object, variables)
+        }
         if (unescape) return expression
         return getEscapeCallExpression(expression)
       }
@@ -267,11 +274,17 @@ function convertTag (fragment, variables, currentModifiers) {
   return parts
 }
 
+function convertKey (key, variables) {
+ const tree = convertToExpression(key)
+ return getTemplateNode(tree, variables, true)
+}
+
 module.exports = {
   convertHtmlOrTextAttribute,
   convertAttribute,
   convertText,
   convertTag,
   convertToExpression,
-  convertToBinaryExpression
+  convertToBinaryExpression,
+  convertKey
 }

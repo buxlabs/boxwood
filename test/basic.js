@@ -461,6 +461,9 @@ equal(compile('<if foo is greater than or equals bar>baz</if>')({ foo: 30, bar: 
 equal(compile('<if foo is greater than or equals bar>baz</if>')({ foo: 40, bar: 40 }, html => html), 'baz')
 equal(compile('<if foo is greater than or equals bar>baz</if>')({ foo: 50, bar: 40 }, html => html), 'baz')
 
+equal(compile('<if foo[bar]>baz</if>')({ foo: { bar: true }, bar: 'bar' }, html => html), 'baz')
+equal(compile('<if foo[bar]>baz</if>')({ foo: { bar: false }, bar: 'bar' }, html => html), '')
+
 equal(compile('<if foo["bar"].baz>ban</if>')({
  foo: { bar: { baz: 'baz' } }
 }, html => html), 'ban')
@@ -473,10 +476,10 @@ equal(compile('<if not foo["bar"].baz>ban</if>')({
  foo: { bar: {} }
 }, html => html), 'ban')
 
-// equal(compile('<if foo[qux].baz>ban</if>')({
-//  foo: { bar: { baz: 'baz' } },
-//  qux: 'bar'
-// }, html => html), 'ban')
+equal(compile('<if foo[qux].baz>ban</if>')({
+ foo: { bar: { baz: 'baz' } },
+ qux: 'bar'
+}, html => html), 'ban')
 
 equal(compile('<if foo().bar("baz")>baz</if>')({
   foo () {
@@ -771,7 +774,6 @@ equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 0, bar: 0 }, html => ht
 equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 0, bar: 1 }, html => html), 'baz')
 equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 1, bar: 0 }, html => html), 'baz')
 equal(compile('<if foo bitwise xor bar>baz</if>')({ foo: 1, bar: 1 }, html => html), '')
-
 
 equal(compile('<if not foo>baz</if>')({ foo: null }, html => html), 'baz')
 equal(compile('<if not foo>baz</if>')({ foo: undefined }, html => html), 'baz')

@@ -10,7 +10,14 @@ const {
   getForInLoop,
   getForInLoopVariable
 } = require('./factory')
-const { convertText, convertTag, convertAttribute, convertToExpression, convertToBinaryExpression } = require('./convert')
+const {
+  convertText,
+  convertTag,
+  convertAttribute,
+  convertToExpression,
+  convertToBinaryExpression,
+  convertKey
+ } = require('./convert')
 const { walk } = require('./parser')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS } = require('./enum')
 const { getAction } = require('./action')
@@ -192,9 +199,7 @@ function getCondition (attrs, variables) {
   const actions = findActions(attributes)
   if (actions.length === 0) {
     const key = keys[0]
-    const [prefix] = key.split('.')
-    return getIdentifierWithOptionalPrefix(prefix, key, variables)
-    return node
+    return convertKey(key, variables)
   } else if (actions.length === 1) {
     return getTest(actions[0], keys, values, variables)
   } else {
