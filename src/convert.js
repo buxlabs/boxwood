@@ -180,6 +180,8 @@ function getTemplateNode (expression, variables, unescape) {
       return node
     })
     return expression
+  } else if (expression.type === 'NewExpression') { // TODO: Consider potential usage
+    return expression
   }
 }
 
