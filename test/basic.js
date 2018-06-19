@@ -781,10 +781,10 @@ equal(compile('<if not foo>baz</if>')({ foo: true }, html => html), '')
 equal(compile('<if not foo.bar>baz</if>')({ foo: { bar: {} } }, html => html), '')
 equal(compile('<if not foo.bar>baz</if>')({ foo: {} }, html => html), 'baz')
 
-equal(compile('<if foo is an video>baz</if>')({ foo: 'foo.flv' }, html => html), 'baz')
-equal(compile('<if foo is an video>baz</if>')({ foo: 'foo.mp3' }, html => html), '')
-equal(compile('<if foo is an video>baz</if>')({ foo: 'fooflv' }, html => html), '')
-equal(compile('<if foo is not an video>baz</if>')({ foo: 'fooflv' }, html => html), 'baz')
+equal(compile('<if foo is a video>baz</if>')({ foo: 'foo.flv' }, html => html), 'baz')
+equal(compile('<if foo is a video>baz</if>')({ foo: 'foo.mp3' }, html => html), '')
+equal(compile('<if foo is a video>baz</if>')({ foo: 'fooflv' }, html => html), '')
+equal(compile('<if foo is not a video>baz</if>')({ foo: 'fooflv' }, html => html), 'baz')
 
 equal(compile('<if foo is an image>baz</if>')({ foo: 'foo.png' }, html => html), 'baz')
 equal(compile('<if foo is an image>baz</if>')({ foo: 'foo.svg' }, html => html), 'baz')
@@ -796,10 +796,10 @@ equal(compile('<if foo is an audio>baz</if>')({ foo: 'foo.ogg' }, html => html),
 equal(compile('<if foo is an audio>baz</if>')({ foo: 'foomp3' }, html => html), '')
 equal(compile('<if foo is not an audio>baz</if>')({ foo: 'foomp3' }, html => html), 'baz')
 
-equal(compile('<if foo has extension of bar>baz</if>')({ foo: 'foo.mp3', bar: 'mp3'}, html => html), 'baz')
+equal(compile('<if foo has an extension of bar>baz</if>')({ foo: 'foo.mp3', bar: 'mp3'}, html => html), 'baz')
 equal(compile('<if foo has extension of={"jpg"}>baz</if>')({ foo: 'foo.jpg' }, html => html), 'baz')
-equal(compile('<if foo has extension of bar>baz</if>')({ foo: 'foo.mp3', bar: '.ogg'}, html => html), '')
-equal(compile('<if foo does not have extension of bar>baz</if>')({ foo: 'foo.mp3', bar: '.ogg'}, html => html), 'baz')
+equal(compile('<if foo has an extension of bar>baz</if>')({ foo: 'foo.mp3', bar: '.ogg'}, html => html), '')
+equal(compile('<if foo does not have an extension of bar>baz</if>')({ foo: 'foo.mp3', bar: '.ogg'}, html => html), 'baz')
 
 equal(compile('<ul><for todo in="{todos}"><li html="{todo.description}"></li></for></ul>')({
   todos: [
@@ -928,9 +928,9 @@ equal(compile('<if foo is prime>baz</if>')({ foo: 5 }, html => html), 'baz')
 equal(compile('<if foo is prime>baz</if>')({ foo: 1 }, html => html), '')
 equal(compile('<if foo is not prime>baz</if>')({ foo: 1 }, html => html), 'baz')
 
-equal(compile('<if foo is palindrome>baz</if>')({ foo: 'madam' }, html => html), 'baz')
-equal(compile('<if foo is palindrome>baz</if>')({ foo: 'foo' }, html => html), '')
-equal(compile('<if foo is not palindrome>baz</if>')({ foo: 'foo' }, html => html), 'baz')
+equal(compile('<if foo is a palindrome>baz</if>')({ foo: 'madam' }, html => html), 'baz')
+equal(compile('<if foo is a palindrome>baz</if>')({ foo: 'foo' }, html => html), '')
+equal(compile('<if foo is not a palindrome>baz</if>')({ foo: 'foo' }, html => html), 'baz')
 
 equal(compile('<if foo is sooner than bar>baz</if>')({
   foo: new Date(2018, 4, 1),
