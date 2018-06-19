@@ -441,7 +441,8 @@ equal(compile('<if foo lt bar>baz</if>')({ foo: 42, bar: 50 }, html => html), 'b
 equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 30 }, html => html), '')
 equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
 equal(compile('<if foo lte bar>baz</if>')({ foo: 42, bar: 50 }, html => html), 'baz')
-// equal(compile('<if foo lte="{bar.baz - 2}"></if>')({ foo: 2, bar: { baz: 10 } }, html => html), 'baz')
+equal(compile('<if foo lte="{bar.baz - 2}">baz</if>')({ foo: 2, bar: { baz: 10 } }, html => html), 'baz')
+equal(compile('<if foo lte="{bar.baz - 2}">baz</if>')({ foo: 100, bar: { baz: 10 } }, html => html), '')
 
 equal(compile('<if foo equals bar>baz</if>')({ foo: 42, bar: 42 }, html => html), 'baz')
 equal(compile('<if foo equals bar>baz</if>')({ foo: 40, bar: 42 }, html => html), '')

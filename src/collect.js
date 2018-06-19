@@ -19,7 +19,7 @@ const {
   convertKey
  } = require('./convert')
 const { walk } = require('./parser')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
@@ -42,10 +42,6 @@ const digits = new Map([
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
-}
-
-function getIdentifierWithOptionalPrefix (prefix, key, variables) {
-  return variables.includes(prefix) ? getIdentifier(key) : getObjectMemberExpression(key)
 }
 
 function findActions (attributes) {
@@ -101,13 +97,26 @@ function convertValueToNode (value, variables) {
     value = value.replace(/{|}/g, '')
     const expression = convertToExpression(value)
     if (expression.type === 'Identifier') {
-      const [prefix] = value.split('.')
-      return getIdentifierWithOptionalPrefix(prefix, value, variables)
+      return convertKey(value, variables)
     } else if (expression.type === 'Literal') {
       return getLiteral(expression.value)
     } else if (expression.type === 'BinaryExpression') {
-      const nodes = [expression.left, expression.right]
-      return convertToBinaryExpression(nodes)
+      AbstractSyntaxTree.replace(expression, (node, parent) => {
+        if (node.type === 'MemberExpression') {
+          if (node.object.type === 'Identifier' && !node.object.transformed) {
+            node.object.transformed = true
+            const object = getIdentifier(OBJECT_VARIABLE)
+            object.transformed = true
+            node.object = {
+              type: 'MemberExpression',
+              object,
+              property: node.object
+            }
+          }
+        }
+        return node
+      })
+      return expression
     }
   }
   return getLiteral(value)
@@ -188,8 +197,7 @@ function getRightNodeFromAttribute (current, next, variables) {
 
 function getLiteralOrIdentifier (attribute, variables) {
   const key = attribute.key || attribute
-  const [prefix] = key.split('.')
-  return digits.has(key) ? getLiteral(digits.get(key)) : getIdentifierWithOptionalPrefix(prefix, key, variables)
+  return digits.has(key) ? getLiteral(digits.get(key)) : convertKey(key, variables)
 }
 
 function getCondition (attrs, variables) {
@@ -493,15 +501,13 @@ function collect (tree, fragment, variables, modifiers, components, store, optio
       collect(ast, current, variables, modifiers, components, store, options)
     })
     const { key } = attrs[0]
-    const [prefix] = key.split('.')
-
     tree.append({
       type: 'IfStatement',
       test: {
         type: 'UnaryExpression',
         operator: '!',
         prefix: true,
-        argument: getIdentifierWithOptionalPrefix(prefix, key, variables)
+        argument: convertKey(key, variables)
       },
       consequent: {
         type: 'BlockStatement',
@@ -519,14 +525,13 @@ function collect (tree, fragment, variables, modifiers, components, store, optio
         leaf = leaf.alternate
       }
       const { key } = attrs[0]
-      const [prefix] = key.split('.')
       leaf.alternate = {
         type: 'IfStatement',
         test: {
           type: 'UnaryExpression',
           operator: '!',
           prefix: true,
-          argument: getIdentifierWithOptionalPrefix(prefix, key, variables)
+          argument: convertKey(key, variables)
         },
         consequent: {
           type: 'BlockStatement',
@@ -617,7 +622,7 @@ function collect (tree, fragment, variables, modifiers, components, store, optio
         type: 'CallExpression',
         callee: {
           type: 'MemberExpression',
-          object: getIdentifierWithOptionalPrefix(right.key.split('.')[0], right.key, variables),
+          object: convertKey(right.key, variables),
           property: {
             type: 'Identifier',
             name: tag === 'foreach' ? 'forEach' : 'each'
