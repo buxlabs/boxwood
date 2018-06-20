@@ -1,4 +1,4 @@
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES } = require('./enum')
+const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
 const {
   getLiteral, getIdentifier, getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
@@ -166,7 +166,7 @@ function getTemplateNode (expression, variables, unescape) {
     }
   } else if (expression.type === 'ArrayExpression') {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'Identifier' && !node.transformed) {
+      if (node.type === 'Identifier' && !node.transformed && !GLOBAL_VARIABLES.includes(node.name)) {
         node.transformed = true
         const object = getIdentifier(OBJECT_VARIABLE)
         object.transformed = true
@@ -181,7 +181,22 @@ function getTemplateNode (expression, variables, unescape) {
       return node
     })
     return expression
-  } else if (expression.type === 'NewExpression') { // TODO: Consider potential usage
+  } else if (expression.type === 'NewExpression') {
+    AbstractSyntaxTree.replace(expression, (node, parent) => {
+      if (node.type === 'Identifier' && !node.transformed && !GLOBAL_VARIABLES.includes(node.name)) {
+        node.transformed = true
+        const object = getIdentifier(OBJECT_VARIABLE)
+        object.transformed = true
+        node = {
+          type: 'MemberExpression',
+          object,
+          property: node
+        }
+        node = getEscapeCallExpression(node)
+        node.callee.transformed = true
+      }
+      return node
+    })
     return expression
   }
 }

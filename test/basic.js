@@ -1239,6 +1239,8 @@ equal(compile('<p>{new Date(2018, 5, 29) | prettydate}</p>')({}, html => html), 
 equal(compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')({}, html => html), '0')
 equal(compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')({}, html => html), '818035920000')
 
+equal(compile('<p>{new Date(foo, bar, baz) | prettydate}</p>')({ foo: 2018, bar: 5, baz: 29 }, html => html), '<p>Friday, 29th of June 2018</p>')
+
 equal(compile('{foo | celsius}')({ foo: '70°F' }, html => html), '21°C')
 equal(compile('{foo | fahrenheit}')({ foo: '21°C' }, html => html), '70°F')
 equal(compile('{foo | kelvin}')({ foo: '70°F' }, html => html), '294K')
