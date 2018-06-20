@@ -123,10 +123,13 @@ function convertValueToNode (value, variables) {
 }
 
 function resolveComponent (component, fragment, variables, modifiers, components, options) {
+  const localVariables = fragment.attributes
+  localVariables.forEach(variable => {
+    component.content =  component.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+  })
   const htmlTree = parse(component.content)
   const children = fragment.children
   const currentComponents = []
-
   walk(htmlTree, current => {
     if (current.tagName === 'slot' || current.tagName === 'yield') {
       if (current.attributes.length === 0) {
