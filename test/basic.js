@@ -1378,6 +1378,10 @@ equal(compile(`<import icon from="./fixtures/partial/icon.html" /><icon foo="bar
   paths: [__dirname]
 })({}, html => html), '<span class="glyphicon glyphicon-bar"></span>')
 
+equal(compile(`<import icon from="./fixtures/partial/icon.html" /><icon foo="bar"></icon><icon foo="baz"></icon>`, {
+  paths: [__dirname]
+})({}, html => html), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
+
 equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
   bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
   baz: 'qux'
