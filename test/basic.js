@@ -1615,4 +1615,8 @@ equal(compile(`<import select from="./fixtures/select/select.html"/><select></se
   paths: [__dirname]
 })({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
 
+equal(compile(`<img class="img-responsive" src="/assets/images/{photos[0]}" alt="Photo">`, {})({
+  photos: ['foo.jpg', 'bar.jpg']
+}, html => html), `<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">`)
+
 console.timeEnd('test: success')

@@ -121,7 +121,8 @@ function getTemplateNode (expression, variables, unescape) {
         let leaf = {
           type: 'MemberExpression',
           object: getObjectMemberExpression(expression.object.name),
-          property: expression.property
+          property: expression.property,
+          computed: expression.property.type === 'Literal'
         }
         if (unescape) return leaf
         return getEscapeCallExpression(leaf)
