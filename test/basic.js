@@ -1629,4 +1629,26 @@ equal(compile(`<img class="img-responsive" src="/assets/images/{photos[0]}" alt=
   photos: ['foo.jpg', 'bar.jpg']
 }, html => html), `<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">`)
 
+equal(compile(`<if foo>bar</if><else>baz<if qux>quux</if></else>`)({ foo: false, qux: false }), 'baz')
+equal(compile(`<if foo>bar</if><else>baz<if qux>quux</if></else>`)({ foo: true, qux: true }), 'bar')
+equal(compile(`<if foo>bar</if><else>baz<if qux>quux</if></else>`)({ foo: false, qux: true }), 'bazquux')
+equal(compile(`<if foo>bar</if><else>baz<if qux>quux</if></else>`)({ foo: true, qux: false }), 'bar')
+
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: true, bar: true, qux: true }), 'bar')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: false, bar: false, qux: false }), '')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: true, bar: false, qux: false }), 'bar')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: false, bar: true, qux: false }), 'baz')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: false, bar: false, qux: true }), '')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: false, bar: true, qux: true }), 'bazquux')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: true, bar: true, qux: false }), 'bar')
+equal(compile(`<if foo>bar</if><elseif bar>baz<if qux>quux</if></elseif>`)({ foo: true, bar: false, qux: true }), 'bar')
+
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: true, bar: true, baz: true }), 'foo')
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: true, baz: true }), 'bar')
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: false, baz: true }), 'baz')
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: false, baz: false }), 'ban')
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: true, baz: true }), 'bar')
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: false, baz: true }), 'baz')
+equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: true, bar: false, baz: true }), 'foo')
+
 console.timeEnd('test: success')
