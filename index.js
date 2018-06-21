@@ -17,9 +17,10 @@ function render (source, options) {
   const modifiers = []
   const components = []
   const store = {}
+  let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components, store, options)
+    collect(tree, fragment, variables, modifiers, components, store, depth, options)
   })
   const used = []
   unique(modifiers).forEach(name => {

@@ -2,7 +2,7 @@ const { equal } = require('assert')
 const { compile } = require('..')
 const path = require('path')
 
-console.time('test: success')
+console.time('test basic')
 equal(compile('')(), '')
 equal(compile('<!DOCTYPE html>')(), '<!doctype html>')
 equal(compile('<!-- foo -->')(), '')
@@ -1651,4 +1651,4 @@ equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><el
 equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: false, baz: true }), 'baz')
 equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: true, bar: false, baz: true }), 'foo')
 
-console.timeEnd('test: success')
+console.timeEnd('test basic')

@@ -13,7 +13,9 @@ function test (name, data = {}) {
   const expected = readFileSync(file2, 'utf8').replace(/\s+/g, '')
   equal(actual, expected)
 }
+console.time('test examples')
 
 test('fizzbuzz')
 // test('simple')
 // test('footer')
+console.timeEnd('test examples')
