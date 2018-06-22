@@ -130,6 +130,11 @@ function resolveComponent (component, fragment, variables, modifiers, components
   })
   const htmlTree = parse(content)
   const children = fragment.children
+  walk(htmlTree, leaf => {
+    if (leaf.tagName === component.name) {
+      leaf.plain = true
+    }
+  })
   const currentComponents = []
   walk(htmlTree, current => {
     if (current.tagName === 'slot' || current.tagName === 'yield') {
@@ -152,11 +157,10 @@ function resolveComponent (component, fragment, variables, modifiers, components
       collectComponentsFromPartialAttribute(current, options)
     }
     const component = currentComponents.find(component => component.name === current.tagName)
-    if (component && !current.plain) {
+    if (component) {
       resolveComponent(component, current, variables, modifiers, currentComponents, options)
       current.used = true
     }
-    current.plain = true
   })
   fragment.children = htmlTree
 }

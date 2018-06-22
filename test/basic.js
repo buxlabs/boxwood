@@ -1292,22 +1292,6 @@ equal(compile(`<for month in='{["Styczeń", "Luty", "Marzec"]}'>{month}</for>`)(
 equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz' }, html => html), 'barbaz')
 // equal(compile(`<for foo in='{[{ key: 'bar' }, { key: 'baz' }]}'>{foo.key}</for>`)({}, html => html), 'barbaz')
 
-equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button>`, {
-  paths: [__dirname]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
-equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button><button>bar</button>`, {
-  paths: [__dirname]
-})({}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
-
-equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
-equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
-  paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
 equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
   paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
 })({}, html => html), '<input type="checkbox">')
@@ -1331,10 +1315,6 @@ equal(compile(`<import layout from='./layout-with-partial.html'/><layout>bar</la
 equal(compile(`<import layout from='./layout-with-render.html'/><layout>bar</layout>`, {
   paths: [ path.join(__dirname, './fixtures/import') ]
 })({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
-
-equal(compile(`<require button from="./fixtures/import/button.html"/><button>foo</button>`, {
-  paths: [__dirname]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
 
 equal(compile(`<import layout from='./layout-with-require.html'/><layout>bar</layout>`, {
   paths: [ path.join(__dirname, './fixtures/import') ]
@@ -1360,19 +1340,6 @@ equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' } }, html => html), 'qux')
 
 equal(compile(`<head partial="./fixtures/partial/head.html"></head>`, { paths: [__dirname] })({}, html => html), '<head><meta charset="utf-8"></head>')
-equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1>foo</h1><h2>bar</h2></header>')
-equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1>foo</h1><h2></h2></header>')
-equal(compile(`<import header from="./fixtures/slots/header.html"/><header></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1></h1><h2></h2></header>')
-
-equal(compile(`<import header from="./fixtures/yields/header.html"/><header></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1></h1><h2></h2></header>')
 
 equal(compile(`<import icon from="./fixtures/partial/icon.html" /><icon foo="bar"></icon>`, {
   paths: [__dirname]
@@ -1621,10 +1588,6 @@ equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , sepa
 equal(compile('<svg from="./fixtures/svg/rectangle.svg" />', { paths: [__dirname] })({}, html => html), '<svg width="400" height="100"><rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)"></rect></svg>')
 equal(compile('<svg from="./fixtures/svg/stroke.svg" />', { paths: [__dirname] })({}, html => html), '<svg height="80" width="300"><g fill="none"><path stroke="red" d="M5 20 l215 0"></path></g></svg>')
 
-equal(compile(`<import select from="./fixtures/select/select.html"/><select></select>`, {
-  paths: [__dirname]
-})({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
-
 equal(compile(`<img class="img-responsive" src="/assets/images/{photos[0]}" alt="Photo">`, {})({
   photos: ['foo.jpg', 'bar.jpg']
 }, html => html), `<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">`)
@@ -1664,5 +1627,63 @@ equal(compile(`<for doc in docs>{doc.name}<for key and value in doc.items>{key}{
     { name: 'foo', items: { bar: 'baz', qux: 'quux' } }
   ]
 }, html => html), 'foobarbazquxquux')
+
+equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<html><body><aside>foo</aside>bar</body></html>')
+
+equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<html><body><aside>foo</aside>bar</body></html>')
+
+equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header></sidebar>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<html><body><aside><div>foo</div></aside>bar</body></html>')
+
+equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header><header>foo</header></sidebar>baz</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<html><body><aside><div>foo</div><div>foo</div></aside>baz</body></html>')
+
+equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import button from='./button.html'/><layout><sidebar><button>foo</button></sidebar>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<html><body><aside><button class="btn btn-primary">foo</button></aside>bar</body></html>')
+
+equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button>`, {
+  paths: [__dirname]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button><button>bar</button>`, {
+  paths: [__dirname]
+})({}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
+
+equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
+  paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<require button from="./fixtures/import/button.html"/><button>foo</button>`, {
+  paths: [__dirname]
+})({}, html => html), '<button class="btn btn-primary">foo</button>')
+
+equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1>foo</h1><h2>bar</h2></header>')
+equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1>foo</h1><h2></h2></header>')
+equal(compile(`<import header from="./fixtures/slots/header.html"/><header></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1></h1><h2></h2></header>')
+
+equal(compile(`<import header from="./fixtures/yields/header.html"/><header></header>`, {
+  paths: [__dirname]
+})({}, html => html), '<header><h1></h1><h2></h2></header>')
+
+equal(compile(`<import select from="./fixtures/select/select.html"/><select></select>`, {
+  paths: [__dirname]
+})({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
 
 console.timeEnd('test basic')
