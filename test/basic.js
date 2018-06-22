@@ -1651,4 +1651,12 @@ equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><el
 equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: false, bar: false, baz: true }), 'baz')
 equal(compile(`<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>`)({ foo: true, bar: false, baz: true }), 'foo')
 
+equal(compile(`<for doc in docs><for foo in doc.items>{foo.bar.baz.qux.quux}</for></for>`)({
+ docs: [
+  { items: [{ bar: { baz: { qux: { quux: '1' } } }}] },
+  { items: [{ bar: { baz: { qux: { quux: '2' } } }}] },
+  { items: [{ bar: { baz: { qux: { quux: '3' } } }}] }
+ ]
+}, html => html), '123')
+
 console.timeEnd('test basic')

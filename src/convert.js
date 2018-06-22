@@ -113,31 +113,32 @@ function getTemplateNode (expression, variables, unescape) {
     }
     return expression
   } else if (expression.type === 'MemberExpression') {
-    if (variables.includes(expression.object.name)) {
-      if (unescape) return expression
-      return getEscapeCallExpression(expression)
-    } else {
-      if (expression.object.type === 'Identifier') {
-        let leaf = {
-          type: 'MemberExpression',
-          object: getObjectMemberExpression(expression.object.name),
-          property: expression.property,
-          computed: expression.property.type === 'Literal'
-        }
-        if (unescape) return leaf
-        return getEscapeCallExpression(leaf)
-      } else if (expression.object.type === 'MemberExpression') {
-        let leaf = expression.object
-        if (leaf.computed && leaf.property.type === 'Identifier') {
-          leaf.property = convertIdentifier(leaf.property, variables)
-        }
-        while (leaf.object.type === 'MemberExpression') {
-          leaf = leaf.object
-        }
-        leaf.object = getObjectMemberExpression(leaf.object.name)
+    if (expression.object.type === 'Identifier') {
+      if (variables.includes(expression.object.name)) {
         if (unescape) return expression
         return getEscapeCallExpression(expression)
       }
+      let leaf = {
+        type: 'MemberExpression',
+        object: getObjectMemberExpression(expression.object.name),
+        property: expression.property,
+        computed: expression.property.type === 'Literal'
+      }
+      if (unescape) return leaf
+      return getEscapeCallExpression(leaf)
+    } else if (expression.object.type === 'MemberExpression') {
+      let leaf = expression.object
+      if (leaf.computed && leaf.property.type === 'Identifier') {
+        leaf.property = convertIdentifier(leaf.property, variables)
+      }
+      while (leaf.object.type === 'MemberExpression') {
+        leaf = leaf.object
+      }
+      if (!variables.includes(leaf.object.name)) {
+        leaf.object = getObjectMemberExpression(leaf.object.name)
+      }
+      if (unescape) return expression
+      return getEscapeCallExpression(expression)
     }
   } else if (expression.type === 'CallExpression') {
     expression.arguments = expression.arguments.map(node => getTemplateNode(node, variables, unescape))
