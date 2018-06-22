@@ -1659,4 +1659,10 @@ equal(compile(`<for doc in docs><for foo in doc.items>{foo.bar.baz.qux.quux}</fo
  ]
 }, html => html), '123')
 
+equal(compile(`<for doc in docs>{doc.name}<for key and value in doc.items>{key}{value}</for></for>`)({
+  docs: [
+    { name: 'foo', items: { bar: 'baz', qux: 'quux' } }
+  ]
+}, html => html), 'foobarbazquxquux')
+
 console.timeEnd('test basic')
