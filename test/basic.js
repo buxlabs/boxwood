@@ -1,6 +1,7 @@
-const { equal } = require('assert')
+const { equal, deepStrictEqual } = require('assert')
 const { compile } = require('..')
 const path = require('path')
+const { readFileSync } = require('fs')
 
 console.time('test basic')
 equal(compile('')(), '')
@@ -1685,5 +1686,52 @@ equal(compile(`<import header from="./fixtures/yields/header.html"/><header></he
 equal(compile(`<import select from="./fixtures/select/select.html"/><select></select>`, {
   paths: [__dirname]
 })({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
+
+deepStrictEqual(compile(`<import button from="./fixtures/partial/button.html"/><button></button>`, {
+  paths: [__dirname],
+  statistics: true
+}).statistics, {
+  components: [
+    {
+      name: 'button',
+      content: '<button class="btn primary"><slot></slot></button>\n',
+      path: path.join(__dirname, './fixtures/partial/button.html')
+    }
+  ],
+  partials: []
+})
+
+deepStrictEqual(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, {
+  paths: [__dirname],
+  statistics: true
+}).statistics, {
+  components: [],
+  partials: [{ path: path.join(__dirname, './fixtures/partial/terms.html') }]
+})
+
+deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
+  paths: [ path.join(__dirname, './fixtures/import') ],
+  statistics: true
+}).statistics, {
+  components: [
+    {
+      name: 'layout',
+      content: readFileSync(path.join(__dirname, './fixtures/import/layout.html'), 'utf8'),
+      path: path.join(__dirname, './fixtures/import/layout.html')
+    },
+    {
+      name: 'header',
+      content: readFileSync(path.join(__dirname, './fixtures/import/header.html'), 'utf8'),
+      path: path.join(__dirname, './fixtures/import/header.html')
+    },
+    {
+      name: 'footer',
+      content: readFileSync(path.join(__dirname, './fixtures/import/footer.html'), 'utf8'),
+      path: path.join(__dirname, './fixtures/import/footer.html')
+    }
+  ],
+  partials: []
+})
+
 
 console.timeEnd('test basic')

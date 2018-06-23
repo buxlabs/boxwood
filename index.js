@@ -16,11 +16,15 @@ function render (source, options) {
   ].concat(GLOBAL_VARIABLES)
   const modifiers = []
   const components = []
+  const statistics = {
+    components: [],
+    partials: []
+  }
   const store = {}
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components, store, depth, options)
+    collect(tree, fragment, variables, modifiers, components, statistics, store, depth, options)
   })
   const used = []
   unique(modifiers).forEach(name => {
@@ -31,24 +35,32 @@ function render (source, options) {
     }
   })
   tree.append(getTemplateReturnStatement())
-  return tree
+  return { tree, components, statistics }
+}
+
+// TODO pure-utilities unique should work for objects
+function uniq (array) {
+  return Array.from(new Set(array.map(item => JSON.stringify(item)))).map(JSON.parse)
 }
 
 module.exports = {
   render,
-  compile (source, options) {
+  compile (source, options = {}) {
     const rescue = {}
     if (source.includes('<rescue>') && source.includes('</rescue>')) {
       const start = source.indexOf('<rescue>')
       const end = source.indexOf('</rescue>')
       rescue.content = source.substring(start + '<rescue>'.length, end)
       source = source.substring(0, start) + source.substring(end, source.length)
-      rescue.tree = render(rescue.content)
+      const { tree, statistics } = render(rescue.content)
+      rescue.tree = tree
+      rescue.statistics = statistics
     }
-    let program = render(source, options)
+    const { tree, statistics } = render(source, options)
+    let program = tree
     if (rescue.tree) {
-      const tree = new AbstractSyntaxTree('')
-      tree.append({
+      const ast = new AbstractSyntaxTree('')
+      ast.append({
         type: 'TryStatement',
         block: {
           type: 'BlockStatement',
@@ -66,8 +78,20 @@ module.exports = {
           }
         }
       })
-      program = tree
+      program = ast
+      statistics.components = statistics.components.concat(rescue.statistics.components)
+      statistics.partials = statistics.partials.concat(rescue.statistics.partials)
     }
-    return new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)()
+    const code = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)()
+    if (options.statistics) {
+      return {
+        code,
+        statistics: {
+          components: uniq(statistics.components),
+          partials: uniq(statistics.partials)
+        }
+      }
+    }
+    return code
   }
 }

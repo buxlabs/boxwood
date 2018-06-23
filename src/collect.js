@@ -53,7 +53,7 @@ function findActions (attributes) {
     }).filter(Boolean)
 }
 
-function collectComponentsFromImport (fragment, components, options) {
+function collectComponentsFromImport (fragment, statistics, components, options) {
   const attrs = fragment.attributes
   const name = attrs[0].key
   const path = attrs[1].value
@@ -61,23 +61,25 @@ function collectComponentsFromImport (fragment, components, options) {
     const location = join(options.paths[i], path)
     if (!existsSync(location)) continue
     const content = readFileSync(location, 'utf8')
-    components.push({ name, content })
+    components.push({ name, content, path: location })
+    statistics.components.push({ name, content, path: location })
     break
   }
 }
 
-function collectComponentsFromPartialOrRender (fragment, options) {
+function collectComponentsFromPartialOrRender (fragment, statistics, options) {
   const path = fragment.attributes[0].value
   for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
     const location = join(options.paths[i], path)
     if (!existsSync(location)) continue
     const content = readFileSync(location, 'utf8')
+    statistics.partials.push({ path: location })
     fragment.children = parse(content)
     break
   }
 }
 
-function collectComponentsFromPartialAttribute (fragment, options) {
+function collectComponentsFromPartialAttribute (fragment, statistics, options) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (attr) {
     const path = attr.value
@@ -85,6 +87,7 @@ function collectComponentsFromPartialAttribute (fragment, options) {
       const location = join(options.paths[i], path)
       if (!existsSync(location)) continue
       const content = readFileSync(location, 'utf8')
+      statistics.partials.push({ path: location })
       fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
       fragment.children = parse(content)
       break
@@ -122,7 +125,7 @@ function convertValueToNode (value, variables) {
   return getLiteral(value)
 }
 
-function resolveComponent (component, fragment, variables, modifiers, components, options) {
+function resolveComponent (component, fragment, variables, modifiers, components, statistics, options) {
   const localVariables = fragment.attributes
   let content = component.content
   localVariables.forEach(variable => {
@@ -150,15 +153,15 @@ function resolveComponent (component, fragment, variables, modifiers, components
       }
     }
     if (current.tagName === 'import' || current.tagName === 'require') {
-      collectComponentsFromImport(current, currentComponents, options)
+      collectComponentsFromImport(current, statistics, currentComponents, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render') {
-      collectComponentsFromPartialOrRender(current, options)
+      collectComponentsFromPartialOrRender(current, statistics, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, options)
+      collectComponentsFromPartialAttribute(current, statistics, options)
     }
     const component = currentComponents.find(component => component.name === current.tagName)
     if (component) {
-      resolveComponent(component, current, variables, modifiers, currentComponents, options)
+      resolveComponent(component, current, variables, modifiers, components, statistics, options)
       current.used = true
     }
   })
@@ -283,7 +286,7 @@ function getCondition (attrs, variables) {
   }
 }
 
-function collect (tree, fragment, variables, modifiers, components, store, depth, options) {
+function collect (tree, fragment, variables, modifiers, components, statistics, store, depth, options) {
   if (fragment.used) return
   depth += 1
   fragment.used = true
@@ -291,10 +294,10 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
   const attrs = fragment.attributes
   const component = components.find(component => component.name === tag)
   if (component && !fragment.plain) {
-    resolveComponent(component, fragment, variables, modifiers, components, options)
+    resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, store, depth, options)
+      collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
     })
     const body = ast.body()
     body.forEach(node => tree.append(node))
@@ -347,7 +350,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       }
       fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
     }
-    collectComponentsFromPartialAttribute(fragment, options)
+    collectComponentsFromPartialAttribute(fragment, statistics, options)
     const nodes = convertTag(fragment, variables, modifiers)
     nodes.forEach(node => {
       if (node.type === 'IfStatement') {
@@ -357,7 +360,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       tree.append(getTemplateAssignmentExpression(node))
     })
     fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components, store, depth, options)
+      collect(tree, node, variables, modifiers, components, statistics, store, depth, options)
     })
     if (!SELF_CLOSING_TAGS.includes(tag)) {
       const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -376,7 +379,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, store, depth, options)
+      collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
     })
     const condition = getCondition(attrs, variables)
     appendIfStatement(condition, tree, ast, depth)
@@ -385,7 +388,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -406,7 +409,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -443,7 +446,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       variables.push(guard)
       ast.append(getForLoopVariable(variable, name, variables, index, range))
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
       variables.pop()
@@ -462,7 +465,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       tree.append(getForInLoop(keyIdentifier, name, ast.body()))
       variables.pop()
@@ -471,14 +474,14 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
   } else if (tag === 'slot' || tag === 'yield') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, store, depth, options)
+      collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
     })
     const body = ast.body()
     body.forEach(node => tree.append(node))
   } else if (tag === 'try') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, store, depth, options)
+      collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
     })
 
     tree.append({
@@ -493,7 +496,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       leaf.handler = {
         type: 'CatchClause',
@@ -510,7 +513,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
   } else if (tag === 'unless') {
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, store, depth, options)
+      collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
     })
     const { key } = attrs[0]
     tree.append({
@@ -532,7 +535,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
         leaf = leaf.alternate
@@ -576,7 +579,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       const condition = getCondition(attributes, variables)
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       ast.append({
         type: 'BreakStatement',
@@ -593,7 +596,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
     if (leaf) {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
       })
       ast.append({
         type: 'BreakStatement',
@@ -622,7 +625,7 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       variables.push(value.key)
     }
     walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, store, depth, options)
+      collect(ast, current, variables, modifiers, components, statistics, store, depth, options)
     })
     if (left) {
       variables.pop()
@@ -669,11 +672,11 @@ function collect (tree, fragment, variables, modifiers, components, store, depth
       }
     })
   } else if (tag === 'import' || tag === 'require') {
-    collectComponentsFromImport(fragment, components, options)
+    collectComponentsFromImport(fragment, statistics, components, options)
   } else if (tag === 'partial' || tag === 'render') {
-    collectComponentsFromPartialOrRender(fragment, options)
+    collectComponentsFromPartialOrRender(fragment, statistics, options)
     fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components, store, depth, options)
+      collect(tree, node, variables, modifiers, components, statistics, store, depth, options)
     })
   }
   depth -= 1
