@@ -335,6 +335,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
         const location = join(options.paths[i], path)
         if (!existsSync(location)) continue
         const content = parse(readFileSync(location, 'utf8'))[0]
+        statistics.svgs.push({ path: location })
         fragment.attributes = content.attributes
         fragment.children = content.children
         break

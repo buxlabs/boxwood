@@ -18,7 +18,8 @@ function render (source, options) {
   const components = []
   const statistics = {
     components: [],
-    partials: []
+    partials: [],
+    svgs: []
   }
   const store = {}
   let depth = 0
@@ -81,14 +82,24 @@ module.exports = {
       program = ast
       statistics.components = statistics.components.concat(rescue.statistics.components)
       statistics.partials = statistics.partials.concat(rescue.statistics.partials)
+      statistics.svgs = statistics.svgs.concat(rescue.statistics.svgs)
     }
     const code = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)()
     if (options.statistics) {
+      const components = uniq(statistics.components)
+      const partials = uniq(statistics.partials)
+      const svgs = uniq(statistics.svgs)
       return {
         code,
         statistics: {
-          components: uniq(statistics.components),
-          partials: uniq(statistics.partials)
+          components,
+          partials,
+          svgs,
+          assets: [].concat(
+            components.map(item => item.path),
+            partials.map(item => item.path),
+            svgs.map(item => item.path)
+          )
         }
       }
     }

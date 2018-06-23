@@ -1698,7 +1698,11 @@ deepStrictEqual(compile(`<import button from="./fixtures/partial/button.html"/><
       path: path.join(__dirname, './fixtures/partial/button.html')
     }
   ],
-  partials: []
+  partials: [],
+  svgs: [],
+  assets: [
+    path.join(__dirname, './fixtures/partial/button.html')
+  ]
 })
 
 deepStrictEqual(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, {
@@ -1706,7 +1710,11 @@ deepStrictEqual(compile(`<partial from="./fixtures/partial/terms.html"></partial
   statistics: true
 }).statistics, {
   components: [],
-  partials: [{ path: path.join(__dirname, './fixtures/partial/terms.html') }]
+  partials: [{ path: path.join(__dirname, './fixtures/partial/terms.html') }],
+  svgs: [],
+  assets: [
+    path.join(__dirname, './fixtures/partial/terms.html')
+  ]
 })
 
 deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
@@ -1730,7 +1738,13 @@ deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layou
       path: path.join(__dirname, './fixtures/import/footer.html')
     }
   ],
-  partials: []
+  partials: [],
+  svgs: [],
+  assets: [
+    path.join(__dirname, './fixtures/import/layout.html'),
+    path.join(__dirname, './fixtures/import/header.html'),
+    path.join(__dirname, './fixtures/import/footer.html')
+  ]
 })
 
 
