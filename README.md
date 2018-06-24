@@ -1,5 +1,7 @@
 # html-engine
 
+[ ![Codeship Status for buxlabs/html-engine](https://app.codeship.com/projects/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/status?branch=master)](https://app.codeship.com/projects/288586)
+
 ## Installation
 
 `npm install @buxlabs/html-engine`
