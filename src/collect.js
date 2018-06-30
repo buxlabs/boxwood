@@ -286,6 +286,11 @@ function getCondition (attrs, variables) {
   }
 }
 
+function getExtension (value) {
+  const parts = value.split('.')
+  return parts[parts.length - 1]
+}
+
 function collect (tree, fragment, variables, modifiers, components, statistics, store, depth, options) {
   if (fragment.used) return
   depth += 1
@@ -307,7 +312,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     fragment.children.forEach(child => {
       child.used = true
     })
-  } else if (tag === 'script' && attrs[0] && attrs[0].key === 'inline') {
+  } else if (tag === 'script' && attrs && attrs.map(attr => attr.key).includes('inline')) {
     const leaf = fragment.children[0]
     leaf.used = true
     const ast = new AbstractSyntaxTree(leaf.content)
@@ -329,7 +334,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
   } else if (tag === '!doctype') {
     tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    if (tag === 'svg') {
+    if (tag === 'svg' && attrs && attrs.map(attr => attr.key).includes('from')) {
       const { value: path } = fragment.attributes[0]
       for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
         const location = join(options.paths[i], path)
@@ -340,6 +345,26 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
         fragment.children = content.children
         break
       }
+    } else if (tag === 'img' && attrs && attrs.map(attr => attr.key).includes('inline')) {
+      fragment.attributes = fragment.attributes.map(attr => {
+        if (attr.key === 'inline') return null
+        if (attr.key === 'src') {
+          const extension = getExtension(attr.value)
+          const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']
+          if (extensions.includes(extension)) {
+
+              for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+                const location = join(options.paths[i], attr.value)
+                if (!existsSync(location)) continue
+                const content = readFileSync(location, 'base64')
+                statistics.images.push({ path: location })
+                attr.value = `data:image/${extension};base64, ${content}`
+                break
+              }
+          }
+        }
+        return attr
+      }).filter(Boolean)
     }
     if (attrs && attrs.map(attr => attr.key).includes('content')) {
       const { value } = attrs[0]
