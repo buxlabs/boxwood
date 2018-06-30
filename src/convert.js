@@ -29,7 +29,7 @@ function convertToExpression (string) {
 }
 
 function convertAttribute (name, value, variables, currentModifiers) {
-  if (value.includes('{') && value.includes('}')) {
+  if (value && value.includes('{') && value.includes('}')) {
     let values = extract(value)
     if (values.length === 1) {
       let property = values[0].value.substring(1, values[0].value.length - 1)
@@ -54,6 +54,8 @@ function convertAttribute (name, value, variables, currentModifiers) {
   } else if (name.endsWith('.bind')) {
     const expression = convertToExpression(value)
     return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('.')[0]))
+  } else if (!value) {
+    return getLiteral(name)
   } else {
     return getLiteral(value)
   }
