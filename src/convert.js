@@ -98,10 +98,12 @@ function getTemplateNode (expression, variables, unescape) {
     return expression
   } else if (expression.type === 'BinaryExpression') {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'Identifier' && !node.transformed) {
-        node.transformed = true
+      if (node.type === 'MemberExpression' && node.property.type === 'Identifier') {
+        node.property.omit = true
+      } else if (node.type === 'Identifier' && !node.omit) {
+        node.omit = true
         const object = getIdentifier(OBJECT_VARIABLE)
-        object.transformed = true
+        object.omit = true
         node = {
           type: 'MemberExpression',
           object,

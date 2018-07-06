@@ -1274,9 +1274,10 @@ equal(compile('{foo() + bar() + baz()}')({ foo: () => 0, bar: () => 1, baz: () =
 equal(compile('{foo() + bar + 2}')({ foo: () => 0, bar: 1 }, html => html), '3')
 equal(compile('{foo(bar) + baz}')({ foo: (bar) => bar, bar: 2, baz: 1 }, html => html), '3')
 equal(compile('{"&"}')({}, html => html.replace(/&/g, '&amp;')), '&')
-// equal(compile('{foo.bar + 1}')({ foo: { bar: 1 }  }, html => html), '2')
 equal(compile('<h5>#{index + 1} {translate("blog.author")}: {author}</h5>')(
   { index: 0, translate: () => 'author', author: 'Olek' }, html => html), '<h5>#1 author: Olek</h5>')
+equal(compile('{foo + 1}')({ foo: 1  }, html => html), '2')
+equal(compile('{foo.bar + 1}')({ foo: { bar: 1 } }, html => html), '2')
 equal(compile('<switch foo><case is present>bar</case></switch>')({ foo: true }, html => html), 'bar')
 equal(compile('<switch foo><case is present>bar</case></switch>')({ foo: undefined }, html => html), '')
 equal(compile('<switch foo><case is undefined>bar</case></switch>')({}, html => html), 'bar')
