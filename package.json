@@ -21,7 +21,17 @@
     "engine",
     "javascript"
   ],
-  "author": "Emil Ajdyna <emil@ajdyna.com>",
+  "author": {
+    "name": "Emil Ajdyna",
+    "email": "emil@ajdyna.com",
+    "url": "https://buxlabs.pl/en"
+  },
+  "contributors": [
+    {
+      "name": "Przemysław Konieczniak",
+      "email": "przemyslaw.konieczniak@gmail.com"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/buxlabs/html-engine/issues"
