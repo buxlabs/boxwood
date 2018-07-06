@@ -85,6 +85,15 @@ equal(compile('<span class="icon {name}"></span>')({ name: 'buxus' }, html => ht
 equal(compile('<span class="icon icon-{name}"></span>')({ name: 'buxus' }, html => html), '<span class="icon icon-buxus"></span>')
 equal(compile('<a href="blog/{name}">{title}</a>')({ name: 'foo', title: 'Foo' }, html => html), '<a href="blog/foo">Foo</a>')
 
+equal(compile('{foo ? "bar" : "baz"}')({ foo: true }, html => html), 'bar')
+equal(compile('{foo ? "bar" : "baz"}')({ foo: false }, html => html), 'baz')
+equal(compile('{foo ? bar : baz}')({ foo: true, bar: 'bar', baz: 'baz' }, html => html), 'bar')
+equal(compile('{foo ? bar : baz}')({ foo: false, bar: 'bar', baz: 'baz' }, html => html), 'baz')
+equal(compile('{foo.bar ? bar : baz}')({ foo: { bar: true }, bar: 'bar', baz: 'baz' }, html => html), 'bar')
+equal(compile('{foo.bar ? bar : baz}')({ foo: { bar: false }, bar: 'bar', baz: 'baz' }, html => html), 'baz')
+equal(compile('{foo.bar ? bar.baz : baz.qux}')({ foo: { bar: true }, bar: { baz: 'bar' }, baz: { qux: 'baz' } }, html => html), 'bar')
+equal(compile('{foo.bar ? bar.baz : baz.qux}')({ foo: { bar: false }, bar: { baz: 'bar' }, baz: { qux: 'baz' } }, html => html), 'baz')
+
 equal(compile(`
 <a href='blog/{name}'>
   {title}

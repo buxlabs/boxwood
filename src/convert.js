@@ -167,40 +167,27 @@ function getTemplateNode (expression, variables, unescape) {
         return getEscapeCallExpression(expression)
       }
     }
-  } else if (expression.type === 'ArrayExpression') {
+  } else if (['ArrayExpression', 'NewExpression', 'ConditionalExpression'].includes(expression.type)) {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'Identifier' && !node.transformed && !GLOBAL_VARIABLES.includes(node.name)) {
-        node.transformed = true
+      if (node.type === 'MemberExpression' && node.property.type === 'Identifier') {
+        node.property.omit = true
+      } if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
+        node.omit = true
         const object = getIdentifier(OBJECT_VARIABLE)
-        object.transformed = true
+        object.omit = true
         node = {
           type: 'MemberExpression',
           object,
           property: node
         }
         node = getEscapeCallExpression(node)
-        node.callee.transformed = true
+        node.callee.omit = true
       }
       return node
     })
     return expression
-  } else if (expression.type === 'NewExpression') {
-    AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'Identifier' && !node.transformed && !GLOBAL_VARIABLES.includes(node.name)) {
-        node.transformed = true
-        const object = getIdentifier(OBJECT_VARIABLE)
-        object.transformed = true
-        node = {
-          type: 'MemberExpression',
-          object,
-          property: node
-        }
-        node = getEscapeCallExpression(node)
-        node.callee.transformed = true
-      }
-      return node
-    })
-    return expression
+  } else {
+    throw new Error(`Expression type: ${expression.type} isn't supported yet.`)
   }
 }
 
