@@ -18,7 +18,7 @@ const {
   convertToBinaryExpression,
   convertKey
  } = require('./convert')
-const { walk } = require('./parser')
+const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
