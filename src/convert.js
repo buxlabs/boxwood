@@ -143,7 +143,7 @@ function getTemplateNode (expression, variables, unescape) {
       return getEscapeCallExpression(expression)
     }
   } else if (expression.type === 'CallExpression') {
-    expression.arguments = expression.arguments.map(node => getTemplateNode(node, variables, unescape))
+    expression.arguments = expression.arguments.map(node => getTemplateNode(node, variables, true))
     if (expression.callee.type === 'Identifier') {
       expression.callee = convertIdentifier(expression.callee, variables)
       if (unescape) return expression
