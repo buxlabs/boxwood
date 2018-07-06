@@ -1,7 +1,7 @@
 const { Suite } = require('benchmark')
 const { compile } = require('..')
 const underscore = require('underscore')
-const lodash = require('lodash')
+const template = require('lodash.template')
 const escape = require('escape-html')
 const { readFileSync } = require('fs')
 const path = require('path')
@@ -13,7 +13,7 @@ const source3 = readFileSync(path.join(__dirname, 'fixtures/benchmark/lodash.ejs
 const suite = new Suite()
 const fn1 = compile(source1)
 const fn2 = underscore.template(source2)
-const fn3 = lodash.template(source3)
+const fn3 = template(source3)
 const data = {
   title: 'foo',
   subtitle: 'baz',

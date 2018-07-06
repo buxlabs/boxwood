@@ -28,19 +28,19 @@
   },
   "homepage": "https://github.com/buxlabs/html-engine#readme",
   "dependencies": {
-    "abstract-syntax-tree": "^1.0.1",
+    "abstract-syntax-tree": "^1.0.2",
     "himalaya": "^1.1.0",
     "himalaya-walk": "^1.0.0",
     "negate-sentence": "^0.1.2",
     "pure-conditions": "^0.1.9",
-    "pure-utilities": "^1.0.11"
+    "pure-utilities": "^1.0.12"
   },
   "devDependencies": {
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
-    "lodash": "^4.17.10",
+    "lodash.template": "^4.4.0",
     "standard": "^11.0.1",
-    "underscore": "^1.9.0",
+    "underscore": "^1.9.1",
     "watch": "^1.0.2"
   }
 }
