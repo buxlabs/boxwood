@@ -1243,14 +1243,17 @@ equal(compile('{foo | day}')({ foo: new Date('2018/05/29') }, html => html), 29)
 equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29') }, html => html), 2)
 equal(compile('{foo | month}')({ foo: '2018/05/29' }, html => html), 4)
 equal(compile('{foo | year}')({ foo: '2018/05/29' }, html => html), 2018)
+equal(compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')({}, html => html), '0')
+equal(compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')({}, html => html), '818035920000')
+
 equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, html => html), 'Friday, 29th of June 2018')
 equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, html => html), 'Friday, 29th of June 2018')
 equal(compile('<p>{foo | prettydate}</p>')({ foo: new Date(2018, 5, 29) }, html => html), '<p>Friday, 29th of June 2018</p>')
 equal(compile('<p>{new Date(2018, 5, 29) | prettydate}</p>')({}, html => html), '<p>Friday, 29th of June 2018</p>')
-equal(compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')({}, html => html), '0')
-equal(compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')({}, html => html), '818035920000')
-
 equal(compile('<p>{new Date(foo, bar, baz) | prettydate}</p>')({ foo: 2018, bar: 5, baz: 29 }, html => html), '<p>Friday, 29th of June 2018</p>')
+
+equal(compile('{foo | timestamp}')({ foo: new Date(2018, 5, 29) }, html => html), '2018-06-29')
+equal(compile('{foo | timestamp("YYYY/MM/DD")}')({ foo: new Date(2018, 5, 29) }, html => html), '2018/06/29')
 
 equal(compile('{foo | celsius}')({ foo: '70°F' }, html => html), '21°C')
 equal(compile('{foo | fahrenheit}')({ foo: '21°C' }, html => html), '70°F')
