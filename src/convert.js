@@ -102,12 +102,14 @@ function getTemplateNode (expression, variables, unescape) {
         node.property.omit = true
       } else if (node.type === 'Identifier' && !node.omit) {
         node.omit = true
-        const object = getIdentifier(OBJECT_VARIABLE)
-        object.omit = true
-        node = {
-          type: 'MemberExpression',
-          object,
-          property: node
+        if (!variables.includes(node.name)) {
+          const object = getIdentifier(OBJECT_VARIABLE)
+          object.omit = true
+          node = {
+            type: 'MemberExpression',
+            object,
+            property: node
+          }
         }
       }
       return node

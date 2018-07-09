@@ -655,7 +655,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     })
     if (left) {
       variables.pop()
-    } else if (left && key) {
+    } else if (key && value) {
       variables.pop()
       variables.pop()
     }
