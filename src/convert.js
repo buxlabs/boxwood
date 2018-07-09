@@ -169,21 +169,38 @@ function getTemplateNode (expression, variables, unescape) {
         return getEscapeCallExpression(expression)
       }
     }
-  } else if (['ArrayExpression', 'NewExpression', 'ConditionalExpression'].includes(expression.type)) {
+  } else if (['ArrayExpression', 'NewExpression', 'ConditionalExpression', 'ObjectExpression'].includes(expression.type)) {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'MemberExpression' && node.property.type === 'Identifier') {
-        node.property.omit = true
-      } if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
-        node.omit = true
-        const object = getIdentifier(OBJECT_VARIABLE)
-        object.omit = true
-        node = {
-          type: 'MemberExpression',
-          object,
-          property: node
+      if (node.type === 'Property' && node.key === node.value) {
+        if (!variables.includes(node.key.name)) {
+          const object = getIdentifier(OBJECT_VARIABLE)
+          object.omit = true
+          node.value = {
+            type: 'MemberExpression',
+            object,
+            property: node.value
+          }
+          node.shorthand = false
+          node.value.omit = true
+          node.value.property.omit = true
         }
-        node = getEscapeCallExpression(node)
-        node.callee.omit = true
+      } else if (parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
+        node.omit = true
+      } else if (node.type === 'MemberExpression' && node.property.type === 'Identifier') {
+        node.property.omit = true
+      } else if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
+        node.omit = true
+        if (!variables.includes(node.name)) {
+          const object = getIdentifier(OBJECT_VARIABLE)
+          object.omit = true
+          node = {
+            type: 'MemberExpression',
+            object,
+            property: node
+          }
+          node = getEscapeCallExpression(node)
+          node.callee.omit = true
+        }
       }
       return node
     })

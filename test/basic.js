@@ -27,6 +27,8 @@ equal(compile('<div>{foo("bar")}</div>')({ foo: bar => bar }, html => html.repla
 equal(compile('<div>{foo.bar()}</div>')({ foo: { bar: () => 'baz' } }, html => html.replace('baz', 'qux')), '<div>qux</div>')
 equal(compile('<div>{foo.bar.baz()}</div>')({ foo: { bar: { baz: () => 'qux' } } }, html => html.replace('qux', 'quux')), '<div>quux</div>')
 equal(compile('<div>{foo(bar)}</div>')({ foo: string => string, bar: 'bar' }, html => html.replace('bar', 'baz')), '<div>baz</div>')
+equal(compile('<div>{foo({ bar: baz })}</div>')({ foo: object => object.bar, baz: 'qux' }, html => html), '<div>qux</div>')
+equal(compile('<div>{foo({ bar })}</div>')({ foo: object => object.bar, bar: 'baz' }, html => html), '<div>baz</div>')
 equal(compile('<div>{foo(bar)}</div>')({ foo: array => array[0], bar: ['baz'] }, html => html.replace('test', 'test')), '<div>baz</div>')
 equal(compile('<div>{foo(bar())}</div>')({ foo: string => string, bar: () => 'bar' }, html => html.replace('bar', 'baz')), '<div>baz</div>')
 equal(compile('<div>{foo(bar(baz()))}</div>')({ foo: string => string, bar: string => string, baz: () => 'baz' }, html => html.replace('baz', 'qux')), '<div>qux</div>')
@@ -93,6 +95,8 @@ equal(compile('{foo.bar ? bar : baz}')({ foo: { bar: true }, bar: 'bar', baz: 'b
 equal(compile('{foo.bar ? bar : baz}')({ foo: { bar: false }, bar: 'bar', baz: 'baz' }, html => html), 'baz')
 equal(compile('{foo.bar ? bar.baz : baz.qux}')({ foo: { bar: true }, bar: { baz: 'bar' }, baz: { qux: 'baz' } }, html => html), 'bar')
 equal(compile('{foo.bar ? bar.baz : baz.qux}')({ foo: { bar: false }, bar: { baz: 'bar' }, baz: { qux: 'baz' } }, html => html), 'baz')
+
+equal(compile('<for baz in qux>{foo({ bar: baz })}</for>')({ foo: object => object.bar, qux: ['qux', 'quux'] }, html => html), 'quxquux')
 
 equal(compile(`
 <a href='blog/{name}'>
