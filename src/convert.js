@@ -246,13 +246,28 @@ function modify (node, modifiers) {
           arguments: [leaf].concat(node.arguments)
         }
       }
+      const args = [leaf]
+      if (modifier === 'translate') {
+        const expression = {
+          type: 'MemberExpression',
+          object: {
+            type: 'Identifier',
+            name: OBJECT_VARIABLE
+          },
+          property: {
+            type: 'Identifier',
+            name: 'language'
+          }
+        }
+        args.push(expression)
+      }
       return {
         type: 'CallExpression',
         callee: {
           type: 'Identifier',
           name: getModifierName(node.name)
         },
-        arguments: [leaf]
+        arguments: args
       }
     }, node)
   }

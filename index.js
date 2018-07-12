@@ -24,14 +24,15 @@ function render (source, options) {
     images: []
   }
   const store = {}
+  const translations = {}
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components, statistics, store, depth, options)
+    collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options)
   })
   const used = []
   unique(modifiers).forEach(name => {
-    const modifier = getModifier(name)
+    const modifier = getModifier(name, translations, options)
     if (modifier && !used.includes(modifier.id.name)) {
       tree.prepend(modifier)
       used.push(modifier.id.name)
@@ -55,7 +56,7 @@ module.exports = {
       const end = source.indexOf('</rescue>')
       rescue.content = source.substring(start + '<rescue>'.length, end)
       source = source.substring(0, start) + source.substring(end, source.length)
-      const { tree, statistics } = render(rescue.content)
+      const { tree, statistics } = render(rescue.content, options)
       rescue.tree = tree
       rescue.statistics = statistics
     }

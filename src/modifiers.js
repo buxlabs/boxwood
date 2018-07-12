@@ -20,9 +20,38 @@ function getModifierName (modifier) {
   return aliases[modifier] || modifier
 }
 
+function translate (key, language) {
+  const translations = {}
+  const languages = []
+  const index = languages.indexOf(language)
+  return translations[key][index]
+}
+
+function serializeProperties (translations) {
+  const properties = []
+  for (let key in translations) {
+    properties.push({
+      type: 'Property',
+      key: { type: 'Identifier', name: key },
+      value: {
+        type: 'ArrayExpression',
+        elements: translations[key].map(text => { return { type: "Literal", value: text } })
+      },
+      kind: 'init'
+    })
+  }
+  return properties
+}
+
+function serializeLanguages (languages) {
+  return languages.map(language => { return { type: 'Literal', value: language } })
+}
+
+const builtins = { translate }
+
 module.exports = {
   getModifierName,
-  getModifier (modifier) {
+  getModifier (modifier, translations, options) {
     const tree = new AbstractSyntaxTree(modifier)
     const node = tree.body()[0].expression
     let name = node.type === 'CallExpression' ? node.callee.name : node.name
@@ -33,10 +62,15 @@ module.exports = {
       utilities.array[name] ||
       utilities.object[name] ||
       utilities.collection[name] ||
-      utilities.date[name]
+      utilities.date[name] ||
+      builtins[name]
     if (!method) return null
     const leaf = new AbstractSyntaxTree(method.toString())
     const fn = leaf.body()[0]
+    if (name === 'translate') {
+      fn.body.body[0].declarations[0].init.properties = serializeProperties(translations)
+      fn.body.body[1].declarations[0].init.elements = serializeLanguages(options.languages)
+    }
     fn.id.name = name
     return fn
   }
