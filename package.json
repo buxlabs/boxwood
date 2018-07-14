@@ -10,7 +10,8 @@
     "watch": "watch 'npm test --silent' ."
   },
   "engines": {
-    "node": ">= 8.11.1"
+    "node": ">= 8.11.3",
+    "npm": ">= 6.2.0"
   },
   "repository": {
     "type": "git",
