@@ -24,6 +24,7 @@ const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
 const { parse } = require('himalaya')
+const yaml = require('yaml-js')
 const { normalize } = require('./array')
 
 const digits = new Map([
@@ -297,6 +298,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
   fragment.used = true
   const tag = fragment.tagName
   const attrs = fragment.attributes
+  const keys = attrs ? attrs.map(attr => attr.key) : []
   const component = components.find(component => component.name === tag)
   if (component && !fragment.plain) {
     resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
@@ -312,21 +314,29 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     fragment.children.forEach(child => {
       child.used = true
     })
-  } else if (tag === 'script' && attrs && attrs.map(attr => attr.key).includes('inline')) {
+  } else if (tag === 'script' && attrs && keys.includes('inline')) {
     const leaf = fragment.children[0]
     leaf.used = true
     const ast = new AbstractSyntaxTree(leaf.content)
     ast.each('VariableDeclarator', node => variables.push(node.id.name))
     const body = ast.body()
     body.forEach(node => tree.append(node))
-  } else if (tag === 'script' && attrs && attrs.map(attr => attr.key).includes('i18n')) {
+  } else if (tag === 'script' && attrs && keys.includes('i18n')) {
     const leaf = fragment.children[0]
     leaf.used = true
-    const ast = new AbstractSyntaxTree(leaf.content)
-    const node = ast.first('ExportDefaultDeclaration')
-    node.declaration.properties.forEach(property => {
-      translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
-    })
+    if (keys.includes('yaml')) {
+      const data = yaml.load(leaf.content)
+      for (let key in data) { translations[key] = data[key] }
+    } else if (keys.includes('json')) {
+      const data = JSON.parse(leaf.content)
+      for (let key in data) { translations[key] = data[key] }
+    } else {
+      const ast = new AbstractSyntaxTree(leaf.content)
+      const node = ast.first('ExportDefaultDeclaration')
+      node.declaration.properties.forEach(property => {
+        translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
+      })
+    }
   } else if (tag === 'style' || tag === 'script' || tag === 'template') {
     let content = `<${tag}`
     fragment.attributes.forEach(attribute => {
@@ -342,7 +352,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
   } else if (tag === '!doctype') {
     tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    if (tag === 'svg' && attrs && attrs.map(attr => attr.key).includes('from')) {
+    if (tag === 'svg' && attrs && keys.includes('from')) {
       const { value: path } = fragment.attributes[0]
       for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
         const location = join(options.paths[i], path)
@@ -353,7 +363,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
         fragment.children = content.children
         break
       }
-    } else if (tag === 'img' && attrs && attrs.map(attr => attr.key).includes('inline')) {
+    } else if (tag === 'img' && attrs && keys.includes('inline')) {
       fragment.attributes = fragment.attributes.map(attr => {
         if (attr.key === 'inline') return null
         if (attr.key === 'src') {
@@ -374,7 +384,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
         return attr
       }).filter(Boolean)
     }
-    if (attrs && attrs.map(attr => attr.key).includes('content')) {
+    if (attrs && keys.includes('content')) {
       const { value } = attrs[0]
       if (store[value]) {
         fragment.children = store[value].children
