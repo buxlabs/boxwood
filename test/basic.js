@@ -1812,4 +1812,63 @@ equal(compile(`
 <div>{foo | translate}</div>
 `, { languages: ['pl', 'en'] })({ language: 'pl', foo: 'button.submit' }, html => html), `<div>Wyślij</div>`)
 
+
+equal(compile(`
+<script i18n json>
+{
+  "submit": ["Wyślij", "Send"]
+}
+</script>
+<div>{"submit" | translate}</div>
+`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
+
+
+equal(compile(`
+<script i18n json>
+{
+  "submit": ["Wyślij", "Send"]
+}
+</script>
+<div>{"submit" | translate}</div>
+`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
+
+equal(compile(`
+<script i18n yaml>
+submit:
+- Wyślij
+- Send
+</script>
+<div>{"submit" | translate}</div>
+`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
+
+
+equal(compile(`
+<script i18n yaml>
+submit:
+- Wyślij
+- Send
+</script>
+<div>{"submit" | translate}</div>
+`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
+
+equal(compile(`
+<script i18n yaml>
+button.submit:
+- Wyślij
+- Send
+</script>
+<div>{"button.submit" | translate}</div>
+`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
+
+
+equal(compile(`
+<script i18n yaml>
+button.submit:
+- Wyślij
+- Send
+</script>
+<div>{"button.submit" | translate}</div>
+`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
+
+
 console.timeEnd('test basic')
