@@ -27,12 +27,19 @@ function translate (key, language) {
   return translations[key][index]
 }
 
+function getPropertyKey (value) {
+  if (value.includes('.')) {
+    return { type: 'Literal', value }
+  }
+  return { type: 'Identifier', name: value }
+}
+
 function serializeProperties (translations) {
   const properties = []
   for (let key in translations) {
     properties.push({
       type: 'Property',
-      key: { type: 'Identifier', name: key },
+      key: getPropertyKey(key),
       value: {
         type: 'ArrayExpression',
         elements: translations[key].map(text => { return { type: "Literal", value: text } })

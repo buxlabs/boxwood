@@ -319,13 +319,13 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     ast.each('VariableDeclarator', node => variables.push(node.id.name))
     const body = ast.body()
     body.forEach(node => tree.append(node))
-  } else if (tag === 'script' && attrs && attrs.map(attr => attr.key).includes('translations')) {
+  } else if (tag === 'script' && attrs && attrs.map(attr => attr.key).includes('i18n')) {
     const leaf = fragment.children[0]
     leaf.used = true
     const ast = new AbstractSyntaxTree(leaf.content)
     const node = ast.first('ExportDefaultDeclaration')
     node.declaration.properties.forEach(property => {
-      translations[property.key.name] = property.value.elements.map(element => element.value)
+      translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
     })
   } else if (tag === 'style' || tag === 'script' || tag === 'template') {
     let content = `<${tag}`
