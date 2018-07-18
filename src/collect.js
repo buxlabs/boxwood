@@ -55,35 +55,45 @@ function findActions (attributes) {
 }
 
 function collectComponentsFromImport (fragment, statistics, components, options) {
+  if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
   const attrs = fragment.attributes
   const name = attrs[0].key
   const path = attrs[1].value
+  let found = false
   for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
     const location = join(options.paths[i], path)
     if (!existsSync(location)) continue
     const content = readFileSync(location, 'utf8')
     components.push({ name, content, path: location })
     statistics.components.push({ name, content, path: location })
+    found = true
     break
   }
+  if (!found) { throw new Error(`Asset not found: ${path}.`) }
 }
 
 function collectComponentsFromPartialOrRender (fragment, statistics, options) {
+  if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
   const path = fragment.attributes[0].value
+  let found = false
   for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
     const location = join(options.paths[i], path)
     if (!existsSync(location)) continue
     const content = readFileSync(location, 'utf8')
     statistics.partials.push({ path: location })
     fragment.children = parse(content)
+    found = true
     break
   }
+  if (!found) { throw new Error(`Asset not found: ${path}.`) }
 }
 
 function collectComponentsFromPartialAttribute (fragment, statistics, options) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (attr) {
+    if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
     const path = attr.value
+    let found = false
     for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
       const location = join(options.paths[i], path)
       if (!existsSync(location)) continue
@@ -91,8 +101,10 @@ function collectComponentsFromPartialAttribute (fragment, statistics, options) {
       statistics.partials.push({ path: location })
       fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
       fragment.children = parse(content)
+      found = true
       break
     }
+    if (!found) { throw new Error(`Asset not found: ${path}.`) }
   }
 }
 
@@ -354,6 +366,8 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
     if (tag === 'svg' && attrs && keys.includes('from')) {
       const { value: path } = fragment.attributes[0]
+      let found = false
+      if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
       for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
         const location = join(options.paths[i], path)
         if (!existsSync(location)) continue
@@ -361,8 +375,10 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
         statistics.svgs.push({ path: location })
         fragment.attributes = content.attributes
         fragment.children = content.children
+        found = true
         break
       }
+      if (!found) { throw new Error(`Asset not found: ${path}.`) }
     } else if (tag === 'img' && attrs && keys.includes('inline')) {
       fragment.attributes = fragment.attributes.map(attr => {
         if (attr.key === 'inline') return null
@@ -370,15 +386,19 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
           const extension = getExtension(attr.value)
           const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']
           if (extensions.includes(extension)) {
-
+              const path = attr.value
+              let found = false
+              if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
               for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-                const location = join(options.paths[i], attr.value)
+                const location = join(options.paths[i], path)
                 if (!existsSync(location)) continue
                 const content = readFileSync(location, 'base64')
                 statistics.images.push({ path: location })
                 attr.value = `data:image/${extension};base64, ${content}`
+                found = true
                 break
               }
+              if (!found) { throw new Error(`Asset not found: ${path}.`) }
           }
         }
         return attr

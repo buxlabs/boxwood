@@ -1,4 +1,4 @@
-const { equal, deepStrictEqual } = require('assert')
+const { equal, deepStrictEqual, throws } = require('assert')
 const { compile } = require('..')
 const path = require('path')
 const { readFileSync } = require('fs')
@@ -1879,5 +1879,48 @@ button.submit:
 <div>{"button.submit" | translate}</div>
 `, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
 
+function boom(){
+  compile(`<import checkbox from='./checkbox.html'/><checkbox>`)
+}
+
+throws(function () {
+  compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})
+}, /Compiler option is undefined: paths\./)
+
+throws(function () {
+  compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] })
+}, /Asset not found: \.\/checkbox\.html/)
+
+throws(function () {
+  compile(`<partial from='./partial.html'/><partial>`, {})
+}, /Compiler option is undefined: paths\./)
+
+throws(function () {
+  compile(`<partial from='./partial.html'/><partial>`, { paths: [] })
+}, /Asset not found: \.\/partial\.html/)
+
+throws(function () {
+  compile(`<div partial='./partial.html'/><div>`, {})
+}, /Compiler option is undefined: paths\./)
+
+throws(function () {
+  compile(`<div partial='./partial.html'/><div>`, { paths: [] })
+}, /Asset not found: \.\/partial\.html/)
+
+throws(function () {
+  compile(`<svg from='./circle.svg'/><div>`, {})
+}, /Compiler option is undefined: paths\./)
+
+throws(function () {
+  compile(`<svg from='./circle.svg'/><div>`, { paths: [] })
+}, /Asset not found: \.\/circle\.svg/)
+
+throws(function () {
+  compile(`<img src='./circle.svg' inline>`, {})
+}, /Compiler option is undefined: paths\./)
+
+throws(function () {
+  compile(`<img src='./circle.svg' inline>`, { paths: [] })
+}, /Asset not found: \.\/circle\.svg/)
 
 console.timeEnd('test basic')
