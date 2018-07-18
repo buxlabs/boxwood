@@ -124,21 +124,30 @@ function getTemplateNode (expression, variables, unescape) {
         if (unescape) return expression
         return getEscapeCallExpression(expression)
       }
+      if (expression.computed && expression.property.type === 'Identifier') {
+        expression.property = convertIdentifier(expression.property, variables)
+      }
       let leaf = {
         type: 'MemberExpression',
         object: getObjectMemberExpression(expression.object.name),
         property: expression.property,
-        computed: expression.property.type === 'Literal'
+        computed: expression.computed || expression.property.type === 'Literal'
       }
       if (unescape) return leaf
       return getEscapeCallExpression(leaf)
     } else if (expression.object.type === 'MemberExpression') {
+      if (expression.computed && expression.property.type === 'Identifier') {
+        expression.property = convertIdentifier(expression.property, variables)
+      }
       let leaf = expression.object
       if (leaf.computed && leaf.property.type === 'Identifier') {
         leaf.property = convertIdentifier(leaf.property, variables)
       }
       while (leaf.object.type === 'MemberExpression') {
         leaf = leaf.object
+        if (leaf.computed && leaf.property.type === 'Identifier') {
+          leaf.property = convertIdentifier(leaf.property, variables)
+        }
       }
       if (!variables.includes(leaf.object.name)) {
         leaf.object = getObjectMemberExpression(leaf.object.name)
