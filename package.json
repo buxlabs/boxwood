@@ -42,6 +42,7 @@
     "abstract-syntax-tree": "^1.0.2",
     "himalaya": "^1.1.0",
     "himalaya-walk": "^1.0.0",
+    "image-size": "^0.6.3",
     "negate-sentence": "^0.1.2",
     "pure-conditions": "^0.1.9",
     "pure-utilities": "^1.1.1",

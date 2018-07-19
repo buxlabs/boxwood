@@ -1879,9 +1879,17 @@ button.submit:
 <div>{"button.submit" | translate}</div>
 `, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
 
-function boom(){
-  compile(`<import checkbox from='./checkbox.html'/><checkbox>`)
-}
+equal(compile('<img src="./fixtures/images/placeholder.png" width="auto" height="auto">', {
+  paths: [__dirname]
+})({}, html => html), '<img src="./fixtures/images/placeholder.png" width="250" height="250">')
+
+equal(compile('<img src="./fixtures/images/placeholder.jpg" width="auto" height="auto">', {
+  paths: [__dirname]
+})({}, html => html), '<img src="./fixtures/images/placeholder.jpg" width="250" height="250">')
+
+equal(compile('<img src="./fixtures/images/placeholder.svg" width="auto" height="auto">', {
+  paths: [__dirname]
+})({}, html => html), '<img src="./fixtures/images/placeholder.svg" width="400" height="100">')
 
 throws(function () {
   compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})

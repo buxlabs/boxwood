@@ -25,6 +25,7 @@ const { readFileSync, existsSync } = require('fs')
 const { join } = require('path')
 const { parse } = require('himalaya')
 const yaml = require('yaml-js')
+const size = require('image-size')
 const { normalize } = require('./array')
 
 const digits = new Map([
@@ -326,14 +327,14 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     fragment.children.forEach(child => {
       child.used = true
     })
-  } else if (tag === 'script' && attrs && keys.includes('inline')) {
+  } else if (tag === 'script' && keys.includes('inline')) {
     const leaf = fragment.children[0]
     leaf.used = true
     const ast = new AbstractSyntaxTree(leaf.content)
     ast.each('VariableDeclarator', node => variables.push(node.id.name))
     const body = ast.body()
     body.forEach(node => tree.append(node))
-  } else if (tag === 'script' && attrs && keys.includes('i18n')) {
+  } else if (tag === 'script' && keys.includes('i18n')) {
     const leaf = fragment.children[0]
     leaf.used = true
     if (keys.includes('yaml')) {
@@ -364,7 +365,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
   } else if (tag === '!doctype') {
     tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    if (tag === 'svg' && attrs && keys.includes('from')) {
+    if (tag === 'svg' && keys.includes('from')) {
       const { value: path } = fragment.attributes[0]
       let found = false
       if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
@@ -379,32 +380,60 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
         break
       }
       if (!found) { throw new Error(`Asset not found: ${path}.`) }
-    } else if (tag === 'img' && attrs && keys.includes('inline')) {
-      fragment.attributes = fragment.attributes.map(attr => {
-        if (attr.key === 'inline') return null
-        if (attr.key === 'src') {
-          const extension = getExtension(attr.value)
-          const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']
-          if (extensions.includes(extension)) {
-              const path = attr.value
-              let found = false
-              if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
-              for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-                const location = join(options.paths[i], path)
-                if (!existsSync(location)) continue
-                const content = readFileSync(location, 'base64')
-                statistics.images.push({ path: location })
-                attr.value = `data:image/${extension};base64, ${content}`
-                found = true
-                break
-              }
-              if (!found) { throw new Error(`Asset not found: ${path}.`) }
+    } else if (tag === 'img') {
+      function setDimension (dimension) {
+        if (keys.includes(dimension)) {
+          const attr = attrs.find(attr => attr.key === dimension)
+          if (attr.value === 'auto') {
+            const { value: path } = attrs.find(attr => attr.key === 'src')
+            let found = false
+            if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
+            for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+              const location = join(options.paths[i], path)
+              if (!existsSync(location)) continue
+              const dimensions = size(location)
+              fragment.attributes = fragment.attributes.map(attr => {
+                if (attr.key === dimension) {
+                  attr.value = dimensions[dimension].toString()
+                }
+                return attr
+              })
+              found = true
+              break
+            }
+            if (!found) { throw new Error(`Asset not found: ${path}.`) }
           }
         }
-        return attr
-      }).filter(Boolean)
+      }
+      setDimension('width')
+      setDimension('height')
+      if (keys.includes('inline')) {
+        fragment.attributes = fragment.attributes.map(attr => {
+          if (attr.key === 'inline') return null
+          if (attr.key === 'src') {
+            const extension = getExtension(attr.value)
+            const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']
+            if (extensions.includes(extension)) {
+                const path = attr.value
+                let found = false
+                if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
+                for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+                  const location = join(options.paths[i], path)
+                  if (!existsSync(location)) continue
+                  const content = readFileSync(location, 'base64')
+                  statistics.images.push({ path: location })
+                  attr.value = `data:image/${extension};base64, ${content}`
+                  found = true
+                  break
+                }
+                if (!found) { throw new Error(`Asset not found: ${path}.`) }
+            }
+          }
+          return attr
+        }).filter(Boolean)
+      }
     }
-    if (attrs && keys.includes('content')) {
+    if (keys.includes('content')) {
       const { value } = attrs[0]
       if (store[value]) {
         fragment.children = store[value].children
