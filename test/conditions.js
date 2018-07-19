@@ -12,7 +12,7 @@ function test (name, data = {}, expected) {
   equal(actual.trim(), expected.trim())
 }
 
-console.time('test conditions')
+console.time('conditions')
 
 test('complex1', {
   divider: true
@@ -45,4 +45,4 @@ test('complex1', {
 }, `<a class="foo" href="#"><i class="bar"></i>foobar</a>`)
 
 
-console.timeEnd('test conditions')
+console.timeEnd('conditions')

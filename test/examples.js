@@ -17,7 +17,7 @@ function test (name, data = {}) {
   const expected = normalize(readFileSync(file2, 'utf8'))
   equal(actual, expected)
 }
-console.time('test examples')
+console.time('examples')
 
 test('fizzbuzz')
 test('grid', {
@@ -28,4 +28,4 @@ test('grid', {
     }
   }
 })
-console.timeEnd('test examples')
+console.timeEnd('examples')

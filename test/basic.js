@@ -3,7 +3,7 @@ const { compile } = require('..')
 const path = require('path')
 const { readFileSync } = require('fs')
 
-console.time('test basic')
+console.time('basic')
 equal(compile('')(), '')
 equal(compile('<!DOCTYPE html>')(), '<!doctype html>')
 equal(compile('<!-- foo -->')(), '')
@@ -1062,215 +1062,24 @@ equal(compile('<if foo ends with bar>baz</if>')({ foo: 'ban qux', bar: 'qux' }, 
 equal(compile('<if foo ends with bar>baz</if>')({ foo: 'ban qux', bar: 'baz' }, html => html), '')
 equal(compile('<if foo does not end with bar>baz</if>')({ foo: 'ban qux', bar: 'baz' }, html => html), 'baz')
 
-equal(compile('{"Hello World" | uppercase}')({}, html => html), 'HELLO WORLD')
-equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
-
-equal(compile('<div html="{foo | uppercase}"></div>')({ foo: 'bar' }), '<div>BAR</div>')
 equal(compile('<div html="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
 equal(compile('<div text="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
-equal(compile('<div text="{foo | uppercase}"></div>')({ foo: 'bar' }, html => html), '<div>BAR</div>')
-equal(compile('<div class="{foo | uppercase}"></div>')({ foo: 'bar' }, html => html), '<div class="BAR"></div>')
-equal(compile('<input checked="{query | trim}">')({ query: '' }, html => html), '<input>')
-equal(compile('<input checked="{query | trim}">')({ query: '   ' }, html => html), '<input>')
-equal(compile('<input checked="{query | trim}">')({ query: 'bar' }, html => html), '<input checked>')
-equal(compile('<div>{foo | whitespacestrip}</div>')({ foo: 'b  ar' }, html => html), '<div>bar</div>')
-equal(compile('{foo | uppercase}')({ foo: 'bar' }, html => html), 'BAR')
-equal(compile('{foo | upcase}')({ foo: 'bar' }, html => html), 'BAR')
-equal(compile('{foo | lowercase}')({ foo: 'BAR' }, html => html), 'bar')
-equal(compile('{foo | downcase}')({ foo: 'BAR' }, html => html), 'bar')
-equal(compile('{foo | dasherize}')({ foo: 'foo_bar' }, html => html), 'foo-bar')
-equal(compile('{foo | constantize}')({ foo: 'bar' }, html => html), 'BAR')
-equal(compile('{foo | underscore}')({ foo: 'foo-bar' }, html => html), 'foo_bar')
-equal(compile('{foo | capitalize}')({ foo: 'bar' }, html => html), 'Bar')
-equal(compile('{foo | unescape}')({ foo: '&amp;' }, html => html), '&')
-equal(compile('{foo | lowerfirst}')({ foo: 'FOO' }, html => html), 'fOO')
-equal(compile('{foo | uncapitalize}')({ foo: 'FOO' }, html => html), 'fOO')
-equal(compile('{foo | humanize}')({ foo: 'foo_bar' }, html => html), 'Foo bar')
-equal(compile('{foo | titleize}')({ foo: 'foo bar' }, html => html), 'Foo Bar')
-equal(compile('{foo | titlecase}')({ foo: 'foo bar' }, html => html), 'Foo Bar')
-equal(compile('{foo | classify}')({ foo: 'foobar' }, html => html), 'Foobar')
-equal(compile('{foo | pluralize}')({ foo: 'word' }, html => html), 'words')
-equal(compile('{foo | singularize}')({ foo: 'words' }, html => html), 'word')
-equal(compile('{foo | swapcase}')({ foo: 'BaR' }, html => html), 'bAr')
-equal(compile('{foo | camelize}')({ foo: 'bar_baz' }, html => html), 'barBaz')
-equal(compile('{foo | singlespace}')({ foo: 'bar   baz' }, html => html), 'bar baz')
-equal(compile('{foo | repeat(2)}')({ foo: 'fooBar' }, html => html), 'fooBarfooBar')
-equal(compile('{foo | summarize(3)}')({ foo: 'foo bar' }, html => html), 'foo bar...')
-equal(compile(`{foo | wrap('"')}`)({ foo: 'foo bar' }, html => html), '"foo bar"')
-equal(compile(`{foo | wrap('„', '”')}`)({ foo: 'foo bar' }, html => html), '„foo bar”')
-equal(compile(`{foo | unwrap('"')}`)({ foo: '"foo bar"' }, html => html), 'foo bar')
-equal(compile(`{foo | unwrap('„', '”')}`)({ foo: '„foo bar”' }, html => html), 'foo bar')
-equal(compile(`{foo | quote}`)({ foo: 'foo bar' }, html => html), '"foo bar"')
-equal(compile(`{foo | quote('pl')}`)({ foo: 'foo bar' }, html => html), '„foo bar”')
-equal(compile(`{foo | unquote}`)({ foo: '„foo bar”' }, html => html), 'foo bar')
-equal(compile(`{foo | unquote}`)({ foo: '"foo bar"' }, html => html), 'foo bar')
-equal(compile(`{foo | replace('bar', 'baz')}`)({ foo: 'foo baz' }, html => html), 'foo baz')
-equal(compile(`{foo | replace(${/\s/g},'')}`)({ foo: 'foo baz' }, html => html), 'foobaz')
-equal(compile(`{foo | strip}`)({ foo: ' foo baz ' }, html => html), 'foo baz')
-equal(compile(`{foo | strip('baz')}`)({ foo: 'foo baz' }, html => html), 'foo')
-equal(compile(`{foo | strip('o')}`)({ foo: 'foo' }, html => html), 'f')
-equal(compile(`{foo | strip(['o', 'a'])}`)({ foo: 'foo bar' }, html => html), 'f br')
-equal(compile(`{foo | squeeze}`)({ foo: 'yellow moon' }, html => html), 'yelow mon')
-equal(compile(`{foo | squeeze('a-o')}`)({ foo: 'foo baar baazz  ban' }, html => html), 'fo bar bazz ban')
-equal(compile(`{foo | index('ello')}`)({ foo: 'hello world' }, html => html), '1')
-equal(compile(`{foo | chop}`)({ foo: 'foo barz' }, html => html), 'foo bar')
-equal(compile(`{foo | chomp('barz') | trim}`)({ foo: 'foo barz' }, html => html), 'foo')
-equal(compile(`{foo | dot}`)({ foo: 'foo bar ban' }, html => html), 'foo bar ban.')
-equal(compile(`{foo | crop(10)}`)({ foo: 'foo bar ban baz' }, html => html), 'foo bar...')
-equal(compile(`{foo | slugify('_')}`)({ foo: 'loremIpsum dolor $pec!al chars' }, html => html), 'loremipsum_dolor_pecal_chars')
-equal(compile(`{foo | hyphenate}`)({ foo: '%# lorem ipsum  ? $  dolor' }, html => html), 'lorem-ipsum-dolor')
-equal(compile(`{foo | initials}`)({ foo: 'Foo Bar' }, html => html), 'FB')
-equal(compile(`{foo | initials(".")}`)({ foo: 'Foo Bar' }, html => html), 'F.B')
-equal(compile(`{foo | tail}`)({ foo: 'Lorem ipsum dolor sit amet, consectetur' }, html => html), '...dolor sit amet, consectetur')
-equal(compile(`{foo | htmlstrip}`)({ foo: 'Hello <b><i>world!</i></b>'}, html => html), 'Hello world!')
 
 equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
 equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
 equal(compile('{Math.floor(foo)}')({ foo: 1.6 }, html => html), '1')
 equal(compile('{Math.round(foo)}')({ foo: 1.4 }, html => html), '1')
 equal(compile('{Math.round(foo)}')({ foo: 1.6 }, html => html), '2')
-
-equal(compile('{foo | abs}')({ foo: -1 }, html => html), '1')
-equal(compile('{foo | ceil}')({ foo: 1.6 }, html => html), '2')
-equal(compile('{foo | floor}')({ foo: 1.6 }, html => html), '1')
-equal(compile('{foo | round}')({ foo: 1.4 }, html => html), '1')
-equal(compile('{foo | round}')({ foo: 1.6 }, html => html), '2')
-equal(compile('{foo | factorial}')({ foo: 3 }, html => html), '6')
-equal(compile('{foo | square}')({ foo: 4 }, html => html), '16')
-equal(compile('{foo | trunc}')({ foo: 13.33 }, html => html), '13')
-
-equal(compile('{foo | pow(3)}')({ foo: 2 }, html => html), '8')
-equal(compile('{foo | truncate(6)}')({ foo: 'foobarbaz' }, html => html), 'foo...')
-equal(compile('{foo | abbreviate(6)}')({ foo: 'foobarbaz' }, html => html), 'foo...')
-equal(compile('{foo | pad("0")}')({ foo: 'foo\nbar' }, html => html), '0foo\n0bar')
-equal(compile('{foo | max}')({ foo: [1, 2, 3] }, html => html), '3')
-equal(compile('{foo | min}')({ foo: [1, 2, 3] }, html => html), '1')
-equal(compile('{foo | sqrt}')({ foo: 4 }, html => html), '2')
-
-equal(compile('{foo | add(10)}')({ foo: 5 }, html => html), 15)
-equal(compile('{foo | plus(10)}')({ foo: 5 }, html => html), 15)
-equal(compile('{foo | subtract(10)}')({ foo: 5 }, html => html), -5)
-equal(compile('{foo | minus(10)}')({ foo: 5 }, html => html), -5)
-equal(compile('{foo | multiply(10)}')({ foo: 5 }, html => html), 50)
-equal(compile('{foo | divide(10)}')({ foo: 5 }, html => html), 1 / 2)
-equal(compile('{foo | modulo(10)}')({ foo: 5 }, html => html), 5)
-equal(compile('{foo | increment}')({ foo: 5 }, html => html), 6)
-equal(compile('{foo | decrement}')({ foo: 5 }, html => html), 4)
-equal(compile('{foo | clamp(2, 8)}')({ foo: 10 }, html => html), 8)
-equal(compile('{foo | clamp(2, 8)}')({ foo: 6 }, html => html), 6)
-equal(compile('{foo | int}')({ foo: 10 }, html => html), 10)
-equal(compile('{foo | float}')({ foo: 10.25 }, html => html), 10.25)
-equal(compile('{foo | percentage}')({ foo: 0.25 }, html => html), '25%')
-equal(compile('{foo | fixed}')({ foo: 10.5 }, html => html), '11')
-equal(compile('{foo | fixed(2)}')({ foo: 100.521 }, html => html), '100.52')
-equal(compile('{foo | monetize}')({ foo: 25 }, html => html), '25,00 zł')
-
 equal(compile('{Math.pow(foo, 3)}')({ foo: 2 }, html => html), '8')
 
 equal(compile('{Number.isFinite(foo)}')({ foo: 42 }, html => html), 'true')
 equal(compile('{Number.isFinite(foo)}')({ foo: Infinity }, html => html), 'false')
 
-equal(compile('{foo | reverse}')({ foo: 'bar' }, html => html), 'rab')
-equal(compile('{foo | rotate}')({ foo: 'bar' }, html => html), 'bar')
-equal(compile('{foo | rotate(1)}')({ foo: [1, 2, 3] }, html => html), [2, 3, 1])
-equal(compile('{foo | reverse}')({ foo: [1, 2, 3, 4] }, html => html), [4, 3, 2, 1])
-equal(compile('{foo | size}')({ foo: 'bar' }, html => html), '3')
-equal(compile('{foo | size}')({ foo: [1, 2] }, html => html), '2')
-equal(compile('{foo | size}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
-equal(compile('{foo | count}')({ foo: 'bar' }, html => html), '3')
-equal(compile('{foo | count}')({ foo: [1, 2] }, html => html), '2')
-equal(compile('{foo | count}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
-equal(compile('{foo | length}')({ foo: 'bar' }, html => html), '3')
-equal(compile('{foo | length}')({ foo: [1, 2] }, html => html), '2')
-equal(compile('{foo | length}')({ foo: new Set([1, 2, 3]) }, html => html), '3')
-
-equal(compile('{foo | drop(2)}')({ foo: [1, 2, 3 ,4] }, html => html), [3, 4])
-equal(compile('{foo | take(2)}')({ foo: [1, 2, 3 ,4] }, html => html), [1, 2])
-equal(compile('{foo | slice(2,4)}')({ foo: [1, 2, 3 ,4] }, html => html), [3, 4])
-
 equal(compile('{JSON.stringify(foo, null, 2)}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
 equal(compile('{JSON.stringify(foo, null, 4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
-equal(compile('{foo | json}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
-equal(compile('{foo | json(4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
-equal(compile('{foo | inspect}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
-equal(compile('{foo | inspect(4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
-equal(compile('{foo | prettify}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
-equal(compile('{foo | prettify(4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
-equal(compile('{foo | prettify}')({ foo: '{"bar": "baz"}' }, html => html), '{\n  "bar": "baz"\n}')
-equal(compile('{foo | prettify(4)}')({ foo: '{"bar": "baz"}' }, html => html), '{\n    "bar": "baz"\n}')
 
-equal(compile('{foo | first}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '1')
-equal(compile('{foo | second}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '2')
-equal(compile('{foo | third}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '3')
-equal(compile('{foo | fourth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '4')
-equal(compile('{foo | fifth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '5')
-equal(compile('{foo | sixth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '6')
-equal(compile('{foo | seventh}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '7')
-equal(compile('{foo | eigth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '8')
-equal(compile('{foo | ninth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '9')
-equal(compile('{foo | tenth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
-equal(compile('{foo | last}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, html => html), '10')
-equal(compile('{foo | sum}')({ foo: [1, 5, 18] }, html => html), '24')
-equal(compile('{foo | average}')({ foo: [1, 5, 18] }, html => html), '8')
-equal(compile('{foo | mean}')({ foo: [1, 5, 18] }, html => html), '8')
-equal(compile('{foo | median}')({ foo: [18, 5, 1] }, html => html), '5')
-equal(compile('{foo | sample}')({ foo: [1] }, html => html), '1')
-equal(compile('{foo | nth(-5)}')({ foo: [1, 2, 3, 4, 5] }, html => html), '1')
-equal(compile('{foo | nth(3)}')({ foo: [1, 2, 3, 4, 5] }, html => html), '3')
-equal(compile('{foo | unique}')({ foo: [1, 1, 2, 10, 2, 33] }, html => html), [1, 2, 10, 33])
-equal(compile('{foo | compact}')({ foo: [0, 1, false, 2, '', 3] }, html => html), [1, 2, 3])
-
-equal(compile('{foo | split(",")}')({ foo: 'foo,bar' }, html => html), ['foo', 'bar'])
-equal(compile('{foo | split(",") | first}')({ foo: 'foo,bar' }, html => html), 'foo')
-equal(compile('{foo | split(",") | second}')({ foo: 'foo,bar' }, html => html), 'bar')
-equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } }, html => html), 'null')
-equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, html => html), 'qux')
-equal(compile('{photos | first | dig("src")}')({
-  photos: [ { size: '100', src: 'baz' }, { size: '200', src: 'qux' } ]
-}, html => html), 'baz')
-equal(compile('{foo | first | dig("foo.bar.baz")}')({
-  foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
-}, html => html), 'qux')
-
-equal(compile('{foo | values }')({
-  foo: { bar: 1, baz: 2, ban: 'qux' }
-}, html => html), [1, 2, 'qux'])
-
-equal(compile('{foo | values | first}')({
-  foo: { bar: 1, baz: 2, ban: 'qux' }
-}, html => html), '1')
-
-equal(compile('{foo | keys }')({
-  foo: { bar: 1, baz: 2, ban: 'qux' }
-}, html => html), ['bar', 'baz', 'ban'])
-
-equal(compile('{foo | keys | last}')({
-  foo: { bar: 1, baz: 2, ban: 'qux' }
-}, html => html), 'ban')
-
-equal(compile('{foo | format}')({ foo: new Date('2018/05/25') }, html => html), '25-05-2018')
-equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25') }, html => html), '25.05.2018')
-equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25' }, html => html), '05.2018')
-
-equal(compile('{foo | day}')({ foo: new Date('2018/05/29') }, html => html), 29)
-equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29') }, html => html), 2)
-equal(compile('{foo | month}')({ foo: '2018/05/29' }, html => html), 4)
-equal(compile('{foo | year}')({ foo: '2018/05/29' }, html => html), 2018)
 equal(compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')({}, html => html), '0')
 equal(compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')({}, html => html), '818035920000')
-
-equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, html => html), 'Friday, 29th of June 2018')
-equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, html => html), 'Friday, 29th of June 2018')
-equal(compile('<p>{foo | prettydate}</p>')({ foo: new Date(2018, 5, 29) }, html => html), '<p>Friday, 29th of June 2018</p>')
-equal(compile('<p>{new Date(2018, 5, 29) | prettydate}</p>')({}, html => html), '<p>Friday, 29th of June 2018</p>')
-equal(compile('<p>{new Date(foo, bar, baz) | prettydate}</p>')({ foo: 2018, bar: 5, baz: 29 }, html => html), '<p>Friday, 29th of June 2018</p>')
-
-equal(compile('{foo | timestamp}')({ foo: new Date(2018, 5, 29) }, html => html), '2018-06-29')
-equal(compile('{foo | timestamp("YYYY/MM/DD")}')({ foo: new Date(2018, 5, 29) }, html => html), '2018/06/29')
-
-equal(compile('{foo | celsius}')({ foo: '70°F' }, html => html), '21°C')
-equal(compile('{foo | fahrenheit}')({ foo: '21°C' }, html => html), '70°F')
-equal(compile('{foo | kelvin}')({ foo: '70°F' }, html => html), '294K')
 
 equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
 equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
@@ -1359,10 +1168,6 @@ equal(compile(`<render partial="./fixtures/partial/footer.html"></render>`, { pa
 equal(compile(`<render partial="./fixtures/partial/header.html"></render>`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
 equal(compile(`<render partial="./fixtures/partial/header.html">`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
 equal(compile(`<render partial="./fixtures/partial/header.html" />`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-
-equal(compile(`<script inline>const foo = "bar"</script>{foo}`)({}, html => html), 'bar')
-equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, html => html), '2018')
-equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' } }, html => html), 'qux')
@@ -1611,7 +1416,6 @@ equal(compile('<content for title>foo</content><title content="title"></title>')
 equal(compile('<import meta from="./fixtures/partial/meta.html"><content for title>foo</content><meta></meta>', {
   paths: [__dirname]
 })({}, html => html), '<title>foo</title>')
-equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}')({foo: 100}, html => html), '$100.00')
 
 equal(compile('<svg from="./fixtures/svg/rectangle.svg" />', { paths: [__dirname] })({}, html => html), '<svg width="400" height="100"><rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)"></rect></svg>')
 equal(compile('<svg from="./fixtures/svg/stroke.svg" />', { paths: [__dirname] })({}, html => html), '<svg height="80" width="300"><g fill="none"><path stroke="red" d="M5 20 l215 0"></path></g></svg>')
@@ -1779,118 +1583,6 @@ deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layou
 
 equal(compile(`<img src="./placeholder.png">`)({}, html => html), `<img src="./placeholder.png">`)
 
-equal(compile(`<img src='./placeholder.png' inline>`, {
-  paths: [ path.join(__dirname, './fixtures/images') ]
-})({}, html => html), `<img src="data:image/png;base64, iVBORw0KGgoAAAANSUhEUgAAAPoAAAD6BAMAAAB6wkcOAAAAG1BMVEXMzMyWlpa+vr6qqqqcnJyjo6O3t7exsbHFxcUJuPfiAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACLElEQVR4nO3WvY6bQBSG4WPWGEqPfzAldrJRShNF2ZSQ/9KscgEmWlkpsZQLAEXKdecMWAZtXA5N9D7FauGTODPDzMEiAAAAAAAAAAAAAAAAAAAAAAAAAAAA+D94bz8fRRpjTCwS5F9vxqHGphb5tarcVi+N2Yhsu+qFMYdbsddV941ZOy0emjcv9Lnlu9PppwTmR7m5Fc+Wp9OplnP0yjidfKCTSfdyPtqLJpKZXeB/4iDqhnKUMnZZ3V/osmdyTuxFqcte2HFs9W5x6ONgYeOZDsWPXFaf6lwmc0lre5Hqsp73tuhaX3Xdx3ftjO/0rQRLl9X9rH18IbZWkehM7ZQ9c/SXg9ifh9IthOd226kyk09P5lEk1yE0mb2VZtt4EE+/5OukXYhw5bh4mFdiT1Q1qN5ERTWIJ8YevFGqv1zrbn70iliMtOusArMaxNKsk3tTt5FxW3xmvkn4oG91OZh7mEeDWH7rQhT7MeaeXnax7qe+uhTxs1i34wjVfW0hrdD0e143/fJZLM18hD2ffrj8o7O6nnc98Jeed411Udyf93Blq9gOpp3s2uu0obat7hK3N8uD+17XdXD73Olm0Ofzarvo43ZYeTVCn492u12iJ+5PnvXfOB2Dv+5jPXGvn3S7Of/GTW2fmdvPuEn677uug9dut0s8078Lcf99n3SP976v3kv/2+Yc22bbx3Kff6xlhN82AAAAAAAAAAAAAAAAAAAAAAAAAACg9xcCzVRdbP7JlAAAAABJRU5ErkJggg==">`)
-
-equal(compile(`<img src='./placeholder.svg' inline>`, {
-  paths: [ path.join(__dirname, './fixtures/images') ]
-})({}, html => html), `<img src="data:image/svg;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
-
-equal(compile(`<img src='./placeholder.jpg' inline>`, {
-  paths: [ path.join(__dirname, './fixtures/images') ]
-})({}, html => html), `<img src="data:image/jpg;base64, /9j/4AAQSkZJRgABAQEAYABgAAD//gA+Q1JFQVRPUjogZ2QtanBlZyB2MS4wICh1c2luZyBJSkcgSlBFRyB2NjIpLCBkZWZhdWx0IHF1YWxpdHkK/9sAQwAIBgYHBgUIBwcHCQkICgwUDQwLCwwZEhMPFB0aHx4dGhwcICQuJyAiLCMcHCg3KSwwMTQ0NB8nOT04MjwuMzQy/9sAQwEJCQkMCwwYDQ0YMiEcITIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy/8AAEQgA+gD6AwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/aAAwDAQACEQMRAD8A9MooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACoJ722tmCyyhWPbrU9VIrZYXuZp9h8xidx7L2BzQBOZoxAZt48sDduHPFV01Wyd1RZssxwBtPX8qohtuiXRGREZGEef7pI/+vVqG9tTIkZhePdwjPHgN9KALc9zDbKGmkCA9PenQzRzxiSJwynuKpogm1iZnG7yUVVB7Z5ogUQavNGgwskYkwOmc4oAv0VWvjOlsZLdsOh3EYzuHcVBFePeXUYt2xCq7pTgHk9FoA0Krf2haCbyvPXfnGPf61NKrNE6ocMVIB9DWfcQQWujmKQJu2YGB1f2/GgC/NNHbxGSVtqDqcZqGLUrSeVY45dzt0G0j+lVr1/L0618/OS8e/wBfU/yqa3vLeWcR+S8Uh5USJtJ+lAE1xeW9qQJpQpPQdT+lSo6yIHRgynoRVGzRZru7ncBmEhjGewFLYKIrm7t14RHDKPTIzQBfooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigArJmmhuryRLmdUgibaIycbz3JrWqFrS2ZizW8RJOSSg5oAhmuoUszJEiTRIQCF6Af/Wqvf3MF1AkEDiSWR12he3PX2rRSKOJSscaop5IUYFIkEUbFo4kQnqVUCgCk0q2eqyNKdsc6DDHpkdqW1cXOozXKcxKgjVvXnJq88aSLtkRWX0YZFKqqihVUKo6ADAoAgvbgWtq0mMt0UepNUdPV7C5+yy4/fKHU/wC13FajxpIVLorFTkZGcGho0cqXRWKnKkjOD7UAEjiONnbooJNZVtLbSuLq7uI2lPKoW4j/AA9a1mUMpVgCCMEHvUP2O1/59of+/YoAZdXUcKQysgeJmHz/AN30NV7ieK6u7SOBg7rJvYrzhR15rQ2Js2bV2Yxtxxikjhjiz5caJnrtUCgChDPHZ3lzFOwQO/mIx6HPWpNOJlkubrBCyuNue4HGatyRRygCSNXA6bhmngAAADAFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q==">`)
-
-equal(compile(`
-<script i18n>export default { submit: ['Wyślij', 'Send'] }</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
-
-equal(compile(`
-<script i18n>export default { submit: ['Wyślij', 'Send'] }</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
-
-equal(compile(`
-<script i18n>export default { 'submit': ['Wyślij', 'Send'] }</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
-
-equal(compile(`
-<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script>
-<div>{"button.submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
-
-equal(compile(`
-<script i18n>export default { submit: ['Wyślij', 'Send'] }</script>
-<div>{foo | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl', foo: 'submit' }, html => html), `<div>Wyślij</div>`)
-
-equal(compile(`
-<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script>
-<div>{foo | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl', foo: 'button.submit' }, html => html), `<div>Wyślij</div>`)
-
-
-equal(compile(`
-<script i18n json>
-{
-  "submit": ["Wyślij", "Send"]
-}
-</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
-
-
-equal(compile(`
-<script i18n json>
-{
-  "submit": ["Wyślij", "Send"]
-}
-</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
-
-equal(compile(`
-<script i18n yaml>
-submit:
-- Wyślij
-- Send
-</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
-
-
-equal(compile(`
-<script i18n yaml>
-submit:
-- Wyślij
-- Send
-</script>
-<div>{"submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
-
-equal(compile(`
-<script i18n yaml>
-button.submit:
-- Wyślij
-- Send
-</script>
-<div>{"button.submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
-
-
-equal(compile(`
-<script i18n yaml>
-button.submit:
-- Wyślij
-- Send
-</script>
-<div>{"button.submit" | translate}</div>
-`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
-
-equal(compile('<img src="./fixtures/images/placeholder.png" width="auto" height="auto">', {
-  paths: [__dirname]
-})({}, html => html), '<img src="./fixtures/images/placeholder.png" width="250" height="250">')
-
-equal(compile('<img src="./fixtures/images/placeholder.jpg" width="auto" height="auto">', {
-  paths: [__dirname]
-})({}, html => html), '<img src="./fixtures/images/placeholder.jpg" width="250" height="250">')
-
-equal(compile('<img src="./fixtures/images/placeholder.svg" width="auto" height="auto">', {
-  paths: [__dirname]
-})({}, html => html), '<img src="./fixtures/images/placeholder.svg" width="400" height="100">')
-
 throws(function () {
   compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})
 }, /Compiler option is undefined: paths\./)
@@ -1923,19 +1615,4 @@ throws(function () {
   compile(`<svg from='./circle.svg'/><div>`, { paths: [] })
 }, /Asset not found: \.\/circle\.svg/)
 
-throws(function () {
-  compile(`<img src='./circle.svg' inline>`, {})
-}, /Compiler option is undefined: paths\./)
-
-throws(function () {
-  compile(`<img src='./circle.svg' inline>`, { paths: [] })
-}, /Asset not found: \.\/circle\.svg/)
-
-throws(function () {
-  compile(`
-  <script i18n>export default { submit: ['Wyślij', 'Send'] }</script>
-  <div>{"submit" | translate}</div>
-  `, {})
-}, /Compiler option is undefined: languages\./)
-
-console.timeEnd('test basic')
+console.timeEnd('basic')
