@@ -1923,4 +1923,11 @@ throws(function () {
   compile(`<img src='./circle.svg' inline>`, { paths: [] })
 }, /Asset not found: \.\/circle\.svg/)
 
+throws(function () {
+  compile(`
+  <script i18n>export default { submit: ['Wyślij', 'Send'] }</script>
+  <div>{"submit" | translate}</div>
+  `, {})
+}, /Compiler option is undefined: languages\./)
+
 console.timeEnd('test basic')
