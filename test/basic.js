@@ -1065,22 +1065,6 @@ equal(compile('<if foo does not end with bar>baz</if>')({ foo: 'ban qux', bar: '
 equal(compile('<div html="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
 equal(compile('<div text="{foo(bar())}"></div>')({ foo: string => string, bar: () => 'bar' }, html => html), '<div>bar</div>')
 
-equal(compile('{Math.abs(foo)}')({ foo: -1 }, html => html), '1')
-equal(compile('{Math.ceil(foo)}')({ foo: 1.6 }, html => html), '2')
-equal(compile('{Math.floor(foo)}')({ foo: 1.6 }, html => html), '1')
-equal(compile('{Math.round(foo)}')({ foo: 1.4 }, html => html), '1')
-equal(compile('{Math.round(foo)}')({ foo: 1.6 }, html => html), '2')
-equal(compile('{Math.pow(foo, 3)}')({ foo: 2 }, html => html), '8')
-
-equal(compile('{Number.isFinite(foo)}')({ foo: 42 }, html => html), 'true')
-equal(compile('{Number.isFinite(foo)}')({ foo: Infinity }, html => html), 'false')
-
-equal(compile('{JSON.stringify(foo, null, 2)}')({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
-equal(compile('{JSON.stringify(foo, null, 4)}')({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
-
-equal(compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')({}, html => html), '0')
-equal(compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')({}, html => html), '818035920000')
-
 equal(compile('<for number in range="0...10">{number}</for>')({}, html => html), '0123456789')
 equal(compile('<for number in range="0..10">{number}</for>')({}, html => html), '012345678910')
 equal(compile('<for number in range="10">{number}</for>')({}, html => html), '012345678910')
@@ -1129,58 +1113,8 @@ equal(compile(`<for month in='{["Styczeń", "Luty", "Marzec"]}'>{month}</for>`)(
 equal(compile(`<for foo in='{[bar, baz]}'>{foo}</for>`)({ bar: 'bar', baz: 'baz' }, html => html), 'barbaz')
 // equal(compile(`<for foo in='{[{ key: 'bar' }, { key: 'baz' }]}'>{foo.key}</for>`)({}, html => html), 'barbaz')
 
-equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
-  paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
-})({}, html => html), '<input type="checkbox">')
-
-equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
-  paths: [ path.join(__dirname, './fixtures/partial'), path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<input type="checkbox">')
-
-equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
-
-equal(compile(`<import layout from='./layout-with-partial-attribute.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
-
-equal(compile(`<import layout from='./layout-with-partial.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
-
-equal(compile(`<import layout from='./layout-with-render.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
-
-equal(compile(`<import layout from='./layout-with-require.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
-
-equal(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
-equal(compile(`<partial from="./fixtures/partial/footer.html"></partial>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')
-equal(compile(`<partial from="./fixtures/partial/header.html"></partial>`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<partial from="./fixtures/partial/header.html">`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<partial from="./fixtures/partial/header.html" />`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-
-equal(compile(`<render partial="./fixtures/partial/terms.html"></render>`, { paths: [__dirname] })({}, html => html), '<div>foo bar baz</div>')
-equal(compile(`<render partial="./fixtures/partial/footer.html"></render>`, { paths: [__dirname] })({}, html => html), '<div>foo</div><footer>bar</footer>')
-equal(compile(`<render partial="./fixtures/partial/header.html"></render>`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<render partial="./fixtures/partial/header.html">`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<render partial="./fixtures/partial/header.html" />`, { paths: [__dirname] })({ title: 'foo' }, html => html), '<div>foo</div>')
-
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({}, html => html), 'baz')
 equal(compile(`{foo.bar}<rescue>baz</rescue>`)({ foo: { bar: 'qux' } }, html => html), 'qux')
-
-equal(compile(`<head partial="./fixtures/partial/head.html"></head>`, { paths: [__dirname] })({}, html => html), '<head><meta charset="utf-8"></head>')
-
-equal(compile(`<import icon from="./fixtures/partial/icon.html" /><icon foo="bar"></icon>`, {
-  paths: [__dirname]
-})({}, html => html), '<span class="glyphicon glyphicon-bar"></span>')
-
-equal(compile(`<import icon from="./fixtures/partial/icon.html" /><icon foo="bar"></icon><icon foo="baz"></icon>`, {
-  paths: [__dirname]
-})({}, html => html), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
 
 equal(compile(`{baz}<for foo in bar><for baz in foo>{baz.quz}</for></for>{baz}`)({
   bar: [ [{ quz: 1 }], [{ quz: 2 }] ],
@@ -1413,12 +1347,6 @@ equal(compile('<if foo is a url><a href="{foo}">{bar}</a></if>')({
 equal(compile('<if foo is a url><a href="{foo}">{bar}</a></if>')({}, html => html), '')
 
 equal(compile('<content for title>foo</content><title content="title"></title>')({}, html => html), '<title>foo</title>')
-equal(compile('<import meta from="./fixtures/partial/meta.html"><content for title>foo</content><meta></meta>', {
-  paths: [__dirname]
-})({}, html => html), '<title>foo</title>')
-
-equal(compile('<svg from="./fixtures/svg/rectangle.svg" />', { paths: [__dirname] })({}, html => html), '<svg width="400" height="100"><rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)"></rect></svg>')
-equal(compile('<svg from="./fixtures/svg/stroke.svg" />', { paths: [__dirname] })({}, html => html), '<svg height="80" width="300"><g fill="none"><path stroke="red" d="M5 20 l215 0"></path></g></svg>')
 
 equal(compile(`<img class="img-responsive" src="/assets/images/{photos[0]}" alt="Photo">`, {})({
   photos: ['foo.jpg', 'bar.jpg']
@@ -1460,159 +1388,7 @@ equal(compile(`<for doc in docs>{doc.name}<for key and value in doc.items>{key}{
   ]
 }, html => html), 'foobarbazquxquux')
 
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<html><body><aside>foo</aside>bar</body></html>')
-
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<html><body><aside>foo</aside>bar</body></html>')
-
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header></sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<html><body><aside><div>foo</div></aside>bar</body></html>')
-
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header><header>foo</header></sidebar>baz</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<html><body><aside><div>foo</div><div>foo</div></aside>baz</body></html>')
-
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import button from='./button.html'/><layout><sidebar><button>foo</button></sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<html><body><aside><button class="btn btn-primary">foo</button></aside>bar</body></html>')
-
-equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button>`, {
-  paths: [__dirname]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
-equal(compile(`<import button from="./fixtures/import/button.html"/><button>foo</button><button>bar</button>`, {
-  paths: [__dirname]
-})({}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
-
-equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
-equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
-  paths: [ path.join(__dirname, './fixtures/import'), path.join(__dirname, './fixtures/partial') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
-equal(compile(`<require button from="./fixtures/import/button.html"/><button>foo</button>`, {
-  paths: [__dirname]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
-
-equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1>foo</h1><h2>bar</h2></header>')
-equal(compile(`<import header from="./fixtures/slots/header.html"/><header><slot title>foo</slot></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1>foo</h1><h2></h2></header>')
-equal(compile(`<import header from="./fixtures/slots/header.html"/><header></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1></h1><h2></h2></header>')
-
-equal(compile(`<import header from="./fixtures/yields/header.html"/><header></header>`, {
-  paths: [__dirname]
-})({}, html => html), '<header><h1></h1><h2></h2></header>')
-
-equal(compile(`<import select from="./fixtures/select/select.html"/><select></select>`, {
-  paths: [__dirname]
-})({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
-
-deepStrictEqual(compile(`<import button from="./fixtures/partial/button.html"/><button></button>`, {
-  paths: [__dirname],
-  statistics: true
-}).statistics, {
-  components: [
-    {
-      name: 'button',
-      content: '<button class="btn primary"><slot></slot></button>\n',
-      path: path.join(__dirname, './fixtures/partial/button.html')
-    }
-  ],
-  partials: [],
-  svgs: [],
-  images: [],
-  assets: [
-    path.join(__dirname, './fixtures/partial/button.html')
-  ]
-})
-
-deepStrictEqual(compile(`<partial from="./fixtures/partial/terms.html"></partial>`, {
-  paths: [__dirname],
-  statistics: true
-}).statistics, {
-  components: [],
-  partials: [{ path: path.join(__dirname, './fixtures/partial/terms.html') }],
-  svgs: [],
-  images: [],
-  assets: [
-    path.join(__dirname, './fixtures/partial/terms.html')
-  ]
-})
-
-deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, './fixtures/import') ],
-  statistics: true
-}).statistics, {
-  components: [
-    {
-      name: 'layout',
-      content: readFileSync(path.join(__dirname, './fixtures/import/layout.html'), 'utf8'),
-      path: path.join(__dirname, './fixtures/import/layout.html')
-    },
-    {
-      name: 'header',
-      content: readFileSync(path.join(__dirname, './fixtures/import/header.html'), 'utf8'),
-      path: path.join(__dirname, './fixtures/import/header.html')
-    },
-    {
-      name: 'footer',
-      content: readFileSync(path.join(__dirname, './fixtures/import/footer.html'), 'utf8'),
-      path: path.join(__dirname, './fixtures/import/footer.html')
-    }
-  ],
-  partials: [],
-  svgs: [],
-  images: [],
-  assets: [
-    path.join(__dirname, './fixtures/import/layout.html'),
-    path.join(__dirname, './fixtures/import/header.html'),
-    path.join(__dirname, './fixtures/import/footer.html')
-  ]
-})
 
 equal(compile(`<img src="./placeholder.png">`)({}, html => html), `<img src="./placeholder.png">`)
-
-throws(function () {
-  compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})
-}, /Compiler option is undefined: paths\./)
-
-throws(function () {
-  compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] })
-}, /Asset not found: \.\/checkbox\.html/)
-
-throws(function () {
-  compile(`<partial from='./partial.html'/><partial>`, {})
-}, /Compiler option is undefined: paths\./)
-
-throws(function () {
-  compile(`<partial from='./partial.html'/><partial>`, { paths: [] })
-}, /Asset not found: \.\/partial\.html/)
-
-throws(function () {
-  compile(`<div partial='./partial.html'/><div>`, {})
-}, /Compiler option is undefined: paths\./)
-
-throws(function () {
-  compile(`<div partial='./partial.html'/><div>`, { paths: [] })
-}, /Asset not found: \.\/partial\.html/)
-
-throws(function () {
-  compile(`<svg from='./circle.svg'/><div>`, {})
-}, /Compiler option is undefined: paths\./)
-
-throws(function () {
-  compile(`<svg from='./circle.svg'/><div>`, { paths: [] })
-}, /Asset not found: \.\/circle\.svg/)
 
 console.timeEnd('basic')

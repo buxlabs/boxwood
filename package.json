@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "node test/basic.js && node test/examples.js && node src/string.spec.js && node src/array.spec.js && node test/conditions.js && node test/features/i18n.js && node test/features/image-size.js && node test/features/modifiers.js && node test/features/inline.js",
+    "test": "node test/basic.js && node test/examples.js && node src/string.spec.js && node src/array.spec.js && node test/conditions.js && node test/features/i18n.js && node test/features/image-size.js && node test/features/modifiers.js && node test/features/inline.js && node test/features/svg.js && node test/features/import.js && node test/features/globals.js",
     "benchmark": "node test/benchmark.js",
     "watch": "watch 'npm test --silent' ."
   },

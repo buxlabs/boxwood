@@ -358,7 +358,9 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
   } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
     if (tag === 'svg' && keys.includes('from')) {
-      const { value: path } = fragment.attributes[0]
+      const attr = attrs.find(attr => attr.key === 'from')
+      const { value: path } = attr
+      if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
       findFile(path, options, location => {
         const content = parse(readFileSync(location, 'utf8'))[0]
         statistics.svgs.push({ path: location })
