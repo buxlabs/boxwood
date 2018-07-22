@@ -320,12 +320,30 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       child.used = true
     })
   } else if (tag === 'script' && keys.includes('inline')) {
-    const leaf = fragment.children[0]
-    leaf.used = true
-    const ast = new AbstractSyntaxTree(leaf.content)
-    ast.each('VariableDeclarator', node => variables.push(node.id.name))
-    const body = ast.body()
-    body.forEach(node => tree.append(node))
+    if (keys.includes('src')) {
+      const { value: path } = attrs.find(attr => attr.key === 'src')
+      let content = `<script`
+      fragment.attributes.forEach(attribute => {
+        const { key, value } = attribute
+        if (key !== 'src' && key !== 'inline') {
+          content += ` ${key}="${value}"`
+        }
+      })
+      content += '>'
+      findFile(path, options, location => {
+        content += readFileSync(location, 'utf8')
+        statistics.scripts.push({ path: location })
+      })
+      content += `</script>`
+      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+    } else {
+      const leaf = fragment.children[0]
+      leaf.used = true
+      const ast = new AbstractSyntaxTree(leaf.content)
+      ast.each('VariableDeclarator', node => variables.push(node.id.name))
+      const body = ast.body()
+      body.forEach(node => tree.append(node))
+    }
   } else if (tag === 'script' && keys.includes('i18n')) {
     const leaf = fragment.children[0]
     leaf.used = true
@@ -375,6 +393,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
             const { value: path } = attrs.find(attr => attr.key === 'src')
             findFile(path, options, location => {
               const dimensions = size(location)
+              statistics.images.push({ path: location })
               fragment.attributes = fragment.attributes.map(attr => {
                 if (attr.key === dimension) {
                   attr.value = dimensions[dimension].toString()

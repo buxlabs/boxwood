@@ -77,6 +77,7 @@ deepStrictEqual(compile(`<import button from="./button.html"/><button></button>`
   partials: [],
   svgs: [],
   images: [],
+  scripts: [],
   assets: [
     path.join(__dirname, '../fixtures/partial/button.html')
   ]
@@ -90,6 +91,7 @@ deepStrictEqual(compile(`<partial from="./terms.html"></partial>`, {
   partials: [{ path: path.join(__dirname, '../fixtures/partial/terms.html') }],
   svgs: [],
   images: [],
+  scripts: [],
   assets: [
     path.join(__dirname, '../fixtures/partial/terms.html')
   ]
@@ -119,6 +121,7 @@ deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layou
   partials: [],
   svgs: [],
   images: [],
+  scripts: [],
   assets: [
     path.join(__dirname, '../fixtures/import/layout.html'),
     path.join(__dirname, '../fixtures/import/header.html'),

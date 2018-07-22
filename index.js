@@ -21,7 +21,8 @@ function render (source, options) {
     components: [],
     partials: [],
     svgs: [],
-    images: []
+    images: [],
+    scripts: []
   }
   const store = {}
   const translations = {}
@@ -87,6 +88,7 @@ module.exports = {
       statistics.partials = statistics.partials.concat(rescue.statistics.partials)
       statistics.svgs = statistics.svgs.concat(rescue.statistics.svgs)
       statistics.images = statistics.images.concat(rescue.statistics.images)
+      statistics.scripts = statistics.scripts.concat(rescue.statistics.scripts)
     }
     const code = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)()
     if (options.statistics) {
@@ -94,6 +96,7 @@ module.exports = {
       const partials = uniq(statistics.partials)
       const svgs = uniq(statistics.svgs)
       const images = uniq(statistics.images)
+      const scripts = uniq(statistics.scripts)
       return {
         code,
         statistics: {
@@ -101,11 +104,13 @@ module.exports = {
           partials,
           svgs,
           images,
+          scripts,
           assets: [].concat(
             components.map(item => item.path),
             partials.map(item => item.path),
             svgs.map(item => item.path),
-            images.map(item => item.path)
+            images.map(item => item.path),
+            scripts.map(item => item.path)
           )
         }
       }
