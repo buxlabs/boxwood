@@ -344,6 +344,15 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       const body = ast.body()
       body.forEach(node => tree.append(node))
     }
+  } else if (tag === 'link' && keys.includes('inline')) {
+    const { value: path } = attrs.find(attr => attr.key === 'href')
+    let content = '<style>'
+    findFile(path, options, location => {
+      content += readFileSync(location, 'utf8')
+      statistics.stylesheets.push({ path: location })
+    })
+    content += '</style>'
+    tree.append(getTemplateAssignmentExpression(getLiteral(content)))
   } else if (tag === 'script' && keys.includes('i18n')) {
     const leaf = fragment.children[0]
     leaf.used = true

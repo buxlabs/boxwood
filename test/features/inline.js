@@ -9,8 +9,12 @@ equal(compile(`<script inline>const year = () => 2018</script>{year()}`)({}, htm
 equal(compile(`<script inline>const foo = ['bar', 'baz']</script><for qux in foo>{qux}</for>`)({}, html => html), 'barbaz')
 
 equal(compile('<script src="./foo.js" inline></script>', {
-  paths: [path.join(__dirname, '../fixtures/js')]
+  paths: [path.join(__dirname, '../fixtures/scripts')]
 })({}, html => html), `<script>console.log('foo')\n</script>`)
+
+equal(compile('<link href="./foo.css" inline>', {
+  paths: [path.join(__dirname, '../fixtures/stylesheets')]
+})({}, html => html), '<style>.foo { color: red; }\n</style>')
 
 equal(compile(`<img src='./placeholder.png' inline>`, {
   paths: [ path.join(__dirname, '../fixtures/images') ]
