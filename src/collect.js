@@ -22,7 +22,7 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
-const { join } = require('path')
+const { join, dirname } = require('path')
 const { parse } = require('himalaya')
 const yaml = require('yaml-js')
 const size = require('image-size')
@@ -68,11 +68,23 @@ function findFile (path, options, callback) {
     if (!found) { throw new Error(`Asset not found: ${path}.`) }
 }
 
-function collectComponentsFromImport (fragment, statistics, components, options) {
+function collectComponentsFromImport (fragment, statistics, components, component, options) {
   const attrs = fragment.attributes
   const name = attrs[0].key
   const path = attrs[1].value
-  findFile(path, options, location => {
+  let paths = []
+  if (options.paths) {
+    paths = paths.concat(options.paths)
+  } else {
+    throw new Error('Compiler option is undefined: paths.')
+  }
+  if (component) {
+    paths = paths.concat(dirname(component.path))
+  }
+  if (components) {
+    paths = paths.concat(components.map(component => dirname(component.path)))
+  }
+  findFile(path, { paths }, location => {
     const content = readFileSync(location, 'utf8')
     components.push({ name, content, path: location })
     statistics.components.push({ name, content, path: location })
@@ -159,15 +171,15 @@ function resolveComponent (component, fragment, variables, modifiers, components
       }
     }
     if (current.tagName === 'import' || current.tagName === 'require') {
-      collectComponentsFromImport(current, statistics, currentComponents, options)
+      collectComponentsFromImport(current, statistics, currentComponents, component, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render') {
       collectComponentsFromPartialOrRender(current, statistics, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
       collectComponentsFromPartialAttribute(current, statistics, options)
     }
-    const component = currentComponents.find(component => component.name === current.tagName)
-    if (component) {
-      resolveComponent(component, current, variables, modifiers, components, statistics, options)
+    const currentComponent = currentComponents.find(component => component.name === current.tagName)
+    if (currentComponent) {
+      resolveComponent(currentComponent, current, variables, modifiers, components, statistics, options)
       current.used = true
     }
   })
@@ -766,7 +778,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       }
     })
   } else if (tag === 'import' || tag === 'require') {
-    collectComponentsFromImport(fragment, statistics, components, options)
+    collectComponentsFromImport(fragment, statistics, components, null, options)
   } else if (tag === 'partial' || tag === 'render') {
     collectComponentsFromPartialOrRender(fragment, statistics, options)
     fragment.children.forEach(node => {
