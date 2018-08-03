@@ -1,6 +1,6 @@
 {
   "name": "@buxlabs/html-engine",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "html engine",
   "main": "index.js",
   "scripts": {
