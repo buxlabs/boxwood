@@ -5,7 +5,6 @@ module.exports = {
   GLOBAL_VARIABLES: ['JSON', 'Math', 'Number', 'console', 'Date'],
   BOOLEAN_ATTRIBUTES: [
     'async',
-    'autocomplete',
     'autofocus',
     'autoplay',
     'border',

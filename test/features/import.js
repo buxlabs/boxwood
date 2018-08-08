@@ -187,6 +187,10 @@ equal(compile('<import meta from="./meta.html"><content for title>foo</content><
   paths: [ path.join(__dirname, '../fixtures/partial') ]
 })({}, html => html), '<title>foo</title>')
 
+equal(compile('<import layout from="./default.html"/><layout></layout>', {
+  paths: [ path.join(__dirname, '../fixtures/layouts') ]
+})({}, html => html), '<div class="foo">foo</div><div class="bar">bar</div><div class="header">header</div><div class="baz">baz</div><div class="qux">qux</div><div class="footer">footer</div>')
+
 throws(function () {
   compile(`<partial from='./partial.html'/><partial>`, {})
 }, /Compiler option is undefined: paths\./)
