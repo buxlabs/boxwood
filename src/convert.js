@@ -4,8 +4,29 @@ const {
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
 const { extract, getName } = require('./string')
-const { getModifierName } = require('./modifiers')
+const { getModifierName, extractModifierName } = require('./modifiers')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { array, math, collection, object, json, date } = require('pure-utilities')
+const ARRAY_UTILITIES = Object.keys(array)
+const MATH_UTILITIES = Object.keys(math)
+const COLLECTION_UTILITIES = Object.keys(collection)
+const OBJECT_UTILITIES = Object.keys(object)
+const JSON_UTILITIES = Object.keys(json)
+const DATE_UTILITIES = Object.keys(date)
+
+function isUnescapedModifier (modifier) {
+  const name = getModifierName(extractModifierName(modifier))
+  return name.startsWith('unescape') ||
+      name.startsWith('unquote') ||
+      name.startsWith('unwrap') ||
+      name.startsWith('htmlstrip') ||
+      ARRAY_UTILITIES.includes(name) ||
+      MATH_UTILITIES.includes(name)  ||
+      COLLECTION_UTILITIES.includes(name) ||
+      OBJECT_UTILITIES.includes(name) ||
+      JSON_UTILITIES.includes(name) ||
+      DATE_UTILITIES.includes(name)
+}
 
 function convertToBinaryExpression (nodes) {
   return nodes.reduce((previous, current) => {
@@ -34,20 +55,33 @@ function convertAttribute (name, value, variables, currentModifiers) {
     if (values.length === 1) {
       let property = values[0].value.substring(1, values[0].value.length - 1)
       const expression = convertToExpression(property)
-      const { modifiers } = values[0]
-      if (modifiers) {
-        modifiers.forEach(modifier => currentModifiers.push(modifier))
+      const modifiers = values[0].modifiers || []
+      modifiers.forEach(modifier => currentModifiers.push(modifier))
+      let unescape = UNESCAPED_NAMES.includes(name)
+      if (!unescape) {
+        modifiers.forEach(modifier => {
+          if (isUnescapedModifier(modifier)) {
+            unescape = true
+          }
+        })
       }
-      return modify(getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name)), modifiers)
+      return modify(getTemplateNode(expression, variables, unescape), modifiers)
     } else {
-      const nodes = values.map(({ value, modifiers }, index) => {
-        if (modifiers) {
-          modifiers.forEach(modifier => currentModifiers.push(modifier))
-        }
+      const nodes = values.map(({ value, modifiers = [] }, index) => {
+        modifiers.forEach(modifier => currentModifiers.push(modifier))
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
           const expression = convertToExpression(property)
-          return modify(getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name)), modifiers)
+          let unescape = UNESCAPED_NAMES.includes(name)
+          if (!unescape) {
+            modifiers.forEach(modifier => {
+              const name = getModifierName(extractModifierName(modifier))
+              if (isUnescapedModifier(modifier)) {
+                unescape = true
+              }
+            })
+          }
+          return modify(getTemplateNode(expression, variables, unescape), modifiers)
         }
         return modify(getLiteral(value), modifiers)
       })
@@ -212,8 +246,10 @@ function getTemplateNode (expression, variables, unescape) {
             object,
             property: node
           }
-          node = getEscapeCallExpression(node)
-          node.callee.omit = true
+          if (!unescape) {
+            node = getEscapeCallExpression(node)
+            node.callee.omit = true
+          }
         }
       }
       return node
@@ -225,14 +261,21 @@ function getTemplateNode (expression, variables, unescape) {
 }
 
 function convertText (text, variables, currentModifiers) {
-  const nodes = extract(text).map(({ value, modifiers }, index) => {
+  const nodes = extract(text).map(({ value, modifiers = [] }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
-      if (modifiers) {
-        modifiers.forEach(modifier => currentModifiers.push(modifier))
+      modifiers.forEach(modifier => currentModifiers.push(modifier))
+      const name = expression.name
+      let unescape = name ? UNESCAPED_NAMES.includes(name) : false
+      if (!unescape) {
+        modifiers.forEach(modifier => {
+          if (isUnescapedModifier(modifier)) {
+            unescape = true
+          }
+        })
       }
-      return modify(getTemplateNode(expression, variables), modifiers)
+      return modify(getTemplateNode(expression, variables, unescape), modifiers)
     }
     return getLiteral(value)
   })

@@ -55,14 +55,19 @@ function serializeLanguages (languages) {
   return languages.map(language => { return { type: 'Literal', value: language } })
 }
 
+function extractModifierName (modifier) {
+  const tree = new AbstractSyntaxTree(modifier)
+  const node = tree.body()[0].expression
+  return node.type === 'CallExpression' ? node.callee.name : node.name
+}
+
 const builtins = { translate }
 
 module.exports = {
   getModifierName,
+  extractModifierName,
   getModifier (modifier, translations, options) {
-    const tree = new AbstractSyntaxTree(modifier)
-    const node = tree.body()[0].expression
-    let name = node.type === 'CallExpression' ? node.callee.name : node.name
+    let name = extractModifierName(modifier)
     name = getModifierName(name)
     const method = utilities.string[name] ||
       utilities.math[name] ||
