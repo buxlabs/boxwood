@@ -179,4 +179,8 @@ equal(compile('{foo | keys | last}')({
 }, html => html), 'ban')
 equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}')({foo: 100}, html => html), '$100.00')
 
+equal(compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`, {})({
+  photos: ['foo.jpg', 'bar.jpg']
+}, html => html), `<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">`)
+
 console.timeEnd('modifiers')

@@ -40,13 +40,16 @@ function convertAttribute (name, value, variables, currentModifiers) {
       }
       return modify(getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name)), modifiers)
     } else {
-      const nodes = values.map(({ value }, index) => {
+      const nodes = values.map(({ value, modifiers }, index) => {
+        if (modifiers) {
+          modifiers.forEach(modifier => currentModifiers.push(modifier))
+        }
         if (value.includes('{') && value.includes('}')) {
           let property = value.substring(1, value.length - 1)
           const expression = convertToExpression(property)
-          return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name))
+          return modify(getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name)), modifiers)
         }
-        return getLiteral(value)
+        return modify(getLiteral(value), modifiers)
       })
       const expression = convertToBinaryExpression(nodes)
       return { type: 'ExpressionStatement', expression }
