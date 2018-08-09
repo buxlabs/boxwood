@@ -331,7 +331,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     fragment.children.forEach(child => {
       child.used = true
     })
-  } else if (tag === 'script' && keys.includes('inline')) {
+  } else if (tag === 'script' && (keys.includes('inline') || options.inline.includes('scripts'))) {
     if (keys.includes('src')) {
       const { value: path } = attrs.find(attr => attr.key === 'src')
       let content = `<script`
@@ -356,7 +356,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       const body = ast.body()
       body.forEach(node => tree.append(node))
     }
-  } else if (tag === 'link' && keys.includes('inline')) {
+  } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
     const { value: path } = attrs.find(attr => attr.key === 'href')
     let content = '<style>'
     findFile(path, options, location => {
@@ -427,7 +427,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       }
       setDimension('width')
       setDimension('height')
-      if (keys.includes('inline')) {
+      if (keys.includes('inline') || options.inline.includes('images')) {
         fragment.attributes = fragment.attributes.map(attr => {
           if (attr.key === 'inline') return null
           if (attr.key === 'src') {

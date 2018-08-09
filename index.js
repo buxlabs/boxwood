@@ -7,6 +7,12 @@ const collect = require('./src/collect')
 const { getModifier } = require('./src/modifiers')
 const { array: { unique } } = require('pure-utilities')
 
+function getDefaultOptions (options) {
+  return Object.assign({
+    inline: []
+  }, options)
+}
+
 function render (source, options) {
   const htmltree = parse(source)
   const tree = new AbstractSyntaxTree('')
@@ -52,6 +58,7 @@ function uniq (array) {
 module.exports = {
   render,
   compile (source, options = {}) {
+    options = getDefaultOptions(options)
     const rescue = {}
     if (source.includes('<rescue>') && source.includes('</rescue>')) {
       const start = source.indexOf('<rescue>')
