@@ -1,5 +1,5 @@
 const { equal, deepStrictEqual, throws } = require('assert')
-const { compile } = require('../..')
+const compile = require('../helpers/compile')
 const path = require('path')
 const { readFileSync } = require('fs')
 
@@ -62,75 +62,6 @@ equal(compile(`<import header from="./header.html"/><header></header>`, {
 equal(compile(`<import select from="./select.html"/><select></select>`, {
   paths: [ path.join(__dirname, '../fixtures/select') ]
 })({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
-
-deepStrictEqual(compile(`<import button from="./button.html"/><button></button>`, {
-  paths: [ path.join(__dirname, '../fixtures/partial') ],
-  statistics: true
-}).statistics, {
-  components: [
-    {
-      name: 'button',
-      content: '<button class="btn primary"><slot></slot></button>\n',
-      path: path.join(__dirname, '../fixtures/partial/button.html')
-    }
-  ],
-  partials: [],
-  svgs: [],
-  images: [],
-  scripts: [],
-  stylesheets: [],
-  assets: [
-    path.join(__dirname, '../fixtures/partial/button.html')
-  ]
-})
-
-deepStrictEqual(compile(`<partial from="./terms.html"></partial>`, {
-  paths: [ path.join(__dirname, '../fixtures/partial') ],
-  statistics: true
-}).statistics, {
-  components: [],
-  partials: [{ path: path.join(__dirname, '../fixtures/partial/terms.html') }],
-  svgs: [],
-  images: [],
-  scripts: [],
-  stylesheets: [],
-  assets: [
-    path.join(__dirname, '../fixtures/partial/terms.html')
-  ]
-})
-
-deepStrictEqual(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ],
-  statistics: true
-}).statistics, {
-  components: [
-    {
-      name: 'layout',
-      content: readFileSync(path.join(__dirname, '../fixtures/import/layout.html'), 'utf8'),
-      path: path.join(__dirname, '../fixtures/import/layout.html')
-    },
-    {
-      name: 'header',
-      content: readFileSync(path.join(__dirname, '../fixtures/import/header.html'), 'utf8'),
-      path: path.join(__dirname, '../fixtures/import/header.html')
-    },
-    {
-      name: 'footer',
-      content: readFileSync(path.join(__dirname, '../fixtures/import/footer.html'), 'utf8'),
-      path: path.join(__dirname, '../fixtures/import/footer.html')
-    }
-  ],
-  partials: [],
-  svgs: [],
-  images: [],
-  scripts: [],
-  stylesheets: [],
-  assets: [
-    path.join(__dirname, '../fixtures/import/layout.html'),
-    path.join(__dirname, '../fixtures/import/header.html'),
-    path.join(__dirname, '../fixtures/import/footer.html')
-  ]
-})
 
 equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
   paths: [ path.join(__dirname, '../fixtures/import') ]

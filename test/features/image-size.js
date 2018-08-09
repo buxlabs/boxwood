@@ -1,5 +1,5 @@
 const { equal } = require('assert')
-const { compile } = require('../..')
+const compile = require('../helpers/compile')
 
 console.time('image-size')
 

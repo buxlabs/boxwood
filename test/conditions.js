@@ -1,7 +1,7 @@
 const { readFileSync } = require('fs')
 const { join } = require('path')
 const { equal } = require('assert')
-const { compile } = require('..')
+const compile = require('./helpers/compile')
 
 function test (name, data = {}, expected) {
   const dir = join(__dirname, 'fixtures/conditions')

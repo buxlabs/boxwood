@@ -1,5 +1,5 @@
 const { equal, throws } = require('assert')
-const { compile } = require('../..')
+const compile = require('../helpers/compile')
 const path = require('path')
 
 console.time('inline')

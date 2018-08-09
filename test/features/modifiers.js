@@ -1,5 +1,5 @@
 const { equal } = require('assert')
-const { compile } = require('../..')
+const compile = require('../helpers/compile')
 const escape = require('escape-html')
 
 console.time('modifiers')

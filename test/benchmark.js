@@ -1,5 +1,5 @@
 const { Suite } = require('benchmark')
-const { compile } = require('..')
+const compile = require('./helpers/compile')
 const underscore = require('underscore')
 const template = require('lodash.template')
 const escape = require('escape-html')
