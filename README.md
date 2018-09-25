@@ -2,8 +2,7 @@
 
 > Compile HTML templates into JS
 
-[ ![Codeship Status for buxlabs/html-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
-
+[![Codeship Status for buxlabs/html-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
 ![npm (scoped)](https://img.shields.io/npm/v/@buxlabs/html-engine.svg)
 
 [REPL](https://buxlabs.pl/en/tools/js/html-engine)
@@ -18,12 +17,12 @@ The syntax of the template should be easy to read and write. There are two types
 
 *<if>* is an html tag
 
-Curly tags can contain expressions, e.g. *{1 + 2}* is a valid tag.
-They can also contain additional modifiers, e.g. *{name | capitalize}*
+Curly tags can contain expressions, e.g. **{1 + 2}** is a valid tag.
+They can also contain additional modifiers, e.g. **{name | capitalize}**
 
-HTML tags can contain additional attributes, e.g. *<if limit is a number>* is a valid tag.
+HTML tags can contain additional attributes, e.g. **\<if limit is a number>** is a valid tag.
 
-The attribute syntax follows the natural language principles. There are special attributes available too, e.g. *<img src='./cat.png' inline>* will inline the image with base64.
+The attribute syntax follows the natural language principles. There are special attributes available too, e.g. **\<img src='./cat.png' inline>** will inline the image with base64.
 
 
 ## Usage
