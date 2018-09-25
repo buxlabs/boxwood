@@ -13,17 +13,18 @@ HTML Engine is a library designed to compile HTML templates into JS. It analyses
 
 The syntax of the template should be easy to read and write. There are two types of tags: curly and html tags.
 
-**{name}** is a curly tag.
+### Curly Tags
 
-**\<if>** is an html tag
+`{name}` is a curly tag
 
-Curly tags can contain expressions, e.g. **{1 + 2}** is a valid tag.
-They can also contain additional modifiers, e.g. **{name | capitalize}**
+Curly tags can contain expressions, e.g. `{1 + 2}` is a valid tag.
+They can also contain additional modifiers like `{name | capitalize}`
 
-HTML tags can contain additional attributes, e.g. **\<if limit is a number>** is a valid tag.
+### HTML Tags
 
-The attribute syntax follows the natural language principles. There are special attributes available too, e.g. **\<img src='./cat.png' inline>** will inline the image with base64.
+`<if>` is an html tag
 
+HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a valid tag. The attribute syntax follows the natural language principles.
 
 ## Usage
 
@@ -43,6 +44,51 @@ assert(template({ foo: 'bar' }) === '<div>bar</div>')
 * modifiers for strings, numbers, arrays, objects and more
 * special attributes, e.g. inline for asset inline, width="auto" for auto sizing and more
 * built-in i18n support
+
+## Input / Output Examples
+
+```
+<if foo is present>{bar}</if>
+```
+
+```js
+function render(__o, __e) {
+  var __t = "";
+  if (__o.foo !== void 0) {
+    __t += __e(__o.bar);
+  }
+  return __t;
+}
+```
+
+```
+<for month in months>{month}</for>
+```
+
+```js
+function render(__o, __e) {
+  var __t = "";
+  for (var a = 0, b = __o.months.length; a < b; a += 1) {
+    var month = __o.months[a];
+    __t += __e(month);
+  }
+  return __t;
+}
+```
+
+```
+<foreach month in months>{month}</foreach>
+```
+
+```js
+function render(__o, __e) {
+  var __t = "";
+  __o.months.forEach(function (month) {
+    __t += __e(month);
+  });
+  return __t;
+}
+```
 
 ## License
 
