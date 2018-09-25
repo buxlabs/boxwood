@@ -90,6 +90,17 @@ function render(__o, __e) {
 }
 ```
 
+## Benchmarks
+
+`npm run benchmark`
+
+```
+html-engine x 3,263,396 ops/sec ±0.86% (89 runs sampled)
+underscore x 193,124 ops/sec ±0.66% (89 runs sampled)
+lodash x 200,964 ops/sec ±0.78% (87 runs sampled)
+Fastest is html-engine
+```
+
 ## License
 
 MIT
