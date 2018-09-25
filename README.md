@@ -13,9 +13,9 @@ HTML Engine is a library designed to compile HTML templates into JS. It analyses
 
 The syntax of the template should be easy to read and write. There are two types of tags: curly and html tags.
 
-*{name}* is a curly tag.
+**{name}** is a curly tag.
 
-*<if>* is an html tag
+**\<if>** is an html tag
 
 Curly tags can contain expressions, e.g. **{1 + 2}** is a valid tag.
 They can also contain additional modifiers, e.g. **{name | capitalize}**
