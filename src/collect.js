@@ -454,7 +454,9 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
           child.used = false
         })
       }
-      fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
+      if (fragment.tagName !== 'meta') {
+        fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
+      }
     }
     collectComponentsFromPartialAttribute(fragment, statistics, options)
     const nodes = convertTag(fragment, variables, modifiers)
