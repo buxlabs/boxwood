@@ -38,12 +38,12 @@ assert(template({ foo: 'bar' }) === '<div>bar</div>')
 
 ## Features
 
-* conditional statements: if, else, elseif, unless, elseunless
+* conditional tags: if, else, elseif, unless, elseunless
 * loops: for, each, foreach
-* import and require statements
+* import and require tags
 * modifiers for strings, numbers, arrays, objects and more
 * special attributes, e.g. inline for asset inline, width="auto" for auto sizing and more
-* built-in i18n support
+* built-in i18n support (translate tag and modifier)
 
 ## Input / Output Examples
 

@@ -331,6 +331,19 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     fragment.children.forEach(child => {
       child.used = true
     })
+  } else if (tag === 'translate') {
+    const attribute = fragment.attributes[0]
+    if (attribute) {
+      const { key } = attribute
+      fragment.used = true
+      fragment.children = [{ type: 'text', content: `{'${key}' | translate}` }]
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
+      })
+      const body = ast.body()
+      body.forEach(node => tree.append(node))
+    }
   } else if (tag === 'script' && (keys.includes('inline') || options.inline.includes('scripts'))) {
     if (keys.includes('src')) {
       const { value: path } = attrs.find(attr => attr.key === 'src')
