@@ -1,0 +1,7 @@
+<h1>{{title}}</h1>
+<h2>{{subtitle}}</h2>
+<ul>
+  {{#todos}}
+    <li>{{description}}</li>
+  {{/todos}}
+</ul>

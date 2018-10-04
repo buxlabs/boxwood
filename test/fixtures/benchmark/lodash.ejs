@@ -1,9 +1,7 @@
 <h1><%- title %></h1>
 <h2><%- subtitle %></h2>
-<% if (todos.length) { %>
-  <ul>
-    <% for(var i = 0, ilen = todos.length; i < ilen; i++) { %>
-      <li><%- todos[i].description %></li>
-    <% } %>
-  </ul>
-<% } %>
+<ul>
+  <% for(var i = 0, ilen = todos.length; i < ilen; i++) { %>
+    <li><%- todos[i].description %></li>
+  <% } %>
+</ul>

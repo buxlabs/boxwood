@@ -95,9 +95,10 @@ function render(__o, __e) {
 `npm run benchmark`
 
 ```
-html-engine x 3,263,396 ops/sec ±0.86% (89 runs sampled)
-underscore x 193,124 ops/sec ±0.66% (89 runs sampled)
-lodash x 200,964 ops/sec ±0.78% (87 runs sampled)
+html-engine x 3,372,492 ops/sec ±1.66% (91 runs sampled)
+underscore x 175,306 ops/sec ±0.68% (96 runs sampled)
+lodash x 208,329 ops/sec ±0.44% (91 runs sampled)
+mustache x 460,274 ops/sec ±1.07% (77 runs sampled)
 Fastest is html-engine
 ```
 
