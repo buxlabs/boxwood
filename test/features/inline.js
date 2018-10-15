@@ -22,7 +22,7 @@ equal(compile(`<img src='./placeholder.png' inline>`, {
 
 equal(compile(`<img src='./placeholder.svg' inline>`, {
   paths: [ path.join(__dirname, '../fixtures/images') ]
-})({}, html => html), `<img src="data:image/svg;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
+})({}, html => html), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
 
 equal(compile(`<img src='./placeholder.jpg' inline>`, {
   paths: [ path.join(__dirname, '../fixtures/images') ]
@@ -46,7 +46,7 @@ equal(compile(`<img src='./placeholder.png'>`, {
 equal(compile(`<img src='./placeholder.svg'>`, {
   paths: [ path.join(__dirname, '../fixtures/images') ],
   inline: ['images']
-})({}, html => html), `<img src="data:image/svg;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
+})({}, html => html), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
 
 equal(compile(`<img src='./placeholder.jpg'>`, {
   paths: [ path.join(__dirname, '../fixtures/images') ],

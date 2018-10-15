@@ -306,7 +306,8 @@ function getCondition (attrs, variables) {
 
 function getExtension (value) {
   const parts = value.split('.')
-  return parts[parts.length - 1]
+  const extension = parts[parts.length - 1]
+  return extension === 'svg' ? 'svg+xml' : extension
 }
 
 function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options) {
@@ -445,7 +446,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
           if (attr.key === 'inline') return null
           if (attr.key === 'src') {
             const extension = getExtension(attr.value)
-            const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']
+            const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg+xml']
             if (extensions.includes(extension)) {
                 const path = attr.value
                 findFile(path, options, location => {
