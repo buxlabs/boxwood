@@ -1,6 +1,6 @@
 {
   "name": "@buxlabs/html-engine",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
