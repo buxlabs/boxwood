@@ -24,7 +24,10 @@ function translate (key, language) {
   const translations = {}
   const languages = []
   const index = languages.indexOf(language)
-  return translations[key][index]
+  const translation = translations[key]
+  if (!translation) throw new Error(`There is no translation for the ${key} key`)
+  if (!translation[index]) throw new Error(`There is no translation for the ${key} key in ${language} language`)
+  return translation[index]
 }
 
 function getPropertyKey (value) {
