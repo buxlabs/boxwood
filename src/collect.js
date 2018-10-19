@@ -345,30 +345,63 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       const body = ast.body()
       body.forEach(node => tree.append(node))
     }
-  } else if (tag === 'script' && (keys.includes('inline') || options.inline.includes('scripts'))) {
-    if (keys.includes('src')) {
-      const { value: path } = attrs.find(attr => attr.key === 'src')
-      let content = `<script`
-      fragment.attributes.forEach(attribute => {
-        const { key, value } = attribute
-        if (key !== 'src' && key !== 'inline') {
-          content += ` ${key}="${value}"`
-        }
-      })
-      content += '>'
-      findFile(path, options, location => {
-        content += readFileSync(location, 'utf8')
-        statistics.scripts.push({ path: location })
-      })
-      content += `</script>`
-      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
-    } else {
+  } else if (tag === 'script') {
+    if (keys.includes('inline') || options.inline.includes('scripts')) {
+      if (keys.includes('src')) {
+        const { value: path } = attrs.find(attr => attr.key === 'src')
+        let content = `<script`
+        fragment.attributes.forEach(attribute => {
+          const { key, value } = attribute
+          if (key !== 'src' && key !== 'inline') {
+            content += ` ${key}="${value}"`
+          }
+        })
+        content += '>'
+        findFile(path, options, location => {
+          content += readFileSync(location, 'utf8')
+          statistics.scripts.push({ path: location })
+        })
+        content += `</script>`
+        tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+      } else {
+        const leaf = fragment.children[0]
+        leaf.used = true
+        const ast = new AbstractSyntaxTree(leaf.content)
+        ast.each('VariableDeclarator', node => variables.push(node.id.name))
+        const body = ast.body()
+        body.forEach(node => tree.append(node))
+      }
+    } else if (keys.includes('store')) {
       const leaf = fragment.children[0]
       leaf.used = true
-      const ast = new AbstractSyntaxTree(leaf.content)
-      ast.each('VariableDeclarator', node => variables.push(node.id.name))
-      const body = ast.body()
-      body.forEach(node => tree.append(node))
+      tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
+      tree.append(getTemplateAssignmentExpression(getLiteral('const STORE = ')))
+      tree.append(getTemplateAssignmentExpression({
+        type: "ExpressionStatement",
+        expression: {
+          type: "CallExpression",
+          callee: {
+            type: "MemberExpression",
+            object: {
+              type: "Identifier",
+              name: "JSON"
+            },
+            property: {
+              type: "Identifier",
+              name: "stringify"
+            },
+            computed: false
+          },
+          arguments: [
+            {
+              type: "Identifier",
+              name: OBJECT_VARIABLE
+            }
+          ]
+        }
+      }))
+      tree.append(getTemplateAssignmentExpression(getLiteral(`\n${leaf.content}`)))
+      tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
     }
   } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
     const { value: path } = attrs.find(attr => attr.key === 'href')
