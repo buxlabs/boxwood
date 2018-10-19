@@ -91,8 +91,6 @@ function convertAttribute (name, value, variables, currentModifiers) {
   } else if (name.endsWith('.bind')) {
     const expression = convertToExpression(value)
     return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('.')[0]))
-  } else if (!value) {
-    return getLiteral(name)
   } else {
     return getLiteral(value)
   }
