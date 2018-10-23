@@ -412,6 +412,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     tree.append(getTemplateAssignmentExpression(getLiteral(content)))
   } else if (tag === 'script' && keys.includes('i18n')) {
     const leaf = fragment.children[0]
+    if (!leaf) throw new Error('The translation script cannot be empty')
     leaf.used = true
     if (keys.includes('yaml')) {
       const data = yaml.load(leaf.content)
@@ -527,7 +528,8 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       }
     }
   } else if (fragment.type === 'text') {
-    const nodes = convertText(fragment.content, variables, modifiers)
+    const { languages } = options
+    const nodes = convertText(fragment.content, variables, modifiers, translations, languages)
     return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')

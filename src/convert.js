@@ -258,7 +258,7 @@ function getTemplateNode (expression, variables, unescape) {
   }
 }
 
-function convertText (text, variables, currentModifiers) {
+function convertText (text, variables, currentModifiers, translations, languages) {
   const nodes = extract(text).map(({ value, modifiers = [] }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
@@ -273,7 +273,7 @@ function convertText (text, variables, currentModifiers) {
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), modifiers)
+      return modify(getTemplateNode(expression, variables, unescape), modifiers, translations, languages)
     }
     return getLiteral(value)
   })
@@ -284,7 +284,7 @@ function convertText (text, variables, currentModifiers) {
   return nodes
 }
 
-function modify (node, modifiers) {
+function modify (node, modifiers, translations, languages) {
   if (modifiers) {
     return modifiers.reduce((leaf, modifier) => {
       const tree = new AbstractSyntaxTree(modifier)
@@ -301,6 +301,14 @@ function modify (node, modifiers) {
       }
       const args = [leaf]
       if (modifier === 'translate') {
+        const { type, value } = leaf
+        if (!languages) throw new Error('Compiler option is undefined: languages.')
+        if (type === 'Literal') {
+          if (!translations[value]) throw new Error(`There is no translation for the ${value} key`)
+          languages.forEach((language, index) => {
+            if(!translations[value][index]) throw new Error(`There is no translation for the ${value} key in ${language} language.`)
+          })
+        }
         const expression = {
           type: 'MemberExpression',
           object: {

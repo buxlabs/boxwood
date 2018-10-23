@@ -205,10 +205,11 @@ throws(function () {
 }, /There is no translation for the contact key/)
 
 throws(function () {
-  compile(`
-  <script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script>
-  <div>{foo | translate}</div>
-  `, { languages: ['pl', 'en'] })({ language: 'pl', foo: 'copyright' }, html => html)
-}, /There is no translation for the copyright key/)
+  compile(`<script i18n></script><div>{"foo" | translate}</div>)`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html)
+}, /Translation script cannot be empty/)
+
+throws(function () {
+  compile(`<script i18n yaml></script><div>{"foo" | translate}</div>)`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html)
+}, /Translation script cannot be empty/)
 
 console.timeEnd('i18n')
