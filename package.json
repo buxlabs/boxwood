@@ -51,6 +51,7 @@
   "devDependencies": {
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
+    "handlebars": "^4.0.12",
     "lodash.template": "^4.4.0",
     "mustache": "^3.0.0",
     "standard": "^11.0.1",
