@@ -206,10 +206,10 @@ throws(function () {
 
 throws(function () {
   compile(`<script i18n></script><div>{"foo" | translate}</div>)`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html)
-}, /Translation script cannot be empty/)
+}, /The translation script cannot be empty/)
 
 throws(function () {
   compile(`<script i18n yaml></script><div>{"foo" | translate}</div>)`, { languages: ['pl', 'en'] })({ language: 'en' }, html => html)
-}, /Translation script cannot be empty/)
+}, /The translation script cannot be empty/)
 
 console.timeEnd('i18n')
