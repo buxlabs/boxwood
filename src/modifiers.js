@@ -24,10 +24,7 @@ function translate (key, language) {
   const translations = {}
   const languages = []
   const index = languages.indexOf(language)
-  const translation = translations[key]
-  if (!translation) throw new Error(`There is no translation for the ${key} key`)
-  if (!translation[index]) throw new Error(`There is no translation for the ${key} key in ${language} language`)
-  return translation[index]
+  return translations[key][index]
 }
 
 function getPropertyKey (value) {
@@ -54,7 +51,6 @@ function serializeProperties (translations) {
 }
 
 function serializeLanguages (languages) {
-  if (!languages) { throw new Error('Compiler option is undefined: languages.') }
   return languages.map(language => { return { type: 'Literal', value: language } })
 }
 
