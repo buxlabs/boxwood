@@ -13,7 +13,7 @@ const COLLECTION_UTILITIES = Object.keys(collection)
 const OBJECT_UTILITIES = Object.keys(object)
 const JSON_UTILITIES = Object.keys(json)
 const DATE_UTILITIES = Object.keys(date)
-const { readFileSync } = require('fs')
+const { mergeTranslations } = require('./translations')
 
 function isUnescapedModifier (modifier) {
   const name = getModifierName(extractModifierName(modifier))
@@ -305,7 +305,7 @@ function modify (node, modifiers, translations, languages, translationsPaths) {
         const { type, value } = leaf
         if (!languages) throw new Error('Compiler option is undefined: languages.')
         if (type === 'Literal') {
-          mergeTranslations(value, translations, languages, translationsPaths)
+          translations = mergeTranslations(value, translations, languages, translationsPaths)
         }
         const expression = {
           type: 'MemberExpression',
@@ -331,24 +331,6 @@ function modify (node, modifiers, translations, languages, translationsPaths) {
     }, node)
   }
   return node
-}
-
-function mergeTranslations (key, localTranslations, languages, translationsPaths) {
-  const commonTranslations = {}
-  if (!localTranslations[key] && translationsPaths) {
-    translationsPaths.forEach(path => {
-      const translations = JSON.parse(readFileSync(path, 'utf8'))
-      if (translations[key]) {
-        if (commonTranslations[key]) throw new Error(`Translation already exists in ${path}`)
-        commonTranslations[key] = translations[key]
-      }
-    })
-    localTranslations[key] = commonTranslations[key]
-  }
-  if (!localTranslations[key]) throw new Error(`There is no translation for the ${key} key`)
-  languages.forEach((language, index) => {
-    if(!localTranslations[key][index]) throw new Error(`There is no translation for the ${key} key in ${language} language.`)
-  })
 }
 
 function convertTag (fragment, variables, currentModifiers) {

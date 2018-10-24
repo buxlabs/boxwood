@@ -162,6 +162,10 @@ button.submit:
 <div><translate button.submit /></div>
 `, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
 
+equal(compile(`<div><translate button.submit /></div>
+`, { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.yaml')] })
+({ language: 'pl' }, html => html), `<div>Wyślij</div>`)
+
 equal(compile(`
 <script i18n json>
 {
