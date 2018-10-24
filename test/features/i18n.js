@@ -1,5 +1,6 @@
 const { equal, throws } = require('assert')
 const compile = require('../helpers/compile')
+const path = require('path')
 
 console.time('i18n')
 
@@ -161,6 +162,30 @@ button.submit:
 <div><translate button.submit /></div>
 `, { languages: ['pl', 'en'] })({ language: 'en' }, html => html), `<div>Send</div>`)
 
+equal(compile(`
+<script i18n json>
+{
+  "submit": ["Wyślij Wiadomość", "Send the message"]
+}
+</script>
+<div><translate submit /></div>
+`, { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.json')] })
+({ language: 'en' }, html => html), `<div>Send the message</div>`)
+
+equal(compile(`<div><translate cancel /></div>`, {
+  languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.json')]
+})({ language: 'pl' }, html => html), `<div>anuluj</div>`)
+
+throws(function () {
+  compile(`<div><translate cancel /></div>`, {
+    languages: ['pl', 'en'],
+    translationsPaths: [
+      path.join(__dirname, '../fixtures/translations/translations.json'),
+      path.join(__dirname, '../fixtures/translations/locales.json'),
+    ]
+  })({ language: 'pl' }, html => html)
+}, /Translation already exists in .*/)
+
 throws(function () {
   compile(`
   <script i18n>export default { submit: ['Wyślij', 'Send'] }</script>
@@ -178,6 +203,9 @@ throws(function () {
 throws(function () {
   compile(`
   <script i18n yaml>
+  submit:
+  - Wyślij
+  - Send
   </script>
   <div><translate copyright /></div>
   `, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html)
