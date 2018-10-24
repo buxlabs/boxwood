@@ -13,6 +13,7 @@ const COLLECTION_UTILITIES = Object.keys(collection)
 const OBJECT_UTILITIES = Object.keys(object)
 const JSON_UTILITIES = Object.keys(json)
 const DATE_UTILITIES = Object.keys(date)
+const { mergeTranslations } = require('./translations')
 
 function isUnescapedModifier (modifier) {
   const name = getModifierName(extractModifierName(modifier))
@@ -258,7 +259,7 @@ function getTemplateNode (expression, variables, unescape) {
   }
 }
 
-function convertText (text, variables, currentModifiers, translations, languages) {
+function convertText (text, variables, currentModifiers, translations, languages, translationsPaths) {
   const nodes = extract(text).map(({ value, modifiers = [] }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
@@ -273,7 +274,7 @@ function convertText (text, variables, currentModifiers, translations, languages
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), modifiers, translations, languages)
+      return modify(getTemplateNode(expression, variables, unescape), modifiers, translations, languages, translationsPaths)
     }
     return getLiteral(value)
   })
@@ -284,7 +285,7 @@ function convertText (text, variables, currentModifiers, translations, languages
   return nodes
 }
 
-function modify (node, modifiers, translations, languages) {
+function modify (node, modifiers, translations, languages, translationsPaths) {
   if (modifiers) {
     return modifiers.reduce((leaf, modifier) => {
       const tree = new AbstractSyntaxTree(modifier)
@@ -304,10 +305,7 @@ function modify (node, modifiers, translations, languages) {
         const { type, value } = leaf
         if (!languages) throw new Error('Compiler option is undefined: languages.')
         if (type === 'Literal') {
-          if (!translations[value]) throw new Error(`There is no translation for the ${value} key`)
-          languages.forEach((language, index) => {
-            if(!translations[value][index]) throw new Error(`There is no translation for the ${value} key in ${language} language.`)
-          })
+          translations = mergeTranslations(value, translations, languages, translationsPaths)
         }
         const expression = {
           type: 'MemberExpression',

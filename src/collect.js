@@ -528,8 +528,8 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       }
     }
   } else if (fragment.type === 'text') {
-    const { languages } = options
-    const nodes = convertText(fragment.content, variables, modifiers, translations, languages)
+    const { languages, translationsPaths } = options
+    const nodes = convertText(fragment.content, variables, modifiers, translations, languages, translationsPaths)
     return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
   } else if (tag === 'if') {
     const ast = new AbstractSyntaxTree('')
