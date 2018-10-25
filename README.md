@@ -13,6 +13,8 @@ HTML Engine is a library designed to compile HTML templates into JS. It analyses
 
 The syntax of the template should be easy to read and write. There are two types of tags: curly and html tags.
 
+Status: Alpha
+
 ### Curly Tags
 
 `{name}` is a curly tag
