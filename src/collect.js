@@ -471,6 +471,13 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
           }
         }
       }
+      if (attrs.find(attr => attr.key === 'size')) {
+        const index =  attrs.findIndex(attr => attr.key === 'size')
+        const [width, height] = attrs[index].value.split('x')
+        attrs.push({ key: 'width', value: width })
+        attrs.push({ key: 'height', value: height })
+        attrs.splice(index, 1)
+      }
       setDimension('width')
       setDimension('height')
       if (keys.includes('inline') || options.inline.includes('images')) {
