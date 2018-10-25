@@ -1,6 +1,6 @@
 const { equal } = require('assert')
 const compile = require('../helpers/compile')
-const svelte = require('svelte')
+// const svelte = require('svelte')
 
 console.time('script')
 
