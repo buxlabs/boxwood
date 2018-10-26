@@ -401,6 +401,17 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     }))
     tree.append(getTemplateAssignmentExpression(getLiteral(`\n${leaf.content}`)))
     tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+  } else if (tag === 'script' && keys.includes('compiler')) {
+    const { value } = attrs.find(attr => attr.key === 'compiler')
+    const compiler = options.compilers[value]
+    if (typeof compiler === 'function') {
+      const leaf = fragment.children[0]
+      leaf.used = true
+      const source = compiler(leaf.content)
+      tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
+      tree.append(getTemplateAssignmentExpression(getLiteral(source)))
+      tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+    }
   } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
     const { value: path } = attrs.find(attr => attr.key === 'href')
     let content = '<style>'

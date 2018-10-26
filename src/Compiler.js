@@ -63,7 +63,8 @@ function wrap (template, rescue) {
 class Compiler {
   constructor (options) {
     this.options = Object.assign({
-      inline: []
+      inline: [],
+      compilers: {}
     }, options)
   }
   parse (source) {

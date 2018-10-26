@@ -39,4 +39,11 @@ equal(compile(`
 //   '<script>const STORE = {"getDate": function () {}"}\nconst { getDate } = STORE</script>'
 // )
 
+equal(compile(`
+  <script compiler="foo2bar">const foo = 42</script>`, { compilers: { foo2bar: (sources) => { return sources.replace('foo', 'bar') } } }
+  )({}, html => html),
+  `<script>const bar = 42</script>`
+)
+
+
 console.timeEnd('script')
