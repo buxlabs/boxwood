@@ -405,9 +405,14 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     const { value } = attrs.find(attr => attr.key === 'compiler')
     const compiler = options.compilers[value]
     if (typeof compiler === 'function') {
+      const attr = attrs.find(attr => attr.key === 'options')
+      let params
+      if (attr && attr.value) {
+        params = JSON.parse(attr.value)
+      }
       const leaf = fragment.children[0]
       leaf.used = true
-      const source = compiler(leaf.content)
+      const source = compiler(leaf.content, params)
       tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
       tree.append(getTemplateAssignmentExpression(getLiteral(source)))
       tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))

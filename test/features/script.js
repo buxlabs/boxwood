@@ -1,5 +1,6 @@
 const { equal } = require('assert')
 const compile = require('../helpers/compile')
+const svelte = require('svelte')
 
 console.time('script')
 
@@ -40,10 +41,27 @@ equal(compile(`
 // )
 
 equal(compile(`
-  <script compiler="foo2bar">const foo = 42</script>`, { compilers: { foo2bar: (sources) => { return sources.replace('foo', 'bar') } } }
+  <script compiler="foo2bar">const foo = 42</script>`, { compilers: { foo2bar: (source) => { return source.replace('foo', 'bar') } } }
   )({}, html => html),
   `<script>const bar = 42</script>`
 )
+
+equal(compile(`
+  <script compiler="foo2bar" options='{"baz": "qux"}'>const foo = 42</script>`, { compilers: { foo2bar: (source, options) => { return source.replace('foo', options.baz) } } }
+  )({}, html => html),
+  `<script>const qux = 42</script>`
+)
+
+// equal(compile(`
+//   <script compiler="svelte" options='{"name": "Wizard"}'>import Foo from './Foo.html'</script>`, {
+//     compilers: {
+//       svelte: (source, options) => {
+//         const { js } = svelte.compile(source, { format: 'iife', ...options })
+//         console.log(js.code)
+//         return js.code
+//       }
+//     }
+// })({}, html => html),`<script>const bar = 42</script>`)
 
 
 console.timeEnd('script')
