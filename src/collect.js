@@ -426,7 +426,7 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
     })
     content += '</style>'
     tree.append(getTemplateAssignmentExpression(getLiteral(content)))
-  } else if (tag === 'script' && keys.includes('i18n')) {
+  } else if (tag === 'script' && keys.includes('i18n') || tag === 'i18n') {
     const leaf = fragment.children[0]
     if (!leaf) throw new Error('The translation script cannot be empty')
     leaf.used = true

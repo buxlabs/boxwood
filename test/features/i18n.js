@@ -180,6 +180,15 @@ equal(compile(`<div><translate cancel /></div>`, {
   languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.json')]
 })({ language: 'pl' }, html => html), `<div>anuluj</div>`)
 
+equal(compile(`
+<i18n yaml>
+hello:
+- 'Cześć'
+- 'Hello'
+</i18n>
+<div><translate hello /></div>
+`, { languages: ['pl', 'en'] })({ language: 'pl' }, html => html), `<div>Cześć</div>`)
+
 throws(function () {
   compile(`<div><translate cancel /></div>`, {
     languages: ['pl', 'en'],
