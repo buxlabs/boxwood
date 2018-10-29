@@ -25,7 +25,7 @@ function extract (value) {
   objects = objects.map(object => {
     let value = object.value
     if (value.startsWith('{') && value.endsWith('}')) {
-      if (value.includes('|')) {
+      if (value.includes('|') && !value.includes('||')) {
         value = value.substring(1, value.length - 1)
         let parts = value.split('|').map(string => string.trim())
         object.value = `{${parts[0]}}`

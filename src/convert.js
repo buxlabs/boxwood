@@ -254,6 +254,15 @@ function getTemplateNode (expression, variables, unescape) {
       return node
     })
     return expression
+  } else if (expression.type === 'LogicalExpression') {
+    if (expression.left.type === 'Identifier' && !variables.includes(expression.left.name)) {
+      expression.left = getObjectMemberExpression(expression.left.name)
+    }
+    if (expression.right.type === 'Identifier' && !variables.includes(expression.right.name)) {
+      expression.right = getObjectMemberExpression(expression.right.name)
+    }
+    // TODO: Handle more complex logical expressions
+    return expression
   } else {
     throw new Error(`Expression type: ${expression.type} isn't supported yet.`)
   }
