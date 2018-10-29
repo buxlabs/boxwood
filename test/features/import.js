@@ -122,6 +122,10 @@ equal(compile('<import layout from="./default.html"/><layout></layout>', {
   paths: [ path.join(__dirname, '../fixtures/layouts') ]
 })({}, html => html), '<div class="foo">foo</div><div class="bar">bar</div><div class="header">header</div><div class="baz">baz</div><div class="qux">qux</div><div class="footer">footer</div>')
 
+equal(compile('<import hero from="./hero.html"><hero header="foo" description="bar" />', {
+  paths: [ path.join(__dirname, '../fixtures/partial') ]
+})({}, html => html), '<h1>foo</h1><p>bar</p>')
+
 throws(function () {
   compile(`<partial from='./partial.html'/><partial>`, {})
 }, /Compiler option is undefined: paths\./)

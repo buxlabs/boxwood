@@ -146,9 +146,10 @@ function convertValueToNode (value, variables) {
 function resolveComponent (component, fragment, variables, modifiers, components, statistics, options) {
   const localVariables = fragment.attributes
   let content = component.content
-  localVariables.forEach(variable => {
-    content = content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-  })
+  // TODO: Consider if this small speed up is worth keeping.
+  // localVariables.forEach(variable => {
+  //   content = content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+  // })
   const htmlTree = parse(content)
   const children = fragment.children
   walk(htmlTree, leaf => {
@@ -184,6 +185,7 @@ function resolveComponent (component, fragment, variables, modifiers, components
     }
   })
   fragment.children = htmlTree
+  return { fragment, localVariables }
 }
 
 function appendIfStatement (node, tree, ast, depth) {
@@ -319,7 +321,29 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
   const keys = attrs ? attrs.map(attr => attr.key) : []
   const component = components.find(component => component.name === tag)
   if (component && !fragment.plain) {
-    resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
+    const { localVariables } = resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
+    if (localVariables.length > 0) {
+      tree.append({
+        type: 'VariableDeclaration',
+        declarations: localVariables.map(variable => {
+          return {
+            type: 'VariableDeclarator',
+            id: {
+              type: 'Identifier',
+              name: variable.key
+            },
+            init: {
+              type: 'Literal',
+              value: variable.value
+            }
+          }
+        }),
+        kind: 'var'
+      })
+      localVariables.forEach(variable => {
+        variables.push(variable.key)
+      })
+    }
     const ast = new AbstractSyntaxTree('')
     walk(fragment, current => {
       collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
