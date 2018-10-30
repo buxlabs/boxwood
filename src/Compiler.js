@@ -27,7 +27,7 @@ function render (htmltree, options) {
     collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises)
   })
   return Promise.all(promises)
-    .then((x) => {
+    .then(() => {
       const used = []
       unique(modifiers).forEach(name => {
         const modifier = getModifier(name, translations, options)

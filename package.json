@@ -49,6 +49,7 @@
     "yaml-js": "^0.2.3"
   },
   "devDependencies": {
+    "ava": "^0.25.0",
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
     "handlebars": "^4.0.12",
