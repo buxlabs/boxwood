@@ -312,7 +312,7 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options) {
+function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises) {
   if (fragment.used) return
   depth += 1
   fragment.used = true
