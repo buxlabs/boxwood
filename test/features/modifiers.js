@@ -184,31 +184,30 @@ test('modifiers', async assert => {
   assert.deepEqual(template({ foo: 'Hello <b><i>world!</i></b>' }, escape), 'Hello world!')
 
   template = await compile(`{foo | abs}`)
-  assert.deepEqual(template({ foo: -1 }, escape), 1)
+  assert.deepEqual(template({ foo: -1 }, escape), '1')
 
   template = await compile(`{foo | ceil}`)
-  assert.deepEqual(template({ foo: 1.6 }, escape), 2)
+  assert.deepEqual(template({ foo: 1.6 }, escape), '2')
 
   template = await compile(`{foo | floor}`)
-  assert.deepEqual(template({ foo: 1.6 }, escape), 1)
+  assert.deepEqual(template({ foo: 1.6 }, escape), '1')
 
   template = await compile(`{foo | round}`)
-  assert.deepEqual(template({ foo: 1.4 }, escape), 1)
+  assert.deepEqual(template({ foo: 1.4 }, escape), '1')
 
   template = await compile(`{foo | round}`)
-  assert.deepEqual(template({ foo: 1.6 }, escape), 2)
+  assert.deepEqual(template({ foo: 1.6 }, escape), '2')
 
   template = await compile(`{foo | factorial}`)
-  assert.deepEqual(template({ foo: 3 }, escape), 6)
-
+  assert.deepEqual(template({ foo: 3 }, escape), '6')
   template = await compile(`{foo | square}`)
-  assert.deepEqual(template({ foo: 4 }, escape), 16)
+  assert.deepEqual(template({ foo: 4 }, escape), '16')
 
   template = await compile(`{foo | trunc}`)
-  assert.deepEqual(template({ foo: 13.33 }, escape), 13)
+  assert.deepEqual(template({ foo: 13.33 }, escape), '13')
 
   template = await compile(`{foo | pow(3)}`)
-  assert.deepEqual(template({ foo: 2 }, escape), 8)
+  assert.deepEqual(template({ foo: 2 }, escape), '8')
 
   template = await compile(`{foo | truncate(6)}`)
   assert.deepEqual(template({ foo: 'foobarbaz' }, escape), 'foo...')
@@ -220,52 +219,52 @@ test('modifiers', async assert => {
   assert.deepEqual(template({ foo: 'foo\nbar' }, escape), '0foo\n0bar')
 
   template = await compile(`{foo | max}`)
-  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), 3)
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '3')
 
   template = await compile(`{foo | min}`)
-  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), 1)
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '1')
 
   template = await compile(`{foo | sqrt}`)
-  assert.deepEqual(template({ foo: 4 }, escape), 2)
+  assert.deepEqual(template({ foo: 4 }, escape), '2')
 
   template = await compile(`{foo | add(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 15)
+  assert.deepEqual(template({ foo: 5 }, escape), '15')
 
   template = await compile(`{foo | plus(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 15)
+  assert.deepEqual(template({ foo: 5 }, escape), '15')
 
   template = await compile(`{foo | subtract(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), -5)
+  assert.deepEqual(template({ foo: 5 }, escape), '-5')
 
   template = await compile(`{foo | minus(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), -5)
+  assert.deepEqual(template({ foo: 5 }, escape), '-5')
 
   template = await compile(`{foo | multiply(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 50)
+  assert.deepEqual(template({ foo: 5 }, escape), '50')
 
   template = await compile(`{foo | divide(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 0.5)
+  assert.deepEqual(template({ foo: 5 }, escape), '0.5')
 
   template = await compile(`{foo | modulo(10)}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 5)
+  assert.deepEqual(template({ foo: 5 }, escape), '5')
 
   template = await compile(`{foo | increment}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 6)
+  assert.deepEqual(template({ foo: 5 }, escape), '6')
 
   template = await compile(`{foo | decrement}`)
-  assert.deepEqual(template({ foo: 5 }, escape), 4)
+  assert.deepEqual(template({ foo: 5 }, escape), '4')
 
   template = await compile(`{foo | clamp(2, 8)}`)
-  assert.deepEqual(template({ foo: 10 }, escape), 8)
+  assert.deepEqual(template({ foo: 10 }, escape), '8')
 
   template = await compile(`{foo | clamp(2, 8)}`)
-  assert.deepEqual(template({ foo: 6 }, escape), 6)
+  assert.deepEqual(template({ foo: 6 }, escape), '6')
 
   template = await compile(`{foo | int}`)
-  assert.deepEqual(template({ foo: 10 }, escape), 10)
+  assert.deepEqual(template({ foo: 10 }, escape), '10')
 
   template = await compile(`{foo | float}`)
-  assert.deepEqual(template({ foo: 10.25 }, escape), 10.25)
+  assert.deepEqual(template({ foo: 10.25 }, escape), '10.25')
 
   template = await compile(`{foo | percentage}`)
   assert.deepEqual(template({ foo: 0.25 }, escape), '25%')
@@ -293,31 +292,31 @@ test('modifiers', async assert => {
   // assert.deepEqual(template({ foo: [1, 2, 3, 4]}, escape), [4, 3, 2, 1])
 
   template = await compile(`{foo | size}`)
-  assert.deepEqual(template({ foo: [1, 2, 3, 4]}, escape), 4)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4]}, escape), '4')
 
   template = await compile(`{foo | size}`)
-  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), 3)
+  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), '3')
 
   template = await compile(`{foo | count}`)
-  assert.deepEqual(template({ foo:  'bar' }, escape), 3)
+  assert.deepEqual(template({ foo:  'bar' }, escape), '3')
 
   template = await compile(`{foo | count}`)
-  assert.deepEqual(template({ foo:  [1, 2] }, escape), 2)
+  assert.deepEqual(template({ foo:  [1, 2] }, escape), '2')
 
   template = await compile(`{foo | count}`)
-  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), 3)
+  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), '3')
 
   template = await compile(`{foo | length}`)
-  assert.deepEqual(template({ foo:  'bar' }, escape), 3)
+  assert.deepEqual(template({ foo:  'bar' }, escape), '3')
 
   template = await compile(`{foo | length}`)
-  assert.deepEqual(template({ foo:  [1, 2] }, escape), 2)
+  assert.deepEqual(template({ foo:  [1, 2] }, escape), '2')
 
   template = await compile(`{foo | length}`)
-  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), 3)
+  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), '3')
 
   template = await compile(`{foo | drop(2)}`)
-  assert.deepEqual(template({ foo: [1, 2, 3 ,4] }, html => html), [3, 4])
+  assert.deepEqual(template({ foo: [1, 2, 3 ,4] }, html => html), '3,4')
 
   // template = await compile(`{foo | take(2)}`)ss
   // assert.deepEqual(template({ foo: [1, 2, 3 ,4] }, escape), [1, 2])
@@ -344,87 +343,166 @@ test('modifiers', async assert => {
   assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '{\n    "bar": "baz"\n}')
 
   template = await compile(`{foo | first}`)
-  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), 1)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '1')
 
-  // equal(compile('{foo | second}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '2')
-  // equal(compile('{foo | third}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '3')
-  // equal(compile('{foo | fourth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '4')
-  // equal(compile('{foo | fifth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '5')
-  // equal(compile('{foo | sixth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '6')
-  // equal(compile('{foo | seventh}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '7')
-  // equal(compile('{foo | eigth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '8')
-  // equal(compile('{foo | ninth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '9')
-  // equal(compile('{foo | tenth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '10')
-  // equal(compile('{foo | last}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '10')
-  // equal(compile('{foo | first}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '1')
-  // equal(compile('{foo | second}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '2')
-  // equal(compile('{foo | third}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '3')
-  // equal(compile('{foo | fourth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '4')
-  // equal(compile('{foo | fifth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '5')
-  // equal(compile('{foo | sixth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '6')
-  // equal(compile('{foo | seventh}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '7')
-  // equal(compile('{foo | eigth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '8')
-  // equal(compile('{foo | ninth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '9')
-  // equal(compile('{foo | tenth}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '10')
-  // equal(compile('{foo | last}')({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '10')
-  // equal(compile('{foo | sum}')({ foo: [1, 5, 18] }, escape), '24')
-  // equal(compile('{foo | average}')({ foo: [1, 5, 18] }, escape), '8')
-  // equal(compile('{foo | mean}')({ foo: [1, 5, 18] }, escape), '8')
-  // equal(compile('{foo | median}')({ foo: [18, 5, 1] }, escape), '5')
-  // equal(compile('{foo | sample}')({ foo: [1] }, escape), '1')
-  // equal(compile('{foo | nth(-5)}')({ foo: [1, 2, 3, 4, 5] }, escape), '1')
-  // equal(compile('{foo | nth(3)}')({ foo: [1, 2, 3, 4, 5] }, escape), '3')
-  // equal(compile('{foo | unique}')({ foo: [1, 1, 2, 10, 2, 33] }, escape), [1, 2, 10, 33])
-  // equal(compile('{foo | compact}')({ foo: [0, 1, false, 2, '', 3] }, escape), [1, 2, 3])
-  // equal(compile('{foo | split(",")}')({ foo: 'foo,bar' }, escape), ['foo', 'bar'])
-  // equal(compile('{foo | split(",") | first}')({ foo: 'foo,bar' }, escape), 'foo')
-  // equal(compile('{foo | split(",") | second}')({ foo: 'foo,bar' }, escape), 'bar')
-  // equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: {} } }, escape), 'null')
-  // equal(compile('{foo | dig("bar.baz")}')({ foo: { bar: { baz: 'qux' } } }, escape), 'qux')
-  // equal(compile('{foo | format}')({ foo: new Date('2018/05/25') }, escape), '25-05-2018')
-  // equal(compile('{foo | format("DD.MM.YYYY")}')({ foo: new Date('2018-05-25') }, escape), '25.05.2018')
-  // equal(compile('{foo | format("MM.YYYY")}')({ foo: '2018/05/25' }, escape), '05.2018')
-  // equal(compile('{foo | day}')({ foo: new Date('2018/05/29') }, escape), 29)
-  // equal(compile('{foo | weekday}')({ foo: new Date('2018-05-29') }, escape), 2)
-  // equal(compile('{foo | month}')({ foo: '2018/05/29' }, escape), 4)
-  // equal(compile('{foo | year}')({ foo: '2018/05/29' }, escape), 2018)
-  // equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, escape), 'Friday, 29th of June 2018')
-  // equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, escape), 'Friday, 29th of June 2018')
-  // equal(compile('{foo | prettydate}')({ foo: new Date(2018, 5, 29) }, escape), 'Friday, 29th of June 2018')
-  // equal(compile('{foo | timestamp}')({ foo: new Date(2018, 5, 29) }, escape), '2018-06-29')
-  // equal(compile('{foo | timestamp("YYYY/MM/DD")}')({ foo: new Date(2018, 5, 29) }, escape), '2018/06/29')
-  // equal(compile('{foo | celsius}')({ foo: '70°F' }, escape), '21°C')
-  // equal(compile('{foo | fahrenheit}')({ foo: '21°C' }, escape), '70°F')
-  // equal(compile('{foo | kelvin}')({ foo: '70°F' }, escape), '294K')
-  // equal(compile('{new Date(2018, 5, 29) | prettydate}')({}, escape), 'Friday, 29th of June 2018')
-  // equal(compile('{new Date(foo, bar, baz) | prettydate}')({ foo: 2018, bar: 5, baz: 29 }, escape), 'Friday, 29th of June 2018')
-  // equal(compile('{photos | first | dig("src")}')({
-  // photos: [ { size: '100', src: 'baz' }, { size: '200', src: 'qux' } ]
-  // }, escape), 'baz')
-  // equal(compile('{foo | first | dig("foo.bar.baz")}')({
-  // foo: [ { foo: { bar: { baz: 'qux' } } }, { foo: { bar: { baz: 'quux' } } } ]
-  // }, escape), 'qux')
-  // equal(compile('{foo | values }')({
-  // foo: { bar: 1, baz: 2, ban: 'qux' }
-  // }, escape), [1, 2, 'qux'])
-  // equal(compile('{foo | values | first}')({
-  // foo: { bar: 1, baz: 2, ban: 'qux' }
-  // }, escape), '1')
-  // equal(compile('{foo | keys }')({
-  // foo: { bar: 1, baz: 2, ban: 'qux' }
-  // }, escape), ['bar', 'baz', 'ban'])
-  // equal(compile('{foo | keys | last}')({
-  // foo: { bar: 1, baz: 2, ban: 'qux' }
-  // }, escape), 'ban')
-  // equal(compile('{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}')({foo: 100}, escape), '$100.00')
+  template = await compile(`{foo | second}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '2')
 
-  // equal(compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`, {})({
-  // photos: ['foo.jpg', 'bar.jpg']
-  // }, escape), `<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">`)
+  template = await compile(`{foo | fourth}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '4')
 
-  // equal(compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`, {})({
-  // photos: ['foo.jpg', 'bar.jpg']
-  // }, escape), `<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">`)
+  template = await compile(`{foo | fifth}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '5')
+
+  template = await compile(`{foo | sixth}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '6')
+
+  template = await compile(`{foo | seventh}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '7')
+
+  template = await compile(`{foo | eigth}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '8')
+
+  template = await compile(`{foo | ninth}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '9')
+
+  template = await compile(`{foo | tenth}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '10')
+
+  template = await compile(`{foo | last}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }, escape), '10')
+
+  template = await compile(`{foo | sum}`)
+  assert.deepEqual(template({ foo: [1, 5, 18] }, escape), '24')
+
+  template = await compile(`{foo | last}`)
+  assert.deepEqual(template({ foo: [1, 5, 18] }, escape), '18')
+
+  template = await compile(`{foo | mean}`)
+  assert.deepEqual(template({ foo: [1, 5, 18] }, escape), '8')
+
+  template = await compile(`{foo | median}`)
+  assert.deepEqual(template({ foo: [18, 5, 1] }, escape), '5')
+
+  template = await compile(`{foo | sample}`)
+  assert.deepEqual(template({ foo: [1] }, escape), '1')
+
+  template = await compile(`{foo | nth(-5)}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5] }, escape), '1')
+
+  template = await compile(`{foo | nth(3)}`)
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5] }, escape), '3')
+
+  template = await compile(`{foo | unique}`)
+  assert.deepEqual(template({ foo: [1, 1, 2, 10, 2, 33] }, escape), '1,2,10,33')
+
+  template = await compile(`{foo | compact}`)
+  assert.deepEqual(template({ foo: [0, 1, false, 2, '', 3] }, escape), '1,2,3')
+
+  template = await compile(`{foo | split(",")}`)
+  assert.deepEqual(template({ foo: 'foo,bar' }, escape), 'foo,bar')
+
+  template = await compile(`{foo | split(",") | first}`)
+  assert.deepEqual(template({ foo: 'foo,bar' }, escape), 'foo')
+
+  template = await compile(`{foo | split(",") | second}`)
+  assert.deepEqual(template({ foo: 'foo,bar' }, escape), 'bar')
+
+  template = await compile(`{foo | dig("bar.baz")}`)
+  assert.deepEqual(template({ foo: { bar: {} } }, escape), 'null')
+
+  template = await compile(`{foo | dig("bar.baz")}`)
+  assert.deepEqual(template({ foo: { bar: { baz: 'qux' } } }, escape), 'qux')
+
+  template = await compile(`{foo | format }`)
+  assert.deepEqual(template({ foo: new Date('2018/05/25') }, escape), '25-05-2018')
+
+  template = await compile(`{foo | format("DD.MM.YYYY") }`)
+  assert.deepEqual(template({ foo: new Date('2018/05/25') }, escape), '25.05.2018')
+
+  template = await compile(`{foo | format("MM.YYYY") }`)
+  assert.deepEqual(template({ foo: '2018/05/25' }, escape), '05.2018')
+
+  template = await compile(`{foo | day }`)
+  assert.deepEqual(template({ foo: '2018/05/29' }, escape), '29')
+
+  template = await compile(`{foo | weekday }`)
+  assert.deepEqual(template({ foo: new Date('2018-05-29') }, escape), '2')
+
+  template = await compile(`{foo | month }`)
+  assert.deepEqual(template({ foo: new Date('2018-05-29') }, escape), '4')
+
+  template = await compile(`{foo | year }`)
+  assert.deepEqual(template({ foo: new Date('2018-05-29') }, escape), '2018')
+
+  template = await compile(`{foo | prettydate }`)
+  assert.deepEqual(template({ foo: new Date(2018, 5, 29) }, escape), 'Friday, 29th of June 2018')
+
+  template = await compile(`{foo | timestamp }`)
+  assert.deepEqual(template({ foo: new Date(2018, 5, 29) }, escape), '2018-06-29')
+
+  template = await compile(`{foo | timestamp("YYYY/MM/DD") }`)
+  assert.deepEqual(template({ foo: new Date(2018, 5, 29) }, escape), '2018/06/29')
+
+  template = await compile(`{foo | celsius }`)
+  assert.deepEqual(template({ foo: '70°F' }, escape), '21°C')
+
+  template = await compile(`{foo | fahrenheit }`)
+  assert.deepEqual(template({ foo: '21°C' }, escape), '70°F')
+
+  template = await compile(`{foo | fahrenheit }`)
+  assert.deepEqual(template({ foo: '21°C' }, escape), '70°F')
+
+  template = await compile(`{foo | kelvin }`)
+  assert.deepEqual(template({ foo: '70°F' }, escape), '294K')
+
+  template = await compile(`{new Date(2018, 5, 29) | prettydate}`)
+  assert.deepEqual(template({}, escape), 'Friday, 29th of June 2018')
+
+  template = await compile(`{new Date(foo, bar, baz) | prettydate}`)
+  assert.deepEqual(template({ foo: 2018, bar: 5, baz: 29 }, escape), 'Friday, 29th of June 2018')
+
+  template = await compile(`{photos | first | dig("src")}`)
+  assert.deepEqual(template({
+    photos:
+    [
+      { size: '100', src: 'baz' },
+      { size: '200', src: 'qux' }
+    ]
+  }, escape), 'baz')
+
+  template = await compile(`{foo | first | dig("foo.bar.baz")}`)
+  assert.deepEqual(template({
+    foo:
+    [
+      { foo: { bar: { baz: 'qux' } } },
+      { foo: { bar: { baz: 'quux' } } }
+    ]
+  }, escape), 'qux')
+
+  template = await compile(`{foo | values }`)
+  assert.deepEqual(template({ foo: { bar: 1, baz: 2, ban: 'qux' } }, escape), '1,2,qux')
+
+  template = await compile(`{foo | values | first}`)
+  assert.deepEqual(template({ foo: { bar: 1, baz: 2, ban: 'qux' } }, escape), '1')
+
+  template = await compile(`{foo | keys}`)
+  assert.deepEqual(template({ foo: { bar: 1, baz: 2, ban: 'qux' } }, escape), 'bar,baz,ban')
+
+  template = await compile(`{foo | keys}`)
+  assert.deepEqual(template({ foo: { bar: 1, baz: 2, ban: 'qux' } }, escape), 'bar,baz,ban')
+
+  template = await compile(`{foo | keys | last}`)
+  assert.deepEqual(template({ foo: { bar: 1, baz: 2, ban: 'qux' } }, escape), 'ban')
+
+  template = await compile(`{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}`)
+  assert.deepEqual(template({ foo: 100 }, escape), '$100.00')
+
+  template = await compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`)
+  assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
+
+  template = await compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`)
+  assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
 
   console.timeEnd('modifiers')
 })
