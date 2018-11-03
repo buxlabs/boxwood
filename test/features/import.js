@@ -1,153 +1,241 @@
-const { equal, deepStrictEqual, throws } = require('assert')
-const compile = require('../helpers/compile')
-const path = require('path')
-const { readFileSync } = require('fs')
+import test from 'ava'
+import compile from '../helpers/compile'
+import path from 'path'
 
-console.time('import')
+test('import', async assert => {
+  let template
+  console.time('import')
 
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<html><body><aside>foo</aside>bar</body></html>')
+  template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`,
+    { paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<html><body><aside>foo</aside>bar</body></html>')
 
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<html><body><aside>foo</aside>bar</body></html>')
+  template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
+   paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<html><body><aside>foo</aside>bar</body></html>')
 
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header></sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<html><body><aside><div>foo</div></aside>bar</body></html>')
+  template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<html><body><aside>foo</aside>bar</body></html>')
 
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header><header>foo</header></sidebar>baz</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<html><body><aside><div>foo</div><div>foo</div></aside>baz</body></html>')
+  template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header></sidebar>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<html><body><aside><div>foo</div></aside>bar</body></html>')
 
-equal(compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import button from='./button.html'/><layout><sidebar><button>foo</button></sidebar>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<html><body><aside><button class="btn btn-primary">foo</button></aside>bar</body></html>')
+  template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import header from='./header.html'/><layout><sidebar><header>foo</header><header>foo</header></sidebar>baz</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<html><body><aside><div>foo</div><div>foo</div></aside>baz</body></html>')
 
-equal(compile(`<import button from="./button.html"/><button>foo</button>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
+  template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><import button from='./button.html'/><layout><sidebar><button>foo</button></sidebar>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<html><body><aside><button class="btn btn-primary">foo</button></aside>bar</body></html>')
 
-equal(compile(`<import button from="./button.html"/><button>foo</button><button>bar</button>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
+  template = await compile(`<import button from="./button.html"/><button>foo</button>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
+  template = await compile(`<import button from="./button.html"/><button>foo</button><button>bar</button>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<button class="btn btn-primary">foo</button><button class="btn btn-primary">bar</button>')
 
-equal(compile(`<import button from='./button.html'/><button>foo</button>`, {
-  paths: [ path.join(__dirname, '../fixtures/import'), path.join(__dirname, '../fixtures/partial') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
+  template = await compile(`<import button from='./button.html'/><button>foo</button>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<require button from="./button.html"/><button>foo</button>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<button class="btn btn-primary">foo</button>')
+  template = await compile(`<import button from='./button.html'/><button>foo</button>`, {
+    paths: [ path.join(__dirname, '../fixtures/import'), path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<import header from="./header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
-  paths: [ path.join(__dirname, '../fixtures/slots') ]
-})({}, html => html), '<header><h1>foo</h1><h2>bar</h2></header>')
-equal(compile(`<import header from="./header.html"/><header><slot title>foo</slot></header>`, {
-  paths: [ path.join(__dirname, '../fixtures/slots') ]
-})({}, html => html), '<header><h1>foo</h1><h2></h2></header>')
-equal(compile(`<import header from="./header.html"/><header></header>`, {
-  paths: [ path.join(__dirname, '../fixtures/slots') ]
-})({}, html => html), '<header><h1></h1><h2></h2></header>')
+  template = await compile(`<require button from="./button.html"/><button>foo</button>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<button class="btn btn-primary">foo</button>')
 
-equal(compile(`<import header from="./header.html"/><header></header>`, {
-  paths: [ path.join(__dirname, '../fixtures/yields') ]
-})({}, html => html), '<header><h1></h1><h2></h2></header>')
+  template = await compile(`<import header from="./header.html"/><header><slot title>foo</slot><slot subtitle>bar</slot></header>`, {
+    paths: [ path.join(__dirname, '../fixtures/slots') ]
+  })
+  assert.deepEqual(template({}), '<header><h1>foo</h1><h2>bar</h2></header>')
 
-equal(compile(`<import select from="./select.html"/><select></select>`, {
-  paths: [ path.join(__dirname, '../fixtures/select') ]
-})({}, html => html), `<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>`)
+  template = await compile(`<import header from="./header.html"/><header><slot title>foo</slot></header>`, {
+    paths: [ path.join(__dirname, '../fixtures/slots') ]
+  })
+  assert.deepEqual(template({}), '<header><h1>foo</h1><h2></h2></header>')
 
-equal(compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
+  template = await compile(`<import header from="./header.html"/><header></header>`, {
+    paths: [ path.join(__dirname, '../fixtures/slots') ]
+  })
+  assert.deepEqual(template({}), '<header><h1></h1><h2></h2></header>')
 
-equal(compile(`<import layout from='./layout-with-render.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
+  template = await compile(`<import header from="./header.html"/><header></header>`, {
+    paths: [ path.join(__dirname, '../fixtures/yields') ]
+  })
+  assert.deepEqual(template({}), '<header><h1></h1><h2></h2></header>')
 
-equal(compile(`<import layout from='./layout-with-require.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<div>foo</div><main>bar</main><div>baz</div>')
+  template = await compile(`<import select from="./select.html"/><select></select>`, {
+    paths: [ path.join(__dirname, '../fixtures/select') ]
+  })
+  assert.deepEqual(template({}), '<select class="form-control" name="type"><option value="offer" selected>offer</option><option value="search">search</option></select>')
 
+  template = await compile(`<import layout from='./layout.html'/><layout>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<div>foo</div><main>bar</main><div>baz</div>')
 
-equal(compile(`<import layout from='./layout-with-partial-attribute.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
+  template = await compile(`<import layout from='./layout-with-render.html'/><layout>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
 
-equal(compile(`<import layout from='./layout-with-partial.html'/><layout>bar</layout>`, {
-  paths: [ path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
+  template = await compile(`<import layout from='./layout-with-require.html'/><layout>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<div>foo</div><main>bar</main><div>baz</div>')
 
-equal(compile(`<partial from="./terms.html"></partial>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({}, html => html), '<div>foo bar baz</div>')
-equal(compile(`<partial from="./footer.html"></partial>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({}, html => html), '<div>foo</div><footer>bar</footer>')
-equal(compile(`<partial from="./header.html"></partial>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<partial from="./header.html">`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<partial from="./header.html" />`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({ title: 'foo' }, html => html), '<div>foo</div>')
+  template = await compile(`<import layout from='./layout-with-partial-attribute.html'/><layout>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
 
-equal(compile(`<render partial="./terms.html"></render>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({}, html => html), '<div>foo bar baz</div>')
-equal(compile(`<render partial="./footer.html"></render>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({}, html => html), '<div>foo</div><footer>bar</footer>')
-equal(compile(`<render partial="./header.html"></render>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<render partial="./header.html">`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({ title: 'foo' }, html => html), '<div>foo</div>')
-equal(compile(`<render partial="./header.html" />`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({ title: 'foo' }, html => html), '<div>foo</div>')
+  template = await compile(`<import layout from='./layout-with-partial.html'/><layout>bar</layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(template({}), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
 
-equal(compile(`<head partial="./head.html"></head>`, { paths: [ path.join(__dirname, '../fixtures/partial') ] })({}, html => html), '<head><meta charset="utf-8"></head>')
+  template = await compile(`<partial from="./terms.html"></partial>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}), '<div>foo bar baz</div>')
 
-equal(compile(`<import icon from="./icon.html" /><icon foo="bar"></icon>`, {
-  paths: [ path.join(__dirname, '../fixtures/partial') ]
-})({}, html => html), '<span class="glyphicon glyphicon-bar"></span>')
+  template = await compile(`<partial from="./footer.html"></partial>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
 
-equal(compile(`<import icon from="./icon.html" /><icon foo="bar"></icon><icon foo="baz"></icon>`, {
-  paths: [ path.join(__dirname, '../fixtures/partial') ]
-})({}, html => html), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
+  template = await compile(`<partial from="./header.html"></partial>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
 
-equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
-  paths: [ path.join(__dirname, '../fixtures/import'), path.join(__dirname, '../fixtures/partial') ]
-})({}, html => html), '<input type="checkbox">')
+  template = await compile(`<partial from="./header.html">`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
 
-equal(compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
-  paths: [ path.join(__dirname, '../fixtures/partial'), path.join(__dirname, '../fixtures/import') ]
-})({}, html => html), '<input type="checkbox">')
+  template = await compile(`<partial from="./header.html" />`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
 
-equal(compile('<import meta from="./meta.html"><content for title>foo</content><meta></meta>', {
-  paths: [ path.join(__dirname, '../fixtures/partial') ]
-})({}, html => html), '<title>foo</title>')
+   template = await compile(`<render partial="./terms.html"></render>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}), '<div>foo bar baz</div>')
 
-equal(compile('<import layout from="./default.html"/><layout></layout>', {
-  paths: [ path.join(__dirname, '../fixtures/layouts') ]
-})({}, html => html), '<div class="foo">foo</div><div class="bar">bar</div><div class="header">header</div><div class="baz">baz</div><div class="qux">qux</div><div class="footer">footer</div>')
+  template = await compile(`<render partial="./footer.html"></render>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
 
-equal(compile('<import hero from="./hero.html"><hero header="foo" description="bar" />', {
-  paths: [ path.join(__dirname, '../fixtures/partial') ]
-})({}, html => html), '<h1>foo</h1><p>bar</p>')
+  template = await compile(`<render partial="./header.html"></render>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
 
-throws(function () {
-  compile(`<partial from='./partial.html'/><partial>`, {})
-}, /Compiler option is undefined: paths\./)
+  template = await compile(`<render partial="./header.html">`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
 
-throws(function () {
-  compile(`<partial from='./partial.html'/><partial>`, { paths: [] })
-}, /Asset not found: \.\/partial\.html/)
+  template = await compile(`<render partial="./header.html" />`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
 
-throws(function () {
-  compile(`<div partial='./partial.html'/><div>`, {})
-}, /Compiler option is undefined: paths\./)
+  template = await compile(`<head partial="./head.html"></head>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<head><meta charset="utf-8"></head>')
 
-throws(function () {
-  compile(`<div partial='./partial.html'/><div>`, { paths: [] })
-}, /Asset not found: \.\/partial\.html/)
+  template = await compile(`<import icon from="./icon.html" /><icon foo="bar"></icon>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<span class="glyphicon glyphicon-bar"></span>')
 
-throws(function () {
-  compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})
-}, /Compiler option is undefined: paths\./)
+  template = await compile(`<import icon from="./icon.html" /><icon foo="bar"></icon><icon foo="baz"></icon>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
 
-throws(function () {
-  compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] })
-}, /Asset not found: \.\/checkbox\.html/)
+  template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
+    paths: [ path.join(__dirname, '../fixtures/import'), path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<input type="checkbox">')
 
-console.timeEnd('import')
+  template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
+    paths: [ path.join(__dirname, '../fixtures/import'), path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<input type="checkbox">')
+
+  template = await compile(`<import meta from="./meta.html"><content for title>foo</content><meta></meta>`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<title>foo</title>')
+
+  template = await compile(`<import layout from="./default.html"/><layout></layout>`, {
+    paths: [ path.join(__dirname, '../fixtures/layouts') ]
+  })
+  assert.deepEqual(template({}, html => html), '<div class="foo">foo</div><div class="bar">bar</div><div class="header">header</div><div class="baz">baz</div><div class="qux">qux</div><div class="footer">footer</div>')
+
+  template = await compile(`<import hero from="./hero.html"><hero header="foo" description="bar" />`, {
+    paths: [ path.join(__dirname, '../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, html => html), '<h1>foo</h1><p>bar</p>')
+
+  try {
+    template = await compile(`<partial from='./partial.html'/><partial>`, {})
+  } catch (error) {
+    assert.regex(error.message, /Compiler option is undefined: paths\./)
+  }
+
+  try {
+    template = await compile(`<partial from='./partial.html'/><partial>`, { paths: [] })
+  } catch (error) {
+    assert.regex(error.message, /Asset not found: \.\/partial\.html/)
+  }
+
+  try {
+    template = await compile(`<div partial='./partial.html'/><div>`, {})
+  } catch (error) {
+    assert.regex(error.message, /Compiler option is undefined: paths\./)
+  }
+
+  try {
+    template = await compile(`<div partial='./partial.html'/><div>`, { paths: [] })
+  } catch (error) {
+    assert.regex(error.message, /Asset not found: \.\/partial\.html/)
+  }
+
+  try {
+    template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})
+  } catch (error) {
+    assert.regex(error.message, /Compiler option is undefined: paths\./)
+  }
+
+  try {
+    template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] })
+  } catch (error) {
+    assert.regex(error.message, /Asset not found: \.\/checkbox\.html/)
+  }
+
+  console.timeEnd('import')
+})
