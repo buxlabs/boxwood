@@ -17,24 +17,28 @@ function render (htmltree, options) {
   ].concat(GLOBAL_VARIABLES)
   const modifiers = []
   const components = []
+  const promises = []
   const statistics = new Statistics()
   const store = {}
   const translations = {}
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options)
+    collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises)
   })
-  const used = []
-  unique(modifiers).forEach(name => {
-    const modifier = getModifier(name, translations, options)
-    if (modifier && !used.includes(modifier.id.name)) {
-      tree.prepend(modifier)
-      used.push(modifier.id.name)
-    }
-  })
-  tree.append(getTemplateReturnStatement())
-  return { tree, components, statistics }
+  return Promise.all(promises)
+    .then(() => {
+      const used = []
+      unique(modifiers).forEach(name => {
+        const modifier = getModifier(name, translations, options)
+        if (modifier && !used.includes(modifier.id.name)) {
+          tree.prepend(modifier)
+          used.push(modifier.id.name)
+        }
+      })
+      tree.append(getTemplateReturnStatement())
+      return { tree, components, statistics }
+    })
 }
 
 function wrap (template, rescue) {
@@ -80,10 +84,12 @@ class Compiler {
     return { template, rescue }
   }
   transform ({ template, rescue }) {
-    return {
-      template: render(template, this.options),
-      rescue: rescue ? render(rescue, this.options) : null
+    const promises = []
+    promises.push(render(template, this.options))
+    if (rescue) {
+      promises.push(render(rescue, this.options))
     }
+    return Promise.all(promises)
   }
   generate ({ template, rescue }) {
     const statistics = template.statistics
