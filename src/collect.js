@@ -27,6 +27,7 @@ const { parse } = require('himalaya')
 const yaml = require('yaml-js')
 const size = require('image-size')
 const { normalize } = require('./array')
+let asyncCounter = 0
 
 const digits = new Map([
   ['zero', 0],
@@ -442,12 +443,14 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         tree.append(getTemplateAssignmentExpression(getLiteral(result)))
         tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
       } else if (result instanceof Promise) {
-        tree.append(getLiteral(`ASYNC_PLACEHOLDER_1`))
+        asyncCounter += 1
+        const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
+        tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
         const source = await result
         tree.walk((node, parent) => {
-          if (node.type === 'Literal' && node.value === `ASYNC_PLACEHOLDER_1`) {
+          if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
             const index = parent.body.findIndex(element => {
-              return element.type === 'Literal' && node.value === `ASYNC_PLACEHOLDER_1`
+              return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
             })
             parent.body.splice(index, 1)
             parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(getLiteral('<script>')))
