@@ -312,7 +312,7 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises) {
+async function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options) {
   if (fragment.used) return
   depth += 1
   fragment.used = true
@@ -436,10 +436,27 @@ function collect (tree, fragment, variables, modifiers, components, statistics, 
       }
       const leaf = fragment.children[0]
       leaf.used = true
-      const source = compiler(leaf.content, params)
-      tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
-      tree.append(getTemplateAssignmentExpression(getLiteral(source)))
-      tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+      const result = compiler(leaf.content, params)
+      if (typeof result === 'string') {
+        tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
+        tree.append(getTemplateAssignmentExpression(getLiteral(result)))
+        tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+      } else if (result instanceof Promise) {
+        tree.append(getLiteral(`ASYNC_PLACEHOLDER_1`))
+        const source = await result
+        tree.walk((node, parent) => {
+          if (node.type === 'Literal' && node.value === `ASYNC_PLACEHOLDER_1`) {
+            const index = parent.body.findIndex(element => {
+              return element.type === 'Literal' && node.value === `ASYNC_PLACEHOLDER_1`
+            })
+            parent.body.splice(index, 1)
+            parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(getLiteral('<script>')))
+            parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(getLiteral(source)))
+            parent.body.splice(index + 2, 0, getTemplateAssignmentExpression(getLiteral('</script>')))
+          }
+        })
+      }
+
     }
   } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
     const { value: path } = attrs.find(attr => attr.key === 'href')

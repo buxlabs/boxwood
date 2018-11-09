@@ -46,6 +46,30 @@ test('script', async assert => {
   template = await compile(`<script compiler="foo2bar" options='{"baz": "qux"}'>const foo = 42</script>`, { compilers: { foo2bar: (source, options) => { return source.replace('foo', options.baz) } } })
   assert.deepEqual(template({}, html => html), '<script>const qux = 42</script>')
 
+  template = await compile(`<script compiler="async">const foo = 42</script>`, {
+    compilers: {
+      async: (source) => {
+        return new Promise(resolve => {
+          resolve(source.replace('foo', 'bar'))
+        })
+      }
+    }
+  })
+
+  assert.deepEqual(template({}, html => html), '<script>const bar = 42</script>')
+
+  template = await compile(`<div>foo</div><script compiler="async">const bar = 42</script><div>baz</div>`, {
+    compilers: {
+      async: (source) => {
+        return new Promise(resolve => {
+          resolve(source.replace('bar', 'qux'))
+        })
+      }
+    }
+  })
+
+  assert.deepEqual(template({}, html => html), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
+
   // equal(compile(`
   //   <script compiler="svelte" options='{"name": "Wizard"}'>import Foo from './Foo.html'</script>`, {
   //     compilers: {

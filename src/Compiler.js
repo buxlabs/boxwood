@@ -8,7 +8,7 @@ const { getModifier } = require('./modifiers')
 const { array: { unique } } = require('pure-utilities')
 const Statistics = require('./Statistics')
 
-function render (htmltree, options) {
+async function render (htmltree, options) {
   const tree = new AbstractSyntaxTree('')
   const variables = [
     TEMPLATE_VARIABLE,
@@ -17,28 +17,24 @@ function render (htmltree, options) {
   ].concat(GLOBAL_VARIABLES)
   const modifiers = []
   const components = []
-  const promises = []
   const statistics = new Statistics()
   const store = {}
   const translations = {}
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
-  walk(htmltree, fragment => {
-    collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises)
+  await walk(htmltree, async fragment => {
+    await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options)
   })
-  return Promise.all(promises)
-    .then(() => {
-      const used = []
-      unique(modifiers).forEach(name => {
-        const modifier = getModifier(name, translations, options)
-        if (modifier && !used.includes(modifier.id.name)) {
-          tree.prepend(modifier)
-          used.push(modifier.id.name)
-        }
-      })
-      tree.append(getTemplateReturnStatement())
-      return { tree, components, statistics }
-    })
+  const used = []
+  unique(modifiers).forEach(name => {
+    const modifier = getModifier(name, translations, options)
+    if (modifier && !used.includes(modifier.id.name)) {
+      tree.prepend(modifier)
+      used.push(modifier.id.name)
+    }
+  })
+  tree.append(getTemplateReturnStatement())
+  return { tree, components, statistics }
 }
 
 function wrap (template, rescue) {
@@ -68,7 +64,8 @@ class Compiler {
   constructor (options) {
     this.options = Object.assign({
       inline: [],
-      compilers: {}
+      compilers: {},
+      languages: []
     }, options)
   }
   parse (source) {
@@ -83,13 +80,13 @@ class Compiler {
     template = parse(source)
     return { template, rescue }
   }
-  transform ({ template, rescue }) {
-    const promises = []
-    promises.push(render(template, this.options))
+  async transform ({ template, rescue }) {
+    let templateResult, rescueResult
+    templateResult = await render(template, this.options)
     if (rescue) {
-      promises.push(render(rescue, this.options))
+      rescueResult = await render(rescue, this.options)
     }
-    return Promise.all(promises)
+    return [templateResult, rescueResult]
   }
   generate ({ template, rescue }) {
     const statistics = template.statistics
