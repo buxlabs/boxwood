@@ -21,12 +21,14 @@ async function render (htmltree, options) {
   const statistics = new Statistics()
   const store = {}
   const translations = {}
+  const promises = []
   const errors = []
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, async fragment => {
-    await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+    await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
   })
+  await Promise.all(promises)
   const used = []
   unique(modifiers).forEach(name => {
     const modifier = getModifier(name, translations, options)

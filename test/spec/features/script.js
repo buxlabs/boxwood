@@ -1,6 +1,14 @@
 import test from 'ava'
 import compile from '../../helpers/compile'
-// const svelte = require('svelte')
+import { rollup } from 'rollup'
+import svelte from 'rollup-plugin-svelte'
+import { readFileSync, writeFileSync, unlinkSync } from 'fs'
+import { tmpdir } from 'os'
+import { join } from 'path'
+
+function normalize (string) {
+  return string.replace(/\s+/g, '')
+}
 
 test('script', async assert => {
   let template
@@ -39,10 +47,6 @@ test('script', async assert => {
   template = await compile('<script compiler="foo2bar">const foo = 42</script>', { compilers: { foo2bar: (source) => { return source.replace('foo', 'bar') } } })
   assert.deepEqual(template({}, html => html), '<script>const bar = 42</script>')
 
-  // equal(compile('<script store>const { getDate } = STORE</script>')({ getDate: function () {} }, html => html),
-  //   '<script>const STORE = {"getDate": function () {}"}\nconst { getDate } = STORE</script>'
-  // )
-
   template = await compile(`<script compiler="foo2bar" options='{"baz": "qux"}'>const foo = 42</script>`, { compilers: { foo2bar: (source, options) => { return source.replace('foo', options.baz) } } })
   assert.deepEqual(template({}, html => html), '<script>const qux = 42</script>')
 
@@ -58,11 +62,13 @@ test('script', async assert => {
 
   assert.deepEqual(template({}, html => html), '<script>const bar = 42</script>')
 
-  template = await compile(`<div>foo</div><script compiler="async">const bar = 42</script><div>baz</div>`, {
+  template = await compile(`<div>foo</div><script compiler="bar2qux">const bar = 42</script><div>baz</div>`, {
     compilers: {
-      async: (source) => {
+      bar2qux: (source) => {
         return new Promise(resolve => {
-          resolve(source.replace('bar', 'qux'))
+          setTimeout(() => {
+            resolve(source.replace('bar', 'qux'))
+          }, 5)
         })
       }
     }
@@ -70,16 +76,42 @@ test('script', async assert => {
 
   assert.deepEqual(template({}, html => html), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
 
-  // equal(compile(`
-  //   <script compiler="svelte" options='{"name": "Wizard"}'>import Foo from './Foo.html'</script>`, {
-  //     compilers: {
-  //       svelte: (source, options) => {
-  //         const { js } = svelte.compile(source, { format: 'iife', ...options })
-  //         console.log(js.code)
-  //         return js.code
-  //       }
-  //     }
-  // })({}, html => html),`<script>const bar = 42</script>`)
+  template = await compile(`
+    <script compiler="rollup">console.log('x')</script>`, {
+    compilers: {
+      rollup: async (source, options) => {
+        const input = join(tmpdir(), 'rollup.js')
+        writeFileSync(input, source)
+        const bundle = await rollup({ input })
+        unlinkSync(input)
+        const { code } = await bundle.generate({
+          format: 'iife'
+        })
+        return code
+      }
+    }
+  })
+
+  assert.deepEqual(normalize(template({}, html => html)), normalize(`<script>(function () { 'use strict'; console.log('x'); }());</script>`))
+
+  template = await compile(`
+    <script compiler="svelte">import Foo from './Foo.html'; const target = document.getElementById('app'); new Foo({ target });</script>`, {
+    compilers: {
+      svelte: async (source, options) => {
+        const input = join(__dirname, '../../fixtures/svelte', 'actual.js')
+        writeFileSync(input, source)
+        const bundle = await rollup({ input, plugins: [ svelte() ] })
+        unlinkSync(input)
+        const { code } = await bundle.generate({
+          format: 'iife'
+        })
+        writeFileSync(join(__dirname, '../../fixtures/svelte', 'expected.js'), code)
+        return code
+      }
+    }
+  })
+
+  assert.deepEqual(normalize(template({}, html => html)), normalize('<script>' + readFileSync(join(__dirname, '../../fixtures/svelte', 'expected.js'), 'utf8')) + '</script>')
 
   console.timeEnd('script')
 })
