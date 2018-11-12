@@ -340,6 +340,7 @@ async function collect (tree, fragment, variables, modifiers, components, statis
     const attrs = fragment.attributes
     const keys = attrs ? attrs.map(attr => attr.key) : []
     const component = components.find(component => component.name === tag)
+    const { languages, translationsPaths } = options
     if (component && !fragment.plain) {
       const { localVariables } = resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
       if (localVariables.length > 0) {
@@ -573,7 +574,7 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         }
       }
       collectComponentsFromPartialAttribute(fragment, statistics, options)
-      const nodes = convertTag(fragment, variables, modifiers)
+      const nodes = convertTag(fragment, variables, modifiers, translations, languages, translationsPaths)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
           node.depth = depth
@@ -596,7 +597,6 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         }
       }
     } else if (fragment.type === 'text') {
-      const { languages, translationsPaths } = options
       const nodes = convertText(fragment.content, variables, modifiers, translations, languages, translationsPaths)
       return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
     } else if (tag === 'if') {
@@ -659,7 +659,7 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         }
         const variable = left.key
         let parent = operator.value || `{${right.key}}`
-        const name = convertAttribute('html', parent, variables)
+        const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
 
         variables.push(variable)
         parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
@@ -684,7 +684,7 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         variables.push(valueIdentifier)
 
         let parent = operator.value || `{${right.key}}`
-        const name = convertAttribute('html', parent, variables)
+        const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
         ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
         walk(fragment, async current => {
