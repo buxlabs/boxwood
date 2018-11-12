@@ -1,12 +1,12 @@
-import t from 'ava'
+import test from 'ava'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import compile from '../helpers/compile'
 
-t('examples', async assert => {
+test('examples', async assert => {
   console.time('examples')
-  await test('fizzbuzz', {}, assert)
-  await test('grid', {
+  await suite('fizzbuzz', {}, assert)
+  await suite('grid', {
     collection: {
       each: callback => {
         const elements = [1, 2, 3, 4]
@@ -21,7 +21,7 @@ function normalize (string) {
   return string.replace(/\s+/g, '')
 }
 
-async function test (name, data = {}, assert) {
+async function suite (name, data = {}, assert) {
   const dir = join(__dirname, 'fixtures/examples')
   const file1 = join(dir, name, 'actual.html')
   const file2 = join(dir, name, 'expected.html')
