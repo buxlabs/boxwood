@@ -1,7 +1,7 @@
 import t from 'ava'
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import compile from './helpers/compile'
+import compile from '../helpers/compile'
 
 t('examples', async assert => {
   console.time('examples')

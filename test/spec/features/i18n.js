@@ -1,5 +1,5 @@
 import test from 'ava'
-import compile from '../helpers/compile'
+import compile from '../../helpers/compile'
 import path from 'path'
 
 test('i18n', async assert => {
@@ -176,19 +176,19 @@ test('i18n', async assert => {
 
   template = await compile(
     `<div><translate button.submit /></div>`,
-    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.yaml')] }
+    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.yaml')] }
   )
   assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
 
   template = await compile(
     `<script i18n json>{"submit": ["Wyślij Wiadomość", "Send the message"]}</script><div><translate submit /></div>`,
-    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.json')] }
+    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
   )
   assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send the message</div>')
 
   template = await compile(
     `<div><translate cancel /></div>`,
-    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../fixtures/translations/translations.json')] }
+    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
   )
   assert.deepEqual(template({ language: 'pl' }, html => html), '<div>anuluj</div>')
 
@@ -207,8 +207,8 @@ test('i18n', async assert => {
   //   template = await compile('<div><translate cancel /></div>', {
   //     languages: ['pl', 'en'],
   //     translationsPaths: [
-  //       path.join(__dirname, '../fixtures/translations/translations.json'),
-  //       path.join(__dirname, '../fixtures/translations/locales.json'),
+  //       path.join(__dirname, '../../fixtures/translations/translations.json'),
+  //       path.join(__dirname, '../../fixtures/translations/locales.json'),
   //     ]
   //   })
   //   template({ language: 'pl' }, html => html)

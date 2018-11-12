@@ -1,5 +1,5 @@
 import test from 'ava'
-import compile from './helpers/compile'
+import compile from '../helpers/compile'
 
 test('basic', async assert => {
   console.time('basic')

@@ -1,5 +1,5 @@
 import test from 'ava'
-import compile from '../helpers/compile'
+import compile from '../../helpers/compile'
 
 test('conditions', async assert => {
   let template

@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import compile from './helpers/compile'
+import compile from '../helpers/compile'
 import t from 'ava'
 
 t('conditions', async assert => {

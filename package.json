@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "ava test/basic.js && ava test/examples.js && node src/string.spec.js && node src/array.spec.js && ava test/features/script.js && ava test/conditions.js && ava test/features/i18n.js && ava test/features/image-size.js && ava test/features/modifiers.js && ava test/features/inline.js && ava test/features/svg.js && ava test/features/import.js && ava test/features/globals.js && ava test/features/loops.js && ava test/features/operators.js && ava test/features/conditions.js",
+    "test": "ava test/spec/**/*.js",
     "benchmark": "node test/benchmark.js",
-    "watch": "watch 'npm test --silent' ."
+    "watch": "npm test -- --watch"
   },
   "engines": {
     "node": ">= 8.11.3",

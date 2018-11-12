@@ -1,5 +1,5 @@
 import test from 'ava'
-import compile from '../helpers/compile'
+import compile from '../../helpers/compile'
 // const svelte = require('svelte')
 
 test('script', async assert => {

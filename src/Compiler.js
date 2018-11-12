@@ -22,7 +22,7 @@ async function render (htmltree, options) {
   const translations = {}
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
-  await walk(htmltree, async fragment => {
+  walk(htmltree, async fragment => {
     await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options)
   })
   const used = []

@@ -1,5 +1,5 @@
 import test from 'ava'
-import compile from '../helpers/compile'
+import compile from '../../helpers/compile'
 import escape from 'escape-html'
 
 test('modifiers', async assert => {
