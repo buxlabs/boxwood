@@ -1,6 +1,4 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getIdentifier, getLiteral } = require('./factory')
-const { string: { singularize } } = require('pure-utilities')
 const conditions = require('pure-conditions')
 const negate = require('negate-sentence')
 
@@ -139,7 +137,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_more_than', handler: getCondition('haveMoreThan'), args: 2 },
   { name: 'has_less_than', handler: getCondition('haveLessThan'), args: 2 },
   { name: 'has_many', handler: getCondition('haveMany'), args: 1 },
-  { name: 'has_an_extension_of', handler: getCondition('hasExtension'), args: 2},
+  { name: 'has_an_extension_of', handler: getCondition('hasExtension'), args: 2 },
   { name: 'has', handler: getCondition('have'), args: 2 },
   { name: 'is_between', handler: getCondition('isBetween'), args: 3 },
   { name: 'is_below', handler: getCondition('isLessThan'), args: 2 },
@@ -148,14 +146,14 @@ const STANDARD_ACTIONS = [
   { name: 'is_a_url', handler: getCondition('isUrl'), args: 1 },
   { name: 'is_in', handler: getCondition('isIn'), args: 2 },
   { name: 'is_defined', handler: getCondition('isPresent'), args: 1 },
-  { name: 'is_a_video', handler: getCondition('isVideo'), args: 1},
-  { name: 'is_an_audio', handler: getCondition('isAudio'), args: 1},
-  { name: 'is_an_image', handler: getCondition('isImage'), args: 1},
-  { name: 'is_an_empty_array', handler: getCondition('isEmptyArray'), args: 1},
-  { name: 'is_an_empty_string', handler: getCondition('isEmptyArray'), args: 1},
-  { name: 'is_an_empty_object', handler: getCondition('isEmptyObject'), args: 1},
-  { name: 'is_an_empty_set', handler: getCondition('isEmptySet'), args: 1},
-  { name: 'is_an_empty_map', handler: getCondition('isEmptySet'), args: 1}
+  { name: 'is_a_video', handler: getCondition('isVideo'), args: 1 },
+  { name: 'is_an_audio', handler: getCondition('isAudio'), args: 1 },
+  { name: 'is_an_image', handler: getCondition('isImage'), args: 1 },
+  { name: 'is_an_empty_array', handler: getCondition('isEmptyArray'), args: 1 },
+  { name: 'is_an_empty_string', handler: getCondition('isEmptyArray'), args: 1 },
+  { name: 'is_an_empty_object', handler: getCondition('isEmptyObject'), args: 1 },
+  { name: 'is_an_empty_set', handler: getCondition('isEmptySet'), args: 1 },
+  { name: 'is_an_empty_map', handler: getCondition('isEmptySet'), args: 1 }
 ]
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action

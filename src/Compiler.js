@@ -9,6 +9,7 @@ const { array: { unique } } = require('pure-utilities')
 const Statistics = require('./Statistics')
 
 async function render (htmltree, options) {
+  if (!htmltree) { return null }
   const tree = new AbstractSyntaxTree('')
   const variables = [
     TEMPLATE_VARIABLE,
@@ -20,10 +21,11 @@ async function render (htmltree, options) {
   const statistics = new Statistics()
   const store = {}
   const translations = {}
+  const errors = []
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, async fragment => {
-    await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options)
+    await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, errors)
   })
   const used = []
   unique(modifiers).forEach(name => {
@@ -34,7 +36,7 @@ async function render (htmltree, options) {
     }
   })
   tree.append(getTemplateReturnStatement())
-  return { tree, components, statistics }
+  return { tree, statistics, errors }
 }
 
 function wrap (template, rescue) {
@@ -81,22 +83,32 @@ class Compiler {
     return { template, rescue }
   }
   async transform ({ template, rescue }) {
-    let templateResult, rescueResult
-    templateResult = await render(template, this.options)
-    if (rescue) {
-      rescueResult = await render(rescue, this.options)
-    }
-    return [templateResult, rescueResult]
+    return Promise.all([
+      render(template, this.options),
+      render(rescue, this.options)
+    ])
   }
   generate ({ template, rescue }) {
-    const statistics = template.statistics
-    let program = template.tree
+    let program, statistics, errors
     if (rescue) {
       program = wrap(template.tree, rescue.tree)
-      statistics.merge(rescue.statistics)
+    } else {
+      program = template.tree
     }
-    const code = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)()
-    return { code, statistics: this.options.statistics ? statistics.serialize() : null }
+    if (this.options.statistics) {
+      if (rescue) {
+        statistics = template.statistics.merge(rescue.statistics).serialize()
+      } else {
+        statistics = template.statistics.serialize()
+      }
+    }
+    if (rescue) {
+      errors = template.errors.concat(rescue.errors)
+    } else {
+      errors = template.errors
+    }
+    const code = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)() // eslint-disable-line
+    return { code, statistics, errors }
   }
 }
 

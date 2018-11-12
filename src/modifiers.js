@@ -42,7 +42,7 @@ function serializeProperties (translations) {
       key: getPropertyKey(key),
       value: {
         type: 'ArrayExpression',
-        elements: translations[key].map(text => { return { type: "Literal", value: text } })
+        elements: translations[key].map(text => { return { type: 'Literal', value: text } })
       },
       kind: 'init'
     })

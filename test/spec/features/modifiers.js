@@ -279,49 +279,49 @@ test('modifiers', async assert => {
   assert.deepEqual(template({ foo: 25 }, escape), '25,00 zł')
 
   template = await compile(`{foo | reverse}`)
-  assert.deepEqual(template({ foo: 'bar'}, escape), 'rab')
+  assert.deepEqual(template({ foo: 'bar' }, escape), 'rab')
 
   template = await compile(`{foo | rotate}`)
-  assert.deepEqual(template({ foo: 'bar'}, escape), 'bar')
+  assert.deepEqual(template({ foo: 'bar' }, escape), 'bar')
 
   template = await compile(`{foo | rotate(1)}`)
-  assert.deepEqual(template({ foo: [1, 2, 3]}, escape), '2,3,1')
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '2,3,1')
 
   template = await compile(`{foo | reverse}`)
-  assert.deepEqual(template({ foo: [1, 2, 3, 4]}, escape), '4,3,2,1')
+  assert.deepEqual(template({ foo: [1, 2, 3, 4] }, escape), '4,3,2,1')
 
   template = await compile(`{foo | size}`)
-  assert.deepEqual(template({ foo: [1, 2, 3, 4]}, escape), '4')
+  assert.deepEqual(template({ foo: [1, 2, 3, 4] }, escape), '4')
 
   template = await compile(`{foo | size}`)
-  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), '3')
+  assert.deepEqual(template({ foo: new Set([1, 2, 3]) }, escape), '3')
 
   template = await compile(`{foo | count}`)
-  assert.deepEqual(template({ foo:  'bar' }, escape), '3')
+  assert.deepEqual(template({ foo: 'bar' }, escape), '3')
 
   template = await compile(`{foo | count}`)
-  assert.deepEqual(template({ foo:  [1, 2] }, escape), '2')
+  assert.deepEqual(template({ foo: [1, 2] }, escape), '2')
 
   template = await compile(`{foo | count}`)
-  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), '3')
+  assert.deepEqual(template({ foo: new Set([1, 2, 3]) }, escape), '3')
 
   template = await compile(`{foo | length}`)
-  assert.deepEqual(template({ foo:  'bar' }, escape), '3')
+  assert.deepEqual(template({ foo: 'bar' }, escape), '3')
 
   template = await compile(`{foo | length}`)
-  assert.deepEqual(template({ foo:  [1, 2] }, escape), '2')
+  assert.deepEqual(template({ foo: [1, 2] }, escape), '2')
 
   template = await compile(`{foo | length}`)
-  assert.deepEqual(template({ foo:  new Set([1, 2, 3]) }, escape), '3')
+  assert.deepEqual(template({ foo: new Set([1, 2, 3]) }, escape), '3')
 
   template = await compile(`{foo | drop(2)}`)
-  assert.deepEqual(template({ foo: [1, 2, 3 ,4] }, html => html), '3,4')
+  assert.deepEqual(template({ foo: [1, 2, 3, 4] }, html => html), '3,4')
 
   template = await compile(`{foo | take(2)}`)
-  assert.deepEqual(template({ foo: [1, 2, 3 ,4] }, escape), '1,2')
+  assert.deepEqual(template({ foo: [1, 2, 3, 4] }, escape), '1,2')
 
   template = await compile(`{foo | slice(2, 4)}`)
-  assert.deepEqual(template({ foo: [1, 2, 3 ,4] }, escape), '3,4')
+  assert.deepEqual(template({ foo: [1, 2, 3, 4] }, escape), '3,4')
 
   template = await compile(`{foo | json(2, 4)}`)
   assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '{\n  "bar": "baz"\n}')

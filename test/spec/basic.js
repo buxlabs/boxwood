@@ -336,10 +336,10 @@ test('basic', async assert => {
   assert.deepEqual(template({}, html => html), '<div>42 42</div>')
 
   template = await compile('<div>{42} {foo}</div>')
-  assert.deepEqual(template({foo: 'bar' }, html => html), '<div>42 bar</div>')
+  assert.deepEqual(template({ foo: 'bar' }, html => html), '<div>42 bar</div>')
 
   template = await compile('<div>{"42"} {foo}</div>')
-  assert.deepEqual(template({foo: 'bar'}, html => html), '<div>42 bar</div>')
+  assert.deepEqual(template({ foo: 'bar' }, html => html), '<div>42 bar</div>')
 
   template = await compile('<div>{42 + 42}</div>')
   assert.deepEqual(template({ foo: 'bar' }, html => html), '<div>84</div>')
@@ -387,7 +387,7 @@ test('basic', async assert => {
   assert.deepEqual(template({ index: 0, translate: () => 'author', author: 'Olek' }, html => html), '<h5>#1 author: Olek</h5>')
 
   template = await compile('{foo + 1}')
-  assert.deepEqual(template({ foo: 1  }, html => html), '2')
+  assert.deepEqual(template({ foo: 1 }, html => html), '2')
 
   template = await compile('{foo.bar + 1}')
   assert.deepEqual(template({ foo: { bar: 1 } }, html => html), '2')
@@ -439,5 +439,3 @@ test('basic', async assert => {
 
   console.timeEnd('basic')
 })
-
-

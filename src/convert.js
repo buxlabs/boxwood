@@ -22,7 +22,7 @@ function isUnescapedModifier (modifier) {
       name.startsWith('unwrap') ||
       name.startsWith('htmlstrip') ||
       ARRAY_UTILITIES.includes(name) ||
-      MATH_UTILITIES.includes(name)  ||
+      MATH_UTILITIES.includes(name) ||
       COLLECTION_UTILITIES.includes(name) ||
       OBJECT_UTILITIES.includes(name) ||
       JSON_UTILITIES.includes(name) ||
@@ -76,7 +76,6 @@ function convertAttribute (name, value, variables, currentModifiers) {
           let unescape = UNESCAPED_NAMES.includes(name)
           if (!unescape) {
             modifiers.forEach(modifier => {
-              const name = getModifierName(extractModifierName(modifier))
               if (isUnescapedModifier(modifier)) {
                 unescape = true
               }
@@ -387,8 +386,8 @@ function convertTag (fragment, variables, currentModifiers) {
 }
 
 function convertKey (key, variables) {
- const tree = convertToExpression(key)
- return getTemplateNode(tree, variables, true)
+  const tree = convertToExpression(key)
+  return getTemplateNode(tree, variables, true)
 }
 
 module.exports = {

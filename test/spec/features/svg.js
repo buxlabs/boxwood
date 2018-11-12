@@ -11,22 +11,22 @@ test('svg', async assert => {
   template = await compile('<svg from="../../fixtures/svg/stroke.svg" />', { paths: [__dirname] })
   assert.deepEqual(template({}, html => html), '<svg height="80" width="300"><g fill="none"><path stroke="red" d="M5 20 l215 0"></path></g></svg>')
 
-  // try {
-  //   template = await compile(`<svg from=''/><div>`, { paths: [__dirname] })
-  // } catch (error) {
-  //   assert.regex(error.message, /Attribute empty on the svg tag: from\./)
-  // }
+  try {
+    template = await compile(`<svg from=''/><div>`, { paths: [__dirname] })
+  } catch (error) {
+    assert.regex(error.message, /Attribute empty on the svg tag: from\./)
+  }
 
-  // try {
-  //   template = await compile(`<svg from='../circle.svg'/><div>`, {})
-  // } catch (error) {
-  //   assert.regex(error.message, /Compiler option is undefined: paths\./)
-  // }
+  try {
+    template = await compile(`<svg from='../circle.svg'/><div>`, {})
+  } catch (error) {
+    assert.regex(error.message, /Compiler option is undefined: paths\./)
+  }
 
-  // try {
-  //   template = await compile(`<svg from='../circle.svg'/><div>`, { paths: [] })
-  // } catch (error) {
-  //   assert.regex(error.message, /Asset not found: \.\.\/circle\.svg/)
-  // }
+  try {
+    template = await compile(`<svg from='../circle.svg'/><div>`, { paths: [] })
+  } catch (error) {
+    assert.regex(error.message, /Asset not found: \.\.\/circle\.svg/)
+  }
   console.timeEnd('svg')
 })

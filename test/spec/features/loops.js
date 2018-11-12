@@ -84,7 +84,6 @@ test('loops', async assert => {
     ]
   }), '<ul><li>foo</li><li>bar</li></ul>')
 
-
   template = await compile('<for foo in foos><img src="{foo.src}"></for>')
   assert.deepEqual(template({
     foos: [
@@ -100,7 +99,6 @@ test('loops', async assert => {
       { title: 'bar', src: null }
     ]
   }, html => html), '<img src="foo.jpg">')
-
 
   template = await compile('<for foo in foos><if foo.src><img src="{foo.src}"></if></for>')
   assert.deepEqual(template({
@@ -138,7 +136,6 @@ test('loops', async assert => {
       { baz: 'quuux' }
     ]
   }, html => html), '<div>bar<div>qux</div><div>quux</div><div>quuux</div></div>')
-
 
   template = await compile('<div>{foo}</div><for foo in bar><div>{foo.baz}</div></for>')
   assert.deepEqual(template({
@@ -179,7 +176,6 @@ test('loops', async assert => {
     ]
   }, html => html), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-
   template = await compile('<for baz in qux>{foo({ bar: baz })}</for>')
   assert.deepEqual(template({
     foo: object => object.bar, qux: ['qux', 'quux']
@@ -187,11 +183,11 @@ test('loops', async assert => {
 
   template = await compile('<for doc in docs><for foo in doc.items>{foo.bar.baz.qux.quux}</for></for>')
   assert.deepEqual(template({
-   docs: [
-    { items: [{ bar: { baz: { qux: { quux: '1' } } }}] },
-    { items: [{ bar: { baz: { qux: { quux: '2' } } }}] },
-    { items: [{ bar: { baz: { qux: { quux: '3' } } }}] }
-   ]
+    docs: [
+      { items: [{ bar: { baz: { qux: { quux: '1' } } } }] },
+      { items: [{ bar: { baz: { qux: { quux: '2' } } } }] },
+      { items: [{ bar: { baz: { qux: { quux: '3' } } } }] }
+    ]
   }, html => html), '123')
 
   template = await compile('<for doc in docs>{doc.name}<for key and value in doc.items>{key}{value}</for></for>')
@@ -238,7 +234,7 @@ test('loops', async assert => {
   assert.deepEqual(template({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
 
   template = await compile(`<foreach foo in bar>{foo}</foreach>`)
-  assert.deepEqual(template({ bar: [1, 2, 3]  }, html => html), '123')
+  assert.deepEqual(template({ bar: [1, 2, 3] }, html => html), '123')
 
   template = await compile(`<foreach foo and baz in bar>{foo}{baz}</foreach>`)
   assert.deepEqual(template({ bar: new Map([ ['qux', 1], ['quux', 2] ]) }, html => html), '1qux2quux')

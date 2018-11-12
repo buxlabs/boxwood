@@ -171,10 +171,10 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: 42, bar: 42 }, html => html), 'baz')
 
   template = await compile('<if foo is equal to="bar">baz</if>')
-  assert.deepEqual(template({ foo: 'qux', bar: 'bar'  }, html => html), '')
+  assert.deepEqual(template({ foo: 'qux', bar: 'bar' }, html => html), '')
 
   template = await compile('<if foo is equal to="{42}">baz</if>')
-  assert.deepEqual(template({ foo: 10, bar: '42'  }, html => html), '')
+  assert.deepEqual(template({ foo: 10, bar: '42' }, html => html), '')
 
   template = await compile('<if foo is not equal to="bar">baz</if>')
   assert.deepEqual(template({ foo: 'bar', bar: 'bar' }, html => html), '')
@@ -183,13 +183,13 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: 42, bar: 42 }, html => html), '')
 
   template = await compile('<if foo is not equal to="bar">baz</if>')
-  assert.deepEqual(template({ foo: 'qux', bar: 'bar'  }, html => html), 'baz')
+  assert.deepEqual(template({ foo: 'qux', bar: 'bar' }, html => html), 'baz')
 
   template = await compile('<if foo is not equal to="{42}">baz</if>')
-  assert.deepEqual(template({ foo: 10, bar: '42'  }, html => html), 'baz')
+  assert.deepEqual(template({ foo: 10, bar: '42' }, html => html), 'baz')
 
   template = await compile('<if foo gt bar>baz</if>')
-  assert.deepEqual(template({ foo: 42, bar: 30  }, html => html), 'baz')
+  assert.deepEqual(template({ foo: 42, bar: 30 }, html => html), 'baz')
 
   template = await compile('<if foo gt two>baz</if>')
   assert.deepEqual(template({ foo: 42 }, html => html), 'baz')
@@ -300,10 +300,10 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: { bar: { baz: 'baz' } }, qux: 'bar' }, html => html), 'ban')
 
   template = await compile('<if foo().bar("baz")>baz</if>')
-  assert.deepEqual(template({ foo () { return { bar (string) {return string} } }}, html => html), 'baz')
+  assert.deepEqual(template({ foo () { return { bar (string) { return string } } } }, html => html), 'baz')
 
   template = await compile('<if foo().bar("")>baz</if>')
-  assert.deepEqual(template({ foo () { return { bar (string) {return string} } } }, html => html), '')
+  assert.deepEqual(template({ foo () { return { bar (string) { return string } } } }, html => html), '')
 
   template = await compile('<if foo is present>bar</if>')
   assert.deepEqual(template({ foo: null }, html => html), 'bar')
@@ -324,7 +324,7 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: '' }, html => html), 'baz')
 
   template = await compile('<if foo.bar is not present>baz</if>')
-  assert.deepEqual(template({  foo: { bar: 'baz' } }, html => html), '')
+  assert.deepEqual(template({ foo: { bar: 'baz' } }, html => html), '')
 
   template = await compile('<if foo is not present>baz</if>')
   assert.deepEqual(template({}, html => html), 'baz')
@@ -513,25 +513,25 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: { bar: null } }, html => html), '')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( {foo: { 1: 'bar', 2: 'baz' } }, html => html), '')
+  assert.deepEqual(template({ foo: { 1: 'bar', 2: 'baz' } }, html => html), '')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( { foo: { bar: 'ban' } }, html => html), '')
+  assert.deepEqual(template({ foo: { bar: 'ban' } }, html => html), '')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( { foo: function () {} }, html => html), 'baz')
+  assert.deepEqual(template({ foo: function () {} }, html => html), 'baz')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( { foo: new Map() }, html => html), 'baz')
+  assert.deepEqual(template({ foo: new Map() }, html => html), 'baz')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( { foo: new Map([['foo', 'bar'], ['baz', 'ban']]) }, html => html), '')
+  assert.deepEqual(template({ foo: new Map([['foo', 'bar'], ['baz', 'ban']]) }, html => html), '')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( { foo: new Set() }, html => html), 'baz')
+  assert.deepEqual(template({ foo: new Set() }, html => html), 'baz')
 
   template = await compile('<if foo is empty>baz</if>')
-  assert.deepEqual(template( { foo: new Set([1, 'foo', 'bar']) }, html => html), '')
+  assert.deepEqual(template({ foo: new Set([1, 'foo', 'bar']) }, html => html), '')
 
   template = await compile('<if foo is not empty>baz</if>')
   assert.deepEqual(template({ foo: [] }, html => html), '')
@@ -558,7 +558,7 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: { bar: null } }, html => html), 'baz')
 
   template = await compile('<if foo is not empty>baz</if>')
-  assert.deepEqual(template({foo: { 1: 'bar', 2: 'baz' } }, html => html), 'baz')
+  assert.deepEqual(template({ foo: { 1: 'bar', 2: 'baz' } }, html => html), 'baz')
 
   template = await compile('<if foo is not empty>baz</if>')
   assert.deepEqual(template({ foo: { bar: 'ban' } }, html => html), 'baz')
@@ -1071,7 +1071,7 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: 'foomp3' }, html => html), 'baz')
 
   template = await compile('<if foo has an extension of bar>baz</if>')
-  assert.deepEqual(template({ foo: 'foo.mp3', bar: 'mp3'}, html => html), 'baz')
+  assert.deepEqual(template({ foo: 'foo.mp3', bar: 'mp3' }, html => html), 'baz')
 
   template = await compile('<if foo has extension of={"jpg"}>baz</if>')
   assert.deepEqual(template({ foo: 'foo.jpg' }, html => html), 'baz')
@@ -1743,7 +1743,7 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: [] }, html => html), 'baz')
 
   template = await compile('<if foo is between bar and baz>baz</if>')
-  assert.deepEqual(template({foo: 10, bar: 10, baz: 20 }, html => html), 'baz')
+  assert.deepEqual(template({ foo: 10, bar: 10, baz: 20 }, html => html), 'baz')
 
   template = await compile('<if foo is between bar and baz>baz</if>')
   assert.deepEqual(template({ foo: 10, bar: 10, baz: 20 }, html => html), 'baz')
@@ -1881,7 +1881,7 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: 'lorem ipsum', bar: 100 }, html => html), '')
 
   template = await compile('<if foo has length of at most bar>baz</if>')
-  assert.deepEqual(template({foo: [1, 2, 3, 4, 5], bar: 5 }, html => html), 'baz')
+  assert.deepEqual(template({ foo: [1, 2, 3, 4, 5], bar: 5 }, html => html), 'baz')
 
   template = await compile('<if foo has length of at most bar>baz</if>')
   assert.deepEqual(template({ foo: [1, 2, 3, 4, 5], bar: 1 }, html => html), '')
@@ -1908,10 +1908,10 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: 'lorem', bar: 'lorem' }, html => html), '')
 
   template = await compile('<if foo is in bar>baz</if>')
-  assert.deepEqual(template({ foo: 5, bar: [1,2,3,4] }, html => html), '')
+  assert.deepEqual(template({ foo: 5, bar: [1, 2, 3, 4] }, html => html), '')
 
   template = await compile('<if foo is in bar>baz</if>')
-  assert.deepEqual(template({ foo: 4, bar: [1,2,3,4] }, html => html), 'baz')
+  assert.deepEqual(template({ foo: 4, bar: [1, 2, 3, 4] }, html => html), 'baz')
 
   template = await compile('<if foo is in bar>baz</if>')
   assert.deepEqual(template({ foo: '5', bar: '1234' }, html => html), '')
@@ -1923,7 +1923,7 @@ test('conditions', async assert => {
   assert.deepEqual(template({ foo: 'https://buxlabs.pl/narzędzia/js', bar: 'click me' }, html => html), '<a href="https://buxlabs.pl/narzędzia/js">click me</a>')
 
   template = await compile('<if foo is a url><a href="{foo}">{bar}</a></if>')
-  assert.deepEqual(template({ foo: ''}, html => html), '')
+  assert.deepEqual(template({ foo: '' }, html => html), '')
 
   template = await compile('<if foo>bar</if><else>baz<if qux>quux</if></else>')
   assert.deepEqual(template({ foo: false, qux: false }, html => html), 'baz')

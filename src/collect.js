@@ -15,9 +15,8 @@ const {
   convertTag,
   convertAttribute,
   convertToExpression,
-  convertToBinaryExpression,
   convertKey
- } = require('./convert')
+} = require('./convert')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
@@ -58,15 +57,34 @@ function findActions (attributes) {
 
 function findFile (path, options, callback) {
   if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
-    let found = false
-    for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-      const location = join(options.paths[i], path)
-      if (!existsSync(location)) continue
-      callback(location)
-      found = true
-      break
+  let found = false
+  for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
+    const location = join(options.paths[i], path)
+    if (!existsSync(location)) continue
+    callback(location)
+    found = true
+    break
+  }
+  if (!found) { throw new Error(`Asset not found: ${path}.`) }
+}
+
+function setDimension (fragment, attrs, keys, statistics, dimension, options) {
+  if (keys.includes(dimension)) {
+    const attr = attrs.find(attr => attr.key === dimension)
+    if (attr.value === 'auto') {
+      const { value: path } = attrs.find(attr => attr.key === 'src')
+      findFile(path, options, location => {
+        const dimensions = size(location)
+        statistics.images.push({ path: location })
+        fragment.attributes = fragment.attributes.map(attr => {
+          if (attr.key === dimension) {
+            attr.value = dimensions[dimension].toString()
+          }
+          return attr
+        })
+      })
     }
-    if (!found) { throw new Error(`Asset not found: ${path}.`) }
+  }
 }
 
 function collectComponentsFromImport (fragment, statistics, components, component, options) {
@@ -211,7 +229,7 @@ function getTest (action, keys, values, variables) {
     let right = values[1] ? convertValueToNode(values[1], variables) : getLiteralOrIdentifier(keys[2], variables)
     return action.handler(left, right)
   } else if (action.args === 3) {
-    const node =  getLiteralOrIdentifier(keys[0], variables)
+    const node = getLiteralOrIdentifier(keys[0], variables)
     const startRange = getLiteralOrIdentifier(keys[2], variables)
     const endRange = getLiteralOrIdentifier(keys[4], variables)
     return action.handler(node, startRange, endRange)
@@ -313,457 +331,414 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options) {
-  if (fragment.used) return
-  depth += 1
-  fragment.used = true
-  const tag = fragment.tagName
-  const attrs = fragment.attributes
-  const keys = attrs ? attrs.map(attr => attr.key) : []
-  const component = components.find(component => component.name === tag)
-  if (component && !fragment.plain) {
-    const { localVariables } = resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
-    if (localVariables.length > 0) {
-      tree.append({
-        type: 'VariableDeclaration',
-        declarations: localVariables.map(variable => {
-          return {
-            type: 'VariableDeclarator',
-            id: {
-              type: 'Identifier',
-              name: variable.key
-            },
-            init: {
-              type: 'Literal',
-              value: variable.value
+async function collect (tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, errors) {
+  try {
+    if (fragment.used) return
+    depth += 1
+    fragment.used = true
+    const tag = fragment.tagName
+    const attrs = fragment.attributes
+    const keys = attrs ? attrs.map(attr => attr.key) : []
+    const component = components.find(component => component.name === tag)
+    if (component && !fragment.plain) {
+      const { localVariables } = resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
+      if (localVariables.length > 0) {
+        tree.append({
+          type: 'VariableDeclaration',
+          declarations: localVariables.map(variable => {
+            return {
+              type: 'VariableDeclarator',
+              id: {
+                type: 'Identifier',
+                name: variable.key
+              },
+              init: {
+                type: 'Literal',
+                value: variable.value
+              }
             }
-          }
-        }),
-        kind: 'var'
-      })
-      localVariables.forEach(variable => {
-        variables.push(variable.key)
-      })
-    }
-    const ast = new AbstractSyntaxTree('')
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-    const body = ast.body()
-    body.forEach(node => tree.append(node))
-  } else if (tag === 'content') {
-    const { key } = attrs[1]
-    store[key] = fragment
-    fragment.children.forEach(child => {
-      child.used = true
-    })
-  } else if (tag === 'translate') {
-    const attribute = fragment.attributes[0]
-    if (attribute) {
-      const { key } = attribute
-      fragment.used = true
-      fragment.children = [{ type: 'text', content: `{'${key}' | translate}` }]
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-      })
-      const body = ast.body()
-      body.forEach(node => tree.append(node))
-    }
-  } else if (tag === 'script' && keys.includes('inline') || options.inline.includes('scripts')) {
-    if (keys.includes('src')) {
-      const { value: path } = attrs.find(attr => attr.key === 'src')
-      let content = `<script`
-      fragment.attributes.forEach(attribute => {
-        const { key, value } = attribute
-        if (key !== 'src' && key !== 'inline') {
-          content += ` ${key}="${value}"`
-        }
-      })
-      content += '>'
-      findFile(path, options, location => {
-        content += readFileSync(location, 'utf8')
-        statistics.scripts.push({ path: location })
-      })
-      content += `</script>`
-      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
-    } else {
-      const leaf = fragment.children[0]
-      leaf.used = true
-      const ast = new AbstractSyntaxTree(leaf.content)
-      ast.each('VariableDeclarator', node => variables.push(node.id.name))
-      const body = ast.body()
-      body.forEach(node => tree.append(node))
-    }
-  } else if (tag === 'script' && keys.includes('store')) {
-    const leaf = fragment.children[0]
-    leaf.used = true
-    tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
-    tree.append(getTemplateAssignmentExpression(getLiteral('const STORE = ')))
-    tree.append(getTemplateAssignmentExpression({
-      type: "ExpressionStatement",
-      expression: {
-        type: "CallExpression",
-        callee: {
-          type: "MemberExpression",
-          object: {
-            type: "Identifier",
-            name: "JSON"
-          },
-          property: {
-            type: "Identifier",
-            name: "stringify"
-          },
-          computed: false
-        },
-        arguments: [
-          {
-            type: "Identifier",
-            name: OBJECT_VARIABLE
-          }
-        ]
-      }
-    }))
-    tree.append(getTemplateAssignmentExpression(getLiteral(`\n${leaf.content}`)))
-    tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
-  } else if (tag === 'script' && keys.includes('compiler')) {
-    const { value } = attrs.find(attr => attr.key === 'compiler')
-    const compiler = options.compilers[value]
-    if (typeof compiler === 'function') {
-      const attr = attrs.find(attr => attr.key === 'options')
-      let params
-      if (attr && attr.value) {
-        params = JSON.parse(attr.value)
-      }
-      const leaf = fragment.children[0]
-      leaf.used = true
-      const result = compiler(leaf.content, params)
-      if (typeof result === 'string') {
-        tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
-        tree.append(getTemplateAssignmentExpression(getLiteral(result)))
-        tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
-      } else if (result instanceof Promise) {
-        asyncCounter += 1
-        const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
-        tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
-        const source = await result
-        tree.walk((node, parent) => {
-          if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
-            const index = parent.body.findIndex(element => {
-              return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
-            })
-            parent.body.splice(index, 1)
-            parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(getLiteral('<script>')))
-            parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(getLiteral(source)))
-            parent.body.splice(index + 2, 0, getTemplateAssignmentExpression(getLiteral('</script>')))
-          }
+          }),
+          kind: 'var'
+        })
+        localVariables.forEach(variable => {
+          variables.push(variable.key)
         })
       }
-
-    }
-  } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
-    const { value: path } = attrs.find(attr => attr.key === 'href')
-    let content = '<style>'
-    findFile(path, options, location => {
-      content += readFileSync(location, 'utf8')
-      statistics.stylesheets.push({ path: location })
-    })
-    content += '</style>'
-    tree.append(getTemplateAssignmentExpression(getLiteral(content)))
-  } else if (tag === 'script' && keys.includes('i18n') || tag === 'i18n') {
-    const leaf = fragment.children[0]
-    if (!leaf) throw new Error('The translation script cannot be empty')
-    leaf.used = true
-    if (keys.includes('yaml')) {
-      const data = yaml.load(leaf.content)
-      for (let key in data) { translations[key] = data[key] }
-    } else if (keys.includes('json')) {
-      const data = JSON.parse(leaf.content)
-      for (let key in data) { translations[key] = data[key] }
-    } else {
-      const ast = new AbstractSyntaxTree(leaf.content)
-      const node = ast.first('ExportDefaultDeclaration')
-      node.declaration.properties.forEach(property => {
-        translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
       })
-    }
-  } else if (tag === 'style' || tag === 'script' || tag === 'template') {
-    let content = `<${tag}`
-    fragment.attributes.forEach(attribute => {
-      content += ` ${attribute.key}="${attribute.value}"`
-    })
-    content += '>'
-    fragment.children.forEach(node => {
-      node.used = true
-      content += node.content
-    })
-    content += `</${tag}>`
-    tree.append(getTemplateAssignmentExpression(getLiteral(content)))
-  } else if (tag === '!doctype') {
-    tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
-  } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-    if (tag === 'svg' && keys.includes('from')) {
-      const attr = attrs.find(attr => attr.key === 'from')
-      const { value: path } = attr
-      if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
-      findFile(path, options, location => {
-        const content = parse(readFileSync(location, 'utf8'))[0]
-        statistics.svgs.push({ path: location })
-        fragment.attributes = content.attributes
-        fragment.children = content.children
+      const body = ast.body()
+      body.forEach(node => tree.append(node))
+    } else if (tag === 'content') {
+      const { key } = attrs[1]
+      store[key] = fragment
+      fragment.children.forEach(child => {
+        child.used = true
       })
-    } else if (tag === 'img') {
-      function setDimension (dimension) {
-        if (keys.includes(dimension)) {
-          const attr = attrs.find(attr => attr.key === dimension)
-          if (attr.value === 'auto') {
-            const { value: path } = attrs.find(attr => attr.key === 'src')
-            findFile(path, options, location => {
-              const dimensions = size(location)
-              statistics.images.push({ path: location })
-              fragment.attributes = fragment.attributes.map(attr => {
-                if (attr.key === dimension) {
-                  attr.value = dimensions[dimension].toString()
-                }
-                return attr
-              })
-            })
+    } else if (tag === 'translate') {
+      const attribute = fragment.attributes[0]
+      if (attribute) {
+        const { key } = attribute
+        fragment.used = true
+        fragment.children = [{ type: 'text', content: `{'${key}' | translate}` }]
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        const body = ast.body()
+        body.forEach(node => tree.append(node))
+      }
+    } else if ((tag === 'script' && keys.includes('inline')) || options.inline.includes('scripts')) {
+      if (keys.includes('src')) {
+        const { value: path } = attrs.find(attr => attr.key === 'src')
+        let content = `<script`
+        fragment.attributes.forEach(attribute => {
+          const { key, value } = attribute
+          if (key !== 'src' && key !== 'inline') {
+            content += ` ${key}="${value}"`
           }
+        })
+        content += '>'
+        findFile(path, options, location => {
+          content += readFileSync(location, 'utf8')
+          statistics.scripts.push({ path: location })
+        })
+        content += `</script>`
+        tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+      } else {
+        const leaf = fragment.children[0]
+        leaf.used = true
+        const ast = new AbstractSyntaxTree(leaf.content)
+        ast.each('VariableDeclarator', node => variables.push(node.id.name))
+        const body = ast.body()
+        body.forEach(node => tree.append(node))
+      }
+    } else if (tag === 'script' && keys.includes('store')) {
+      const leaf = fragment.children[0]
+      leaf.used = true
+      tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
+      tree.append(getTemplateAssignmentExpression(getLiteral('const STORE = ')))
+      tree.append(getTemplateAssignmentExpression({
+        type: 'ExpressionStatement',
+        expression: {
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            object: {
+              type: 'Identifier',
+              name: 'JSON'
+            },
+            property: {
+              type: 'Identifier',
+              name: 'stringify'
+            },
+            computed: false
+          },
+          arguments: [
+            {
+              type: 'Identifier',
+              name: OBJECT_VARIABLE
+            }
+          ]
+        }
+      }))
+      tree.append(getTemplateAssignmentExpression(getLiteral(`\n${leaf.content}`)))
+      tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+    } else if (tag === 'script' && keys.includes('compiler')) {
+      const { value } = attrs.find(attr => attr.key === 'compiler')
+      const compiler = options.compilers[value]
+      if (typeof compiler === 'function') {
+        const attr = attrs.find(attr => attr.key === 'options')
+        let params
+        if (attr && attr.value) {
+          params = JSON.parse(attr.value)
+        }
+        const leaf = fragment.children[0]
+        leaf.used = true
+        const result = compiler(leaf.content, params)
+        if (typeof result === 'string') {
+          tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
+          tree.append(getTemplateAssignmentExpression(getLiteral(result)))
+          tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+        } else if (result instanceof Promise) {
+          asyncCounter += 1
+          const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
+          tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
+          const source = await result
+          tree.walk((node, parent) => {
+            if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
+              const index = parent.body.findIndex(element => {
+                return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
+              })
+              parent.body.splice(index, 1)
+              parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(getLiteral('<script>')))
+              parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(getLiteral(source)))
+              parent.body.splice(index + 2, 0, getTemplateAssignmentExpression(getLiteral('</script>')))
+            }
+          })
         }
       }
-      if (attrs.find(attr => attr.key === 'size')) {
-        const index =  attrs.findIndex(attr => attr.key === 'size')
-        const [width, height] = attrs[index].value.split('x')
-        attrs.push({ key: 'width', value: width })
-        attrs.push({ key: 'height', value: height })
-        attrs.splice(index, 1)
+    } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
+      const { value: path } = attrs.find(attr => attr.key === 'href')
+      let content = '<style>'
+      findFile(path, options, location => {
+        content += readFileSync(location, 'utf8')
+        statistics.stylesheets.push({ path: location })
+      })
+      content += '</style>'
+      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+    } else if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
+      const leaf = fragment.children[0]
+      if (!leaf) throw new Error('The translation script cannot be empty')
+      leaf.used = true
+      if (keys.includes('yaml')) {
+        const data = yaml.load(leaf.content)
+        for (let key in data) { translations[key] = data[key] }
+      } else if (keys.includes('json')) {
+        const data = JSON.parse(leaf.content)
+        for (let key in data) { translations[key] = data[key] }
+      } else {
+        const ast = new AbstractSyntaxTree(leaf.content)
+        const node = ast.first('ExportDefaultDeclaration')
+        node.declaration.properties.forEach(property => {
+          translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
+        })
       }
-      setDimension('width')
-      setDimension('height')
-      if (keys.includes('inline') || options.inline.includes('images')) {
-        fragment.attributes = fragment.attributes.map(attr => {
-          if (attr.key === 'inline') return null
-          if (attr.key === 'src') {
-            const extension = getExtension(attr.value)
-            const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg+xml']
-            if (extensions.includes(extension)) {
+    } else if (tag === 'style' || tag === 'script' || tag === 'template') {
+      let content = `<${tag}`
+      fragment.attributes.forEach(attribute => {
+        content += ` ${attribute.key}="${attribute.value}"`
+      })
+      content += '>'
+      fragment.children.forEach(node => {
+        node.used = true
+        content += node.content
+      })
+      content += `</${tag}>`
+      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+    } else if (tag === '!doctype') {
+      tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
+    } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
+      if (tag === 'svg' && keys.includes('from')) {
+        const attr = attrs.find(attr => attr.key === 'from')
+        const { value: path } = attr
+        if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
+        findFile(path, options, location => {
+          const content = parse(readFileSync(location, 'utf8'))[0]
+          statistics.svgs.push({ path: location })
+          fragment.attributes = content.attributes
+          fragment.children = content.children
+        })
+      } else if (tag === 'img') {
+        if (attrs.find(attr => attr.key === 'size')) {
+          const index = attrs.findIndex(attr => attr.key === 'size')
+          const [width, height] = attrs[index].value.split('x')
+          attrs.push({ key: 'width', value: width })
+          attrs.push({ key: 'height', value: height })
+          attrs.splice(index, 1)
+        }
+        setDimension(fragment, attrs, keys, statistics, 'width', options)
+        setDimension(fragment, attrs, keys, statistics, 'height', options)
+        if (keys.includes('inline') || options.inline.includes('images')) {
+          fragment.attributes = fragment.attributes.map(attr => {
+            if (attr.key === 'inline') return null
+            if (attr.key === 'src') {
+              const extension = getExtension(attr.value)
+              const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg+xml']
+              if (extensions.includes(extension)) {
                 const path = attr.value
                 findFile(path, options, location => {
                   const content = readFileSync(location, 'base64')
                   statistics.images.push({ path: location })
                   attr.value = `data:image/${extension};base64, ${content}`
                 })
+              }
             }
-          }
-          return attr
-        }).filter(Boolean)
+            return attr
+          }).filter(Boolean)
+        }
       }
-    }
-    if (keys.includes('content')) {
-      const { value } = attrs[0]
-      if (store[value]) {
-        fragment.children = store[value].children
-        fragment.children.forEach(child => {
-          child.used = false
-        })
+      if (keys.includes('content')) {
+        const { value } = attrs[0]
+        if (store[value]) {
+          fragment.children = store[value].children
+          fragment.children.forEach(child => {
+            child.used = false
+          })
+        }
+        if (fragment.tagName !== 'meta') {
+          fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
+        }
       }
-      if (fragment.tagName !== 'meta') {
-        fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
-      }
-    }
-    collectComponentsFromPartialAttribute(fragment, statistics, options)
-    const nodes = convertTag(fragment, variables, modifiers)
-    nodes.forEach(node => {
-      if (node.type === 'IfStatement') {
-        node.depth = depth
-        return tree.append(node)
-      }
-      tree.append(getTemplateAssignmentExpression(node))
-    })
-    fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-    if (!SELF_CLOSING_TAGS.includes(tag)) {
-      const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
-      if (attr) {
-        const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
-        tree.append(getTemplateAssignmentExpression(getLiteral('</')))
-        tree.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
-        tree.append(getTemplateAssignmentExpression(getLiteral('>')))
-      } else {
-        tree.append(getTemplateAssignmentExpression(getLiteral(`</${tag}>`)))
-      }
-    }
-  } else if (fragment.type === 'text') {
-    const { languages, translationsPaths } = options
-    const nodes = convertText(fragment.content, variables, modifiers, translations, languages, translationsPaths)
-    return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
-  } else if (tag === 'if') {
-    const ast = new AbstractSyntaxTree('')
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-    const condition = getCondition(attrs, variables)
-    appendIfStatement(condition, tree, ast, depth)
-  } else if (tag === 'elseif') {
-    let leaf = tree.last(`IfStatement[depth="${depth}"]`)
-    if (leaf) {
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
+      collectComponentsFromPartialAttribute(fragment, statistics, options)
+      const nodes = convertTag(fragment, variables, modifiers)
+      nodes.forEach(node => {
+        if (node.type === 'IfStatement') {
+          node.depth = depth
+          return tree.append(node)
+        }
+        tree.append(getTemplateAssignmentExpression(node))
       })
-      while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
-        leaf = leaf.alternate
-      }
-      const condition = getCondition(attrs, variables)
-      leaf.alternate = {
-        type: 'IfStatement',
-        test: condition,
-        consequent: {
-          type: 'BlockStatement',
-          body: ast.body()
-        },
-        depth
-      }
-    }
-  } else if (tag === 'else') {
-    let leaf = tree.last(`IfStatement[depth="${depth}"]`)
-    if (leaf) {
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
+      fragment.children.forEach(node => {
+        collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options, errors)
       })
-      while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
-        leaf = leaf.alternate
-      }
-      leaf.alternate = {
-        type: 'BlockStatement',
-        body: ast.body()
-      }
-    }
-  } else if (tag === 'for') {
-    if (attrs.length <= 3) {
-      const ast = new AbstractSyntaxTree('')
-      const [left, operator, right] = attrs
-      let range
-      if (right && right.key === 'range' && right.value) {
-        if (right.value.includes('...')) {
-          range = right.value.split('...').map(Number)
-        } else if (right.value.includes('..')) {
-          range = right.value.split('..').map(Number)
-          range[1] += 1
+      if (!SELF_CLOSING_TAGS.includes(tag)) {
+        const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
+        if (attr) {
+          const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
+          tree.append(getTemplateAssignmentExpression(getLiteral('</')))
+          tree.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
+          tree.append(getTemplateAssignmentExpression(getLiteral('>')))
         } else {
-          range = [0, Number(right.value) + 1]
+          tree.append(getTemplateAssignmentExpression(getLiteral(`</${tag}>`)))
         }
       }
-      const variable = left.key
-      let parent = operator.value || `{${right.key}}`
-      const name = convertAttribute('html', parent, variables)
-
-      variables.push(variable)
-      parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
-      const index = getFreeIdentifier(variables.concat(parent))
-      variables.push(index)
-      const guard = getFreeIdentifier(variables.concat(parent))
-      variables.push(guard)
-      ast.append(getForLoopVariable(variable, name, variables, index, range))
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-      })
-      tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
-      variables.pop()
-      variables.pop()
-      variables.pop()
-    } else if (attrs.length <= 5) {
+    } else if (fragment.type === 'text') {
+      const { languages, translationsPaths } = options
+      const nodes = convertText(fragment.content, variables, modifiers, translations, languages, translationsPaths)
+      return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
+    } else if (tag === 'if') {
       const ast = new AbstractSyntaxTree('')
-      const [key, , value, operator, right] = attrs
-      const keyIdentifier = key.key
-      const valueIdentifier = value.key
-      variables.push(keyIdentifier)
-      variables.push(valueIdentifier)
-
-      let parent = operator.value || `{${right.key}}`
-      const name = convertAttribute('html', parent, variables)
-      ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
-
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
       })
-      tree.append(getForInLoop(keyIdentifier, name, ast.body()))
-      variables.pop()
-      variables.pop()
-    }
-  } else if (tag === 'slot' || tag === 'yield') {
-    const ast = new AbstractSyntaxTree('')
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-    const body = ast.body()
-    body.forEach(node => tree.append(node))
-  } else if (tag === 'try') {
-    const ast = new AbstractSyntaxTree('')
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-
-    tree.append({
-      type: 'TryStatement',
-      block: {
-        type: 'BlockStatement',
-        body: ast.body()
+      const condition = getCondition(attrs, variables)
+      appendIfStatement(condition, tree, ast, depth)
+    } else if (tag === 'elseif') {
+      let leaf = tree.last(`IfStatement[depth="${depth}"]`)
+      if (leaf) {
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
+          leaf = leaf.alternate
+        }
+        const condition = getCondition(attrs, variables)
+        leaf.alternate = {
+          type: 'IfStatement',
+          test: condition,
+          consequent: {
+            type: 'BlockStatement',
+            body: ast.body()
+          },
+          depth
+        }
       }
-    })
-  } else if (tag === 'catch') {
-    const leaf = tree.last('TryStatement')
-    if (leaf) {
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-      })
-      leaf.handler = {
-        type: 'CatchClause',
-        param: {
-          type: 'Identifier',
-          name: 'exception'
-        },
-        body: {
+    } else if (tag === 'else') {
+      let leaf = tree.last(`IfStatement[depth="${depth}"]`)
+      if (leaf) {
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
+          leaf = leaf.alternate
+        }
+        leaf.alternate = {
           type: 'BlockStatement',
           body: ast.body()
         }
       }
-    }
-  } else if (tag === 'unless') {
-    const ast = new AbstractSyntaxTree('')
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-    const { key } = attrs[0]
-    tree.append({
-      type: 'IfStatement',
-      test: {
-        type: 'UnaryExpression',
-        operator: '!',
-        prefix: true,
-        argument: convertKey(key, variables)
-      },
-      consequent: {
-        type: 'BlockStatement',
-        body: ast.body()
-      },
-      depth
-    })
-  } else if (tag === 'elseunless') {
-    let leaf = tree.last(`IfStatement[depth="${depth}"]`)
-    if (leaf) {
+    } else if (tag === 'for') {
+      if (attrs.length <= 3) {
+        const ast = new AbstractSyntaxTree('')
+        const [left, operator, right] = attrs
+        let range
+        if (right && right.key === 'range' && right.value) {
+          if (right.value.includes('...')) {
+            range = right.value.split('...').map(Number)
+          } else if (right.value.includes('..')) {
+            range = right.value.split('..').map(Number)
+            range[1] += 1
+          } else {
+            range = [0, Number(right.value) + 1]
+          }
+        }
+        const variable = left.key
+        let parent = operator.value || `{${right.key}}`
+        const name = convertAttribute('html', parent, variables)
+
+        variables.push(variable)
+        parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
+        const index = getFreeIdentifier(variables.concat(parent))
+        variables.push(index)
+        const guard = getFreeIdentifier(variables.concat(parent))
+        variables.push(guard)
+        ast.append(getForLoopVariable(variable, name, variables, index, range))
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
+        variables.pop()
+        variables.pop()
+        variables.pop()
+      } else if (attrs.length <= 5) {
+        const ast = new AbstractSyntaxTree('')
+        const [key, , value, operator, right] = attrs
+        const keyIdentifier = key.key
+        const valueIdentifier = value.key
+        variables.push(keyIdentifier)
+        variables.push(valueIdentifier)
+
+        let parent = operator.value || `{${right.key}}`
+        const name = convertAttribute('html', parent, variables)
+        ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
+
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        tree.append(getForInLoop(keyIdentifier, name, ast.body()))
+        variables.pop()
+        variables.pop()
+      }
+    } else if (tag === 'slot' || tag === 'yield') {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
       })
-      while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
-        leaf = leaf.alternate
+      const body = ast.body()
+      body.forEach(node => tree.append(node))
+    } else if (tag === 'try') {
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+      })
+
+      tree.append({
+        type: 'TryStatement',
+        block: {
+          type: 'BlockStatement',
+          body: ast.body()
+        }
+      })
+    } else if (tag === 'catch') {
+      const leaf = tree.last('TryStatement')
+      if (leaf) {
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        leaf.handler = {
+          type: 'CatchClause',
+          param: {
+            type: 'Identifier',
+            name: 'exception'
+          },
+          body: {
+            type: 'BlockStatement',
+            body: ast.body()
+          }
+        }
       }
+    } else if (tag === 'unless') {
+      const ast = new AbstractSyntaxTree('')
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+      })
       const { key } = attrs[0]
-      leaf.alternate = {
+      tree.append({
         type: 'IfStatement',
         test: {
           type: 'UnaryExpression',
@@ -776,132 +751,160 @@ async function collect (tree, fragment, variables, modifiers, components, statis
           body: ast.body()
         },
         depth
+      })
+    } else if (tag === 'elseunless') {
+      let leaf = tree.last(`IfStatement[depth="${depth}"]`)
+      if (leaf) {
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
+          leaf = leaf.alternate
+        }
+        const { key } = attrs[0]
+        leaf.alternate = {
+          type: 'IfStatement',
+          test: {
+            type: 'UnaryExpression',
+            operator: '!',
+            prefix: true,
+            argument: convertKey(key, variables)
+          },
+          consequent: {
+            type: 'BlockStatement',
+            body: ast.body()
+          },
+          depth
+        }
       }
-    }
-  } else if (tag === 'switch') {
-    tree.append({
-      type: 'SwitchStatement',
-      discriminant: {
-        type: 'Literal',
-        value: true
-      },
-      attribute: attrs[0],
-      cases: []
-    })
-  } else if (tag === 'case') {
-    let leaf = tree.last('SwitchStatement')
-    if (leaf) {
-      const attributes = [leaf.attribute]
-      attrs.forEach(attr => {
-        attributes.push(attr)
-        if (OPERATORS.includes(attr.key)) {
-          attributes.push(leaf.attribute)
+    } else if (tag === 'switch') {
+      tree.append({
+        type: 'SwitchStatement',
+        discriminant: {
+          type: 'Literal',
+          value: true
+        },
+        attribute: attrs[0],
+        cases: []
+      })
+    } else if (tag === 'case') {
+      let leaf = tree.last('SwitchStatement')
+      if (leaf) {
+        const attributes = [leaf.attribute]
+        attrs.forEach(attr => {
+          attributes.push(attr)
+          if (OPERATORS.includes(attr.key)) {
+            attributes.push(leaf.attribute)
+          }
+        })
+        const condition = getCondition(attributes, variables)
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        ast.append({
+          type: 'BreakStatement',
+          label: null
+        })
+        leaf.cases.push({
+          type: 'SwitchCase',
+          consequent: ast.body(),
+          test: condition
+        })
+      }
+    } else if (tag === 'default') {
+      let leaf = tree.last('SwitchStatement')
+      if (leaf) {
+        const ast = new AbstractSyntaxTree('')
+        walk(fragment, current => {
+          collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+        })
+        ast.append({
+          type: 'BreakStatement',
+          label: null
+        })
+        leaf.cases.push({
+          type: 'SwitchCase',
+          consequent: ast.body(),
+          test: null
+        })
+      }
+    } else if (tag === 'foreach' || tag === 'each') {
+      const ast = new AbstractSyntaxTree('')
+      let left, right, key, value
+
+      if (attrs.length === 3) {
+        [left, , right] = attrs
+      } else if (attrs.length === 5) {
+        [key, , value, , right] = attrs
+      }
+
+      if (left) {
+        variables.push(left.key)
+      } else if (key && value) {
+        variables.push(key.key)
+        variables.push(value.key)
+      }
+      walk(fragment, current => {
+        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, errors)
+      })
+      if (left) {
+        variables.pop()
+      } else if (key && value) {
+        variables.pop()
+        variables.pop()
+      }
+      tree.append({
+        type: 'ExpressionStatement',
+        expression: {
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            object: convertKey(right.key, variables),
+            property: {
+              type: 'Identifier',
+              name: tag === 'foreach' ? 'forEach' : 'each'
+            },
+            computed: false
+          },
+          arguments: [
+            {
+              type: 'FunctionExpression',
+              params: [
+                left ? {
+                  type: 'Identifier',
+                  name: left.key
+                } : null,
+                key ? {
+                  type: 'Identifier',
+                  name: key.key
+                } : null,
+                value ? {
+                  type: 'Identifier',
+                  name: value.key
+                } : null
+              ].filter(Boolean),
+              body: {
+                type: 'BlockStatement',
+                body: ast.body()
+              }
+            }
+          ]
         }
       })
-      const condition = getCondition(attributes, variables)
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-      })
-      ast.append({
-        type: 'BreakStatement',
-        label: null
-      })
-      leaf.cases.push({
-        type: 'SwitchCase',
-        consequent: ast.body(),
-        test: condition
+    } else if (tag === 'import' || tag === 'require') {
+      collectComponentsFromImport(fragment, statistics, components, null, options)
+    } else if (tag === 'partial' || tag === 'render') {
+      collectComponentsFromPartialOrRender(fragment, statistics, options)
+      fragment.children.forEach(node => {
+        collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options, errors)
       })
     }
-  } else if (tag === 'default') {
-    let leaf = tree.last('SwitchStatement')
-    if (leaf) {
-      const ast = new AbstractSyntaxTree('')
-      walk(fragment, current => {
-        collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-      })
-      ast.append({
-        type: 'BreakStatement',
-        label: null
-      })
-      leaf.cases.push({
-        type: 'SwitchCase',
-        consequent: ast.body(),
-        test: null
-      })
-    }
-  } else if (tag === 'foreach' || tag === 'each') {
-    const ast = new AbstractSyntaxTree('')
-    let left, right, key, value
-
-    if (attrs.length === 3) {
-      [left, , right] = attrs
-    } else if (attrs.length === 5) {
-      [key, , value, , right] = attrs
-    }
-
-    if (left) {
-      variables.push(left.key)
-    } else if (key && value) {
-      variables.push(key.key)
-      variables.push(value.key)
-    }
-    walk(fragment, current => {
-      collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
-    if (left) {
-      variables.pop()
-    } else if (key && value) {
-      variables.pop()
-      variables.pop()
-    }
-    tree.append({
-      type: 'ExpressionStatement',
-      expression: {
-        type: 'CallExpression',
-        callee: {
-          type: 'MemberExpression',
-          object: convertKey(right.key, variables),
-          property: {
-            type: 'Identifier',
-            name: tag === 'foreach' ? 'forEach' : 'each'
-          },
-          computed: false
-        },
-        arguments: [
-          {
-            type: 'FunctionExpression',
-            params: [
-              left ? {
-                type: 'Identifier',
-                name: left.key
-              } : null,
-              key ? {
-                type: 'Identifier',
-                name: key.key
-              } : null,
-              value ? {
-                type: 'Identifier',
-                name: value.key
-              } : null
-            ].filter(Boolean),
-            body: {
-              type: 'BlockStatement',
-              body: ast.body()
-            }
-          }
-        ]
-      }
-    })
-  } else if (tag === 'import' || tag === 'require') {
-    collectComponentsFromImport(fragment, statistics, components, null, options)
-  } else if (tag === 'partial' || tag === 'render') {
-    collectComponentsFromPartialOrRender(fragment, statistics, options)
-    fragment.children.forEach(node => {
-      collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options)
-    })
+    depth -= 1
+  } catch (exception) {
+    errors.push(exception)
   }
-  depth -= 1
 }
 
 module.exports = collect
