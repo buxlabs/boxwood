@@ -1,217 +1,218 @@
 (function () {
-  'use strict'
+	'use strict';
 
-  function noop () {}
+	function noop() {}
 
-  function assign (tar, src) {
-    for (var k in src) tar[k] = src[k]
-    return tar
-  }
+	function assign(tar, src) {
+		for (var k in src) tar[k] = src[k];
+		return tar;
+	}
 
-  function append (target, node) {
-    target.appendChild(node)
-  }
+	function append(target, node) {
+		target.appendChild(node);
+	}
 
-  function insert (target, node, anchor) {
-    target.insertBefore(node, anchor)
-  }
+	function insert(target, node, anchor) {
+		target.insertBefore(node, anchor);
+	}
 
-  function detachNode (node) {
-    node.parentNode.removeChild(node)
-  }
+	function detachNode(node) {
+		node.parentNode.removeChild(node);
+	}
 
-  function createElement (name) {
-    return document.createElement(name)
-  }
+	function createElement(name) {
+		return document.createElement(name);
+	}
 
-  function createText (data) {
-    return document.createTextNode(data)
-  }
+	function createText(data) {
+		return document.createTextNode(data);
+	}
 
-  function setData (text, data) {
-    text.data = '' + data
-  }
+	function setData(text, data) {
+		text.data = '' + data;
+	}
 
-  function blankObject () {
-    return Object.create(null)
-  }
+	function blankObject() {
+		return Object.create(null);
+	}
 
-  function destroy (detach) {
-    this.destroy = noop
-    this.fire('destroy')
-    this.set = noop
+	function destroy(detach) {
+		this.destroy = noop;
+		this.fire('destroy');
+		this.set = noop;
 
-    this._fragment.d(detach !== false)
-    this._fragment = null
-    this._state = {}
-  }
+		this._fragment.d(detach !== false);
+		this._fragment = null;
+		this._state = {};
+	}
 
-  function _differs (a, b) {
-    return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function')
-  }
+	function _differs(a, b) {
+		return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+	}
 
-  function fire (eventName, data) {
-    var handlers =
-			eventName in this._handlers && this._handlers[eventName].slice()
-    if (!handlers) return
+	function fire(eventName, data) {
+		var handlers =
+			eventName in this._handlers && this._handlers[eventName].slice();
+		if (!handlers) return;
 
-    for (var i = 0; i < handlers.length; i += 1) {
-      var handler = handlers[i]
+		for (var i = 0; i < handlers.length; i += 1) {
+			var handler = handlers[i];
 
-      if (!handler.__calling) {
-        try {
-          handler.__calling = true
-          handler.call(this, data)
-        } finally {
-          handler.__calling = false
-        }
-      }
-    }
-  }
+			if (!handler.__calling) {
+				try {
+					handler.__calling = true;
+					handler.call(this, data);
+				} finally {
+					handler.__calling = false;
+				}
+			}
+		}
+	}
 
-  function flush (component) {
-    component._lock = true
-    callAll(component._beforecreate)
-    callAll(component._oncreate)
-    callAll(component._aftercreate)
-    component._lock = false
-  }
+	function flush(component) {
+		component._lock = true;
+		callAll(component._beforecreate);
+		callAll(component._oncreate);
+		callAll(component._aftercreate);
+		component._lock = false;
+	}
 
-  function get () {
-    return this._state
-  }
+	function get() {
+		return this._state;
+	}
 
-  function init (component, options) {
-    component._handlers = blankObject()
-    component._slots = blankObject()
-    component._bind = options._bind
-    component._staged = {}
+	function init(component, options) {
+		component._handlers = blankObject();
+		component._slots = blankObject();
+		component._bind = options._bind;
+		component._staged = {};
 
-    component.options = options
-    component.root = options.root || component
-    component.store = options.store || component.root.store
+		component.options = options;
+		component.root = options.root || component;
+		component.store = options.store || component.root.store;
 
-    if (!options.root) {
-      component._beforecreate = []
-      component._oncreate = []
-      component._aftercreate = []
-    }
-  }
+		if (!options.root) {
+			component._beforecreate = [];
+			component._oncreate = [];
+			component._aftercreate = [];
+		}
+	}
 
-  function on (eventName, handler) {
-    var handlers = this._handlers[eventName] || (this._handlers[eventName] = [])
-    handlers.push(handler)
+	function on(eventName, handler) {
+		var handlers = this._handlers[eventName] || (this._handlers[eventName] = []);
+		handlers.push(handler);
 
-    return {
-      cancel: function () {
-        var index = handlers.indexOf(handler)
-        if (~index) handlers.splice(index, 1)
-      }
-    }
-  }
+		return {
+			cancel: function() {
+				var index = handlers.indexOf(handler);
+				if (~index) handlers.splice(index, 1);
+			}
+		};
+	}
 
-  function set (newState) {
-    this._set(assign({}, newState))
-    if (this.root._lock) return
-    flush(this.root)
-  }
+	function set(newState) {
+		this._set(assign({}, newState));
+		if (this.root._lock) return;
+		flush(this.root);
+	}
 
-  function _set (newState) {
-    var oldState = this._state,
-      changed = {},
-      dirty = false
+	function _set(newState) {
+		var oldState = this._state,
+			changed = {},
+			dirty = false;
 
-    newState = assign(this._staged, newState)
-    this._staged = {}
+		newState = assign(this._staged, newState);
+		this._staged = {};
 
-    for (var key in newState) {
-      if (this._differs(newState[key], oldState[key])) changed[key] = dirty = true
-    }
-    if (!dirty) return
+		for (var key in newState) {
+			if (this._differs(newState[key], oldState[key])) changed[key] = dirty = true;
+		}
+		if (!dirty) return;
 
-    this._state = assign(assign({}, oldState), newState)
-    this._recompute(changed, this._state)
-    if (this._bind) this._bind(changed, this._state)
+		this._state = assign(assign({}, oldState), newState);
+		this._recompute(changed, this._state);
+		if (this._bind) this._bind(changed, this._state);
 
-    if (this._fragment) {
-      this.fire('state', { changed: changed, current: this._state, previous: oldState })
-      this._fragment.p(changed, this._state)
-      this.fire('update', { changed: changed, current: this._state, previous: oldState })
-    }
-  }
+		if (this._fragment) {
+			this.fire("state", { changed: changed, current: this._state, previous: oldState });
+			this._fragment.p(changed, this._state);
+			this.fire("update", { changed: changed, current: this._state, previous: oldState });
+		}
+	}
 
-  function _stage (newState) {
-    assign(this._staged, newState)
-  }
+	function _stage(newState) {
+		assign(this._staged, newState);
+	}
 
-  function callAll (fns) {
-    while (fns && fns.length) fns.shift()()
-  }
+	function callAll(fns) {
+		while (fns && fns.length) fns.shift()();
+	}
 
-  function _mount (target, anchor) {
-    this._fragment[this._fragment.i ? 'i' : 'm'](target, anchor || null)
-  }
+	function _mount(target, anchor) {
+		this._fragment[this._fragment.i ? 'i' : 'm'](target, anchor || null);
+	}
 
-  var proto = {
-    destroy,
-    get,
-    fire,
-    on,
-    set,
-    _recompute: noop,
-    _set,
-    _stage,
-    _mount,
-    _differs
-  }
+	var proto = {
+		destroy,
+		get,
+		fire,
+		on,
+		set,
+		_recompute: noop,
+		_set,
+		_stage,
+		_mount,
+		_differs
+	};
 
-  /* test/fixtures/svelte/Foo.html generated by Svelte v2.15.3 */
+	/* test/fixtures/svelte/Foo.html generated by Svelte v2.15.3 */
 
-  function data () {
+	function data() {
 	  return { foo: 'foo' }
-  }
-  function create_main_fragment (component, ctx) {
-    var h1, text
+	}
+	function create_main_fragment(component, ctx) {
+		var h1, text;
 
-    return {
-      c () {
-        h1 = createElement('h1')
-        text = createText(ctx.foo)
-      },
+		return {
+			c() {
+				h1 = createElement("h1");
+				text = createText(ctx.foo);
+			},
 
-      m (target, anchor) {
-        insert(target, h1, anchor)
-        append(h1, text)
-      },
+			m(target, anchor) {
+				insert(target, h1, anchor);
+				append(h1, text);
+			},
 
-      p (changed, ctx) {
-        if (changed.foo) {
-          setData(text, ctx.foo)
-        }
-      },
+			p(changed, ctx) {
+				if (changed.foo) {
+					setData(text, ctx.foo);
+				}
+			},
 
-      d (detach) {
-        if (detach) {
-          detachNode(h1)
-        }
-      }
-    }
-  }
+			d(detach) {
+				if (detach) {
+					detachNode(h1);
+				}
+			}
+		};
+	}
 
-  function Foo (options) {
-    init(this, options)
-    this._state = assign(data(), options.data)
-    this._intro = true
+	function Foo(options) {
+		init(this, options);
+		this._state = assign(data(), options.data);
+		this._intro = true;
 
-    this._fragment = create_main_fragment(this, this._state)
+		this._fragment = create_main_fragment(this, this._state);
 
-    if (options.target) {
-      this._fragment.c()
-      this._mount(options.target, options.anchor)
-    }
-  }
+		if (options.target) {
+			this._fragment.c();
+			this._mount(options.target, options.anchor);
+		}
+	}
 
-  assign(Foo.prototype, proto)
+	assign(Foo.prototype, proto);
 
-  const target = document.getElementById('app'); new Foo({ target })
-}())
+	const target = document.getElementById('app'); new Foo({ target });
+
+}());

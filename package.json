@@ -1,6 +1,6 @@
 {
   "name": "@buxlabs/html-engine",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
@@ -51,6 +51,7 @@
   "devDependencies": {
     "ava": "^0.25.0",
     "benchmark": "^2.1.4",
+    "coffeescript": "^2.3.2",
     "escape-html": "^1.0.3",
     "handlebars": "^4.0.12",
     "lodash.template": "^4.4.0",

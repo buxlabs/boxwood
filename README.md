@@ -46,6 +46,7 @@ assert(template({ foo: 'bar' }) === '<div>bar</div>')
 * modifiers for strings, numbers, arrays, objects and more
 * special attributes, e.g. inline for asset inline, width="auto" for auto sizing and more
 * built-in i18n support (translate tag and modifier)
+* compiler tag for scripts (allows custom compilers)
 
 ## Input / Output Examples
 

@@ -5,6 +5,7 @@ import svelte from 'rollup-plugin-svelte'
 import { readFileSync, writeFileSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import coffeescript from 'coffeescript'
 
 function normalize (string) {
   return string.replace(/\s+/g, '')
@@ -77,7 +78,8 @@ test('script', async assert => {
   assert.deepEqual(template({}, html => html), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
 
   template = await compile(`
-    <script compiler="rollup">console.log('x')</script>`, {
+    <script compiler="rollup">console.log('x')</script>
+  `, {
     compilers: {
       rollup: async (source, options) => {
         const input = join(tmpdir(), 'rollup.js')
@@ -95,7 +97,8 @@ test('script', async assert => {
   assert.deepEqual(normalize(template({}, html => html)), normalize(`<script>(function () { 'use strict'; console.log('x'); }());</script>`))
 
   template = await compile(`
-    <script compiler="svelte">import Foo from './Foo.html'; const target = document.getElementById('app'); new Foo({ target });</script>`, {
+    <script compiler="svelte">import Foo from './Foo.html'; const target = document.getElementById('app'); new Foo({ target });</script>
+  `, {
     compilers: {
       svelte: async (source, options) => {
         const input = join(__dirname, '../../fixtures/svelte', 'actual.js')
@@ -112,6 +115,18 @@ test('script', async assert => {
   })
 
   assert.deepEqual(normalize(template({}, html => html)), normalize('<script>' + readFileSync(join(__dirname, '../../fixtures/svelte', 'expected.js'), 'utf8')) + '</script>')
+
+  template = await compile(`
+    <script compiler="coffeescript">console.log "Hello, world!"</script>
+  `, {
+    compilers: {
+      coffeescript (source, options) {
+        return coffeescript.compile(source)
+      }
+    }
+  })
+
+  assert.deepEqual(normalize(template({}, html => html)), normalize('<script>(function () { console.log("Hello, world!"); }).call(this);</script>'))
 
   console.timeEnd('script')
 })
