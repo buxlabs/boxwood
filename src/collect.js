@@ -347,16 +347,14 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         tree.append({
           type: 'VariableDeclaration',
           declarations: localVariables.map(variable => {
+            const node = convertText(variable.value, variables, modifiers, translations, languages, translationsPaths)[0]
             return {
               type: 'VariableDeclarator',
               id: {
                 type: 'Identifier',
                 name: variable.key
               },
-              init: {
-                type: 'Literal',
-                value: variable.value
-              }
+              init: node
             }
           }),
           kind: 'var'

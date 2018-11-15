@@ -201,6 +201,22 @@ test('import', async assert => {
   })
   assert.deepEqual(template({}, html => html), '<h1>foo</h1><p>bar</p>')
 
+  template = await compile(`
+    <script i18n>
+    export default {
+      header: ['foo', 'bar'],
+      description: ['baz', 'qux']
+    }
+    </script>
+    <import hero from="./hero.html">
+    <hero header="{'header' | translate}" description="{'description' | translate}" />
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<h1>foo</h1><p>baz</p>')
+  assert.deepEqual(template({ language: 'en' }, html => html), '<h1>bar</h1><p>qux</p>')
+
   try {
     template = await compile(`<partial from='./partial.html'/><partial>`, {})
   } catch (error) {
