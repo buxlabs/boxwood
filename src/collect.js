@@ -489,8 +489,21 @@ async function collect (tree, fragment, variables, modifiers, components, statis
       content += '</style>'
       tree.append(getTemplateAssignmentExpression(getLiteral(content)))
     } else if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
-      const leaf = fragment.children[0]
-      if (!leaf) throw new Error('The translation script cannot be empty')
+      let leaf = fragment.children[0]
+      if (!leaf) {
+        if (keys.includes('from')) {
+          const { value: path } = attrs.find(attr => attr.key === 'from')
+          const parts = path.split(".")
+          const extension = parts[parts.length - 1]
+          findFile(path, options, location => {
+            leaf = { content: readFileSync(location, 'utf8') }
+            statistics.translations.push({ path: location })
+          })
+          keys.push(extension)
+        } else {
+          throw new Error('The translation script cannot be empty')
+        }
+      }
       leaf.used = true
       if (keys.includes('yaml')) {
         const data = yaml.load(leaf.content)

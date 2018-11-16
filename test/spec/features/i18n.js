@@ -174,6 +174,66 @@ test('i18n', async assert => {
   assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
 
   template = await compile(
+    `<script i18n from="../../fixtures/translations/buttons.yaml"></script>
+    <div><translate button.submit /></div>`,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }
+  )
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
+
+  template = await compile(
+    `<script i18n from="../../fixtures/translations/buttons.json"></script>
+    <div><translate button.submit /></div>`,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }
+  )
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
+
+  template = await compile(
+    `<i18n from="../../fixtures/translations/buttons.yaml" />
+    <div><translate button.submit /></div>`,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }
+  )
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
+
+  template = await compile(
+    `<i18n from="../../fixtures/translations/buttons.js" />
+    <div><translate button.submit /></div>`,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }
+  )
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
+
+  template = await compile(
+    `<i18n from="../../fixtures/translations/buttons.json" />
+    <div><translate button.submit /></div>`,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }
+  )
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
+
+  template = await compile(
+    `<i18n from="../../fixtures/translations/buttons.js" />
+    <div><translate button.submit /></div>`,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }
+  )
+  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
+
+  template = await compile(
     `<div><translate button.submit /></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.yaml')] }
   )
