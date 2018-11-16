@@ -108,7 +108,6 @@ test('script', async assert => {
         const { code } = await bundle.generate({
           format: 'iife'
         })
-        writeFileSync(join(__dirname, '../../fixtures/svelte', 'expected.js'), code)
         return code
       }
     }
