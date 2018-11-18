@@ -1,19 +1,19 @@
-# html-engine
+# pure-engine
 
 > Compile HTML templates into JS
 
-![npm (scoped)](https://img.shields.io/npm/v/@buxlabs/html-engine.svg)
-[![Codeship Status for buxlabs/html-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
+![npm (scoped)](https://img.shields.io/npm/v/pure-engine.svg)
+[![Codeship Status for buxlabs/pure-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
 
-[REPL](https://buxlabs.pl/en/tools/js/html-engine)
+[REPL](https://buxlabs.pl/en/tools/js/pure-engine)
 
 ## Description
 
-HTML Engine is a library designed to compile HTML templates into JS. It analyses the template and generates an optimal rendering function that can be used on the client and the server. The compilation process should ideally happen in a build step (for the client) or the output could be memoized after first usage (for the server).
+Pure Engine is a library designed to compile HTML templates into JS. It analyses the template and generates an optimal rendering function that can be used on the client and the server. The compilation process should ideally happen in a build step (for the client) or the output could be memoized after first usage (for the server).
 
 The syntax of the template should be easy to read and write. There are two types of tags: curly and html tags.
 
-Status: Alpha
+Status: Alpha / Proof of concept
 
 ### Curly Tags
 
@@ -30,12 +30,14 @@ HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a 
 
 ## Usage
 
-`npm install @buxlabs/html-engine`
+`npm install pure-engine escape-html`
 
 ```js
-const { compile } = require('@buxlabs/html-engine')
-const template = compile('<div>{foo}</div>')
-assert(template({ foo: 'bar' }) === '<div>bar</div>')
+const { compile } = import 'pure-engine'
+const escape = import 'escape-html'
+// ... later, inside of an async function
+const template = await compile('<div>{foo}</div>')
+expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
 ```
 
 ## Features
@@ -47,6 +49,7 @@ assert(template({ foo: 'bar' }) === '<div>bar</div>')
 * special attributes, e.g. inline for asset inline, width="auto" for auto sizing and more
 * built-in i18n support (translate tag and modifier)
 * compiler tag for scripts (allows custom compilers)
+* error handling: rescue tag
 
 ## Input / Output Examples
 
@@ -98,7 +101,7 @@ function render(__o, __e) {
 `npm run benchmark`
 
 ```
-html-engine x 3,504,768 ops/sec ±1.80% (85 runs sampled)
+pure-engine x 3,504,768 ops/sec ±1.80% (85 runs sampled)
 underscore x 210,428 ops/sec ±1.60% (90 runs sampled)
 lodash x 249,232 ops/sec ±1.10% (91 runs sampled)
 handlebars x 1,883,683 ops/sec ±1.70% (84 runs sampled)

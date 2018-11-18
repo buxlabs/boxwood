@@ -493,7 +493,7 @@ async function collect (tree, fragment, variables, modifiers, components, statis
       if (!leaf) {
         if (keys.includes('from')) {
           const { value: path } = attrs.find(attr => attr.key === 'from')
-          const parts = path.split(".")
+          const parts = path.split('.')
           const extension = parts[parts.length - 1]
           findFile(path, options, location => {
             leaf = { content: readFileSync(location, 'utf8') }

@@ -42,7 +42,7 @@ assert.deepEqual(result, normalize(fn3(data)))
 assert.deepEqual(result, normalize(fn4(data)))
 assert.deepEqual(result, normalize(mustache.render(source5, data)))
 
-suite.add('html-engine', function () {
+suite.add('pure-engine', function () {
   fn1(data, escape)
 })
   .add('underscore', function () {
