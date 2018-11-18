@@ -1,6 +1,6 @@
 {
   "name": "pure-engine",
-  "version": "0.9.8",
+  "version": "0.9.9",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/buxlabs/html-engine.git"
+    "url": "git+https://github.com/buxlabs/pure-engine.git"
   },
   "keywords": [
     "html",
@@ -35,9 +35,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/buxlabs/html-engine/issues"
+    "url": "https://github.com/buxlabs/pure-engine/issues"
   },
-  "homepage": "https://github.com/buxlabs/html-engine#readme",
+  "homepage": "https://github.com/buxlabs/pure-engine#readme",
   "dependencies": {
     "abstract-syntax-tree": "^1.0.2",
     "himalaya": "^1.1.0",
