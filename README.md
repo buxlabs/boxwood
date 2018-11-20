@@ -106,7 +106,7 @@ underscore x 210,428 ops/sec ±1.60% (90 runs sampled)
 lodash x 249,232 ops/sec ±1.10% (91 runs sampled)
 handlebars x 1,883,683 ops/sec ±1.70% (84 runs sampled)
 mustache x 450,925 ops/sec ±2.56% (87 runs sampled)
-Fastest is html-engine
+Fastest is pure-engine
 ```
 
 ## License
