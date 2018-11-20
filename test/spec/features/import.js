@@ -217,6 +217,17 @@ test('import', async assert => {
   assert.deepEqual(template({ language: 'pl' }, html => html), '<h1>foo</h1><p>baz</p>')
   assert.deepEqual(template({ language: 'en' }, html => html), '<h1>bar</h1><p>qux</p>')
 
+  template = await compile(
+    `<import section from="./section.html">
+     <section background="black" size="big" border="rounded"></section>
+     <section></section>
+  `, { paths: [ path.join(__dirname, '../../fixtures/import') ]}
+  )
+  assert.deepEqual(template({}, html => html), `
+    <section class="black big rounded"></section>
+    <section></section>
+  `)
+
   try {
     template = await compile(`<partial from='./partial.html'/><partial>`, {})
   } catch (error) {
