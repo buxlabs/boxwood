@@ -353,6 +353,9 @@ async function collect (tree, fragment, variables, modifiers, components, statis
       // if the passed value is an expression we could assign it to a free variable
       // and then use inside of the template
       // this would have a better performance than the current solution
+
+      // this part of the code also deserves to have more specs
+      // e.g. this possibly will cause issues if the identifier is a part of a more complex node
       ast.replace({
         enter: node => {
           const variable = localVariables.find(variable => variable.key === node.name)
