@@ -1,6 +1,6 @@
 {
   "name": "pure-engine",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
