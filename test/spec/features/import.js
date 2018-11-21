@@ -220,13 +220,10 @@ test('import', async assert => {
   template = await compile(
     `<import section from="./section.html">
      <section background="black" size="big" border="rounded"></section>
-     <section></section>
+     <section class="  "></section>
   `, { paths: [ path.join(__dirname, '../../fixtures/import') ]}
   )
-  assert.deepEqual(template({}, html => html), `
-    <section class="black big rounded"></section>
-    <section></section>
-  `)
+  assert.deepEqual(template({}, html => html), `<section class="black big rounded"></section><section class="  "></section>`)
 
   try {
     template = await compile(`<partial from='./partial.html'/><partial>`, {})

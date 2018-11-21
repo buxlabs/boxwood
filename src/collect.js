@@ -343,32 +343,27 @@ async function collect (tree, fragment, variables, modifiers, components, statis
     const { languages, translationsPaths } = options
     if (component && !fragment.plain) {
       const { localVariables } = resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
-      if (localVariables.length > 0) {
-        tree.append({
-          type: 'VariableDeclaration',
-          declarations: localVariables.map(variable => {
-            const node = convertText(variable.value, variables, modifiers, translations, languages, translationsPaths)[0]
-            return {
-              type: 'VariableDeclarator',
-              id: {
-                type: 'Identifier',
-                name: variable.key
-              },
-              init: node
-            }
-          }),
-          kind: 'var'
-        })
-        localVariables.forEach(variable => {
-          variables.push(variable.key)
-        })
-      }
+      localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       walk(fragment, async current => {
         await collect(ast, current, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
       })
+      // TODO instead of doing this we could pass the variables down the road together
+      // with the values and set them there instead of replacing here
+      // if the passed value is an expression we could assign it to a free variable
+      // and then use inside of the template
+      // this would have a better performance than the current solution
+      ast.replace({
+        enter: node => {
+          const variable = localVariables.find(variable => variable.key === node.name)
+          if (node.type === 'Identifier' && variable) {
+            return convertText(variable.value, variables, modifiers, translations, languages, translationsPaths)[0]
+          }
+        }
+      })
       const body = ast.body()
       body.forEach(node => tree.append(node))
+      localVariables.forEach(() => variables.pop())
     } else if (tag === 'content') {
       const { key } = attrs[1]
       store[key] = fragment
