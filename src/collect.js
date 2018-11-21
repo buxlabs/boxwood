@@ -165,10 +165,12 @@ function convertValueToNode (value, variables) {
 function resolveComponent (component, fragment, variables, modifiers, components, statistics, options) {
   const localVariables = fragment.attributes
   let content = component.content
-  // TODO: Consider if this small speed up is worth keeping.
-  // localVariables.forEach(variable => {
-  //   content = content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-  // })
+  localVariables.forEach(variable => {
+    // is this the best way to ensure that a value is not an expresion?
+    if (!variable.value.includes('{') && !variable.value.includes('}')) {
+      content = content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+    }
+  })
   const htmlTree = parse(content)
   const children = fragment.children
   walk(htmlTree, leaf => {

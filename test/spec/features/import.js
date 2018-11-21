@@ -225,6 +225,20 @@ test('import', async assert => {
   )
   assert.deepEqual(template({}, html => html), `<section class="black big rounded"></section><section class="  "></section>`)
 
+  template = await compile(`
+    <import layout from="./blank1.html">
+    <layout foo="foo"></layout>
+  `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ]})
+
+  assert.deepEqual(template({}, html => html), `<div class="foo"></div>`)
+
+  template = await compile(`
+    <import layout from="./blank2.html">
+    <layout class="foo"></layout>
+  `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ]})
+
+  assert.deepEqual(template({}, html => html), `<div class="foo"></div>`)
+
   try {
     template = await compile(`<partial from='./partial.html'/><partial>`, {})
   } catch (error) {
