@@ -92,6 +92,10 @@ function collectComponentsFromImport (fragment, statistics, components, componen
   const name = attrs[0].key
   const path = attrs[1].value
   let paths = []
+
+  if (SELF_CLOSING_TAGS.includes(name)) {
+    throw new Error(`Forbidden component name: ${name}. Reason: this tag is self closing.`)
+  }
   if (options.paths) {
     paths = paths.concat(options.paths)
   } else {
@@ -178,6 +182,7 @@ function resolveComponent (component, fragment, statistics, options) {
       leaf.plain = true
     }
   })
+
   const currentComponents = []
   walk(htmlTree, async current => {
     if (current.tagName === 'import' || current.tagName === 'require') {

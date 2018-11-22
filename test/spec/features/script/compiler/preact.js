@@ -28,7 +28,7 @@ test('script: preact', async assert => {
   `, {
     compilers: {
       preact: async (source, options) => {
-        const input = join(tmpdir(), 'rollup.js')
+        const input = join(tmpdir(), 'preact.js')
         writeFileSync(input, source)
         const bundle = await rollup({
           input,
