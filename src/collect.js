@@ -166,7 +166,7 @@ function convertValueToNode (value, variables) {
   return getLiteral(value)
 }
 
-function resolveComponent (component, fragment, statistics, options) {
+function resolveComponent (component, fragment, components, statistics, options) {
   const localVariables = fragment.attributes
   let content = component.content
   localVariables.forEach(variable => {
@@ -178,8 +178,9 @@ function resolveComponent (component, fragment, statistics, options) {
   const htmlTree = parse(content)
   const children = fragment.children
   walk(htmlTree, leaf => {
+    leaf.imported = true
     if (leaf.tagName === component.name) {
-      leaf.plain = true
+      leaf.root = true
     }
   })
 
@@ -193,8 +194,8 @@ function resolveComponent (component, fragment, statistics, options) {
       collectComponentsFromPartialAttribute(current, statistics, options)
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
-    if (currentComponent && !current.plain) {
-      resolveComponent(currentComponent, current, statistics, options)
+    if (currentComponent && !current.root) {
+      resolveComponent(currentComponent, current, components, statistics, options)
       current.used = true
     }
     if (current.tagName === 'slot' || current.tagName === 'yield') {
@@ -210,8 +211,6 @@ function resolveComponent (component, fragment, statistics, options) {
       }
     }
   })
-  // TODO how to mark nested tags as used?
-  htmlTree.forEach(leaf => { leaf.plain = true })
   fragment.children = htmlTree
   return { fragment, localVariables }
 }
@@ -350,8 +349,8 @@ async function collect (tree, fragment, variables, modifiers, components, statis
     const keys = attrs ? attrs.map(attr => attr.key) : []
     const component = components.find(component => component.name === tag)
     const { languages, translationsPaths } = options
-    if (component && !fragment.plain) {
-      const { localVariables } = resolveComponent(component, fragment, statistics, options)
+    if (component && !fragment.imported) {
+      const { localVariables } = resolveComponent(component, fragment, components, statistics, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       walk(fragment, async current => {
