@@ -3,8 +3,8 @@ import { join } from 'path'
 import compile from '../helpers/compile'
 import test from 'ava'
 
-test('conditions', async assert => {
-  console.time('conditions')
+test('conditions (files)', async assert => {
+  console.time('conditions (files)')
 
   await suite('complex1', { divider: true }, `<div class="divider"></div>`, assert)
   await suite('complex1', { divider: undefined, header: true, name: 'foobar' }, `foobar`, assert)
@@ -26,11 +26,11 @@ test('conditions', async assert => {
     url: '#',
     iconClass: 'bar'
   }, `<a class="foo" href="#"><i class="bar"></i>foobar</a>`, assert)
-  console.timeEnd('conditions')
+  console.timeEnd('conditions (files)')
 })
 
 async function suite (name, data, expected, assert) {
-  const dir = join(__dirname, 'fixtures/conditions')
+  const dir = join(__dirname, '../fixtures/conditions')
   const file1 = join(dir, name, 'actual.html')
   const content1 = readFileSync(file1, 'utf8')
   const template = await compile(content1)

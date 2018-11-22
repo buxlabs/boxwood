@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "ava test/spec/**/*.js",
+    "test": "ava 'test/spec/**/*.js'",
     "benchmark": "node test/benchmark.js",
     "watch": "npm test -- --watch"
   },
@@ -56,6 +56,7 @@
     "handlebars": "^4.0.12",
     "lodash.template": "^4.4.0",
     "mustache": "^3.0.0",
+    "preact": "^8.3.1",
     "rollup": "^0.67.1",
     "rollup-plugin-svelte": "^4.3.2",
     "standard": "^11.0.1",

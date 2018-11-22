@@ -22,7 +22,7 @@ function normalize (string) {
 }
 
 async function suite (name, data = {}, assert) {
-  const dir = join(__dirname, 'fixtures/examples')
+  const dir = join(__dirname, '../fixtures/examples')
   const file1 = join(dir, name, 'actual.html')
   const file2 = join(dir, name, 'expected.html')
   const content1 = readFileSync(file1, 'utf8')
