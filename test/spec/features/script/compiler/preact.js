@@ -18,7 +18,7 @@ test('script: preact', async assert => {
     <script compiler="preact">
       import { render } from 'preact'
       const Foo = ({ bar }) => {
-        return (<span>{name}</span>)
+        return (<span>{bar}</span>)
       }
       render(
         <Foo bar="baz" />,

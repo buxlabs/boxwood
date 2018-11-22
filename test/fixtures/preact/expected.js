@@ -644,7 +644,7 @@
   const Foo = ({
     bar
   }) => {
-    return h("span", null, name);
+    return h("span", null, bar);
   };
 
   render(h(Foo, {
