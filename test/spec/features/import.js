@@ -270,6 +270,13 @@ test('import', async assert => {
 
   // assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
 
+  template = await compile(`
+    <import layout from="./layouts/landscape.html">
+    <layout>foo</layout>
+  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+
+  assert.deepEqual(template({}, html => html), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
+
   try {
     template = await compile(`
       <import link from='./components/link.html'>

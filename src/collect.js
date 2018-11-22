@@ -600,8 +600,8 @@ async function collect (tree, fragment, variables, modifiers, components, statis
         }
         tree.append(getTemplateAssignmentExpression(node))
       })
-      fragment.children.forEach(node => {
-        collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
+      walk(fragment, async node => {
+        await collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
       })
       if (!SELF_CLOSING_TAGS.includes(tag)) {
         const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -916,8 +916,8 @@ async function collect (tree, fragment, variables, modifiers, components, statis
       collectComponentsFromImport(fragment, statistics, components, null, options)
     } else if (tag === 'partial' || tag === 'render') {
       collectComponentsFromPartialOrRender(fragment, statistics, options)
-      fragment.children.forEach(node => {
-        collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
+      walk(fragment, async node => {
+        await collect(tree, node, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
       })
     }
     depth -= 1
