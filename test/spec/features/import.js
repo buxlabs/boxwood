@@ -255,6 +255,20 @@ test('import', async assert => {
 
   assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><button class="bar">qux</button>`)
 
+  template = await compile(`
+    <import list from="./components/list.html">
+    <list><li>foo</li></list>
+  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+
+  // TODO can we remove the unnecessary whitespace?
+  assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
+
+  // template = await compile(`
+  //   <import section from="./components/section.html">
+  //   <section />
+  // `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+
+  // assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
 
   try {
     template = await compile(`

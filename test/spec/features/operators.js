@@ -35,6 +35,15 @@ test('ternary', async assert => {
   template = await compile('{foo || "bar"}')
   assert.deepEqual(template({ foo: '' }, html => html), 'bar')
 
+  template = await compile('{ foo ? foo + "bar" : "" }')
+  assert.deepEqual(template({ foo: 'foo' }, html => html), 'foobar')
+
+  template = await compile('{ foo ? foo + "bar" : "" }')
+  assert.deepEqual(template({ foo: '' }, html => html), '')
+
+  template = await compile('{ foo ? foo + "bar" : "" }')
+  assert.deepEqual(template({ foo: undefined }, html => html), '')
+
   // TODO {foo[bar] ? ...}
   console.timeEnd('ternary')
 })
