@@ -180,18 +180,6 @@ function resolveComponent (component, fragment, statistics, options) {
   })
   const currentComponents = []
   walk(htmlTree, async current => {
-    if (current.tagName === 'slot' || current.tagName === 'yield') {
-      if (current.attributes.length === 0) {
-        current.children = children
-      } else {
-        const name = current.attributes[0].key
-        walk(children, leaf => {
-          if ((leaf.tagName === 'slot' || leaf.tagName === 'yield') && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
-            current.children = leaf.children
-          }
-        })
-      }
-    }
     if (current.tagName === 'import' || current.tagName === 'require') {
       collectComponentsFromImport(current, statistics, currentComponents, component, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render') {
@@ -204,7 +192,21 @@ function resolveComponent (component, fragment, statistics, options) {
       resolveComponent(currentComponent, current, statistics, options)
       current.used = true
     }
+    if (current.tagName === 'slot' || current.tagName === 'yield') {
+      if (current.attributes.length === 0) { // <slot></slot>
+        current.children = children
+      } else {
+        const name = current.attributes[0].key
+        walk(children, leaf => {
+          if ((leaf.tagName === 'slot' || leaf.tagName === 'yield') && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
+            current.children = leaf.children
+          }
+        })
+      }
+    }
   })
+  // TODO how to mark nested tags as used?
+  htmlTree.forEach(leaf => { leaf.plain = true })
   fragment.children = htmlTree
   return { fragment, localVariables }
 }

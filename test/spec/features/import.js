@@ -246,6 +246,14 @@ test('import', async assert => {
 
   assert.deepEqual(template({}, html => html), `foo<footer>bar</footer>`)
 
+  template = await compile(`
+    <import button from="./components/button1.html">
+    <import button2 from="./components/button2.html">
+    <button>baz</button>
+    <button2>qux</button2>
+  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><button class="bar">qux</button>`)
+
   try {
     template = await compile(`<partial from='./partial.html'/><partial>`, {})
   } catch (error) {
