@@ -162,7 +162,7 @@ function convertValueToNode (value, variables) {
   return getLiteral(value)
 }
 
-function resolveComponent (component, fragment, variables, modifiers, components, statistics, options) {
+function resolveComponent (component, fragment, statistics, options) {
   const localVariables = fragment.attributes
   let content = component.content
   localVariables.forEach(variable => {
@@ -200,8 +200,8 @@ function resolveComponent (component, fragment, variables, modifiers, components
       collectComponentsFromPartialAttribute(current, statistics, options)
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
-    if (currentComponent) {
-      resolveComponent(currentComponent, current, variables, modifiers, components, statistics, options)
+    if (currentComponent && !current.plain) {
+      resolveComponent(currentComponent, current, statistics, options)
       current.used = true
     }
   })
@@ -344,7 +344,7 @@ async function collect (tree, fragment, variables, modifiers, components, statis
     const component = components.find(component => component.name === tag)
     const { languages, translationsPaths } = options
     if (component && !fragment.plain) {
-      const { localVariables } = resolveComponent(component, fragment, variables, modifiers, components, statistics, options)
+      const { localVariables } = resolveComponent(component, fragment, statistics, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       walk(fragment, async current => {
