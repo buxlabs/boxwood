@@ -255,6 +255,15 @@ test('import', async assert => {
 
   assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><button class="bar">qux</button>`)
 
+  // template = await compile(`
+  //   <import button from="./components/button1.html">
+  //   <import button3 from="./components/button3.html">
+  //   <button>baz</button>
+  //   <button3>quux</button3>
+  // `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+
+  // assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><div class="button"><button class="qux">quux</button></div>`)
+
   template = await compile(`
     <import list from="./components/list.html">
     <list><li>foo</li></list>
