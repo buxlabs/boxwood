@@ -285,55 +285,41 @@ test('import', async assert => {
 
   assert.deepEqual(template({}, html => html), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 
-  try {
-    template = await compile(`
+  await assert.throws(
+    compile(`
       <import link from='./components/link.html'>
       <link href="#" color="blue" decoration="underlined">foo</link>
-    `, { paths: [ path.join(__dirname, '../../fixtures') ]})
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Forbidden component name: link\. Reason: this tag is self closing\./)
+    `, { paths: [ path.join(__dirname, '../../fixtures') ]}),
+    /Forbidden component name: link\. Reason: this tag is self closing\./
+  )
 
-  try {
-    template = await compile(`<partial from='./partial.html'/><partial>`, {})
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Compiler option is undefined: paths\./)
+  await assert.throws(
+    compile(`<partial from='./partial.html'/><partial>`, {}),
+    /Compiler option is undefined: paths\./
+  )
 
-  try {
-    template = await compile(`<partial from='./partial.html'/><partial>`, { paths: [] })
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Asset not found: \.\/partial\.html/)
+  await assert.throws(
+    compile(`<partial from='./partial.html'/><partial>`, { paths: [] }),
+    /Asset not found: \.\/partial\.html/
+  )
 
-  try {
-    template = await compile(`<div partial='./partial.html'/><div>`, {})
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Compiler option is undefined: paths\./)
+  await assert.throws(
+    compile(`<div partial='./partial.html'/><div>`, {}),
+    /Compiler option is undefined: paths\./
+  )
 
-  try {
-    template = await compile(`<div partial='./partial.html'/><div>`, { paths: [] })
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Asset not found: \.\/partial\.html/)
+  await assert.throws(
+    compile(`<div partial='./partial.html'/><div>`, { paths: [] }),
+    /Asset not found: \.\/partial\.html/
+  )
 
-  try {
-    template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {})
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Compiler option is undefined: paths\./)
+  await assert.throws(
+    compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {}),
+    /Compiler option is undefined: paths\./
+  )
 
-  try {
-    template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] })
-  } catch (error) {
-    exception = error
-  }
-  assert.regex(exception.message, /Asset not found: \.\/checkbox\.html/)
+  await assert.throws(
+    compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] }),
+    /Asset not found: \.\/checkbox\.html/
+  )
 })
