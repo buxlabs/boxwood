@@ -68,8 +68,7 @@ class Compiler {
   constructor (options) {
     this.options = Object.assign({
       inline: [],
-      compilers: {},
-      languages: []
+      compilers: {}
     }, options)
   }
   parse (source) {

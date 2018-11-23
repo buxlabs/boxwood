@@ -51,6 +51,7 @@ function serializeProperties (translations) {
 }
 
 function serializeLanguages (languages) {
+  if (!languages) throw new Error('Compiler option is undefined: languages.')
   return languages.map(language => { return { type: 'Literal', value: language } })
 }
 
