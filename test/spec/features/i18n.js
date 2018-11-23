@@ -1,10 +1,9 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import path from 'path'
 
 test('i18n', async assert => {
   let template
-  console.time('i18n')
 
   template = await compile(
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{"submit" | translate}</div>`,
@@ -355,5 +354,4 @@ test('i18n', async assert => {
     assert.regex(error.message, /The translation script cannot be empty/)
   }
 
-  console.timeEnd('i18n')
 })

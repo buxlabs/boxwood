@@ -1,9 +1,8 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
 test('loops', async assert => {
   let template
-  console.time('loops')
 
   template = await compile('<ul><for todo in todos><li html="{todo.description}"></li></for></ul>')
   assert.deepEqual(template({
@@ -252,5 +251,4 @@ test('loops', async assert => {
     }
   }, html => html), '123')
 
-  console.timeEnd('loops')
 })

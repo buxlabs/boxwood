@@ -1,9 +1,8 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
 test('image-size', async assert => {
   let template
-  console.time('image-size')
 
   template = await compile('<img src="../../fixtures/images/placeholder.png" width="auto" height="auto">', { paths: [__dirname] })
   assert.deepEqual(template({}, html => html), '<img src="../../fixtures/images/placeholder.png" width="250" height="250">')
@@ -19,6 +18,4 @@ test('image-size', async assert => {
 
   template = await compile('<img src="../../fixtures/images/placeholder.jpg" size="400x400">', { paths: [__dirname] })
   assert.deepEqual(template({}, html => html), '<img src="../../fixtures/images/placeholder.jpg" width="400" height="400">')
-
-  console.timeEnd('image-size')
 })

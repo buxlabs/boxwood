@@ -1,4 +1,4 @@
-import test from 'ava'
+import test from '../../../../helpers/test'
 import compile from '../../../../helpers/compile'
 import { normalize } from '../../../../helpers/string'
 import { rollup } from 'rollup'
@@ -11,7 +11,6 @@ import { join } from 'path'
 
 test('script: preact', async assert => {
   let template
-  console.time('script: preact')
 
   template = await compile(`
     <div id='app'></div>
@@ -60,6 +59,4 @@ test('script: preact', async assert => {
   })
 
   assert.deepEqual(normalize(template({}, html => html)), normalize(`<div id="app"></div><script>` + readFileSync(join(__dirname, '../../../../fixtures/preact', 'expected.js'), 'utf8') + `</script>`))
-
-  console.timeEnd('script: preact')
 })

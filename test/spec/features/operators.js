@@ -1,9 +1,8 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
 test('ternary', async assert => {
   let template
-  console.time('ternary')
 
   template = await compile('{foo ? "bar" : "baz"}')
   assert.deepEqual(template({ foo: true }, html => html), 'bar')
@@ -45,5 +44,4 @@ test('ternary', async assert => {
   assert.deepEqual(template({ foo: undefined }, html => html), '')
 
   // TODO {foo[bar] ? ...}
-  console.timeEnd('ternary')
 })

@@ -1,10 +1,9 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import escape from 'escape-html'
 
 test('modifiers', async assert => {
   let template
-  console.time('modifiers')
 
   template = await compile('{"Hello World" | uppercase}')
   assert.deepEqual(template({}, escape), 'HELLO WORLD')
@@ -503,5 +502,4 @@ test('modifiers', async assert => {
   template = await compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`)
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
 
-  console.timeEnd('modifiers')
 })

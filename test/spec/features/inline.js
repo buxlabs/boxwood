@@ -1,10 +1,9 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import path from 'path'
 
 test('inline', async assert => {
   let template
-  console.time('inline')
 
   template = await compile(`<script inline>const foo = "bar"</script>{foo}`)
   assert.deepEqual(template({}, html => html), 'bar')
@@ -62,5 +61,4 @@ test('inline', async assert => {
   } catch (error) {
     assert.regex(error.message, /Asset not found: \.\/foo\.js/)
   }
-  console.timeEnd('inline')
 })

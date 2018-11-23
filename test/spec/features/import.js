@@ -1,10 +1,9 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import path from 'path'
 
 test('import', async assert => {
   let template, exception
-  console.time('import')
 
   template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`,
     { paths: [ path.join(__dirname, '../../fixtures/import') ]
@@ -337,6 +336,4 @@ test('import', async assert => {
     exception = error
   }
   assert.regex(exception.message, /Asset not found: \.\/checkbox\.html/)
-
-  console.timeEnd('import')
 })

@@ -1,4 +1,4 @@
-import test from 'ava'
+import test from '../../../../helpers/test'
 import compile from '../../../../helpers/compile'
 import { normalize } from '../../../../helpers/string'
 import { rollup } from 'rollup'
@@ -8,7 +8,6 @@ import { join } from 'path'
 
 test('script: rollup', async assert => {
   let template
-  console.time('script: rollup')
 
   template = await compile(`
     <script compiler="rollup">console.log('x')</script>
@@ -28,6 +27,4 @@ test('script: rollup', async assert => {
   })
 
   assert.deepEqual(normalize(template({}, html => html)), normalize(`<script>(function () { 'use strict'; console.log('x'); }());</script>`))
-
-  console.timeEnd('script: rollup')
 })

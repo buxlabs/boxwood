@@ -1,4 +1,4 @@
-import test from 'ava'
+import test from '../../../../helpers/test'
 import compile from '../../../../helpers/compile'
 import { normalize } from '../../../../helpers/string'
 import { rollup } from 'rollup'
@@ -8,7 +8,6 @@ import { join } from 'path'
 
 test('script: svelte', async assert => {
   let template
-  console.time('script: svelte')
 
   template = await compile(`
     <script compiler="svelte">import Foo from './Foo.html'; const target = document.getElementById('app'); new Foo({ target });</script>
@@ -28,6 +27,4 @@ test('script: svelte', async assert => {
   })
 
   assert.deepEqual(normalize(template({}, html => html)), normalize('<script>' + readFileSync(join(__dirname, '../../../../fixtures/svelte', 'expected.js'), 'utf8')) + '</script>')
-
-  console.timeEnd('script: svelte')
 })

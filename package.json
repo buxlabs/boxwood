@@ -51,6 +51,7 @@
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/plugin-transform-react-jsx": "^7.1.6",
+    "ansi-colors": "^3.2.1",
     "ava": "^0.25.0",
     "benchmark": "^2.1.4",
     "coffeescript": "^2.3.2",

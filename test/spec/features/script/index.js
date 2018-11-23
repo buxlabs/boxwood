@@ -1,4 +1,4 @@
-import test from 'ava'
+import test from '../../../helpers/test'
 import compile from '../../../helpers/compile'
 
 function normalize (string) {
@@ -7,7 +7,6 @@ function normalize (string) {
 
 test('script', async assert => {
   let template
-  console.time('script')
 
   template = await compile('<script store>console.log(STORE.foo)</script>')
   assert.deepEqual(template({ foo: 2 }, html => html), '<script>const STORE = {"foo":2}\nconsole.log(STORE.foo)</script>')
@@ -71,5 +70,4 @@ test('script', async assert => {
 
   assert.deepEqual(template({}, html => html), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
 
-  console.timeEnd('script')
 })

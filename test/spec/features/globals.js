@@ -1,9 +1,8 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
 test('globals', async assert => {
   let template
-  console.time('globals')
 
   template = await compile('{Math.abs(foo)}')
   assert.deepEqual(template({ foo: -1 }, html => html), '1')
@@ -40,6 +39,4 @@ test('globals', async assert => {
 
   template = await compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')
   assert.deepEqual(template({}, html => html), '818035920000')
-
-  console.timeEnd('globals')
 })

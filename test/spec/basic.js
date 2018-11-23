@@ -1,87 +1,148 @@
-import test from 'ava'
+import test from '../helpers/test'
 import compile from '../helpers/compile'
 
-test('basic', async assert => {
-  console.time('basic')
-  let template
-
-  template = await compile('')
+test('basic: it returns nothing for no template', async assert => {
+  const template = await compile('')
   assert.deepEqual(template(), '')
+})
 
-  template = await compile('<!DOCTYPE html>')
+test('basic: it ignores comments', async assert => {
+  const template = await compile('<!-- foo -->')
+  assert.deepEqual(template(), '')
+})
+
+test('basic: it handles doctype', async assert => {
+  const template = await compile('<!DOCTYPE html>')
   assert.deepEqual(template(), '<!doctype html>')
+})
 
-  template = await compile('<!-- foo -->')
-  assert.deepEqual(template(), '')
-
-  template = await compile('hello world')
+test('basic: it handles content', async assert => {
+  const template = await compile('hello world')
   assert.deepEqual(template(), 'hello world')
+})
 
-  template = await compile('<div></div>')
+test('basic: it handles empty div tags', async assert => {
+  const template = await compile('<div></div>')
   assert.deepEqual(template(), '<div></div>')
+})
 
-  template = await compile('<div>foo</div>')
+test('basic: it handles div tags with content', async assert => {
+  const template = await compile('<div>foo</div>')
   assert.deepEqual(template(), '<div>foo</div>')
+})
 
-  template = await compile('foo<div></div>')
+test('basic: it handles content before an empty tag', async assert => {
+  const template = await compile('foo<div></div>')
   assert.deepEqual(template(), 'foo<div></div>')
+})
 
-  template = await compile('<div></div>foo')
+test('basic: it handles content after an empty tag', async assert => {
+  const template = await compile('<div></div>foo')
   assert.deepEqual(template(), '<div></div>foo')
+})
 
-  template = await compile('<head><meta name="viewport" content="width=device-width, initial-scale=1"></head>')
+test('basic: it handles multiple tags', async assert => {
+  const template = await compile('<div></div><span></span>')
+  assert.deepEqual(template(), '<div></div><span></span>')
+})
+
+test('basic: it handles a tag with an attribute', async assert => {
+  const template = await compile('<div class="foo"></div>')
+  assert.deepEqual(template(), '<div class="foo"></div>')
+})
+
+test('basic: it handles a tag with multiple attributes', async assert => {
+  const template = await compile('<a href="/foo" id="foo"></a>')
+  assert.deepEqual(template(), '<a href="/foo" id="foo"></a>')
+})
+
+test('basic: it handles a nested tag with multiple attributes', async assert => {
+  const template = await compile('<head><meta name="viewport" content="width=device-width, initial-scale=1"></head>')
   assert.deepEqual(template(), '<head><meta name="viewport" content="width=device-width, initial-scale=1"></head>')
+})
 
-  template = await compile('<input>')
+test('basic: it handles self closing input tag', async assert => {
+  const template = await compile('<input>')
   assert.deepEqual(template(), '<input>')
+})
 
-  template = await compile('<input/>')
+test('basic: it strips the additional slash character for self closing input tag', async assert => {
+  const template = await compile('<input/>')
   assert.deepEqual(template(), '<input>')
+})
 
-  template = await compile('<input type="number" value="100">')
-  assert.deepEqual(template(), '<input type="number" value="100">')
-
-  template = await compile('<input type="number" value="100" autocomplete="off">')
+test('basic: it handles multiple attributes for an input', async assert => {
+  const template = await compile('<input type="number" value="100" autocomplete="off">')
   assert.deepEqual(template(), '<input type="number" value="100" autocomplete="off">')
+})
 
-  template = await compile('<input    value="100">')
+test('basic: it strips unwanted whitespace in tag definition', async assert => {
+  const template = await compile('<input    value="100">')
   assert.deepEqual(template(), '<input value="100">')
+})
 
-  template = await compile('<input value="">')
+test('basic: it works for empty value attribute', async assert => {
+  const template = await compile('<input value="">')
   assert.deepEqual(template(), '<input value="">')
+})
 
-  template = await compile('<input class="">')
+test('basic: it works for empty class attribute', async assert => {
+  const template = await compile('<input class="">')
   assert.deepEqual(template(), '<input class="">')
+})
 
-  template = await compile('{hello}, world!')
-  assert.deepEqual(template({ hello: 'Hello' }, html => html), 'Hello, world!')
-
-  template = await compile('{foo}')
+test('basic: it handles variables', async assert => {
+  const template = await compile('{foo}')
   assert.deepEqual(template({ foo: 'foo' }, html => html), 'foo')
+})
 
-  template = await compile('{foo.bar}')
+test('basic: it handles variables and content', async assert => {
+  const template = await compile('{foo}, world!')
+  assert.deepEqual(template({ foo: 'Hello' }, html => html), 'Hello, world!')
+})
+
+test('basic: it handles objects with properties', async assert => {
+  const template = await compile('{foo.bar}')
   assert.deepEqual(template({ foo: { bar: 'bar' } }, html => html), 'bar')
+})
 
-  template = await compile('{foo[bar]}')
+test('basic: it handles the bracket notation', async assert => {
+  const template = await compile('{foo[bar]}')
   assert.deepEqual(template({ foo: { bar: 'bar' }, bar: 'bar' }, html => html), 'bar')
+})
 
-  template = await compile('{foo.bar.baz[qux]}')
+test('basic: it handles deep objects with bracket notation', async assert => {
+  const template = await compile('{foo.bar.baz[qux]}')
   assert.deepEqual(template({ foo: { bar: { baz: { qux: 'qux' } } }, qux: 'qux' }, html => html), 'qux')
+})
 
-  template = await compile('{foo[bar][baz]}')
+test('basic: it handles double bracket notation', async assert => {
+  const template = await compile('{foo[bar][baz]}')
   assert.deepEqual(template({ foo: { bar: { baz: 'baz' } }, bar: 'bar', baz: 'baz' }, html => html), 'baz')
+})
 
-  template = await compile('{foo[bar][baz][qux]}')
+test('basic: it handles triple bracket notation', async assert => {
+  const template = await compile('{foo[bar][baz][qux]}')
   assert.deepEqual(template({ foo: { bar: { baz: { qux: 'qux' } } }, bar: 'bar', baz: 'baz', qux: 'qux' }, html => html), 'qux')
+})
 
-  template = await compile('{foo[bar].baz}')
+test('basic: it handles mixed bracket and dot notation', async assert => {
+  const template = await compile('{foo[bar].baz}')
   assert.deepEqual(template({ foo: { bar: { baz: 'baz' } }, bar: 'bar' }, html => html), 'baz')
+})
 
-  template = await compile('{foo[bar].baz[qux]}')
+test('basic: it handles mixed double bracket and dot notation', async assert => {
+  const template = await compile('{foo[bar].baz[qux]}')
   assert.deepEqual(template({ foo: { bar: { baz: { qux: 'qux' } } }, bar: 'bar', qux: 'qux' }, html => html), 'qux')
+})
 
-  template = await compile('{foo}{bar}')
+test('basic: it handles two variables', async assert => {
+  const template = await compile('{foo}{bar}')
   assert.deepEqual(template({ foo: 'foo', bar: 'bar' }, html => html), 'foobar')
+})
+
+test('basic', async assert => {
+  let template
 
   template = await compile('<div html="foo"></div>')
   assert.deepEqual(template(), '<div>foo</div>')
@@ -436,6 +497,4 @@ test('basic', async assert => {
 
   template = await compile('<img src="./placeholder.png">')
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, html => html), '<img src="./placeholder.png">')
-
-  console.timeEnd('basic')
 })

@@ -1,4 +1,4 @@
-import test from 'ava'
+import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
 test('conditions', async assert => {
@@ -2050,6 +2050,4 @@ test('conditions', async assert => {
 
   template = await compile('<if foo>bar</if><elseif bar>baz</else>')
   assert.deepEqual(template({ foo: false, bar: true }, html => html), 'baz')
-
-  console.timeEnd('conditions')
 })
