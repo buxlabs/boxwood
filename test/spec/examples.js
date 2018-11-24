@@ -30,6 +30,10 @@ test('example: i18n', async assert => {
   )
 })
 
+test('example: scope', async assert => {
+  await suite('scope', {}, assert)
+})
+
 async function suite (name, data = {}, assert) {
   const dir = join(__dirname, '../fixtures/examples', name)
   const path1 = join(dir, 'actual.html')
