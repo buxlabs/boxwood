@@ -34,6 +34,10 @@ test('example: scope', async assert => {
   await suite('scope', {}, assert)
 })
 
+test('example: slots', async assert => {
+  await suite('slots', {}, assert)
+})
+
 async function suite (name, data = {}, assert) {
   const dir = join(__dirname, '../fixtures/examples', name)
   const path1 = join(dir, 'actual.html')
