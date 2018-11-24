@@ -16,8 +16,8 @@ const aliases = {
   length: 'size'
 }
 
-function getModifierName (modifier) {
-  return aliases[modifier] || modifier
+function getFilterName (filter) {
+  return aliases[filter] || filter
 }
 
 function translate (key, language) {
@@ -55,8 +55,8 @@ function serializeLanguages (languages) {
   return languages.map(language => { return { type: 'Literal', value: language } })
 }
 
-function extractModifierName (modifier) {
-  const tree = new AbstractSyntaxTree(modifier)
+function extractFilterName (filter) {
+  const tree = new AbstractSyntaxTree(filter)
   const node = tree.body()[0].expression
   return node.type === 'CallExpression' ? node.callee.name : node.name
 }
@@ -64,11 +64,11 @@ function extractModifierName (modifier) {
 const builtins = { translate }
 
 module.exports = {
-  getModifierName,
-  extractModifierName,
-  getModifier (modifier, translations, options) {
-    let name = extractModifierName(modifier)
-    name = getModifierName(name)
+  getFilterName,
+  extractFilterName,
+  getFilter (filter, translations, options) {
+    let name = extractFilterName(filter)
+    name = getFilterName(name)
     const method = utilities.string[name] ||
       utilities.math[name] ||
       utilities.json[name] ||

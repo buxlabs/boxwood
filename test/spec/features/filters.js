@@ -2,7 +2,7 @@ import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import escape from 'escape-html'
 
-test('modifiers', async assert => {
+test('filters', async assert => {
   let template
 
   template = await compile('{"Hello World" | uppercase}')

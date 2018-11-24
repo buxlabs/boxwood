@@ -4,7 +4,7 @@ const walk = require('himalaya-walk')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('./enum')
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./factory')
 const collect = require('./collect')
-const { getModifier } = require('./modifiers')
+const { getFilter } = require('./filters')
 const { array: { unique } } = require('pure-utilities')
 const Statistics = require('./Statistics')
 
@@ -16,7 +16,7 @@ async function render (htmltree, options) {
     OBJECT_VARIABLE,
     ESCAPE_VARIABLE
   ].concat(GLOBAL_VARIABLES)
-  const modifiers = []
+  const filters = []
   const components = []
   const statistics = new Statistics()
   const store = {}
@@ -26,15 +26,15 @@ async function render (htmltree, options) {
   let depth = 0
   tree.append(getTemplateVariableDeclaration())
   walk(htmltree, async fragment => {
-    await collect(tree, fragment, variables, modifiers, components, statistics, translations, store, depth, options, promises, errors)
+    await collect(tree, fragment, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
   })
   await Promise.all(promises)
   const used = []
-  unique(modifiers).forEach(name => {
-    const modifier = getModifier(name, translations, options)
-    if (modifier && !used.includes(modifier.id.name)) {
-      tree.prepend(modifier)
-      used.push(modifier.id.name)
+  unique(filters).forEach(name => {
+    const filter = getFilter(name, translations, options)
+    if (filter && !used.includes(filter.id.name)) {
+      tree.prepend(filter)
+      used.push(filter.id.name)
     }
   })
   tree.append(getTemplateReturnStatement())

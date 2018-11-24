@@ -20,7 +20,7 @@ Status: Alpha / Proof of concept
 `{name}` is a curly tag
 
 Curly tags can contain expressions, e.g. `{1 + 2}` is a valid tag.
-They can also contain additional modifiers like `{name | capitalize}`
+They can also contain additional filters like `{name | capitalize}`
 
 ### HTML Tags
 
@@ -45,9 +45,9 @@ expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
 * conditional tags: if, else, elseif, unless, elseunless
 * loops: for, each, foreach
 * import and require tags
-* modifiers for strings, numbers, arrays, objects and more
+* filters for strings, numbers, arrays, objects and more
 * special attributes, e.g. inline for asset inline, width="auto" for auto sizing and more
-* built-in i18n support (translate tag and modifier)
+* built-in i18n support (translate tag and filter)
 * compiler tag for scripts (allows custom compilers)
 * error handling: rescue tag
 

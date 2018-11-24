@@ -29,7 +29,7 @@ function extract (value) {
         value = value.substring(1, value.length - 1)
         let parts = value.split('|').map(string => string.trim())
         object.value = `{${parts[0]}}`
-        object.modifiers = parts.slice(1)
+        object.filters = parts.slice(1)
       }
     }
     return object
