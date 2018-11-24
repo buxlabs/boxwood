@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-test('script: preact', async assert => {
+test('script: compiler="preact"', async assert => {
   let template
 
   template = await compile(`

@@ -3,7 +3,7 @@ import compile from '../../../../helpers/compile'
 import { normalize } from '../../../../helpers/string'
 import coffeescript from 'coffeescript'
 
-test('script: coffeescript', async assert => {
+test('script: compiler="coffeescript"', async assert => {
   let template
 
   template = await compile(`

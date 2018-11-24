@@ -1,7 +1,7 @@
 import test from '../../../helpers/test'
 import compile from '../../../helpers/compile'
 
-test('script', async assert => {
+test('script: store', async assert => {
   let template
 
   template = await compile('<script store>console.log(STORE.foo)</script>')
@@ -33,36 +33,4 @@ test('script', async assert => {
 
   template = await compile('<script store>const isHidden = STORE.isHidden</script>')
   assert.deepEqual(template({ isHidden: true }, html => html), '<script>const STORE = {"isHidden":true}\nconst isHidden = STORE.isHidden</script>')
-
-  template = await compile('<script compiler="foo2bar">const foo = 42</script>', { compilers: { foo2bar: (source) => { return source.replace('foo', 'bar') } } })
-  assert.deepEqual(template({}, html => html), '<script>const bar = 42</script>')
-
-  template = await compile(`<script compiler="foo2bar" options='{"baz": "qux"}'>const foo = 42</script>`, { compilers: { foo2bar: (source, options) => { return source.replace('foo', options.baz) } } })
-  assert.deepEqual(template({}, html => html), '<script>const qux = 42</script>')
-
-  template = await compile(`<script compiler="async">const foo = 42</script>`, {
-    compilers: {
-      async: (source) => {
-        return new Promise(resolve => {
-          resolve(source.replace('foo', 'bar'))
-        })
-      }
-    }
-  })
-
-  assert.deepEqual(template({}, html => html), '<script>const bar = 42</script>')
-
-  template = await compile(`<div>foo</div><script compiler="bar2qux">const bar = 42</script><div>baz</div>`, {
-    compilers: {
-      bar2qux: (source) => {
-        return new Promise(resolve => {
-          setTimeout(() => {
-            resolve(source.replace('bar', 'qux'))
-          }, 5)
-        })
-      }
-    }
-  })
-
-  assert.deepEqual(template({}, html => html), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
 })

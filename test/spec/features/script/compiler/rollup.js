@@ -6,7 +6,7 @@ import { writeFileSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 
-test('script: rollup', async assert => {
+test('script: compiler="rollup"', async assert => {
   let template
 
   template = await compile(`

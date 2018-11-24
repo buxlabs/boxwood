@@ -6,7 +6,7 @@ import svelte from 'rollup-plugin-svelte'
 import { readFileSync, writeFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
 
-test('script: svelte', async assert => {
+test('script: compiler="svelte"', async assert => {
   let template
 
   template = await compile(`
