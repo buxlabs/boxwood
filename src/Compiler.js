@@ -108,8 +108,8 @@ class Compiler {
     } else {
       errors = template.errors
     }
-    const code = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)() // eslint-disable-line
-    return { code, statistics, errors }
+    const compiled = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)() // eslint-disable-line
+    return { template: compiled, statistics, errors }
   }
 }
 

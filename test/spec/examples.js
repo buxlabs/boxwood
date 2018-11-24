@@ -23,6 +23,13 @@ test('example: home', async assert => {
   await suite('home', {}, assert)
 })
 
+test('example: i18n', async assert => {
+  await assert.throws(
+    suite('i18n', { language: 'pl' }, assert),
+    /Translation already exists/
+  )
+})
+
 async function suite (name, data = {}, assert) {
   const dir = join(__dirname, '../fixtures/examples', name)
   const path1 = join(dir, 'actual.html')
@@ -30,7 +37,8 @@ async function suite (name, data = {}, assert) {
   const content1 = await readFile(path1)
   const content2 = await readFile(path2)
   const template = await compile(content1, {
-    paths: [dir]
+    paths: [dir],
+    languages: ['pl', 'en']
   })
   const actual = normalize(template(data, html => html))
   const expected = normalize(content2)

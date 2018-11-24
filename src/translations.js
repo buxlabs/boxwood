@@ -5,6 +5,7 @@ const { extname } = require('path')
 function readTranslations (path) {
   const content = readFileSync(path, 'utf8')
   const extension = extname(path)
+  // TODO handle error and print better error message
   return extension === '.yaml' ? load(content) : JSON.parse(content)
 }
 

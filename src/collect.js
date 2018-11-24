@@ -513,14 +513,23 @@ async function collect (tree, fragment, variables, filters, components, statisti
       leaf.used = true
       if (keys.includes('yaml')) {
         const data = yaml.load(leaf.content)
-        for (let key in data) { translations[key] = data[key] }
+        for (let key in data) {
+          if (translations[key]) { throw new Error('Translation already exists') }
+          translations[key] = data[key]
+        }
       } else if (keys.includes('json')) {
         const data = JSON.parse(leaf.content)
-        for (let key in data) { translations[key] = data[key] }
+        for (let key in data) {
+          if (translations[key]) { throw new Error('Translation already exists') }
+          translations[key] = data[key]
+        }
       } else {
         const ast = new AbstractSyntaxTree(leaf.content)
         const node = ast.first('ExportDefaultDeclaration')
         node.declaration.properties.forEach(property => {
+          if (translations[property.key.name || property.key.value]) {
+            throw new Error('Translation already exists')
+          }
           translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
         })
       }
