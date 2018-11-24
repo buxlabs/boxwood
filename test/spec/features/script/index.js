@@ -1,10 +1,6 @@
 import test from '../../../helpers/test'
 import compile from '../../../helpers/compile'
 
-function normalize (string) {
-  return string.replace(/\s+/g, '')
-}
-
 test('script', async assert => {
   let template
 
@@ -69,5 +65,4 @@ test('script', async assert => {
   })
 
   assert.deepEqual(template({}, html => html), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
-
 })

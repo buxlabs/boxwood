@@ -3,7 +3,7 @@ import compile from '../../helpers/compile'
 import path from 'path'
 
 test('import', async assert => {
-  let template, exception
+  let template
 
   template = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`,
     { paths: [ path.join(__dirname, '../../fixtures/import') ]
@@ -220,28 +220,28 @@ test('import', async assert => {
     `<import section from="./section.html">
      <section background="black" size="big" border="rounded"></section>
      <section class="  "></section>
-  `, { paths: [ path.join(__dirname, '../../fixtures/import') ]}
+  `, { paths: [ path.join(__dirname, '../../fixtures/import') ] }
   )
   assert.deepEqual(template({}, html => html), `<section class="black big rounded"></section><section class="  "></section>`)
 
   template = await compile(`
     <import layout from="./blank1.html">
     <layout foo="foo"></layout>
-  `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ] })
 
   assert.deepEqual(template({}, html => html), `<div class="foo"></div>`)
 
   template = await compile(`
     <import layout from="./blank2.html">
     <layout class="foo"></layout>
-  `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ] })
 
   assert.deepEqual(template({}, html => html), `<div class="foo"></div>`)
 
   template = await compile(`
     <import layout from="./layouts/blank3.html">
     <layout>foo</layout>
-  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   assert.deepEqual(template({}, html => html), `foo<footer>bar</footer>`)
 
@@ -250,7 +250,7 @@ test('import', async assert => {
     <import button2 from="./components/button2.html">
     <button>baz</button>
     <button2>qux</button2>
-  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><button class="bar">qux</button>`)
 
@@ -259,14 +259,14 @@ test('import', async assert => {
     <import button3 from="./components/button3.html">
     <button>baz</button>
     <button3>quux</button3>
-  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><div class="button"><button class="qux">quux</button></div>`)
 
   template = await compile(`
     <import list from="./components/list.html">
     <list><li>foo</li></list>
-  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   // TODO can we remove the unnecessary whitespace?
   assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
@@ -274,14 +274,14 @@ test('import', async assert => {
   // template = await compile(`
   //   <import section from="./components/section.html">
   //   <section />
-  // `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  // `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   // assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
 
   template = await compile(`
     <import layout from="./layouts/landscape.html">
     <layout>foo</layout>
-  `, { paths: [ path.join(__dirname, '../../fixtures') ]})
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   assert.deepEqual(template({}, html => html), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 
@@ -289,7 +289,7 @@ test('import', async assert => {
     compile(`
       <import link from='./components/link.html'>
       <link href="#" color="blue" decoration="underlined">foo</link>
-    `, { paths: [ path.join(__dirname, '../../fixtures') ]}),
+    `, { paths: [ path.join(__dirname, '../../fixtures') ] }),
     /Forbidden component name: link\. Reason: this tag is self closing\./
   )
 

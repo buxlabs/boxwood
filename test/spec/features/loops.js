@@ -250,5 +250,4 @@ test('loops', async assert => {
       }
     }
   }, html => html), '123')
-
 })

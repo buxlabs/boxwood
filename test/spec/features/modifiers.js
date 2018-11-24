@@ -501,5 +501,4 @@ test('modifiers', async assert => {
 
   template = await compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`)
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
-
 })
