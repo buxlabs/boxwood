@@ -19,13 +19,19 @@ test('example: grid', async assert => {
   }, assert)
 })
 
+test('example: home', async assert => {
+  await suite('home', {}, assert)
+})
+
 async function suite (name, data = {}, assert) {
-  const dir = join(__dirname, '../fixtures/examples')
-  const path1 = join(dir, name, 'actual.html')
-  const path2 = join(dir, name, 'expected.html')
+  const dir = join(__dirname, '../fixtures/examples', name)
+  const path1 = join(dir, 'actual.html')
+  const path2 = join(dir, 'expected.html')
   const content1 = await readFile(path1)
   const content2 = await readFile(path2)
-  const template = await compile(content1)
+  const template = await compile(content1, {
+    paths: [dir]
+  })
   const actual = normalize(template(data, html => html))
   const expected = normalize(content2)
   assert.deepEqual(actual, expected)
