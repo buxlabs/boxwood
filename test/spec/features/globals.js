@@ -1,7 +1,7 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
-test('globals', async assert => {
+test('globals: Math', async assert => {
   let template
 
   template = await compile('{Math.abs(foo)}')
@@ -21,18 +21,30 @@ test('globals', async assert => {
 
   template = await compile('{Math.pow(foo, 3)}')
   assert.deepEqual(template({ foo: 2 }, html => html), '8')
+})
+
+test('globals: Number', async assert => {
+  let template
 
   template = await compile('{Number.isFinite(foo)}')
   assert.deepEqual(template({ foo: 42 }, html => html), 'true')
 
   template = await compile('{Number.isFinite(foo)}')
   assert.deepEqual(template({ foo: Infinity }, html => html), 'false')
+})
+
+test('globals: JSON', async assert => {
+  let template
 
   template = await compile('{JSON.stringify(foo, null, 2)}')
   assert.deepEqual(template({ foo: { bar: 'baz' } }, html => html), '{\n  "bar": "baz"\n}')
 
   template = await compile('{JSON.stringify(foo, null, 4)}')
   assert.deepEqual(template({ foo: { bar: 'baz' } }, html => html), '{\n    "bar": "baz"\n}')
+})
+
+test('globals: Date', async assert => {
+  let template
 
   template = await compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')
   assert.deepEqual(template({ foo: { bar: 'baz' } }, html => html), '0')
