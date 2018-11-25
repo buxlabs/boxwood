@@ -5,6 +5,7 @@ import { rollup } from 'rollup'
 import { writeFileSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import escape from 'escape-html'
 
 test('script: compiler="rollup"', async assert => {
   let template
@@ -26,5 +27,5 @@ test('script: compiler="rollup"', async assert => {
     }
   })
 
-  assert.deepEqual(normalize(template({}, html => html)), normalize(`<script>(function () { 'use strict'; console.log('x'); }());</script>`))
+  assert.deepEqual(normalize(template({}, escape)), normalize(`<script>(function () { 'use strict'; console.log('x'); }());</script>`))
 })

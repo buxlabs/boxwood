@@ -3,6 +3,7 @@ import compile from '../helpers/compile'
 import { normalize } from '../helpers/string'
 import { readFile } from '../helpers/fs'
 import { join } from 'path'
+import escape from 'escape-html'
 
 test('example: fizzbuzz', async assert => {
   await suite('fizzbuzz', {}, assert)
@@ -48,7 +49,7 @@ async function suite (name, data = {}, assert) {
     paths: [dir],
     languages: ['pl', 'en']
   })
-  const actual = normalize(template(data, html => html))
+  const actual = normalize(template(data, escape))
   const expected = normalize(content2)
   assert.deepEqual(actual, expected)
 }

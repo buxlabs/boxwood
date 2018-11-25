@@ -1,14 +1,15 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import path from 'path'
+import escape from 'escape-html'
 
 test('i18n: translate modifier', async assert => {
   const template = await compile(
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{"submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translate tag', async assert => {
@@ -16,8 +17,8 @@ test('i18n: translate tag', async assert => {
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit /></div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translate modifier for a string with dot', async assert => {
@@ -25,8 +26,8 @@ test('i18n: translate modifier for a string with dot', async assert => {
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{"button.submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translate tag for a string with dot', async assert => {
@@ -34,8 +35,8 @@ test('i18n: translate tag for a string with dot', async assert => {
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div><translate button.submit /></div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translate modifier with a variable', async assert => {
@@ -43,8 +44,8 @@ test('i18n: translate modifier with a variable', async assert => {
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl', foo: 'submit' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en', foo: 'submit' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl', foo: 'submit' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en', foo: 'submit' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translate modifier with a variable', async assert => {
@@ -52,8 +53,8 @@ test('i18n: translate modifier with a variable', async assert => {
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl', foo: 'button.submit' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en', foo: 'button.submit' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl', foo: 'button.submit' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en', foo: 'button.submit' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translations in json and a translate modifier', async assert => {
@@ -61,8 +62,8 @@ test('i18n: translations in json and a translate modifier', async assert => {
     `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div>{"submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translations in json and a translate tag', async assert => {
@@ -70,8 +71,8 @@ test('i18n: translations in json and a translate tag', async assert => {
     `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div><translate submit /></div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translations in yaml and a translate modifier', async assert => {
@@ -83,8 +84,8 @@ test('i18n: translations in yaml and a translate modifier', async assert => {
     </script><div>{"submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translations in yaml and a translate tag', async assert => {
@@ -96,8 +97,8 @@ test('i18n: translations in yaml and a translate tag', async assert => {
     </script><div><translate submit /></div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translations in yaml and a translate modifier with dot notation', async assert => {
@@ -109,8 +110,8 @@ test('i18n: translations in yaml and a translate modifier with dot notation', as
     </script><div>{"button.submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: translations in yaml and a translate tag with dot notation', async assert => {
@@ -122,8 +123,8 @@ test('i18n: translations in yaml and a translate tag with dot notation', async a
     </script><div><translate button.submit /></div>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: loading translations from yaml', async assert => {
@@ -135,8 +136,8 @@ test('i18n: loading translations from yaml', async assert => {
       languages: ['pl', 'en']
     }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: loading translations from json', async assert => {
@@ -148,8 +149,8 @@ test('i18n: loading translations from json', async assert => {
       languages: ['pl', 'en']
     }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: loading translations from js', async assert => {
@@ -161,8 +162,8 @@ test('i18n: loading translations from js', async assert => {
       languages: ['pl', 'en']
     }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: loading translations from global yaml files', async assert => {
@@ -170,8 +171,8 @@ test('i18n: loading translations from global yaml files', async assert => {
     `<div><translate button.submit /></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.yaml')] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
 test('i18n: loading translations from global json files', async assert => {
@@ -179,8 +180,8 @@ test('i18n: loading translations from global json files', async assert => {
     `<div><translate cancel /></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
   )
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<div>anuluj</div>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<div>cancel</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>cancel</div>')
 })
 
 test('i18n: throws if there is a duplicate translation', async assert => {

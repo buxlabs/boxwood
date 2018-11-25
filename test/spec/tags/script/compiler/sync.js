@@ -1,5 +1,6 @@
 import test from '../../../../helpers/test'
 import compile from '../../../../helpers/compile'
+import escape from 'escape-html'
 
 test('script: compiler="sync"', async assert => {
   const template = await compile(`
@@ -11,7 +12,7 @@ test('script: compiler="sync"', async assert => {
       }
     }
   })
-  assert.deepEqual(template({}, html => html), '<script>const bar = 42</script>')
+  assert.deepEqual(template({}, escape), '<script>const bar = 42</script>')
 })
 
 test('script: compiler="sync" with options', async assert => {
@@ -24,5 +25,5 @@ test('script: compiler="sync" with options', async assert => {
       }
     }
   })
-  assert.deepEqual(template({}, html => html), '<script>const qux = 42</script>')
+  assert.deepEqual(template({}, escape), '<script>const qux = 42</script>')
 })

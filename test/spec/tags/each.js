@@ -1,5 +1,6 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
+import escape from 'escape-html'
 
 test('each', async assert => {
   const template = await compile(`<each foo in bar>{foo}</each>`)
@@ -10,5 +11,5 @@ test('each', async assert => {
         elements.forEach(callback)
       }
     }
-  }, html => html), '123')
+  }, escape), '123')
 })

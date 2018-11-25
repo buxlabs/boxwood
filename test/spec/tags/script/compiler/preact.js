@@ -8,6 +8,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import { readFileSync, writeFileSync, unlinkSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
+import escape from 'escape-html'
 
 test('script: compiler="preact"', async assert => {
   let template
@@ -58,5 +59,5 @@ test('script: compiler="preact"', async assert => {
     }
   })
 
-  assert.deepEqual(normalize(template({}, html => html)), normalize(`<div id="app"></div><script>` + readFileSync(join(__dirname, '../../../../fixtures/preact', 'expected.js'), 'utf8') + `</script>`))
+  assert.deepEqual(normalize(template({}, escape)), normalize(`<div id="app"></div><script>` + readFileSync(join(__dirname, '../../../../fixtures/preact', 'expected.js'), 'utf8') + `</script>`))
 })

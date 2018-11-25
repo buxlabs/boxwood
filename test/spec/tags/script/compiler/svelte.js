@@ -5,6 +5,7 @@ import { rollup } from 'rollup'
 import svelte from 'rollup-plugin-svelte'
 import { readFileSync, writeFileSync, unlinkSync } from 'fs'
 import { join } from 'path'
+import escape from 'escape-html'
 
 test('script: compiler="svelte"', async assert => {
   let template
@@ -26,5 +27,5 @@ test('script: compiler="svelte"', async assert => {
     }
   })
 
-  assert.deepEqual(normalize(template({}, html => html)), normalize('<script>' + readFileSync(join(__dirname, '../../../../fixtures/svelte', 'expected.js'), 'utf8')) + '</script>')
+  assert.deepEqual(normalize(template({}, escape)), normalize('<script>' + readFileSync(join(__dirname, '../../../../fixtures/svelte', 'expected.js'), 'utf8')) + '</script>')
 })

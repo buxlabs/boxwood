@@ -1,6 +1,7 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import path from 'path'
+import escape from 'escape-html'
 
 test('import', async assert => {
   let template
@@ -123,17 +124,17 @@ test('import', async assert => {
   template = await compile(`<partial from="./header.html"></partial>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
+  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   template = await compile(`<partial from="./header.html">`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
+  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   template = await compile(`<partial from="./header.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
+  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   template = await compile(`<render partial="./terms.html"></render>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
@@ -148,57 +149,57 @@ test('import', async assert => {
   template = await compile(`<render partial="./header.html"></render>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
+  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   template = await compile(`<render partial="./header.html">`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
+  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   template = await compile(`<render partial="./header.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({ title: 'foo' }, html => html), '<div>foo</div>')
+  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   template = await compile(`<head partial="./head.html"></head>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<head><meta charset="utf-8"></head>')
+  assert.deepEqual(template({}, escape), '<head><meta charset="utf-8"></head>')
 
   template = await compile(`<import icon from="./icon.html" /><icon foo="bar"></icon>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<span class="glyphicon glyphicon-bar"></span>')
+  assert.deepEqual(template({}, escape), '<span class="glyphicon glyphicon-bar"></span>')
 
   template = await compile(`<import icon from="./icon.html" /><icon foo="bar"></icon><icon foo="baz"></icon>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
+  assert.deepEqual(template({}, escape), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
 
   template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
     paths: [ path.join(__dirname, '../../fixtures/import'), path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<input type="checkbox">')
+  assert.deepEqual(template({}, escape), '<input type="checkbox">')
 
   template = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
     paths: [ path.join(__dirname, '../../fixtures/import'), path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<input type="checkbox">')
+  assert.deepEqual(template({}, escape), '<input type="checkbox">')
 
   template = await compile(`<import metadata from="./meta.html"><content for title>foo</content><metadata></metadata>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<title>foo</title>')
+  assert.deepEqual(template({}, escape), '<title>foo</title>')
 
   template = await compile(`<import layout from="./default.html"/><layout></layout>`, {
     paths: [ path.join(__dirname, '../../fixtures/layouts') ]
   })
-  assert.deepEqual(template({}, html => html), '<div class="foo">foo</div><div class="bar">bar</div><div class="header">header</div><div class="baz">baz</div><div class="qux">qux</div><div class="footer">footer</div>')
+  assert.deepEqual(template({}, escape), '<div class="foo">foo</div><div class="bar">bar</div><div class="header">header</div><div class="baz">baz</div><div class="qux">qux</div><div class="footer">footer</div>')
 
   template = await compile(`<import hero from="./hero.html"><hero header="foo" description="bar" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
-  assert.deepEqual(template({}, html => html), '<h1>foo</h1><p>bar</p>')
+  assert.deepEqual(template({}, escape), '<h1>foo</h1><p>bar</p>')
 
   template = await compile(`
     <script i18n>
@@ -213,8 +214,8 @@ test('import', async assert => {
     paths: [ path.join(__dirname, '../../fixtures/partial') ],
     languages: ['pl', 'en']
   })
-  assert.deepEqual(template({ language: 'pl' }, html => html), '<h1>foo</h1><p>baz</p>')
-  assert.deepEqual(template({ language: 'en' }, html => html), '<h1>bar</h1><p>qux</p>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<h1>foo</h1><p>baz</p>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<h1>bar</h1><p>qux</p>')
 
   template = await compile(
     `<import section from="./section.html">
@@ -222,28 +223,28 @@ test('import', async assert => {
      <section class="  "></section>
   `, { paths: [ path.join(__dirname, '../../fixtures/import') ] }
   )
-  assert.deepEqual(template({}, html => html), `<section class="black big rounded"></section><section class="  "></section>`)
+  assert.deepEqual(template({}, escape), `<section class="black big rounded"></section><section class="  "></section>`)
 
   template = await compile(`
     <import layout from="./blank1.html">
     <layout foo="foo"></layout>
   `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ] })
 
-  assert.deepEqual(template({}, html => html), `<div class="foo"></div>`)
+  assert.deepEqual(template({}, escape), `<div class="foo"></div>`)
 
   template = await compile(`
     <import layout from="./blank2.html">
     <layout class="foo"></layout>
   `, { paths: [ path.join(__dirname, '../../fixtures/layouts') ] })
 
-  assert.deepEqual(template({}, html => html), `<div class="foo"></div>`)
+  assert.deepEqual(template({}, escape), `<div class="foo"></div>`)
 
   template = await compile(`
     <import layout from="./layouts/blank3.html">
     <layout>foo</layout>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, html => html), `foo<footer>bar</footer>`)
+  assert.deepEqual(template({}, escape), `foo<footer>bar</footer>`)
 
   template = await compile(`
     <import button from="./components/button1.html">
@@ -252,7 +253,7 @@ test('import', async assert => {
     <button2>qux</button2>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><button class="bar">qux</button>`)
+  assert.deepEqual(template({}, escape), `<button class="foo">baz</button><button class="bar">qux</button>`)
 
   template = await compile(`
     <import button from="./components/button1.html">
@@ -261,7 +262,7 @@ test('import', async assert => {
     <button3>quux</button3>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, html => html), `<button class="foo">baz</button><div class="button"><button class="qux">quux</button></div>`)
+  assert.deepEqual(template({}, escape), `<button class="foo">baz</button><div class="button"><button class="qux">quux</button></div>`)
 
   template = await compile(`
     <import list from="./components/list.html">
@@ -269,21 +270,21 @@ test('import', async assert => {
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   // TODO can we remove the unnecessary whitespace?
-  assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
+  assert.deepEqual(template({}, escape), `<ul class="unstyled   list"><li>foo</li></ul>`)
 
   // template = await compile(`
   //   <import section from="./components/section.html">
   //   <section />
   // `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  // assert.deepEqual(template({}, html => html), `<ul class="unstyled   list"><li>foo</li></ul>`)
+  // assert.deepEqual(template({}, escape), `<ul class="unstyled   list"><li>foo</li></ul>`)
 
   template = await compile(`
     <import layout from="./layouts/landscape.html">
     <layout>foo</layout>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, html => html), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
+  assert.deepEqual(template({}, escape), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 
   await assert.throws(
     compile(`
