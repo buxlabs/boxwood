@@ -244,14 +244,13 @@ function getTemplateNode (expression, variables, unescape) {
             object,
             property: node
           }
-          if (!unescape) {
-            node = getEscapeCallExpression(node)
-            node.callee.omit = true
-          }
         }
       }
       return node
     })
+    if (!unescape) {
+      return getEscapeCallExpression(expression)
+    }
     return expression
   } else if (expression.type === 'LogicalExpression') {
     if (expression.left.type === 'Identifier' && !variables.includes(expression.left.name)) {
@@ -260,7 +259,9 @@ function getTemplateNode (expression, variables, unescape) {
     if (expression.right.type === 'Identifier' && !variables.includes(expression.right.name)) {
       expression.right = getObjectMemberExpression(expression.right.name)
     }
-    // TODO: Handle more complex logical expressions
+    if (!unescape) {
+      return getEscapeCallExpression(expression)
+    }
     return expression
   } else {
     throw new Error(`Expression type: ${expression.type} isn't supported yet.`)
