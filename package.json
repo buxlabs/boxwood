@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "standard",
     "test": "ava 'test/spec/**/*.js'",
-    "benchmark": "node test/benchmark.js",
+    "benchmark": "ava test/benchmark.js",
     "watch": "npm test -- --watch"
   },
   "engines": {
