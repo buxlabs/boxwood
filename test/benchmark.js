@@ -47,26 +47,25 @@ test('benchmark', async assert => {
     suite.add('pure-engine', function () {
       fn1(data, escape)
     })
-    .add('underscore', function () {
-      fn2(data)
-    })
-    .add('lodash', function () {
-      fn3(data)
-    })
-    .add('handlebars', function () {
-      fn4(source4, data)
-    })
-    .add('mustache', function () {
-      mustache.render(source5, data)
-    })
-    .on('cycle', function (event) {
-      console.log(String(event.target))
-    })
-    .on('complete', function () {
-      console.log('Fastest is ' + this.filter('fastest').map('name'))
-      resolve()
-    })
-    .run({ 'async': true })
+      .add('underscore', function () {
+        fn2(data)
+      })
+      .add('lodash', function () {
+        fn3(data)
+      })
+      .add('handlebars', function () {
+        fn4(source4, data)
+      })
+      .add('mustache', function () {
+        mustache.render(source5, data)
+      })
+      .on('cycle', function (event) {
+        console.log(String(event.target))
+      })
+      .on('complete', function () {
+        console.log('Fastest is ' + this.filter('fastest').map('name'))
+        resolve()
+      })
+      .run({ 'async': true })
   })
 })
-
