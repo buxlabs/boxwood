@@ -8,7 +8,8 @@ const {
   getForLoop,
   getForLoopVariable,
   getForInLoop,
-  getForInLoopVariable
+  getForInLoopVariable,
+  getTemplateVariableDeclaration
 } = require('./factory')
 const {
   convertText,
@@ -18,7 +19,7 @@ const {
   convertKey
 } = require('./convert')
 const walk = require('himalaya-walk')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join, dirname } = require('path')
@@ -410,7 +411,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
           statistics.scripts.push({ path: location })
         })
         content += `</script>`
-        tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
       } else {
         const leaf = fragment.children[0]
         leaf.used = true
@@ -422,9 +423,9 @@ async function collect (tree, fragment, variables, filters, components, statisti
     } else if (tag === 'script' && keys.includes('store')) {
       const leaf = fragment.children[0]
       leaf.used = true
-      tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
-      tree.append(getTemplateAssignmentExpression(getLiteral('const STORE = ')))
-      tree.append(getTemplateAssignmentExpression({
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const STORE = ')))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, {
         type: 'ExpressionStatement',
         expression: {
           type: 'CallExpression',
@@ -448,8 +449,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
           ]
         }
       }))
-      tree.append(getTemplateAssignmentExpression(getLiteral(`\n${leaf.content}`)))
-      tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${leaf.content}`)))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
     } else if (tag === 'script' && keys.includes('compiler')) {
       const { value } = attrs.find(attr => attr.key === 'compiler')
       const compiler = options.compilers[value]
@@ -463,9 +464,9 @@ async function collect (tree, fragment, variables, filters, components, statisti
         leaf.used = true
         const result = compiler(leaf.content, params)
         if (typeof result === 'string') {
-          tree.append(getTemplateAssignmentExpression(getLiteral('<script>')))
-          tree.append(getTemplateAssignmentExpression(getLiteral(result)))
-          tree.append(getTemplateAssignmentExpression(getLiteral('</script>')))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(result)))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
         } else if (result instanceof Promise) {
           asyncCounter += 1
           const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
@@ -478,9 +479,9 @@ async function collect (tree, fragment, variables, filters, components, statisti
                 return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
               })
               parent.body.splice(index, 1)
-              parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(getLiteral('<script>')))
-              parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(getLiteral(source)))
-              parent.body.splice(index + 2, 0, getTemplateAssignmentExpression(getLiteral('</script>')))
+              parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
+              parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(source)))
+              parent.body.splice(index + 2, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
             }
           })
         }
@@ -493,7 +494,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         statistics.stylesheets.push({ path: location })
       })
       content += '</style>'
-      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
     } else if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
       let leaf = fragment.children[0]
       if (!leaf) {
@@ -544,9 +545,9 @@ async function collect (tree, fragment, variables, filters, components, statisti
         content += node.content
       })
       content += `</${tag}>`
-      tree.append(getTemplateAssignmentExpression(getLiteral(content)))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
     } else if (tag === '!doctype') {
-      tree.append(getTemplateAssignmentExpression(getLiteral('<!doctype html>')))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<!doctype html>')))
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
       if (tag === 'svg' && keys.includes('from')) {
         const attr = attrs.find(attr => attr.key === 'from')
@@ -600,13 +601,13 @@ async function collect (tree, fragment, variables, filters, components, statisti
         }
       }
       collectComponentsFromPartialAttribute(fragment, statistics, options)
-      const nodes = convertTag(fragment, variables, filters, translations, languages, translationsPaths)
+      const nodes = convertTag(fragment, variables, filters, translations, languages, translationsPaths, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
           node.depth = depth
           return tree.append(node)
         }
-        tree.append(getTemplateAssignmentExpression(node))
+        tree.append(getTemplateAssignmentExpression(options.variables.template, node))
       })
       walk(fragment, async node => {
         await collect(tree, node, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
@@ -615,16 +616,16 @@ async function collect (tree, fragment, variables, filters, components, statisti
         const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
         if (attr) {
           const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
-          tree.append(getTemplateAssignmentExpression(getLiteral('</')))
-          tree.append(getTemplateAssignmentExpression(getObjectMemberExpression(property)))
-          tree.append(getTemplateAssignmentExpression(getLiteral('>')))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</')))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getObjectMemberExpression(property)))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('>')))
         } else {
-          tree.append(getTemplateAssignmentExpression(getLiteral(`</${tag}>`)))
+          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`</${tag}>`)))
         }
       }
     } else if (fragment.type === 'text') {
       const nodes = convertText(fragment.content, variables, filters, translations, languages, translationsPaths)
-      return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(node)))
+      return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(options.variables.template, node)))
     } else if (tag === 'if') {
       const ast = new AbstractSyntaxTree('')
       walk(fragment, async current => {
@@ -729,10 +730,14 @@ async function collect (tree, fragment, variables, filters, components, statisti
       body.forEach(node => tree.append(node))
     } else if (tag === 'try') {
       const ast = new AbstractSyntaxTree('')
+      const variable = `_${TEMPLATE_VARIABLE}`
+      ast.append(getTemplateVariableDeclaration(variable))
+      options.variables.template = variable
       walk(fragment, async current => {
         await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
       })
-
+      ast.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, { type: 'Identifier', name: variable }))
+      options.variables.template = TEMPLATE_VARIABLE
       tree.append({
         type: 'TryStatement',
         block: {

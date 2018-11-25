@@ -24,7 +24,7 @@ async function render (htmltree, options) {
   const promises = []
   const errors = []
   let depth = 0
-  tree.append(getTemplateVariableDeclaration())
+  tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
   walk(htmltree, async fragment => {
     await collect(tree, fragment, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
   })
@@ -68,7 +68,12 @@ class Compiler {
   constructor (options) {
     this.options = Object.assign({
       inline: [],
-      compilers: {}
+      compilers: {},
+      variables: {
+        template: TEMPLATE_VARIABLE,
+        object: OBJECT_VARIABLE,
+        escape: ESCAPE_VARIABLE
+      }
     }, options)
   }
   parse (source) {

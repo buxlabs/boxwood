@@ -12,7 +12,7 @@ function getLiteral (value) {
   return { type: 'Literal', value }
 }
 
-function getTemplateAssignmentExpression (node) {
+function getTemplateAssignmentExpression (variable, node) {
   return {
     type: 'ExpressionStatement',
     expression: {
@@ -20,7 +20,7 @@ function getTemplateAssignmentExpression (node) {
       operator: '+=',
       left: {
         type: 'Identifier',
-        name: TEMPLATE_VARIABLE
+        name: variable
       },
       right: node
     }
@@ -36,13 +36,13 @@ function getEscapeCallExpression (node) {
 }
 
 module.exports = {
-  getTemplateVariableDeclaration () {
+  getTemplateVariableDeclaration (variable) {
     return {
       type: 'VariableDeclaration',
       declarations: [
         {
           type: 'VariableDeclarator',
-          id: getIdentifier(TEMPLATE_VARIABLE),
+          id: getIdentifier(variable),
           init: getLiteral('')
         }
       ],

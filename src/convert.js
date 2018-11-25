@@ -342,7 +342,7 @@ function modify (node, filters, translations, languages, translationsPaths) {
   return node
 }
 
-function convertTag (fragment, variables, currentFilters, translations, languages, translationsPaths) {
+function convertTag (fragment, variables, currentFilters, translations, languages, translationsPaths, options) {
   let node = fragment.tagName
   let parts = []
   let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -366,7 +366,7 @@ function convertTag (fragment, variables, currentFilters, translations, language
             test: convertAttribute(attr.key, attr.value, variables, currentFilters, translations, languages, translationsPaths),
             consequent: {
               type: 'BlockStatement',
-              body: [getTemplateAssignmentExpression(expression)]
+              body: [getTemplateAssignmentExpression(options.variables.template, expression)]
             }
           })
         }
