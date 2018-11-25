@@ -1,9 +1,8 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
-test('conditions', async assert => {
+test('if', async assert => {
   let template
-  console.time('conditions')
 
   template = await compile('<if foo>bar</if>')
   assert.deepEqual(template({ foo: false }, html => html), '')
@@ -1973,71 +1972,8 @@ test('conditions', async assert => {
   template = await compile('<if foo>foo</if><elseif bar>bar</elseif><else><if baz>baz</if><else>ban</else></else>')
   assert.deepEqual(template({ foo: true, bar: false, baz: true }, html => html), 'foo')
 
-  template = await compile('<switch foo><case is present>bar</case></switch>')
-  assert.deepEqual(template({ foo: true }, html => html), 'bar')
-
-  template = await compile('<switch foo><case is present>bar</case></switch>')
-  assert.deepEqual(template({ foo: undefined }, html => html), '')
-
-  template = await compile('<switch foo><case is undefined>bar</case></switch>')
-  assert.deepEqual(template({}, html => html), 'bar')
-
-  template = await compile('<switch foo><case is undefined>bar</case></switch>')
-  assert.deepEqual(template({ foo: 'hello' }, html => html), '')
-
-  template = await compile('<switch foo><case is present>bar</case><case is undefined>baz</case></switch>')
-  assert.deepEqual(template({ foo: 'hello' }, html => html), 'bar')
-
-  template = await compile('<switch foo><case is present>bar</case><case is undefined>baz</case></switch>')
-  assert.deepEqual(template({ foo: undefined }, html => html), 'baz')
-
-  template = await compile('<switch foo><case is positive>bar</case><case is negative>baz</case></switch>')
-  assert.deepEqual(template({ foo: 100 }, html => html), 'bar')
-
-  template = await compile('<switch foo><case is positive>bar</case><case is negative>baz</case></switch>')
-  assert.deepEqual(template({ foo: -100 }, html => html), 'baz')
-
-  template = await compile('<switch foo><case is positive>bar</case><case is negative>baz</case><default>qux</default></switch>')
-  assert.deepEqual(template({ foo: 100 }, html => html), 'bar')
-
-  template = await compile('<switch foo><case is positive>bar</case><case is negative>baz</case><default>qux</default></switch>')
-  assert.deepEqual(template({ foo: -100 }, html => html), 'baz')
-
-  template = await compile('<switch foo><case is positive>bar</case><case is negative>baz</case><default>qux</default></switch>')
-  assert.deepEqual(template({ foo: 0 }, html => html), 'qux')
-
-  template = await compile('<switch foo><case is positive>bar</case><case is negative>baz</case><default>qux</default></switch>')
-  assert.deepEqual(template({ foo: 0 }, html => html), 'qux')
-
-  template = await compile('<unless foo>bar</unless>')
-  assert.deepEqual(template({ foo: false }, html => html), 'bar')
-
-  template = await compile('<unless foo>bar</unless>')
-  assert.deepEqual(template({ foo: true }, html => html), '')
-
-  template = await compile('<unless foo>bar</unless><else>baz</else>')
-  assert.deepEqual(template({ foo: false }, html => html), 'bar')
-
-  template = await compile('<unless foo>bar</unless><else>baz</else>')
-  assert.deepEqual(template({ foo: true }, html => html), 'baz')
-
-  template = await compile('<unless foo>bar</unless><elseif bar>baz</elseif>')
-  assert.deepEqual(template({ foo: true, bar: true }, html => html), 'baz')
-
-  template = await compile('<unless foo>bar</unless><elseif bar>baz</elseif>')
-  assert.deepEqual(template({ foo: true, bar: false }, html => html), '')
-
-  template = await compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')
-  assert.deepEqual(template({ foo: true, bar: false }, html => html), 'baz')
-
-  template = await compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')
-  assert.deepEqual(template({ foo: true, bar: false }, html => html), 'baz')
-
   template = await compile('<if foo>bar</if><elseunless bar>baz</elseunless>')
   assert.deepEqual(template({ foo: false, bar: false }, html => html), 'baz')
-
-  template = await compile('<unless foo>bar</unless><elseunless bar>baz</elseunless>')
-  assert.deepEqual(template({ foo: true, bar: true }, html => html), '')
 
   template = await compile('<if foo>bar</if><else>baz</else>')
   assert.deepEqual(template({ foo: true }, html => html), 'bar')

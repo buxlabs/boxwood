@@ -1,7 +1,7 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 
-test('loops', async assert => {
+test('for', async assert => {
   let template
 
   template = await compile('<ul><for todo in todos><li html="{todo.description}"></li></for></ul>')
@@ -231,23 +231,4 @@ test('loops', async assert => {
 
   template = await compile(`<for key and value in="{foo}">{key}{value}</for>`)
   assert.deepEqual(template({ foo: { bar: 'baz', ban: 'qux' } }, html => html), 'barbazbanqux')
-
-  template = await compile(`<foreach foo in bar>{foo}</foreach>`)
-  assert.deepEqual(template({ bar: [1, 2, 3] }, html => html), '123')
-
-  template = await compile(`<foreach foo and baz in bar>{foo}{baz}</foreach>`)
-  assert.deepEqual(template({ bar: new Map([ ['qux', 1], ['quux', 2] ]) }, html => html), '1qux2quux')
-
-  template = await compile(`<foreach foo in bar>{foo}</foreach>`)
-  assert.deepEqual(template({ bar: new Set([1, 2, 3, 4, 5]) }, html => html), '12345')
-
-  template = await compile(`<each foo in bar>{foo}</each>`)
-  assert.deepEqual(template({
-    bar: {
-      each: function (callback) {
-        const elements = [1, 2, 3]
-        elements.forEach(callback)
-      }
-    }
-  }, html => html), '123')
 })
