@@ -24,6 +24,72 @@ test('operators: addition', async assert => {
   assert.deepEqual(template({}, escape), 'NaN')
 })
 
+test('operators: subtraction', async assert => {
+  let template
+
+  template = await compile('{2 - 2}')
+  assert.deepEqual(template({}, escape), '0')
+
+  template = await compile('{foo - 2}')
+  assert.deepEqual(template({ foo: 2 }, escape), '0')
+
+  template = await compile('{2 - foo}')
+  assert.deepEqual(template({ foo: 2 }, escape), '0')
+
+  template = await compile('{foo - foo}')
+  assert.deepEqual(template({ foo: 2 }, escape), '0')
+
+  template = await compile('{foo - bar}')
+  assert.deepEqual(template({ foo: 2, bar: 2 }, escape), '0')
+
+  template = await compile('{foo - bar}')
+  assert.deepEqual(template({}, escape), 'NaN')
+})
+
+test('operators: multiplication', async assert => {
+  let template
+
+  template = await compile('{2 * 2}')
+  assert.deepEqual(template({}, escape), '4')
+
+  template = await compile('{foo * 2}')
+  assert.deepEqual(template({ foo: 2 }, escape), '4')
+
+  template = await compile('{2 * foo}')
+  assert.deepEqual(template({ foo: 2 }, escape), '4')
+
+  template = await compile('{foo * foo}')
+  assert.deepEqual(template({ foo: 2 }, escape), '4')
+
+  template = await compile('{foo * bar}')
+  assert.deepEqual(template({ foo: 2, bar: 2 }, escape), '4')
+
+  template = await compile('{foo * bar}')
+  assert.deepEqual(template({}, escape), 'NaN')
+})
+
+test('operators: exponentiation', async assert => {
+  let template
+
+  template = await compile('{2 ** 3}')
+  assert.deepEqual(template({}, escape), '8')
+
+  template = await compile('{foo ** 3}')
+  assert.deepEqual(template({ foo: 3 }, escape), '27')
+
+  template = await compile('{2 ** foo}')
+  assert.deepEqual(template({ foo: 3 }, escape), '8')
+
+  template = await compile('{foo ** foo}')
+  assert.deepEqual(template({ foo: 3 }, escape), '27')
+
+  template = await compile('{foo ** bar}')
+  assert.deepEqual(template({ foo: 2, bar: 3 }, escape), '8')
+
+  template = await compile('{foo ** bar}')
+  assert.deepEqual(template({}, escape), 'NaN')
+})
+
 test('operators: logical and', async assert => {
   let template
 
