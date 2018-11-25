@@ -2,7 +2,7 @@ import test from '../helpers/test'
 import compile from '../helpers/compile'
 import { readFile } from '../helpers/fs'
 import { join } from 'path'
-import scape from 'escape-html'
+import escape from 'escape-html'
 
 test('complex: it goes to the if branch', async assert => {
   const actual = await suite(

@@ -23,5 +23,3 @@ test('try', async assert => {
   template = await compile('<try><div>{foo.bar}</div></try><catch>baz</catch>')
   assert.deepEqual(template({}, escape), 'baz')
 })
-
-
