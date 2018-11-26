@@ -48,7 +48,7 @@ test('i18n: translate modifier with a variable', async assert => {
   assert.deepEqual(template({ language: 'en', foo: 'submit' }, escape), '<div>Send</div>')
 })
 
-test('i18n: translate modifier with a variable', async assert => {
+test('i18n: translate modifier with a variable with dot notation', async assert => {
   const template = await compile(
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
     { languages: ['pl', 'en'] }
