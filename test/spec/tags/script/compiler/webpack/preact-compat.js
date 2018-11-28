@@ -15,8 +15,18 @@ test('script: compiler="webpack/preact-compat"', async assert => {
     <script compiler="webpack/preact-compat">
       import React from 'react'
       import ReactDOM from 'react-dom'
+      import MaskedInput from 'react-text-mask'
+      import { Button } from 'react-bootstrap'
       const Foo = ({ bar }) => {
-        return (<span>{bar}</span>)
+        return (
+          <div>
+            {bar}
+            <MaskedInput
+              mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+            />
+            <Button>qux</Button>
+          </div>
+        )
       }
       ReactDOM.render(
         <Foo bar="baz" />,
@@ -69,7 +79,6 @@ test('script: compiler="webpack/preact-compat"', async assert => {
         })
         const output = join(dir, filename)
         const code = readFileSync(output, 'utf8')
-        writeFileSync(join(__dirname, '../../../../../fixtures/script/compiler/webpack/preact-compat', 'expected.js'), code)
         unlinkSync(input)
         unlinkSync(output)
         return code
