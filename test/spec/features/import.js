@@ -240,21 +240,6 @@ test('import', async assert => {
   assert.deepEqual(template({}, escape), `<button class="foo">baz</button><div class="button"><button class="qux">quux</button></div>`)
 
   template = await compile(`
-    <import list from="./components/list.html">
-    <list><li>foo</li></list>
-  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
-
-  // TODO can we remove the unnecessary whitespace?
-  assert.deepEqual(template({}, escape), `<ul class="unstyled   list"><li>foo</li></ul>`)
-
-  // template = await compile(`
-  //   <import section from="./components/section.html">
-  //   <section />
-  // `, { paths: [ path.join(__dirname, '../../fixtures') ] })
-
-  // assert.deepEqual(template({}, escape), `<ul class="unstyled   list"><li>foo</li></ul>`)
-
-  template = await compile(`
     <import layout from="./layouts/landscape.html">
     <layout>foo</layout>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
@@ -288,4 +273,22 @@ test('import', async assert => {
     compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] }),
     /Asset not found: \.\/checkbox\.html/
   )
+})
+
+test.skip('import: removes unnecessary whitespace in attribute values ', async assert => {
+  const template = await compile(`
+    <import list from="./components/list.html">
+    <list><li>foo</li></list>
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
+
+  assert.deepEqual(template({}, escape), `<ul class="unstyled list"><li>foo</li></ul>`)
+})
+
+test.skip('import: works with nested components', async assert => {
+  const template = await compile(`
+    <import section from="./components/section.html">
+    <section />
+  `, { paths: [ path.join(__dirname, '../../fixtures') ] })
+
+  assert.deepEqual(template({}, escape), `<ul class="unstyled   list"><li>foo</li></ul>`)
 })

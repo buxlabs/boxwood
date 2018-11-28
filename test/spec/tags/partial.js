@@ -41,3 +41,11 @@ test('partial', async assert => {
     /Asset not found: \.\/partial\.html/
   )
 })
+
+test.skip('partial: can import components', async assert => {
+  const template = await compile(`<partial from="./newsletter.html" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, escape), '<form class="ui form"><button class="btn primary">foo</button></form>')
+})
+
