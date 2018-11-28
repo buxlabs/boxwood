@@ -53,6 +53,8 @@
     "@babel/plugin-transform-react-jsx": "^7.1.6",
     "ansi-colors": "^3.2.1",
     "ava": "^0.25.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
     "benchmark": "^2.1.4",
     "coffeescript": "^2.3.2",
     "escape-html": "^1.0.3",

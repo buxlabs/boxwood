@@ -5,17 +5,17 @@ import { rollup } from 'rollup'
 import babel from 'rollup-plugin-babel'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
-import { readFileSync, writeFileSync, unlinkSync } from 'fs'
+import { readFileSync, writeFileSync, unlinkSync, mkdirSync, existsSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import escape from 'escape-html'
 
-test('script: compiler="react"', async assert => {
+test('script: compiler="rollup/react"', async assert => {
   let template
 
   template = await compile(`
     <div id='app'></div>
-    <script compiler="react">
+    <script compiler="rollup/react">
       import React from 'react'
       import ReactDOM from 'react-dom'
       const Foo = ({ bar }) => {
@@ -28,8 +28,10 @@ test('script: compiler="react"', async assert => {
     </script>
   `, {
     compilers: {
-      react: async (source, options) => {
-        const input = join(tmpdir(), 'react.js')
+      'rollup/react': async (source, options) => {
+        const dir = join(tmpdir(), 'rollup')
+        if (!existsSync(dir)) mkdirSync(dir)
+        const input = join(dir, 'react.js')
         writeFileSync(input, source)
         const bundle = await rollup({
           input,
