@@ -47,7 +47,7 @@ test('script: compiler="webpack/preact-compat"', async assert => {
                   loader: 'babel-loader',
                   options: {
                     'plugins': [
-                      ['transform-react-jsx', { 'pragma': 'h' }]
+                      ['transform-react-jsx']
                     ]
                   }
                 }
@@ -69,6 +69,7 @@ test('script: compiler="webpack/preact-compat"', async assert => {
         })
         const output = join(dir, filename)
         const code = readFileSync(output, 'utf8')
+        writeFileSync(join(__dirname, '../../../../../fixtures/script/compiler/webpack/preact-compat', 'expected.js'), code)
         unlinkSync(input)
         unlinkSync(output)
         return code

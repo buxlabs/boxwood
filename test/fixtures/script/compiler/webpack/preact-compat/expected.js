@@ -94,7 +94,7 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/preact-compat/dist/preact-compat.es.js\");\n\n\n\nconst Foo = ({\n  bar\n}) => {\n  return h(\"span\", null, bar);\n};\n\nreact__WEBPACK_IMPORTED_MODULE_0__[\"default\"].render(h(Foo, {\n  bar: \"baz\"\n}), document.getElementById('app'));\n\n//# sourceURL=webpack:////tmp/webpack/preact-compat.jsx?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ \"./node_modules/preact-compat/dist/preact-compat.es.js\");\n\n\n\nconst Foo = ({\n  bar\n}) => {\n  return react__WEBPACK_IMPORTED_MODULE_0__[\"default\"].createElement(\"span\", null, bar);\n};\n\nreact__WEBPACK_IMPORTED_MODULE_0__[\"default\"].render(react__WEBPACK_IMPORTED_MODULE_0__[\"default\"].createElement(Foo, {\n  bar: \"baz\"\n}), document.getElementById('app'));\n\n//# sourceURL=webpack:////tmp/webpack/preact-compat.jsx?");
 
 /***/ }),
 
