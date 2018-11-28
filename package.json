@@ -71,7 +71,8 @@
     "rollup-plugin-svelte": "^4.3.2",
     "standard": "^11.0.1",
     "svelte": "^2.15.3",
-    "underscore": "^1.9.1"
+    "underscore": "^1.9.1",
+    "webpack": "^4.26.1"
   },
   "standard": {
     "ignore": [
