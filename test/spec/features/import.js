@@ -111,31 +111,6 @@ test('import', async assert => {
   })
   assert.deepEqual(template({}), '<header><div>foo</div></header><main>bar</main><footer><div>baz</div></footer>')
 
-  template = await compile(`<partial from="./terms.html"></partial>`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({}), '<div>foo bar baz</div>')
-
-  template = await compile(`<partial from="./footer.html"></partial>`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
-
-  template = await compile(`<partial from="./header.html"></partial>`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
-
-  template = await compile(`<partial from="./header.html">`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
-
-  template = await compile(`<partial from="./header.html" />`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
-
   template = await compile(`<render partial="./terms.html"></render>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
@@ -292,16 +267,6 @@ test('import', async assert => {
       <link href="#" color="blue" decoration="underlined">foo</link>
     `, { paths: [ path.join(__dirname, '../../fixtures') ] }),
     /Forbidden component name: link\. Reason: this tag is self closing\./
-  )
-
-  await assert.throws(
-    compile(`<partial from='./partial.html'/><partial>`, {}),
-    /Compiler option is undefined: paths\./
-  )
-
-  await assert.throws(
-    compile(`<partial from='./partial.html'/><partial>`, { paths: [] }),
-    /Asset not found: \.\/partial\.html/
   )
 
   await assert.throws(
