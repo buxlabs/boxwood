@@ -48,4 +48,3 @@ test.skip('partial: can import components', async assert => {
   })
   assert.deepEqual(template({}, escape), '<form class="ui form"><button class="btn primary">foo</button></form>')
 })
-
