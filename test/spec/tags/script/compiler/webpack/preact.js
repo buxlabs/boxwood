@@ -45,8 +45,8 @@ test('script: compiler="webpack/preact"', async assert => {
                   exclude: /node_modules/,
                   loader: 'babel-loader',
                   options: {
-                    "plugins": [
-                      ["transform-react-jsx", { "pragma": "h" }]
+                    'plugins': [
+                      ['transform-react-jsx', { 'pragma': 'h' }]
                     ]
                   }
                 }
