@@ -22,7 +22,7 @@ test.skip('script: compiler="webpack/preact-compat"', async assert => {
           <div>
             {bar}
             <MaskedInput
-              mask={['(', /[1-9]/, /\d/, /\d/, ')', ' ', /\d/, /\d/, /\d/, '-', /\d/, /\d/, /\d/, /\d/]}
+              mask={['(', /[1-9]/, ')']}
             />
             <Button>qux</Button>
           </div>
