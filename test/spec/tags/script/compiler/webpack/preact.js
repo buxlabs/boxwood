@@ -7,7 +7,7 @@ import { join } from 'path'
 import escape from 'escape-html'
 import webpack from 'webpack'
 
-test('script: compiler="webpack/preact"', async assert => {
+test.skip('script: compiler="webpack/preact"', async assert => {
   let template
 
   template = await compile(`
