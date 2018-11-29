@@ -1,4 +1,4 @@
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
+const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES, RESERVED_KEYWORDS } = require('./enum')
 const {
   getLiteral, getIdentifier, getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
@@ -44,8 +44,27 @@ function convertToBinaryExpression (nodes) {
   })
 }
 
+function placeholderName (keyword) {
+  return `__${keyword.toUpperCase()}_PLACEHOLDER__`
+}
+
 function convertToExpression (string) {
+  RESERVED_KEYWORDS.forEach(keyword => {
+    string = string.replace(new RegExp(`\\b${keyword}\\b`, 'g'), placeholderName(keyword))
+  })
   const tree = new AbstractSyntaxTree(string)
+  tree.replace({
+    enter: node => {
+      if (node.type === 'Identifier') {
+        RESERVED_KEYWORDS.forEach(keyword => {
+          if (node.name === placeholderName(keyword)) {
+            node.name = keyword
+          }
+        })
+      }
+      return node
+    }
+  })
   const { expression } = tree.ast.body[0]
   return expression
 }
@@ -124,98 +143,22 @@ function convertIdentifier (node, variables) {
 }
 
 function getTemplateNode (expression, variables, unescape) {
-  if (expression.type === 'Identifier') {
+  if (expression.type === 'Literal') {
+    return expression
+  } else if (expression.type === 'Identifier') {
     const node = convertIdentifier(expression, variables)
     if (unescape) return node
     return getEscapeCallExpression(node)
-  }
-  if (expression.type === 'Literal') {
-    return expression
-  } else if (expression.type === 'BinaryExpression') {
-    AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'MemberExpression' && node.property.type === 'Identifier') {
-        node.property.omit = true
-      } else if (node.type === 'Identifier' && !node.omit) {
-        node.omit = true
-        if (!variables.includes(node.name)) {
-          const object = getIdentifier(OBJECT_VARIABLE)
-          object.omit = true
-          node = {
-            type: 'MemberExpression',
-            object,
-            property: node
-          }
-        }
-      }
-      return node
-    })
-    if (!unescape) {
-      expression = getEscapeCallExpression(expression)
-    }
-    return expression
-  } else if (expression.type === 'MemberExpression') {
-    if (expression.object.type === 'Identifier') {
-      if (variables.includes(expression.object.name)) {
-        if (unescape) return expression
-        return getEscapeCallExpression(expression)
-      }
-      if (expression.computed && expression.property.type === 'Identifier') {
-        expression.property = convertIdentifier(expression.property, variables)
-      }
-      let leaf = {
-        type: 'MemberExpression',
-        object: getObjectMemberExpression(expression.object.name),
-        property: expression.property,
-        computed: expression.computed || expression.property.type === 'Literal'
-      }
-      if (unescape) return leaf
-      return getEscapeCallExpression(leaf)
-    } else if (expression.object.type === 'MemberExpression') {
-      if (expression.computed && expression.property.type === 'Identifier') {
-        expression.property = convertIdentifier(expression.property, variables)
-      }
-      let leaf = expression.object
-      if (leaf.computed && leaf.property.type === 'Identifier') {
-        leaf.property = convertIdentifier(leaf.property, variables)
-      }
-      while (leaf.object.type === 'MemberExpression') {
-        leaf = leaf.object
-        if (leaf.computed && leaf.property.type === 'Identifier') {
-          leaf.property = convertIdentifier(leaf.property, variables)
-        }
-      }
-      if (!variables.includes(leaf.object.name)) {
-        leaf.object = getObjectMemberExpression(leaf.object.name)
-      }
-      if (unescape) return expression
-      return getEscapeCallExpression(expression)
-    }
-  } else if (expression.type === 'CallExpression') {
-    expression.arguments = expression.arguments.map(node => getTemplateNode(node, variables, true))
-    if (expression.callee.type === 'Identifier') {
-      expression.callee = convertIdentifier(expression.callee, variables)
-      if (unescape) return expression
-      return getEscapeCallExpression(expression)
-    } else if (expression.callee.type === 'MemberExpression') {
-      let node = expression.callee.object
-      if (expression.callee.object.type === 'Identifier') {
-        expression.callee.object = convertIdentifier(expression.callee.object, variables)
-        if (unescape) return expression
-        return getEscapeCallExpression(expression)
-      } else {
-        while (node.object && node.object.type === 'MemberExpression') {
-          node = node.object
-        }
-        if (node.type === 'CallExpression') {
-          node.callee = convertIdentifier(node.callee, variables)
-        } else {
-          node.object = convertIdentifier(node.object, variables)
-        }
-        if (unescape) return expression
-        return getEscapeCallExpression(expression)
-      }
-    }
-  } else if (['ArrayExpression', 'NewExpression', 'ConditionalExpression', 'ObjectExpression'].includes(expression.type)) {
+  } else if ([
+    'MemberExpression',
+    'CallExpression',
+    'ArrayExpression',
+    'NewExpression',
+    'ConditionalExpression',
+    'ObjectExpression',
+    'LogicalExpression',
+    'BinaryExpression'
+  ].includes(expression.type)) {
     AbstractSyntaxTree.replace(expression, (node, parent) => {
       if (node.type === 'Property' && node.key === node.value) {
         if (!variables.includes(node.key.name)) {
@@ -232,7 +175,7 @@ function getTemplateNode (expression, variables, unescape) {
         }
       } else if (parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
         node.omit = true
-      } else if (node.type === 'MemberExpression' && node.property.type === 'Identifier') {
+      } else if (node.type === 'MemberExpression' && node.property.type === 'Identifier' && !node.computed) {
         node.property.omit = true
       } else if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
         node.omit = true
@@ -248,21 +191,10 @@ function getTemplateNode (expression, variables, unescape) {
       }
       return node
     })
-    if (!unescape) {
-      return getEscapeCallExpression(expression)
+    if (unescape) {
+      return expression
     }
-    return expression
-  } else if (expression.type === 'LogicalExpression') {
-    if (expression.left.type === 'Identifier' && !variables.includes(expression.left.name)) {
-      expression.left = getObjectMemberExpression(expression.left.name)
-    }
-    if (expression.right.type === 'Identifier' && !variables.includes(expression.right.name)) {
-      expression.right = getObjectMemberExpression(expression.right.name)
-    }
-    if (!unescape) {
-      return getEscapeCallExpression(expression)
-    }
-    return expression
+    return getEscapeCallExpression(expression)
   } else {
     throw new Error(`Expression type: ${expression.type} isn't supported yet.`)
   }

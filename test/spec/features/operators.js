@@ -143,6 +143,12 @@ test('operators: comparison', async assert => {
   template = await compile('{foo <= bar}')
   assert.deepEqual(template({ foo: 1, bar: 0 }, escape), 'false')
 
+  template = await compile('{foo.bar > baz.qux}')
+  assert.deepEqual(template({ foo: { bar: 1 }, baz: { qux: 0 } }, escape), 'true')
+
+  template = await compile('{foo[bar] > baz[qux]}')
+  assert.deepEqual(template({ foo: { bar: 1 }, bar: 'bar', baz: { qux: 0 }, qux: 'qux' }, escape), 'true')
+
   template = await compile('{foo.length > 0 ? "active" : "inactive"}')
   assert.deepEqual(template({ foo: ['bar'] }, escape), 'active')
   assert.deepEqual(template({ foo: [] }, escape), 'inactive')
@@ -185,7 +191,7 @@ test('operators: ternary', async assert => {
   assert.deepEqual(template({ foo: undefined }, escape), '')
 })
 
-test.skip('operators: ternary operator works with computed object property access', async assert => {
+test('operators: ternary operator works with computed object property access', async assert => {
   let template
 
   template = await compile('{ foo[bar] ? "foo" : "bar" }')
@@ -195,7 +201,7 @@ test.skip('operators: ternary operator works with computed object property acces
   assert.deepEqual(template({ foo: { bar: false }, bar: 'bar' }, escape), 'bar')
 })
 
-test.skip('operators: works for multiple variables', async assert => {
+test('operators: works for multiple variables', async assert => {
   const template = await compile('{foo > bar && baz > qux}')
   assert.deepEqual(template({ foo: 1, bar: 0, baz: 1, qux: 0 }, escape), 'true')
 })

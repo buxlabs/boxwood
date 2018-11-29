@@ -1,6 +1,6 @@
 {
   "name": "pure-engine",
-  "version": "0.9.13",
+  "version": "0.9.14",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
@@ -10,8 +10,8 @@
     "watch": "npm test -- --watch"
   },
   "engines": {
-    "node": ">= 8.11.3",
-    "npm": ">= 6.2.0"
+    "node": ">= 10.14.0",
+    "npm": ">= 6.4.1"
   },
   "repository": {
     "type": "git",

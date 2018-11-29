@@ -42,7 +42,7 @@ test('partial', async assert => {
   )
 })
 
-test.skip('partial: can import components', async assert => {
+test('partial: can import components', async assert => {
   const template = await compile(`<partial from="./newsletter.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })

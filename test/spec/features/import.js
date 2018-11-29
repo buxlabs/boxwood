@@ -247,14 +247,6 @@ test('import', async assert => {
   assert.deepEqual(template({}, escape), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 
   await assert.throws(
-    compile(`
-      <import link from='./components/link.html'>
-      <link href="#" color="blue" decoration="underlined">foo</link>
-    `, { paths: [ path.join(__dirname, '../../fixtures') ] }),
-    /Forbidden component name: link\. Reason: this tag is self closing\./
-  )
-
-  await assert.throws(
     compile(`<div partial='./partial.html'/><div>`, {}),
     /Compiler option is undefined: paths\./
   )
@@ -275,7 +267,7 @@ test('import', async assert => {
   )
 })
 
-test.skip('import: removes unnecessary whitespace in attribute values ', async assert => {
+test('import: removes unnecessary whitespace in attribute values ', async assert => {
   const template = await compile(`
     <import list from="./components/list.html">
     <list><li>foo</li></list>
@@ -284,11 +276,60 @@ test.skip('import: removes unnecessary whitespace in attribute values ', async a
   assert.deepEqual(template({}, escape), `<ul class="unstyled list"><li>foo</li></ul>`)
 })
 
-test.skip('import: works with nested components', async assert => {
+test('import: works with nested components', async assert => {
   const template = await compile(`
     <import section from="./components/section.html">
     <section />
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, escape), `<ul class="unstyled   list"><li>foo</li></ul>`)
+  assert.deepEqual(template({}, escape), `<ul class="unstyled list"><li>foo</li></ul>`)
+})
+
+test('import: nested partial can import components', async assert => {
+  const template = await compile(`<import page from="./page.html" /><page />`, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ]
+  })
+  assert.deepEqual(template({}, escape), '<form class="ui form"><button class="btn primary">foo</button></form>')
+})
+
+test('import: multiple levels of slots', async assert => {
+  const template = await compile(`
+    <import form from="./form.html" />
+    <import form-group from="./form-group.html" />
+    <import label from="./label.html" />
+    <import field from="./field.html" />
+    <import button from="./button.html" />
+
+    <form>
+      <form-group>
+        <label>
+          <field name="foo" type="text" />
+        </label>
+        <button>bar</button>
+      </form-group>
+    </form>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<form class="ui form"><div class="ui form-group"><label class="ui label"><input type="text" name="foo"></label><button class="btn btn-primary">bar</button></div></form>')
+})
+
+test('import: conditional slot', async assert => {
+  let template
+
+  template = await compile(`
+    <import component from="./conditional-slot.html" />
+    <component foo={true}>bar</component>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="foo">bar</div>')
+
+  template = await compile(`
+    <import component from="./conditional-slot.html" />
+    <component foo={false}>bar</component>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="bar">bar</div>')
 })

@@ -1,5 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { parse } = require('himalaya')
+const { parse } = require('./parser')
 const walk = require('himalaya-walk')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('./enum')
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./factory')

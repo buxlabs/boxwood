@@ -42,16 +42,85 @@ expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
 
 ## Features
 
-* conditional tags: if, else, elseif, unless, elseunless
-* loops: for, each, foreach
 * import and require tags
+
+```html
+<import layout from="./layouts/default.html"/>
+<import form from="./components/form.html"/>
+<import input from="./components/input.html"/>
+<import button from="./components/button.html"/>
+
+<layout>
+  <h1>Hello, world!</h1>
+  <form>
+    <input name="foo" />
+    <button>Submit</button>
+  </form>
+</layout>
+```
+
+* conditional tags: if, else, elseif, unless, elseunless
+
+```html
+<if foo>bar</if>
+```
+
+* loops: for, each, foreach
+
+```html
+<for car in cars>
+  {car.brand}
+</for>
+```
+
 * filters for strings, numbers, arrays, objects and more
+
+```html
+{title | capitalize}
+```
+
 * special attributes, e.g. inline for asset inline, width="auto" for auto sizing and more
+
+```html
+<img src="./foo.png" inline>
+```
+
 * built-in i18n support (translate tag and filter)
+
+```html
+<i18n yaml>
+hello:
+- 'Hej!'
+- 'Hello!'
+</i18n>
+<h1><translate hello /></h1>
+```
+
 * compiler tag for scripts (allows custom compilers)
+
+```html
+<div id="app"></div>
+<script compiler="preact">
+import { render } from "preact"
+const Foo = ({ bar }) => {
+  return (<span>{bar}</span>)
+}
+render(
+  <Foo bar="baz" />,
+  document.getElementById("app")
+)
+</script>
+```
+
 * error handling: rescue tag
 
-## Input / Output Examples
+```html
+<h1>{person.title}</h1>
+<rescue>:(</rescue>
+```
+
+
+## Input / Output
 
 ```
 <if foo is present>{bar}</if>

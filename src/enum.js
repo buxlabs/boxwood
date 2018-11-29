@@ -82,5 +82,9 @@ module.exports = {
   OPERATORS: [
     'or',
     'and'
+  ],
+  RESERVED_KEYWORDS: [
+    'class',
+    'for'
   ]
 }

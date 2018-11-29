@@ -23,10 +23,11 @@ const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VA
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join, dirname } = require('path')
-const { parse } = require('himalaya')
+const { parse } = require('./parser')
 const yaml = require('yaml-js')
 const size = require('image-size')
 const { normalize } = require('./array')
+const { clone } = require('./object')
 let asyncCounter = 0
 
 const digits = new Map([
@@ -93,10 +94,6 @@ function collectComponentsFromImport (fragment, statistics, components, componen
   const name = attrs[0].key
   const path = attrs[1].value
   let paths = []
-
-  if (SELF_CLOSING_TAGS.includes(name)) {
-    throw new Error(`Forbidden component name: ${name}. Reason: this tag is self closing.`)
-  }
   if (options.paths) {
     paths = paths.concat(options.paths)
   } else {
@@ -186,7 +183,8 @@ function resolveComponent (component, fragment, components, statistics, options)
   })
 
   const currentComponents = []
-  walk(htmlTree, async current => {
+  let slots = 0
+  walk(htmlTree, async (current, parent) => {
     if (current.tagName === 'import' || current.tagName === 'require') {
       collectComponentsFromImport(current, statistics, currentComponents, component, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render') {
@@ -199,14 +197,26 @@ function resolveComponent (component, fragment, components, statistics, options)
       resolveComponent(currentComponent, current, components, statistics, options)
       current.used = true
     }
-    if (current.tagName === 'slot' || current.tagName === 'yield') {
-      if (current.attributes.length === 0) { // <slot></slot>
-        current.children = children
+    if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
+      if (current.attributes.length === 0) {
+        if (slots === 0) {
+          current.children = children
+        } else {
+          current.children = clone(children)
+        }
+        slots += 1
       } else {
         const name = current.attributes[0].key
         walk(children, leaf => {
           if ((leaf.tagName === 'slot' || leaf.tagName === 'yield') && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
-            current.children = leaf.children
+            // the following might not be super performant in case of components with multiple slots
+            // we could do this only if a slot with given name is not unique (e.g. in if / else statements)
+            if (slots > 2) {
+              current.children = clone(leaf.children)
+            } else {
+              current.children = leaf.children
+            }
+            slots += 1
           }
         })
       }
@@ -929,9 +939,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
       collectComponentsFromImport(fragment, statistics, components, null, options)
     } else if (tag === 'partial' || tag === 'render') {
       collectComponentsFromPartialOrRender(fragment, statistics, options)
-      walk(fragment, async node => {
-        await collect(tree, node, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
     }
     depth -= 1
   } catch (exception) {
