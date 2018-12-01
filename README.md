@@ -170,11 +170,11 @@ function render(__o, __e) {
 `npm run benchmark`
 
 ```
-pure-engine x 3,504,768 ops/sec ±1.80% (85 runs sampled)
-underscore x 210,428 ops/sec ±1.60% (90 runs sampled)
-lodash x 249,232 ops/sec ±1.10% (91 runs sampled)
-handlebars x 1,883,683 ops/sec ±1.70% (84 runs sampled)
-mustache x 450,925 ops/sec ±2.56% (87 runs sampled)
+pure-engine x 4,053,839 ops/sec ±0.91% (87 runs sampled)
+underscore x 161,728 ops/sec ±0.88% (91 runs sampled)
+lodash x 204,561 ops/sec ±0.73% (90 runs sampled)
+handlebars x 1,699,469 ops/sec ±1.12% (85 runs sampled)
+mustache x 447,168 ops/sec ±1.09% (82 runs sampled)
 Fastest is pure-engine
 ```
 

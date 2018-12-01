@@ -6,6 +6,8 @@ const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('
 const collect = require('./collect')
 const { getFilter } = require('./filters')
 const { array: { unique } } = require('pure-utilities')
+const Analyzer = require('./Analyzer')
+const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
 
 async function render (htmltree, options) {
@@ -113,7 +115,13 @@ class Compiler {
     } else {
       errors = template.errors
     }
-    const compiled = new Function(`return function render(${OBJECT_VARIABLE}, ${ESCAPE_VARIABLE}) {\n${program.toString()}}`)() // eslint-disable-line
+
+    const analyzer = new Analyzer(program)
+    const params = analyzer.params()
+    const optimizer = new Optimizer(program)
+    optimizer.optimize()
+
+    const compiled = new Function(`return function render(${params}) {\n${program.toString()}}`)() // eslint-disable-line
     return { template: compiled, statistics, errors }
   }
 }
