@@ -19,8 +19,8 @@ class Optimizer {
     this.simplifyReturnValue()
   }
   concatenateLiterals () {
-     let body = this.program.body()
-     body = body.reduce((result, node) => {
+    let body = this.program.body()
+    body = body.reduce((result, node) => {
       const last = result[result.length - 1]
       if (isAssignmentExpressionWithLiteral(node)) {
         if (isTemplateVariableDeclaration(last)) {

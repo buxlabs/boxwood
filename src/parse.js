@@ -13,5 +13,3 @@ module.exports = function (source, options) {
   // - setting it as an attribute on the import tag
   return parse(source, { ...parseDefaults, voidTags, ...options })
 }
-
-

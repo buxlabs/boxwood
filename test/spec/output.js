@@ -26,4 +26,3 @@ test('output: html tags and a curly tag', async assert => {
   const template = await compile('<div>{foo}</div><div>bar</div>')
   assert.deepEqual(normalize(template.toString()), normalize('function render(__o, __e) { var __t = "<div>"; __t += __e(__o.foo); __t += "</div><div>bar</div>"; return __t; }'))
 })
-
