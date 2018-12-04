@@ -22,3 +22,13 @@ test('link: can be used as a non self closing tag when imported as component', a
   })
   assert.deepEqual(template({}, escape), '<a href="/foo" class="default underlined link">bar</a>')
 })
+
+test('link: can be used as a non self closing tag when imported as component (multiple spaces)', async assert => {
+  const template = await compile(`
+    <import   link   from="./link.html" />
+    <link href="/foo">bar</link>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/components') ]
+  })
+  assert.deepEqual(template({}, escape), '<a href="/foo" class="default underlined link">bar</a>')
+})

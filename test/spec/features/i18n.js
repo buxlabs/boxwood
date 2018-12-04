@@ -155,7 +155,7 @@ test('i18n: loading translations from json', async assert => {
 
 test('i18n: loading translations from js', async assert => {
   const template = await compile(
-    `<script i18n from="../../fixtures/translations/buttons.json"></script>
+    `<script i18n from="../../fixtures/translations/buttons.js"></script>
     <div><translate button.submit /></div>`,
     {
       paths: [__dirname],
@@ -179,6 +179,15 @@ test('i18n: loading translations from global json files', async assert => {
   const template = await compile(
     `<div><translate cancel /></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
+  )
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<div>cancel</div>')
+})
+
+test('i18n: loading translations from global js files', async assert => {
+  const template = await compile(
+    `<div><translate cancel /></div>`,
+    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.js')] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
   assert.deepEqual(template({ language: 'en' }, escape), '<div>cancel</div>')
@@ -266,5 +275,47 @@ test('i18n: throws if the translation script is empty', async assert => {
       <i18n></i18n><div><translate foo /></div>
     `, { languages: ['pl', 'en'] }),
     /The translation script cannot be empty/
+  )
+})
+
+test('i18n: throws if the yaml file is corrupt', async assert => {
+  await assert.throws(
+    compile(`
+      <script i18n from="../../fixtures/translations/corrupt.yaml"></script>
+      <div><translate button.submit /></div>
+    `,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }),
+    /YAML translation is unparseable/
+  )
+})
+
+test('i18n: throws if the json file is corrupt', async assert => {
+  await assert.throws(
+    compile(`
+      <script i18n from="../../fixtures/translations/corrupt.json"></script>
+      <div><translate button.submit /></div>
+    `,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }),
+    /JSON translation is unparseable/
+  )
+})
+
+test('i18n: throws if the js file is corrupt', async assert => {
+  await assert.throws(
+    compile(`
+      <script i18n from="../../fixtures/translations/corrupt.js"></script>
+      <div><translate button.submit /></div>
+    `,
+    {
+      paths: [__dirname],
+      languages: ['pl', 'en']
+    }),
+    /JS translation is unparseable/
   )
 })

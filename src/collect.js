@@ -18,13 +18,13 @@ const {
   convertToExpression,
   convertKey
 } = require('./convert')
+const { parseYAML, parseJSON, parseJS } = require('./translations')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync, existsSync } = require('fs')
 const { join, dirname } = require('path')
-const { parse } = require('./parser')
-const yaml = require('yaml-js')
+const parse = require('./parse')
 const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
@@ -522,27 +522,17 @@ async function collect (tree, fragment, variables, filters, components, statisti
         }
       }
       leaf.used = true
+      let data = {}
       if (keys.includes('yaml')) {
-        const data = yaml.load(leaf.content)
-        for (let key in data) {
-          if (translations[key]) { throw new Error('Translation already exists') }
-          translations[key] = data[key]
-        }
+        data = parseYAML(leaf.content)
       } else if (keys.includes('json')) {
-        const data = JSON.parse(leaf.content)
-        for (let key in data) {
-          if (translations[key]) { throw new Error('Translation already exists') }
-          translations[key] = data[key]
-        }
+        data = parseJSON(leaf.content)
       } else {
-        const ast = new AbstractSyntaxTree(leaf.content)
-        const node = ast.first('ExportDefaultDeclaration')
-        node.declaration.properties.forEach(property => {
-          if (translations[property.key.name || property.key.value]) {
-            throw new Error('Translation already exists')
-          }
-          translations[property.key.name || property.key.value] = property.value.elements.map(element => element.value)
-        })
+        data = parseJS(leaf.content)
+      }
+      for (let key in data) {
+        if (translations[key]) { throw new Error('Translation already exists') }
+        translations[key] = data[key]
       }
     } else if (tag === 'style' || tag === 'script' || tag === 'template') {
       let content = `<${tag}`

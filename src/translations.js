@@ -1,12 +1,45 @@
-const { readFileSync } = require('fs')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { load } = require('yaml-js')
+const { readFileSync } = require('fs')
 const { extname } = require('path')
+const convert = require('asttv')
+
+function parseYAML (content) {
+  try {
+    return load(content)
+  } catch (exception) {
+    throw new Error('YAML translation is unparseable')
+  }
+}
+
+function parseJSON (content) {
+  try {
+    return JSON.parse(content)
+  } catch (exception) {
+    throw new Error('JSON translation is unparseable')
+  }
+}
+
+function parseJS (content) {
+  try {
+    const ast = new AbstractSyntaxTree(content)
+    const node = ast.first('ExportDefaultDeclaration')
+    return convert(node.declaration)
+  } catch (exception) {
+    throw new Error('JS translation is unparseable')
+  }
+}
+
+function parseTranslations (format, content) {
+  if (format === '.yaml') return parseYAML(content)
+  if (format === '.json') return parseJSON(content)
+  return parseJS(content)
+}
 
 function readTranslations (path) {
   const content = readFileSync(path, 'utf8')
   const extension = extname(path)
-  // TODO handle error and print better error message
-  return extension === '.yaml' ? load(content) : JSON.parse(content)
+  return parseTranslations(extension, content)
 }
 
 function mergeTranslations (value, translations, languages, paths) {
@@ -30,5 +63,8 @@ function mergeTranslations (value, translations, languages, paths) {
 }
 
 module.exports = {
-  mergeTranslations
+  mergeTranslations,
+  parseYAML,
+  parseJSON,
+  parseJS
 }

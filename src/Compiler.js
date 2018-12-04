@@ -1,11 +1,11 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { parse } = require('./parser')
 const walk = require('himalaya-walk')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('./enum')
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./factory')
 const collect = require('./collect')
 const { getFilter } = require('./filters')
 const { array: { unique } } = require('pure-utilities')
+const Parser = require('./Parser')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
@@ -79,16 +79,8 @@ class Compiler {
     }, options)
   }
   parse (source) {
-    let template, rescue
-    if (source.includes('<rescue>') && source.includes('</rescue>')) {
-      const start = source.indexOf('<rescue>')
-      const end = source.indexOf('</rescue>')
-      const content = source.substring(start + '<rescue>'.length, end)
-      rescue = parse(content)
-      source = source.substring(0, start) + source.substring(end, source.length)
-    }
-    template = parse(source)
-    return { template, rescue }
+    const parser = new Parser()
+    return parser.parse(source)
   }
   async transform ({ template, rescue }) {
     return Promise.all([
