@@ -333,3 +333,13 @@ test('import: conditional slot', async assert => {
   })
   assert.deepEqual(template({}, escape), '<div class="bar">bar</div>')
 })
+
+test('import: import -> partial -> import', async assert => {
+  const template = await compile(`
+    <import layout from="./basic.html" />
+    <layout>baz</layout>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/layouts') ]
+  })
+  assert.deepEqual(template({}, escape), 'baz<footer><ul class="horizontal"><li>foo</li><li>bar</li></ul></footer>')
+})
