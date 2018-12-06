@@ -343,3 +343,14 @@ test('import: import -> partial -> import', async assert => {
   })
   assert.deepEqual(template({}, escape), 'baz<footer><ul class="horizontal"><li>foo</li><li>bar</li></ul></footer>')
 })
+
+test('xxx', async assert => {
+  const template = await compile(`
+    <import layout from="./simple-landscape.html">
+    <import list from="./components/list.html">
+    <layout><list><li>foo</li></list></layout>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/layouts') ]
+  })
+  assert.deepEqual(template({}, escape), '<body><main><ul class=""><li>foo</li></ul></main><footer><ul class="horizontal"><li>bar</li></ul></footer></body>')
+})
