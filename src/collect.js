@@ -28,6 +28,7 @@ const parse = require('./parse')
 const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
+const { placeholderName, addPlaceholders } = require('./keywords')
 let asyncCounter = 0
 
 const digits = new Map([
@@ -174,11 +175,53 @@ function resolveComponent (component, fragment, components, statistics, options)
     }
   })
   const htmlTree = parse(content)
-  const children = fragment.children
+  let children = fragment.children
   walk(htmlTree, leaf => {
     leaf.imported = true
     if (leaf.tagName === component.name) {
       leaf.root = true
+    }
+    if (leaf.attributes) {
+      // TODO optimize
+      // check attributes and inline values
+      // the code could be analyzed and simplified afterwards
+      // to simplify some of the conditions
+      // e.g. as a result you can get expressions like "hello" || ""
+      leaf.attributes.forEach(attr => {
+        const { value } = attr
+        if (
+          value &&
+          value.startsWith('{') &&
+          value.endsWith('}') &&
+          // TODO reuse
+          // add occurances method to pure-utilities
+          (value.match(/{/g) || []).length === 1 &&
+          (value.match(/}/g) || []).length === 1
+        ) {
+          let source = value.substr(1, value.length - 2)
+          source = addPlaceholders(source)
+          const ast = new AbstractSyntaxTree(source)
+          let replaced = false
+          ast.replace({
+            enter: node => {
+              // TODO investigate
+              // this is too optimistic
+              // should avoid member expressions etc.
+              if (node.type === 'Identifier') {
+                const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
+                if (variable) {
+                  replaced = true
+                  return { type: 'Literal', value: variable.value }
+                }
+              }
+              return node
+            }
+          })
+          if (replaced) {
+            attr.value = '{' + ast.toString().replace(/;$/, '') + '}'
+          }
+        }
+      })
     }
   })
 
@@ -199,6 +242,10 @@ function resolveComponent (component, fragment, components, statistics, options)
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
       if (current.attributes.length === 0) {
+        // putting a slot into a slot is problematic
+        if (children.length === 1 && children[0].tagName === 'slot') {
+          children = children[0].children
+        }
         if (slots === 0) {
           current.children = children
         } else {
@@ -223,6 +270,13 @@ function resolveComponent (component, fragment, components, statistics, options)
     }
   })
   fragment.children = htmlTree
+  // component usage, e.g. <list></list>
+  // can be imported in the top component as well
+  // which would result in unnecessary evaluation
+  // we need to ignore it
+  // but we can't ignore children nodes
+  // can we do it better than marking the node as a slot?
+  fragment.tagName = 'slot'
   return { fragment, localVariables }
 }
 

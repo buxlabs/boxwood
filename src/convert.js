@@ -14,6 +14,7 @@ const OBJECT_UTILITIES = Object.keys(object)
 const JSON_UTILITIES = Object.keys(json)
 const DATE_UTILITIES = Object.keys(date)
 const { mergeTranslations } = require('./translations')
+const { placeholderName, addPlaceholders } = require('./keywords')
 
 function isUnescapedFilter (filter) {
   const name = getFilterName(extractFilterName(filter))
@@ -44,14 +45,8 @@ function convertToBinaryExpression (nodes) {
   })
 }
 
-function placeholderName (keyword) {
-  return `__${keyword.toUpperCase()}_PLACEHOLDER__`
-}
-
 function convertToExpression (string) {
-  RESERVED_KEYWORDS.forEach(keyword => {
-    string = string.replace(new RegExp(`\\b${keyword}\\b`, 'g'), placeholderName(keyword))
-  })
+  string = addPlaceholders(string)
   const tree = new AbstractSyntaxTree(string)
   tree.replace({
     enter: node => {

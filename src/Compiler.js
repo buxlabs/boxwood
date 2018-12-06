@@ -112,7 +112,6 @@ class Compiler {
     const params = analyzer.params()
     const optimizer = new Optimizer(program)
     optimizer.optimize()
-
     const compiled = new Function(`return function render(${params}) {\n${program.toString()}}`)() // eslint-disable-line
     return { template: compiled, statistics, errors }
   }
