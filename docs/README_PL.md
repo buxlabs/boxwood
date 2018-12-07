@@ -1,48 +1,48 @@
 # pure-engine
 
-> Compile HTML templates into JS
+> Kompiluj szablony HTML do JS
 
 ![npm (scoped)](https://img.shields.io/npm/v/pure-engine.svg)
 [![Codeship Status for buxlabs/pure-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
 
 [REPL](https://buxlabs.pl/en/tools/js/pure-engine)
 
-## Description
+## Opis
 
-Pure Engine is a library designed to compile HTML templates into JS. It analyses the template and generates an optimal rendering function that can be used on the client and the server. The compilation process should ideally happen in a build step (for the client) or the output could be memoized after first usage (for the server).
+Pure Engine jest silnikiem przeznaczonym do kompilacji szablonów HTML na funkcje w JS. Analizuje szablon i generuje optymalną funkcję renderującą, która może być używana zarówno po stronie klienta, jak i serwera. Proces kompilacji powinien w idealnym przypadku nastąpić w procesie budowania (dla klienta) lub jego rezultat powinien zostać zachowany w celu ponownego wykorzystania (na serwerze).
 
-The syntax of the template should be easy to read and write. There are two types of tags: curly and html tags.
+Składnia szablonów powinna być łatwa w czytaniu i pisaniu. Istnieją dwa typy tagów: klamrowe i HTML.
 
-Status: Alpha / Proof of concept
+Status: Alfa / Dowód koncepcji
 
-### Curly Tags
+### Tagi klamrowe
 
-`{name}` is a curly tag
+`{name}` jest tagiem klamrowym
 
-Curly tags can contain expressions, e.g. `{1 + 2}` is a valid tag.
-They can also contain additional filters like `{name | capitalize}`
+Tagi klamrowe mogą posiadać wyrażenia, np. `{1 + 2}` jest poprawnym tagiem.
+Mogą również posiadać dodatkowe filtry, takie jak `{name | capitalize}`
 
-### HTML Tags
+### Tagi HTML
 
-`<if>` is an html tag
+`<if>` jest tagiem HTML
 
-HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a valid tag. The attribute syntax follows the natural language principles.
+Tagi HTML mogą posiadać dodatkowe atrybuty, np.: `<if limit is a number>` jest poprawnym tagiem. Składnia atrybutów naśladuje język naturalny.
 
-## Usage
+## Użycie
 
 `npm install pure-engine escape-html`
 
 ```js
 const { compile } = import 'pure-engine'
 const escape = import 'escape-html'
-// ... later, inside of an async function
+// ... dalej, wewnątrz async function
 const template = await compile('<div>{foo}</div>')
 expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
 ```
 
-## Features
+## Funkcjonalności
 
-* import and require tags
+* tagi import i require
 
 ```html
 <import layout from="./layouts/default.html"/>
@@ -59,7 +59,7 @@ expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
 </layout>
 ```
 
-* conditional tags: if, else, elseif, unless, elseunless
+* tagi warunkowe: if, else, elseif, unless, elseunless
 
 ```html
 <if foo>bar</if>
@@ -73,19 +73,19 @@ expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
 </for>
 ```
 
-* filters
+* filtry
 
 ```html
 {title | capitalize}
 ```
 
-* special attributes
+* specjalne atrybuty
 
 ```html
 <img src="./foo.png" inline>
 ```
 
-* built-in i18n support (translate tag and filter)
+* wbudowanie wsparcie i18n (tag translate i filtr)
 
 ```html
 <i18n yaml>
@@ -96,7 +96,7 @@ hello:
 <h1><translate hello /></h1>
 ```
 
-* compiler tag for scripts
+* tag compiler dla skryptów
 
 ```html
 <div id="app"></div>
@@ -120,7 +120,7 @@ render(
 ```
 
 
-## Input / Output
+## Wejście / Wyjście
 
 ```
 <if foo is present>{bar}</if>
@@ -165,7 +165,7 @@ function render(__o, __e) {
 }
 ```
 
-## Benchmarks
+## Benchmarki
 
 `npm run benchmark`
 
@@ -178,6 +178,6 @@ mustache x 447,168 ops/sec ±1.09% (82 runs sampled)
 Fastest is pure-engine
 ```
 
-## License
+## Licencja
 
 MIT
