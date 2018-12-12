@@ -502,4 +502,12 @@ test('filters', async assert => {
 
   template = await compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`)
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
+
+  // ltrim filter tests
+  template = await compile('{ foo | ltrim }')
+  assert.deepEqual(template({ foo: '   qwe'}, escape), 'qwe')
+  assert.deepEqual(template({ foo: '   qwe  ' }, escape), 'qwe  ')
+
+  template = await compile('{ foo | ltrim("_-") }')
+  assert.deepEqual(template({ foo: '-_-qwe-_-'}, escape), 'qwe-_-')
 })
