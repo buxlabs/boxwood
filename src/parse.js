@@ -1,7 +1,8 @@
 const { parse, parseDefaults } = require('himalaya')
+const { VOID_TAGS } = require('./enum')
 
 module.exports = function (source, options) {
-  const voidTags = parseDefaults.voidTags.filter(tag => {
+  const voidTags = VOID_TAGS.concat(parseDefaults.voidTags).filter(tag => {
     const regexp = new RegExp(`<import\\s+${tag}\\s+`)
     return !regexp.test(source)
   })

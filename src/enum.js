@@ -86,5 +86,10 @@ module.exports = {
   RESERVED_KEYWORDS: [
     'class',
     'for'
+  ],
+  VOID_TAGS: [
+    'import',
+    'require',
+    'translate'
   ]
 }
