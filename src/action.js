@@ -46,6 +46,42 @@ function getCondition (name) {
 }
 
 function negateAction (argument) {
+  if (argument.type === 'BinaryExpression' && argument.operator === '>') {
+    argument.operator = '<='
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '<') {
+    argument.operator = '>='
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '<=') {
+    argument.operator = '>'
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '>=') {
+    argument.operator = '<'
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '==') {
+    argument.operator = '!='
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '!=') {
+    argument.operator = '=='
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '===') {
+    argument.operator = '!=='
+    return argument
+  }
+  if (argument.type === 'BinaryExpression' && argument.operator === '!==') {
+    argument.operator = '==='
+    return argument
+  }
+  // we could avoid the above code with an optimization method like
+  // negationOperatorRemoval({ type: 'UnaryExpression', operator: '!', prefix: true, argument })
+  // which handles the logic above
+  // https://github.com/buxlabs/astoptech/issues/1
   return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
 }
 

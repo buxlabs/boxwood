@@ -26,3 +26,146 @@ test('output: html tags and a curly tag', async assert => {
   const template = await compile('<div>{foo}</div><div>bar</div>')
   assert.deepEqual(normalize(template.toString()), normalize('function render(__o, __e) { var __t = "<div>"; __t += __e(__o.foo); __t += "</div><div>bar</div>"; return __t; }'))
 })
+
+test('output: truthy condition with strict inequality operator', async assert => {
+  const template = await compile('<if foo is present>{foo}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.foo !== void 0) {
+        __t += __e(__o.foo);
+      }
+      return __t;
+    }`
+  ))
+})
+
+test('output: falsy condition with strict equality operator', async assert => {
+  const template = await compile('<if foo is not present>{foo}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.foo === void 0) {
+        __t += __e(__o.foo);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: truthy condition with greater than operator (is positive)', async assert => {
+  const template = await compile('<if number is positive>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number > 0) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: falsy condition with the less than or equal operator (is positive)', async assert => {
+  const template = await compile('<if number is not positive>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number <= 0) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: truthy condition with less than operator (is negative)', async assert => {
+  const template = await compile('<if number is negative>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number < 0) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: falsy condition with greater than or equal operator (is negative)', async assert => {
+  const template = await compile('<if number is not negative>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number >= 0) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: truthy condition with greater than operator', async assert => {
+  const template = await compile('<if number is greater than five>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number > 5) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test.skip('output: falsy condition with less than or equal operator', async assert => {
+  const template = await compile('<if number is not greater than five>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number <= 5) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: truthy condition with greater than or equal operator (is greater than or equals)', async assert => {
+  const template = await compile('<if number is greater than or equals five>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number >= 5) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: falsy condition with greater than operator (is at most)', async assert => {
+  const template = await compile('<if number is not at most five>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number > 5) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
+
+test('output: falsy condition with greater than operator (is at least)', async assert => {
+  const template = await compile('<if number is not at least five>{number}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.number < 5) {
+        __t += __e(__o.number);
+      }
+      return __t;
+    }
+  `))
+})
