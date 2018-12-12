@@ -1,6 +1,7 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
 import escape from 'escape-html'
+import path from 'path'
 
 test('operators: addition', async assert => {
   let template
@@ -199,6 +200,36 @@ test('operators: ternary operator works with computed object property access', a
 
   template = await compile('{ foo[bar] ? "foo" : "bar" }')
   assert.deepEqual(template({ foo: { bar: false }, bar: 'bar' }, escape), 'bar')
+})
+
+test('operators: ternary operator works inside loops', async assert => {
+  let template = await compile(`
+    <select>
+      <for number in range="0..1">
+        <option selected="{ number == foo ? 'selected': '' }">{number}</option>
+      </for>
+    </select>
+  `)
+  assert.deepEqual(template({ foo: '1' }, escape), '<select><option>0</option><option selected>1</option></select>')
+
+  template = await compile(`
+    <select>
+      <for number in range="2018..2020">
+        <option value="{number}" selected="{ number == foo ? 'selected' : '' }">{number}</option>
+      </for>
+    </select>
+  `)
+  assert.deepEqual(template({ foo: '2019' }, escape), `<select><option value="2018">2018</option><option value="2019" selected>2019</option><option value="2020">2020</option></select>`)
+
+  template = await compile(`
+    <import layout from="./layouts/blank1.html">
+    <layout>
+      <for number in range="1..3">
+        <div class="{ number == bar ? 'selected' : '' }">{number}</div>
+      </for>
+    </layout>
+  `, { paths: path.join(__dirname, '..', '..', 'fixtures') })
+  assert.deepEqual(template({ foo: 'minimal', bar: '2' }, escape), '<div class="minimal"><div class="">1</div><div class="selected">2</div><div class="">3</div></div>')
 })
 
 test('operators: works for multiple variables', async assert => {
