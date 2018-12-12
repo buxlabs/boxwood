@@ -319,3 +319,22 @@ test('i18n: throws if the js file is corrupt', async assert => {
     /JS translation is unparseable/
   )
 })
+
+test('i18n: self-closing syntax', async assert => {
+  const template = await compile(
+    `<script i18n yaml>
+     title:
+     - Tytuł
+     - Title
+     submit:
+     - Wyślij
+     - Send
+    </script>
+    <div>
+      <h1><translate title></h1>
+      <p><translate submit></p>
+    </div>`,
+    { languages: ['pl', 'en'] }
+  )
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div><h1>Tytuł</h1><p>Wyślij</p></div>')
+})
