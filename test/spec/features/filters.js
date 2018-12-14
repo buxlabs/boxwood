@@ -262,9 +262,8 @@ test('filters', async assert => {
   template = await compile(`{foo | int}`)
   assert.deepEqual(template({ foo: 10 }, escape), '10')
 
-  // TODO investigate
-  // template = await compile(`{foo | float}`)
-  // assert.deepEqual(template({ foo: 10.25 }, escape), '10.25')
+  template = await compile(`{foo | float}`)
+  assert.deepEqual(template({ foo: 10.25 }, escape), '10.25')
 
   template = await compile(`{foo | percentage}`)
   assert.deepEqual(template({ foo: 0.25 }, escape), '25%')
@@ -509,4 +508,26 @@ test('filters', async assert => {
 
   template = await compile('{ foo | ltrim("_-") }')
   assert.deepEqual(template({ foo: '-_-qwe-_-' }, escape), 'qwe-_-')
+
+  template = await compile('{ foo | rtrim }')
+  assert.deepEqual(template({ foo: 'qwe   ' }, escape), 'qwe')
+  assert.deepEqual(template({ foo: '   qwe  ' }, escape), '   qwe')
+
+  template = await compile('{ foo | rtrim("_-") }')
+  assert.deepEqual(template({ foo: '-_-qwe-_-' }, escape), '-_-qwe')
+
+  template = await compile(`{foo | prepend('Hi ') }`)
+  assert.deepEqual(template({ foo: 'John' }, escape), 'Hi John')
+
+  template = await compile(`{foo | prepend(4, 5, 6) | first }`)
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '4')
+
+  template = await compile(`{foo | prepend(4, 5, 6) | last }`)
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '3')
+
+  template = await compile(`{foo | append(4, 5, 6) | first}`)
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '1')
+
+  template = await compile(`{foo | append(4, 5, 6) | last}`)
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '6')
 })
