@@ -186,13 +186,21 @@ function getTemplateNode (expression, variables, unescape) {
       }
       return node
     })
-    if (unescape) {
+    if (unescape || isBooleanReturnFromExpression(expression)) {
       return expression
     }
     return getEscapeCallExpression(expression)
   } else {
     throw new Error(`Expression type: ${expression.type} isn't supported yet.`)
   }
+}
+
+function isComparisonOperator (operator) {
+  return ['==', '===', '>', '<', '>=', '<=', '!=', '!=='].includes(operator)
+}
+
+function isBooleanReturnFromExpression (node) {
+  return node.type === 'BinaryExpression' && isComparisonOperator(node.operator)
 }
 
 function convertText (text, variables, currentFilters, translations, languages, translationsPaths) {

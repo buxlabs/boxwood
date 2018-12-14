@@ -232,6 +232,58 @@ test('operators: ternary operator works inside loops', async assert => {
   assert.deepEqual(template({ foo: 'minimal', bar: '2' }, escape), '<div class="minimal"><div class="">1</div><div class="selected">2</div><div class="">3</div></div>')
 })
 
+test('operators: filters boolean attributes', async assert => {
+  let template = await compile(`<option value="baz" selected="{ foo == 'bar' }"></option>`)
+  assert.deepEqual(template({ foo: 'bar' }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo == 'bar' }"></option>`)
+  assert.deepEqual(template({ foo: 'ban' }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo === 'bar' }"></option>`)
+  assert.deepEqual(template({ foo: 'bar' }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo === 'bar' }"></option>`)
+  assert.deepEqual(template({ foo: 'ban' }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo > 5 }"></option>`)
+  assert.deepEqual(template({ foo: 10 }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo > 5 }"></option>`)
+  assert.deepEqual(template({ foo: 5 }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo >= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 10 }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo >= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 4 }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo >= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 5 }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo >= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 4 }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo < 5 }"></option>`)
+  assert.deepEqual(template({ foo: 10 }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo < 5 }"></option>`)
+  assert.deepEqual(template({ foo: 5 }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo < 5 }"></option>`)
+  assert.deepEqual(template({ foo: 4 }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo <= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 10 }, escape), '<option value="baz"></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo <= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 5 }, escape), '<option value="baz" selected></option>')
+
+  template = await compile(`<option value="baz" selected="{ foo <= 5 }"></option>`)
+  assert.deepEqual(template({ foo: 4 }, escape), '<option value="baz" selected></option>')
+
+  // TODO: Includes all comparison operators
+})
+
 test('operators: works for multiple variables', async assert => {
   const template = await compile('{foo > bar && baz > qux}')
   assert.deepEqual(template({ foo: 1, bar: 0, baz: 1, qux: 0 }, escape), 'true')
