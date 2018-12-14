@@ -118,7 +118,7 @@ test('output: truthy condition with greater than operator', async assert => {
   `))
 })
 
-test.skip('output: falsy condition with less than or equal operator', async assert => {
+test('output: falsy condition with less than or equal operator', async assert => {
   const template = await compile('<if number is not greater than five>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
