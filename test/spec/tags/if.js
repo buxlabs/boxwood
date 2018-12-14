@@ -281,6 +281,24 @@ test('if', async assert => {
   template = await compile('<if foo is greater than or equals bar>baz</if>')
   assert.deepEqual(template({ foo: 50, bar: 40 }, escape), 'baz')
 
+  template = await compile('<if foo is not greater than bar>baz</if>')
+  assert.deepEqual(template({ foo: 100, bar: 100 }, escape), 'baz')
+
+  template = await compile('<if foo is not greater than bar>baz</if>')
+  assert.deepEqual(template({ foo: 90, bar: 100 }, escape), 'baz')
+
+  template = await compile('<if foo is not greater than bar>baz</if>')
+  assert.deepEqual(template({ foo: 110, bar: 100 }, escape), '')
+
+  template = await compile('<if foo is not greater than five>baz</if>')
+  assert.deepEqual(template({ foo: 5 }, escape), 'baz')
+
+  template = await compile('<if foo is not greater than five>baz</if>')
+  assert.deepEqual(template({ foo: 4 }, escape), 'baz')
+
+  template = await compile('<if foo is not greater than five>baz</if>')
+  assert.deepEqual(template({ foo: 6 }, escape), '')
+
   template = await compile('<if foo[bar]>baz</if>')
   assert.deepEqual(template({ foo: { bar: true }, bar: 'bar' }, escape), 'baz')
 

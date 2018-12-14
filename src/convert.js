@@ -196,7 +196,7 @@ function getTemplateNode (expression, variables, unescape) {
 }
 
 function isComparisonOperator (operator) {
-  return ['==', '===', '>', '<', '>=', '<=', '!=', '!=='].includes(operator)
+  return (/^(==|===|!=|!==|<|>|<=|>=)$/).test(operator)
 }
 
 function isBooleanReturnFromExpression (node) {
