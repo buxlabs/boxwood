@@ -48,6 +48,7 @@
     "negate-sentence": "^0.1.2",
     "pure-conditions": "^0.1.9",
     "pure-utilities": "^1.1.8",
+    "words-to-numbers": "^1.5.1",
     "yaml-js": "^0.2.3"
   },
   "devDependencies": {

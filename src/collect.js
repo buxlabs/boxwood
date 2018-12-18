@@ -30,21 +30,8 @@ const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { placeholderName, addPlaceholders } = require('./keywords')
+const { wordsToNumbers } = require('words-to-numbers')
 let asyncCounter = 0
-
-const digits = new Map([
-  ['zero', 0],
-  ['one', 1],
-  ['two', 2],
-  ['three', 3],
-  ['four', 4],
-  ['five', 5],
-  ['six', 6],
-  ['seven', 7],
-  ['eight', 8],
-  ['nine', 9],
-  ['ten', 10]
-])
 
 function getFreeIdentifier (variables) {
   return array.identifier(variables)
@@ -281,18 +268,6 @@ function resolveComponent (component, fragment, components, statistics, options)
   return { fragment, localVariables }
 }
 
-function appendIfStatement (node, tree, ast, depth) {
-  tree.append({
-    type: 'IfStatement',
-    test: node,
-    consequent: {
-      type: 'BlockStatement',
-      body: ast.body()
-    },
-    depth
-  })
-}
-
 function getTest (action, keys, values, variables) {
   if (action.args === 1) {
     const key = keys[0] === 'not' ? keys[1] : keys[0]
@@ -322,7 +297,8 @@ function getRightNodeFromAttribute (current, next, variables) {
 
 function getLiteralOrIdentifier (attribute, variables) {
   const key = attribute.key || attribute
-  return digits.has(key) ? getLiteral(digits.get(key)) : convertKey(key, variables)
+  const value = wordsToNumbers(key)
+  return typeof value === 'number' ? getLiteral(value) : convertKey(key, variables)
 }
 
 function getCondition (attrs, variables) {
@@ -684,7 +660,15 @@ async function collect (tree, fragment, variables, filters, components, statisti
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
       const condition = getCondition(attrs, variables)
-      appendIfStatement(condition, tree, ast, depth)
+      tree.append({
+        type: 'IfStatement',
+        test: condition,
+        consequent: {
+          type: 'BlockStatement',
+          body: ast.body()
+        },
+        depth
+      })
     } else if (tag === 'elseif') {
       let leaf = tree.last(`IfStatement[depth="${depth}"]`)
       if (leaf) {

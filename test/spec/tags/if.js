@@ -2006,3 +2006,24 @@ test('if', async assert => {
   template = await compile('<if foo>bar</if><elseif bar>baz</else>')
   assert.deepEqual(template({ foo: false, bar: true }, escape), 'baz')
 })
+
+test('if: words to numbers', async assert => {
+  let template
+
+  template = await compile('<if number equals zero>foo</if><else>bar</else>')
+  assert.deepEqual(template({ number: 0 }, escape), 'foo')
+  assert.deepEqual(template({ number: 1 }, escape), 'bar')
+
+  template = await compile('<if number equals eleven>foo</if><else>bar</else>')
+  assert.deepEqual(template({ number: 11 }, escape), 'foo')
+  assert.deepEqual(template({ number: 12 }, escape), 'bar')
+
+  template = await compile('<if number equals one-hundred>foo</if><else>bar</else>')
+  assert.deepEqual(template({ number: 100 }, escape), 'foo')
+  assert.deepEqual(template({ number: 101 }, escape), 'bar')
+
+  template = await compile('<if number equals four-thousand>foo</if><else>bar</else>')
+  assert.deepEqual(template({ number: 4000 }, escape), 'foo')
+  assert.deepEqual(template({ number: 4001 }, escape), 'bar')
+
+})
