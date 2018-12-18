@@ -406,7 +406,6 @@ function getExtension (value) {
 }
 
 async function collect (tree, fragment, variables, filters, components, statistics, translations, store, depth, options, promises, errors) {
-
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
       await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)

@@ -8,21 +8,21 @@ test('svg can be imported', async assert => {
 })
 
 test('svg import throws if the from attribute is empty', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<svg from=''/><div>`, { paths: [__dirname] }),
     /Attribute empty on the svg tag: from\./
   )
 })
 
 test('svg import throws if there are no paths defined', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<svg from='../circle.svg'/><div>`, {}),
     /Compiler option is undefined: paths\./
   )
 })
 
 test('svg import throws if the asset does not exist', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<svg from='../circle.svg'/><div>`, { paths: [] }),
     /Asset not found: \.\.\/circle\.svg/
   )

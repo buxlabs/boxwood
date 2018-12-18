@@ -54,14 +54,14 @@ test('img: global inline for svg', async assert => {
 })
 
 test('img: inline throws if there are not paths', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<img src='../circle.svg' inline>`),
     /Compiler option is undefined: paths\./
   )
 })
 
 test('img: inline throws if asset does not exist', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<img src='../circle.svg' inline>`, { paths: [] }),
     /Asset not found: \.\.\/circle\.svg/
   )

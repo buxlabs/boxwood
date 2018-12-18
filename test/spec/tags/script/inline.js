@@ -29,7 +29,7 @@ test('script: global inline for a js file', async assert => {
 })
 
 test('script: inline throws if the file does not exist', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<script src='./foo.js' inline></script>`, { paths: [] }),
     /Asset not found: \.\/foo\.js/
   )

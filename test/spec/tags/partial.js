@@ -31,12 +31,12 @@ test('partial', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<partial from='./partial.html'/><partial>`, {}),
     /Compiler option is undefined: paths\./
   )
 
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<partial from='./partial.html'/><partial>`, { paths: [] }),
     /Asset not found: \.\/partial\.html/
   )

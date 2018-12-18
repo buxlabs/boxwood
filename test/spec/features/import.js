@@ -246,22 +246,22 @@ test('import', async assert => {
 
   assert.deepEqual(template({}, escape), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<div partial='./partial.html'/><div>`, {}),
     /Compiler option is undefined: paths\./
   )
 
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<div partial='./partial.html'/><div>`, { paths: [] }),
     /Asset not found: \.\/partial\.html/
   )
 
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {}),
     /Compiler option is undefined: paths\./
   )
 
-  await assert.throws(
+  await assert.throwsAsync(
     compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] }),
     /Asset not found: \.\/checkbox\.html/
   )

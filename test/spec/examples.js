@@ -25,7 +25,7 @@ test('example: home', async assert => {
 })
 
 test('example: i18n', async assert => {
-  await assert.throws(
+  await assert.throwsAsync(
     suite('i18n', { language: 'pl' }, assert),
     /Translation already exists/
   )
