@@ -9,7 +9,8 @@ const {
   getForLoopVariable,
   getForInLoop,
   getForInLoopVariable,
-  getTemplateVariableDeclaration
+  getTemplateVariableDeclaration,
+  getTranslateCallExpression
 } = require('./factory')
 const {
   convertText,
@@ -18,7 +19,7 @@ const {
   convertToExpression,
   convertKey
 } = require('./convert')
-const { parseYAML, parseJSON, parseJS } = require('./translations')
+const { parseYAML, parseJSON, parseJS, mergeTranslations } = require('./translations')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
@@ -405,6 +406,13 @@ function getExtension (value) {
 }
 
 async function collect (tree, fragment, variables, filters, components, statistics, translations, store, depth, options, promises, errors) {
+
+  function collectChildren (fragment, ast) {
+    walk(fragment, async current => {
+      await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
+    })
+  }
+
   try {
     if (fragment.used) return
     depth += 1
@@ -418,9 +426,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       const { localVariables } = resolveComponent(component, fragment, components, statistics, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
-      walk(fragment, async current => {
-        await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, ast)
       // TODO instead of doing this we could pass the variables down the road together
       // with the values and set them there instead of replacing here
       // if the passed value is an expression we could assign it to a free variable
@@ -450,14 +456,11 @@ async function collect (tree, fragment, variables, filters, components, statisti
       const attribute = fragment.attributes[0]
       if (attribute) {
         const { key } = attribute
-        fragment.used = true
-        fragment.children = [{ type: 'text', content: `{'${key}' | translate}` }]
-        const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
-        const body = ast.body()
-        body.forEach(node => tree.append(node))
+        filters.push('translate')
+        translations = mergeTranslations(key, translations, languages, translationsPaths)
+        tree.append(getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(key)))
+      } else {
+        throw new Error('Translate tag must define a key')
       }
     } else if ((tag === 'script' && keys.includes('inline')) || options.inline.includes('scripts')) {
       if (keys.includes('src')) {
@@ -663,9 +666,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         }
         tree.append(getTemplateAssignmentExpression(options.variables.template, node))
       })
-      walk(fragment, async node => {
-        await collect(tree, node, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, tree)
       if (!SELF_CLOSING_TAGS.includes(tag)) {
         const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
         if (attr) {
@@ -682,18 +683,14 @@ async function collect (tree, fragment, variables, filters, components, statisti
       return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(options.variables.template, node)))
     } else if (tag === 'if') {
       const ast = new AbstractSyntaxTree('')
-      walk(fragment, async current => {
-        await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, ast)
       const condition = getCondition(attrs, variables)
       appendIfStatement(condition, tree, ast, depth)
     } else if (tag === 'elseif') {
       let leaf = tree.last(`IfStatement[depth="${depth}"]`)
       if (leaf) {
         const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
           leaf = leaf.alternate
         }
@@ -712,9 +709,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       let leaf = tree.last(`IfStatement[depth="${depth}"]`)
       if (leaf) {
         const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
           leaf = leaf.alternate
         }
@@ -749,9 +744,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         const guard = getFreeIdentifier(variables.concat(parent))
         variables.push(guard)
         ast.append(getForLoopVariable(variable, name, variables, index, range))
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
         variables.pop()
         variables.pop()
@@ -768,18 +761,14 @@ async function collect (tree, fragment, variables, filters, components, statisti
         const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
         ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         tree.append(getForInLoop(keyIdentifier, name, ast.body()))
         variables.pop()
         variables.pop()
       }
     } else if (tag === 'slot' || tag === 'yield') {
       const ast = new AbstractSyntaxTree('')
-      walk(fragment, async current => {
-        await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, ast)
       const body = ast.body()
       body.forEach(node => tree.append(node))
     } else if (tag === 'try') {
@@ -787,9 +776,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       const variable = `_${TEMPLATE_VARIABLE}`
       ast.append(getTemplateVariableDeclaration(variable))
       options.variables.template = variable
-      walk(fragment, async current => {
-        await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, ast)
       ast.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, { type: 'Identifier', name: variable }))
       options.variables.template = TEMPLATE_VARIABLE
       tree.append({
@@ -803,9 +790,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       const leaf = tree.last('TryStatement')
       if (leaf) {
         const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         leaf.handler = {
           type: 'CatchClause',
           param: {
@@ -820,9 +805,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       }
     } else if (tag === 'unless') {
       const ast = new AbstractSyntaxTree('')
-      walk(fragment, async current => {
-        await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, ast)
       const { key } = attrs[0]
       tree.append({
         type: 'IfStatement',
@@ -842,9 +825,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       let leaf = tree.last(`IfStatement[depth="${depth}"]`)
       if (leaf) {
         const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
           leaf = leaf.alternate
         }
@@ -886,9 +867,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         })
         const condition = getCondition(attributes, variables)
         const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         ast.append({
           type: 'BreakStatement',
           label: null
@@ -903,9 +882,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       let leaf = tree.last('SwitchStatement')
       if (leaf) {
         const ast = new AbstractSyntaxTree('')
-        walk(fragment, async current => {
-          await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-        })
+        collectChildren(fragment, ast)
         ast.append({
           type: 'BreakStatement',
           label: null
@@ -932,9 +909,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         variables.push(key.key)
         variables.push(value.key)
       }
-      walk(fragment, async current => {
-        await collect(ast, current, variables, filters, components, statistics, translations, store, depth, options, promises, errors)
-      })
+      collectChildren(fragment, ast)
       if (left) {
         variables.pop()
       } else if (key && value) {

@@ -27,6 +27,14 @@ function getTemplateAssignmentExpression (variable, node) {
   }
 }
 
+function getObjectMemberExpression (name) {
+  return {
+    type: 'MemberExpression',
+    object: getIdentifier(OBJECT_VARIABLE),
+    property: getIdentifier(name)
+  }
+}
+
 function getEscapeCallExpression (node) {
   return {
     type: 'CallExpression',
@@ -57,13 +65,7 @@ module.exports = {
       argument: getIdentifier(TEMPLATE_VARIABLE)
     }
   },
-  getObjectMemberExpression (name) {
-    return {
-      type: 'MemberExpression',
-      object: getIdentifier(OBJECT_VARIABLE),
-      property: getIdentifier(name)
-    }
-  },
+  getObjectMemberExpression,
   getForLoop (name, body, variables, index, guard, range) {
     return {
       type: 'ForStatement',
@@ -154,5 +156,21 @@ module.exports = {
     }
   },
   getIdentifier,
-  getLiteral
+  getLiteral,
+  getTranslateCallExpression (key) {
+    return {
+      type: 'CallExpression',
+      callee: {
+        type: 'Identifier',
+        name: 'translate'
+      },
+      arguments: [
+        {
+          type: 'Literal',
+          value: key
+        },
+        getObjectMemberExpression('language')
+      ]
+    }
+  }
 }

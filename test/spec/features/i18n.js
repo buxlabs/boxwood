@@ -14,7 +14,7 @@ test('i18n: translate modifier', async assert => {
 
 test('i18n: translate tag', async assert => {
   const template = await compile(
-    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit /></div>`,
+    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit></div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -32,7 +32,7 @@ test('i18n: translate modifier for a string with dot', async assert => {
 
 test('i18n: translate tag for a string with dot', async assert => {
   const template = await compile(
-    `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div><translate button.submit /></div>`,
+    `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div><translate button.submit></div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -68,7 +68,7 @@ test('i18n: translations in json and a translate modifier', async assert => {
 
 test('i18n: translations in json and a translate tag', async assert => {
   const template = await compile(
-    `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div><translate submit /></div>`,
+    `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div><translate submit></div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -94,7 +94,7 @@ test('i18n: translations in yaml and a translate tag', async assert => {
      submit:
      - Wyślij
      - Send
-    </script><div><translate submit /></div>`,
+    </script><div><translate submit></div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -120,7 +120,7 @@ test('i18n: translations in yaml and a translate tag with dot notation', async a
      button.submit:
      - Wyślij
      - Send
-    </script><div><translate button.submit /></div>`,
+    </script><div><translate button.submit></div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -130,7 +130,7 @@ test('i18n: translations in yaml and a translate tag with dot notation', async a
 test('i18n: loading translations from yaml', async assert => {
   const template = await compile(
     `<script i18n from="../../fixtures/translations/buttons.yaml"></script>
-    <div><translate button.submit /></div>`,
+    <div><translate button.submit></div>`,
     {
       paths: [__dirname],
       languages: ['pl', 'en']
@@ -143,7 +143,7 @@ test('i18n: loading translations from yaml', async assert => {
 test('i18n: loading translations from json', async assert => {
   const template = await compile(
     `<script i18n from="../../fixtures/translations/buttons.json"></script>
-    <div><translate button.submit /></div>`,
+    <div><translate button.submit></div>`,
     {
       paths: [__dirname],
       languages: ['pl', 'en']
@@ -156,7 +156,7 @@ test('i18n: loading translations from json', async assert => {
 test('i18n: loading translations from js', async assert => {
   const template = await compile(
     `<script i18n from="../../fixtures/translations/buttons.js"></script>
-    <div><translate button.submit /></div>`,
+    <div><translate button.submit></div>`,
     {
       paths: [__dirname],
       languages: ['pl', 'en']
@@ -168,7 +168,7 @@ test('i18n: loading translations from js', async assert => {
 
 test('i18n: loading translations from global yaml files', async assert => {
   const template = await compile(
-    `<div><translate button.submit /></div>`,
+    `<div><translate button.submit></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.yaml')] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -177,7 +177,7 @@ test('i18n: loading translations from global yaml files', async assert => {
 
 test('i18n: loading translations from global json files', async assert => {
   const template = await compile(
-    `<div><translate cancel /></div>`,
+    `<div><translate cancel></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
@@ -186,16 +186,23 @@ test('i18n: loading translations from global json files', async assert => {
 
 test('i18n: loading translations from global js files', async assert => {
   const template = await compile(
-    `<div><translate cancel /></div>`,
+    `<div><translate cancel></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.js')] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
   assert.deepEqual(template({ language: 'en' }, escape), '<div>cancel</div>')
 })
 
+test('i18n: throws if the translate tag has no attribute', async assert => {
+  await assert.throws(
+    compile('<translate>'),
+    /Translate tag must define a key/
+  )
+})
+
 test('i18n: throws if there is a duplicate translation', async assert => {
   await assert.throws(
-    compile('<div><translate cancel /></div>', {
+    compile('<div><translate cancel></div>', {
       languages: ['pl', 'en'],
       translationsPaths: [
         path.join(__dirname, '../../fixtures/translations/translations.json'),
@@ -213,7 +220,7 @@ test('i18n: throws if the languages flag is not set', async assert => {
   )
 
   await assert.throws(
-    compile(`<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit /></div>`),
+    compile(`<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit></div>`),
     /Compiler option is undefined: languages\./
   )
 })
@@ -226,7 +233,7 @@ test('i18n: throws if a translation is missing', async assert => {
       - Wyślij
       - Send
       </script>
-      <div><translate copyright /></div>
+      <div><translate copyright></div>
     `, { languages: ['pl', 'en'] }),
     /There is no translation for the copyright key/
   )
@@ -237,7 +244,7 @@ test('i18n: throws if a translation is missing', async assert => {
       copyright:
       - Wszystkie prawa zastrzeżone
       </script>
-      <div><translate copyright /></div>
+      <div><translate copyright></div>
     `, { languages: ['pl', 'en'] }),
     /There is no translation for the copyright key in en language/
   )
@@ -249,7 +256,7 @@ test('i18n: throws if a translation is missing', async assert => {
       - Wszystkie prawa zastrzeżone
       - All rights reserved
       </script>
-      <div><translate contact /></div>
+      <div><translate contact></div>
     `, { languages: ['pl', 'en'] }),
     /There is no translation for the contact key/
   )
@@ -272,7 +279,7 @@ test('i18n: throws if the translation script is empty', async assert => {
 
   await assert.throws(
     compile(`
-      <i18n></i18n><div><translate foo /></div>
+      <i18n></i18n><div><translate foo></div>
     `, { languages: ['pl', 'en'] }),
     /The translation script cannot be empty/
   )
@@ -282,7 +289,7 @@ test('i18n: throws if the yaml file is corrupt', async assert => {
   await assert.throws(
     compile(`
       <script i18n from="../../fixtures/translations/corrupt.yaml"></script>
-      <div><translate button.submit /></div>
+      <div><translate button.submit></div>
     `,
     {
       paths: [__dirname],
@@ -296,7 +303,7 @@ test('i18n: throws if the json file is corrupt', async assert => {
   await assert.throws(
     compile(`
       <script i18n from="../../fixtures/translations/corrupt.json"></script>
-      <div><translate button.submit /></div>
+      <div><translate button.submit></div>
     `,
     {
       paths: [__dirname],
@@ -310,7 +317,7 @@ test('i18n: throws if the js file is corrupt', async assert => {
   await assert.throws(
     compile(`
       <script i18n from="../../fixtures/translations/corrupt.js"></script>
-      <div><translate button.submit /></div>
+      <div><translate button.submit></div>
     `,
     {
       paths: [__dirname],
