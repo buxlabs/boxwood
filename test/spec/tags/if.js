@@ -2025,5 +2025,4 @@ test('if: words to numbers', async assert => {
   template = await compile('<if number equals four-thousand>foo</if><else>bar</else>')
   assert.deepEqual(template({ number: 4000 }, escape), 'foo')
   assert.deepEqual(template({ number: 4001 }, escape), 'bar')
-
 })
