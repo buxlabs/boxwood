@@ -37,7 +37,7 @@ const { compile } = import 'pure-engine'
 const escape = import 'escape-html'
 // ... later, inside of an async function
 const template = await compile('<div>{foo}</div>')
-expect(template({ foo: 'bar' })).to.equal('<div>bar</div>')
+expect(template({ foo: 'bar' }, escape)).to.equal('<div>bar</div>')
 ```
 
 ## Features
