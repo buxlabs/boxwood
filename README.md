@@ -85,6 +85,15 @@ expect(template({ foo: 'bar' }, escape)).to.equal('<div>bar</div>')
 <img src="./foo.png" inline>
 ```
 
+```html
+<div class="foo">bar</div>
+<style scoped>
+.foo {
+  color: red;
+}
+</style>
+```
+
 * built-in i18n support (translate tag and filter)
 
 ```html
