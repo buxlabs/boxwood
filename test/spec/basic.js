@@ -451,6 +451,12 @@ test('basic', async assert => {
   template = await compile('<script></script>')
   assert.deepEqual(template({}, escape), '<script></script>')
 
+  template = await compile('<script src="foo.js" defer></script>')
+  assert.deepEqual(template({}, escape), '<script src="foo.js" defer></script>')
+
+  template = await compile('<script src="foo.js" async></script>')
+  assert.deepEqual(template({}, escape), '<script src="foo.js" async></script>')
+
   template = await compile('<template></template>')
   assert.deepEqual(template({}, escape), '<template></template>')
 

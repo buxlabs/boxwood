@@ -569,7 +569,11 @@ async function collect (tree, fragment, variables, filters, components, statisti
     } else if (tag === 'style' || tag === 'script' || tag === 'template') {
       let content = `<${tag}`
       fragment.attributes.forEach(attribute => {
-        content += ` ${attribute.key}="${attribute.value}"`
+        if (attribute.value) {
+          content += ` ${attribute.key}="${attribute.value}"`
+        } else {
+          content += ` ${attribute.key}`
+        }
       })
       content += '>'
       fragment.children.forEach(node => {
