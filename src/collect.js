@@ -664,7 +664,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
       if (scopes.length > 0 && keys.includes('class')) {
         const attribute = fragment.attributes.find(attribute => attribute.key === 'class')
         const parts = attribute.value.split(/\s+/g)
-        const classes = scopes.map(scope => scope.class)
         attribute.value = parts.reduce((array, value) => {
           if (value.startsWith('{') && value.endsWith('}')) {
             array.push(value)
