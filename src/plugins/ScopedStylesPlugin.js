@@ -23,11 +23,10 @@ function addScopeToHtmlTags (attributes, scopes) {
   const attribute = attributes.find(attribute => attribute.key === 'class')
   const values = attribute.value.split(/\s+/g)
   const classes = values.reduce((strings, string) => {
-    if (isCurlyTag(string)) {
-      strings.push(string)
-    } else {
+    strings.push(string)
+    if (!isCurlyTag(string)) {
       scopes.forEach(scope => {
-        if (scope.class === string) { strings.push(string, scope.id) }
+        if (scope.class === string) { strings.push(scope.id) }
       })
     }
     return strings
