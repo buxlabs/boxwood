@@ -6,14 +6,18 @@ const { unique } = require('pure-utilities/array')
 function addScopeToCssSelectors (node, scopes) {
   const id = `scope-${hash(node.content)}`
   const tree = parse(node.content)
-  walk(tree, (node, parent) => {
-    if (node.type === 'ClassSelector' && !parent.next) {
-      scopes.push({ class: node.name, id })
-      parent.next = {
-        prev: parent,
-        next: null,
-        data: { type: 'ClassSelector', loc: null, name: id }
-      }
+  walk(tree, node => {
+    if (node.type === 'SelectorList') {
+      node.children.forEach(child => {
+        if (child.type === 'Selector') {
+          child.children.forEach(leaf => {
+            if (leaf.type === 'ClassSelector') {
+              scopes.push({ class: leaf.name, id })
+            }
+          })
+          child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
+        }
+      })
     }
   })
   node.content = generate(tree)
@@ -26,7 +30,7 @@ function addScopeToHtmlTags (attributes, scopes) {
     strings.push(string)
     if (!isCurlyTag(string)) {
       scopes.forEach(scope => {
-        if (scope.class === string) { strings.push(scope.id) }
+        if (scope.class === string) { strings.unshift(scope.id) }
       })
     }
     return strings
