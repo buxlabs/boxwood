@@ -1,5 +1,9 @@
 const { string: { singlespace } } = require('pure-utilities')
 
+function isCurlyTag (value) {
+  return value.startsWith('{') && value.endsWith('}')
+}
+
 function extract (value) {
   let objects = []
   let string = ''
@@ -44,4 +48,4 @@ function getName (name) {
   return name
 }
 
-module.exports = {extract, getName}
+module.exports = {extract, getName, isCurlyTag}

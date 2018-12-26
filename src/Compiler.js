@@ -9,6 +9,7 @@ const Parser = require('./Parser')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
+const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
 
 async function render (htmltree, options) {
   if (!htmltree) { return null }
@@ -23,13 +24,26 @@ async function render (htmltree, options) {
   const statistics = new Statistics()
   const store = {}
   const translations = {}
-  const scopes = []
   const promises = []
   const errors = []
+  const plugins = [
+    new ScopedStylesPlugin()
+  ]
   let depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
   walk(htmltree, async fragment => {
-    await collect(tree, fragment, variables, filters, components, statistics, translations, scopes, store, depth, options, promises, errors)
+    plugins.forEach(plugin => {
+      plugin.prepare({
+        tag: fragment.tagName,
+        keys: fragment.attributes && fragment.attributes.map(attribute => attribute.key),
+        fragment,
+        ...fragment
+      })
+    })
+  })
+
+  walk(htmltree, async fragment => {
+    await collect(tree, fragment, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors)
   })
   await Promise.all(promises)
   const used = []

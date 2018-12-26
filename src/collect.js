@@ -1,6 +1,4 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const csstree = require('css-tree')
-const hash = require('string-hash')
 const { array } = require('pure-utilities')
 const {
   getIdentifier,
@@ -385,10 +383,10 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect (tree, fragment, variables, filters, components, statistics, translations, scopes, store, depth, options, promises, errors) {
+async function collect (tree, fragment, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect(ast, current, variables, filters, components, statistics, translations, scopes, store, depth, options, promises, errors)
+      await collect(ast, current, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors)
     })
   }
 
@@ -401,6 +399,13 @@ async function collect (tree, fragment, variables, filters, components, statisti
     const keys = attrs ? attrs.map(attr => attr.key) : []
     const component = components.find(component => component.name === tag)
     const { languages, translationsPaths } = options
+    plugins.forEach(plugin => {
+      plugin.run({
+        keys,
+        fragment,
+        ...fragment
+      })
+    })
     if (component && !fragment.imported) {
       const { localVariables } = resolveComponent(component, fragment, components, statistics, options)
       localVariables.forEach(variable => variables.push(variable.key))
@@ -579,32 +584,10 @@ async function collect (tree, fragment, variables, filters, components, statisti
         }
       })
       content += '>'
-      if (tag === 'style' && keys.includes('scoped')) {
-        fragment.children.forEach(node => {
-          node.used = true
-          const id = `scope-${hash(node.content)}`
-          const cssast = csstree.parse(node.content)
-          csstree.walk(cssast, function (node, parent, list) {
-            if (node.type === 'ClassSelector' && !parent.next) {
-              scopes.push({
-                class: node.name,
-                id
-              })
-              parent.next = {
-                prev: parent,
-                next: null,
-                data: { type: 'ClassSelector', loc: null, name: id }
-              }
-            }
-          })
-          content += csstree.generate(cssast)
-        })
-      } else {
-        fragment.children.forEach(node => {
-          node.used = true
-          content += node.content
-        })
-      }
+      fragment.children.forEach(node => {
+        node.used = true
+        content += node.content
+      })
       content += `</${tag}>`
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
     } else if (tag === '!doctype') {
@@ -660,22 +643,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
         if (fragment.tagName !== 'meta') {
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
-      }
-      if (scopes.length > 0 && keys.includes('class')) {
-        const attribute = fragment.attributes.find(attribute => attribute.key === 'class')
-        const parts = attribute.value.split(/\s+/g)
-        attribute.value = parts.reduce((array, value) => {
-          if (value.startsWith('{') && value.endsWith('}')) {
-            array.push(value)
-          } else {
-            scopes.forEach(scope => {
-              if (scope.class === value) {
-                array.push(`${value} ${scope.id}`)
-              }
-            })
-          }
-          return array
-        }, []).join(' ')
       }
       collectComponentsFromPartialAttribute(fragment, statistics, options)
       const nodes = convertTag(fragment, variables, filters, translations, languages, translationsPaths, options)
