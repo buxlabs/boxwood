@@ -41,6 +41,7 @@
   "homepage": "https://github.com/buxlabs/pure-engine#readme",
   "dependencies": {
     "abstract-syntax-tree": "^2.0.1",
+    "astoptech": "^1.0.1",
     "asttv": "^1.0.1",
     "css-tree": "^1.0.0-alpha.29",
     "himalaya": "^1.1.0",

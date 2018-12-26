@@ -1,6 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const conditions = require('pure-conditions')
 const negate = require('negate-sentence')
+const { negationOperatorRemoval } = require('astoptech')
 
 function getCondition (name) {
   return function (...args) {
@@ -50,39 +51,7 @@ function getCondition (name) {
 }
 
 function negateAction (argument) {
-  if (argument.type === 'BinaryExpression' && argument.operator === '>') {
-    argument.operator = '<='
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '<') {
-    argument.operator = '>='
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '<=') {
-    argument.operator = '>'
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '>=') {
-    argument.operator = '<'
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '==') {
-    argument.operator = '!='
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '!=') {
-    argument.operator = '=='
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '===') {
-    argument.operator = '!=='
-    return argument
-  }
-  if (argument.type === 'BinaryExpression' && argument.operator === '!==') {
-    argument.operator = '==='
-    return argument
-  }
-  return { type: 'UnaryExpression', operator: '!', prefix: true, argument }
+  return negationOperatorRemoval({ type: 'UnaryExpression', operator: '!', prefix: true, argument })
 }
 
 const STANDARD_ACTIONS = [
