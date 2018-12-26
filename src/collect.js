@@ -155,7 +155,7 @@ function convertValueToNode (value, variables) {
   return getLiteral(value)
 }
 
-function resolveComponent (component, fragment, components, statistics, options) {
+function resolveComponent (component, fragment, components, plugins, statistics, options) {
   const localVariables = fragment.attributes
   let content = component.content
   localVariables.forEach(variable => {
@@ -166,8 +166,29 @@ function resolveComponent (component, fragment, components, statistics, options)
   })
   const htmlTree = parse(content)
   let children = fragment.children
+
   walk(htmlTree, leaf => {
+    const keys = leaf.attributes && leaf.attributes.map(attribute => attribute.key)
+    plugins.forEach(plugin => {
+      plugin.prepare({
+        tag: leaf.tagName,
+        keys,
+        fragment: leaf,
+        ...leaf
+      })
+    })
+  })
+
+  walk(htmlTree, leaf => {
+    const keys = leaf.attributes && leaf.attributes.map(attribute => attribute.key)
     leaf.imported = true
+    plugins.forEach(plugin => {
+      plugin.run({
+        keys,
+        fragment: leaf,
+        ...leaf
+      })
+    })
     if (leaf.tagName === component.name) {
       leaf.root = true
     }
@@ -227,7 +248,7 @@ function resolveComponent (component, fragment, components, statistics, options)
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
-      resolveComponent(currentComponent, current, components, statistics, options)
+      resolveComponent(currentComponent, current, components, plugins, statistics, options)
       current.used = true
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
@@ -407,7 +428,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       })
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(component, fragment, components, statistics, options)
+      const { localVariables } = resolveComponent(component, fragment, components, plugins, statistics, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)

@@ -51,7 +51,7 @@ class ScopedStylesPlugin {
     }
   }
   run ({ keys, attributes }) {
-    if (this.scopes.length > 0 && keys.includes('class')) {
+    if (this.scopes.length > 0 && keys && keys.includes('class')) {
       addScopeToHtmlTags(attributes, this.scopes)
     }
   }
