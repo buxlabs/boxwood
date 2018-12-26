@@ -15,7 +15,10 @@ function addScopeToCssSelectors (node, scopes) {
               scopes.push({ class: leaf.name, id })
             }
           })
+          const node = child.children.first()
+          if (node.type === 'TypeSelector') { child.children.shift() }
           child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
+          if (node.type === 'TypeSelector') { child.children.unshift(node) }
         }
       })
     }

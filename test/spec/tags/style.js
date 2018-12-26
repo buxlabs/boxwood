@@ -35,3 +35,11 @@ test('stype[scoped]: pseudo elements', async assert => {
   `)
   assert.deepEqual(template({}, escape), '<a class="scope-1577098216 foo">baz</a><style>.scope-1577098216.foo::after{content:"⤴"}</style>')
 })
+
+test('style[scoped]: type selectors', async assert => {
+  const template = await compile(`
+    <a class="foo">baz</a>
+    <style scoped>a.foo::after{content:"⤴"}</style>
+  `)
+  assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>a.scope-504633481.foo::after{content:"⤴"}</style>')
+})
