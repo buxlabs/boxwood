@@ -57,7 +57,7 @@ function serializeLanguages (languages) {
 
 function extractFilterName (filter) {
   const tree = new AbstractSyntaxTree(filter)
-  const node = tree.body()[0].expression
+  const node = tree.body[0].expression
   return node.type === 'CallExpression' ? node.callee.name : node.name
 }
 
@@ -79,7 +79,7 @@ module.exports = {
       builtins[name]
     if (!method) return null
     const leaf = new AbstractSyntaxTree(method.toString())
-    const fn = leaf.body()[0]
+    const fn = leaf.body[0]
     if (name === 'translate') {
       fn.body.body[0].declarations[0].init.properties = serializeProperties(translations)
       fn.body.body[1].declarations[0].init.elements = serializeLanguages(options.languages)

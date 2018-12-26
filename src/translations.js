@@ -22,8 +22,8 @@ function parseJSON (content) {
 
 function parseJS (content) {
   try {
-    const ast = new AbstractSyntaxTree(content)
-    const node = ast.first('ExportDefaultDeclaration')
+    const tree = new AbstractSyntaxTree(content)
+    const node = tree.first('ExportDefaultDeclaration')
     return convert(node.declaration)
   } catch (exception) {
     throw new Error('JS translation is unparseable')

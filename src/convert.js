@@ -60,7 +60,7 @@ function convertToExpression (string) {
       return node
     }
   })
-  const { expression } = tree.ast.body[0]
+  const { expression } = tree.body[0]
   return expression
 }
 
@@ -154,37 +154,39 @@ function getTemplateNode (expression, variables, unescape) {
     'LogicalExpression',
     'BinaryExpression'
   ].includes(expression.type)) {
-    AbstractSyntaxTree.replace(expression, (node, parent) => {
-      if (node.type === 'Property' && node.key === node.value) {
-        if (!variables.includes(node.key.name)) {
-          const object = getIdentifier(OBJECT_VARIABLE)
-          object.omit = true
-          node.value = {
-            type: 'MemberExpression',
-            object,
-            property: node.value
+    AbstractSyntaxTree.replace(expression, {
+      enter: (node, parent) => {
+        if (node.type === 'Property' && node.key === node.value) {
+          if (!variables.includes(node.key.name)) {
+            const object = getIdentifier(OBJECT_VARIABLE)
+            object.omit = true
+            node.value = {
+              type: 'MemberExpression',
+              object,
+              property: node.value
+            }
+            node.shorthand = false
+            node.value.omit = true
+            node.value.property.omit = true
           }
-          node.shorthand = false
-          node.value.omit = true
-          node.value.property.omit = true
-        }
-      } else if (parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
-        node.omit = true
-      } else if (node.type === 'MemberExpression' && node.property.type === 'Identifier' && !node.computed) {
-        node.property.omit = true
-      } else if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
-        node.omit = true
-        if (!variables.includes(node.name)) {
-          const object = getIdentifier(OBJECT_VARIABLE)
-          object.omit = true
-          node = {
-            type: 'MemberExpression',
-            object,
-            property: node
+        } else if (parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
+          node.omit = true
+        } else if (node.type === 'MemberExpression' && node.property.type === 'Identifier' && !node.computed) {
+          node.property.omit = true
+        } else if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
+          node.omit = true
+          if (!variables.includes(node.name)) {
+            const object = getIdentifier(OBJECT_VARIABLE)
+            object.omit = true
+            node = {
+              type: 'MemberExpression',
+              object,
+              property: node
+            }
           }
         }
+        return node
       }
-      return node
     })
     if (unescape || isBooleanReturnFromExpression(expression)) {
       return expression
@@ -233,7 +235,7 @@ function modify (node, filters, translations, languages, translationsPaths) {
   if (filters) {
     return filters.reduce((leaf, filter) => {
       const tree = new AbstractSyntaxTree(filter)
-      const node = tree.body()[0].expression
+      const node = tree.body[0].expression
       if (node.type === 'CallExpression') {
         return {
           type: 'CallExpression',

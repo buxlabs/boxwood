@@ -11,21 +11,25 @@ function getCondition (name) {
     const params = fn.params.map(param => param.name)
     if (body.length === 1) {
       const statement = body[0].argument
-      AbstractSyntaxTree.replace(statement, leaf => {
-        const index = params.indexOf(leaf.name)
-        if (leaf.type === 'Identifier' && index >= 0) {
-          return args[index]
+      AbstractSyntaxTree.replace(statement, {
+        enter: leaf => {
+          const index = params.indexOf(leaf.name)
+          if (leaf.type === 'Identifier' && index >= 0) {
+            return args[index]
+          }
+          return leaf
         }
-        return leaf
       })
       return statement
     } else {
-      AbstractSyntaxTree.replace({ type: 'BlockStatement', body }, leaf => {
-        const index = params.indexOf(leaf.name)
-        if (leaf.type === 'Identifier' && index >= 0) {
-          return args[index]
+      AbstractSyntaxTree.replace({ type: 'BlockStatement', body }, {
+        enter: leaf => {
+          const index = params.indexOf(leaf.name)
+          if (leaf.type === 'Identifier' && index >= 0) {
+            return args[index]
+          }
+          return leaf
         }
-        return leaf
       })
       return {
         type: 'CallExpression',

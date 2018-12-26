@@ -19,7 +19,7 @@ class Optimizer {
     this.simplifyReturnValue()
   }
   concatenateLiterals () {
-    let body = this.program.body()
+    let body = this.program.body
     body = body.reduce((result, node) => {
       const last = result[result.length - 1]
       if (isAssignmentExpressionWithLiteral(node)) {
@@ -38,7 +38,7 @@ class Optimizer {
     this.program.wrap(() => body)
   }
   simplifyReturnValue () {
-    const body = this.program.body()
+    const body = this.program.body
     this.program.wrap(() => body)
     if (body.length === 2) {
       const { value } = body[0].declarations[0].init

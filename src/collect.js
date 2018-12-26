@@ -134,20 +134,22 @@ function convertValueToNode (value, variables) {
     } else if (expression.type === 'Literal') {
       return getLiteral(expression.value)
     } else if (expression.type === 'BinaryExpression') {
-      AbstractSyntaxTree.replace(expression, (node, parent) => {
-        if (node.type === 'MemberExpression') {
-          if (node.object.type === 'Identifier' && !node.object.transformed) {
-            node.object.transformed = true
-            const object = getIdentifier(OBJECT_VARIABLE)
-            object.transformed = true
-            node.object = {
-              type: 'MemberExpression',
-              object,
-              property: node.object
+      AbstractSyntaxTree.replace(expression, {
+        enter: (node, parent) => {
+          if (node.type === 'MemberExpression') {
+            if (node.object.type === 'Identifier' && !node.object.transformed) {
+              node.object.transformed = true
+              const object = getIdentifier(OBJECT_VARIABLE)
+              object.transformed = true
+              node.object = {
+                type: 'MemberExpression',
+                object,
+                property: node.object
+              }
             }
           }
+          return node
         }
-        return node
       })
       return expression
     }
@@ -208,7 +210,7 @@ function resolveComponent (component, fragment, components, statistics, options)
             }
           })
           if (replaced) {
-            attr.value = '{' + ast.toString().replace(/;$/, '') + '}'
+            attr.value = '{' + ast.source.replace(/;$/, '') + '}'
           }
         }
       })
@@ -420,8 +422,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
           }
         }
       })
-      const body = ast.body()
-      body.forEach(node => tree.append(node))
+      ast.body.forEach(node => tree.append(node))
       localVariables.forEach(() => variables.pop())
     } else if (tag === 'content') {
       const { key } = attrs[1]
@@ -461,8 +462,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         leaf.used = true
         const ast = new AbstractSyntaxTree(leaf.content)
         ast.each('VariableDeclarator', node => variables.push(node.id.name))
-        const body = ast.body()
-        body.forEach(node => tree.append(node))
+        ast.body.forEach(node => tree.append(node))
       }
     } else if (tag === 'script' && keys.includes('store')) {
       const leaf = fragment.children[0]
@@ -710,7 +710,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         test: condition,
         consequent: {
           type: 'BlockStatement',
-          body: ast.body()
+          body: ast.body
         },
         depth
       })
@@ -728,7 +728,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
           test: condition,
           consequent: {
             type: 'BlockStatement',
-            body: ast.body()
+            body: ast.body
           },
           depth
         }
@@ -743,7 +743,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         }
         leaf.alternate = {
           type: 'BlockStatement',
-          body: ast.body()
+          body: ast.body
         }
       }
     } else if (tag === 'for') {
@@ -773,7 +773,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         variables.push(guard)
         ast.append(getForLoopVariable(variable, name, variables, index, range))
         collectChildren(fragment, ast)
-        tree.append(getForLoop(name, ast.body(), variables, index, guard, range))
+        tree.append(getForLoop(name, ast.body, variables, index, guard, range))
         variables.pop()
         variables.pop()
         variables.pop()
@@ -790,15 +790,14 @@ async function collect (tree, fragment, variables, filters, components, statisti
         ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
         collectChildren(fragment, ast)
-        tree.append(getForInLoop(keyIdentifier, name, ast.body()))
+        tree.append(getForInLoop(keyIdentifier, name, ast.body))
         variables.pop()
         variables.pop()
       }
     } else if (tag === 'slot' || tag === 'yield') {
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
-      const body = ast.body()
-      body.forEach(node => tree.append(node))
+      ast.body.forEach(node => tree.append(node))
     } else if (tag === 'try') {
       const ast = new AbstractSyntaxTree('')
       const variable = `_${TEMPLATE_VARIABLE}`
@@ -811,7 +810,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         type: 'TryStatement',
         block: {
           type: 'BlockStatement',
-          body: ast.body()
+          body: ast.body
         }
       })
     } else if (tag === 'catch') {
@@ -827,7 +826,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
           },
           body: {
             type: 'BlockStatement',
-            body: ast.body()
+            body: ast.body
           }
         }
       }
@@ -845,7 +844,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         },
         consequent: {
           type: 'BlockStatement',
-          body: ast.body()
+          body: ast.body
         },
         depth
       })
@@ -868,7 +867,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
           },
           consequent: {
             type: 'BlockStatement',
-            body: ast.body()
+            body: ast.body
           },
           depth
         }
@@ -902,7 +901,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         })
         leaf.cases.push({
           type: 'SwitchCase',
-          consequent: ast.body(),
+          consequent: ast.body,
           test: condition
         })
       }
@@ -917,7 +916,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         })
         leaf.cases.push({
           type: 'SwitchCase',
-          consequent: ast.body(),
+          consequent: ast.body,
           test: null
         })
       }
@@ -976,7 +975,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
               ].filter(Boolean),
               body: {
                 type: 'BlockStatement',
-                body: ast.body()
+                body: ast.body
               }
             }
           ]

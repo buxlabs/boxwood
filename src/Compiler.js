@@ -50,7 +50,7 @@ function wrap (template, rescue) {
     type: 'TryStatement',
     block: {
       type: 'BlockStatement',
-      body: template.body()
+      body: template.body
     },
     handler: {
       type: 'CatchClause',
@@ -60,7 +60,7 @@ function wrap (template, rescue) {
       },
       body: {
         type: 'BlockStatement',
-        body: rescue.body()
+        body: rescue.body
       }
     }
   })
@@ -113,7 +113,7 @@ class Compiler {
     const params = analyzer.params()
     const optimizer = new Optimizer(program)
     optimizer.optimize()
-    const compiled = new Function(`return function render(${params}) {\n${program.toString()}}`)() // eslint-disable-line
+    const compiled = new Function(`return function render(${params}) {\n${program.source}}`)() // eslint-disable-line
     return { template: compiled, statistics, errors }
   }
 }
