@@ -352,6 +352,12 @@ test('basic', async assert => {
   template = await compile('<div>{foo} {bar}</div>')
   assert.deepEqual(template({ foo: 'foo', bar: 'bar' }, escape), '<div>foo bar</div>')
 
+  template = await compile('{undefined}')
+  assert.deepEqual(template({}, escape), 'undefined')
+
+  template = await compile('{null}')
+  assert.deepEqual(template({}, escape), 'null')
+
   template = await compile('{foo}')
   assert.deepEqual(template({ foo: undefined }, escape), 'undefined')
 

@@ -1,3 +1,4 @@
+const { logicalExpressionReduction, ifStatementRemoval } = require('astoptech')
 const { TEMPLATE_VARIABLE } = require('./enum')
 
 function isAssignmentExpressionWithLiteral (node) {
@@ -15,12 +16,14 @@ class Optimizer {
     this.program = program
   }
   optimize () {
+    // ideally these optimizations would require one walk only
+    this.program.replace({ enter: logicalExpressionReduction })
+    this.program.replace({ enter: ifStatementRemoval })
     this.concatenateLiterals()
     this.simplifyReturnValue()
   }
   concatenateLiterals () {
-    let body = this.program.body
-    body = body.reduce((result, node) => {
+    this.program.body = this.program.body.reduce((result, node) => {
       const last = result[result.length - 1]
       if (isAssignmentExpressionWithLiteral(node)) {
         if (isTemplateVariableDeclaration(last)) {
@@ -35,14 +38,12 @@ class Optimizer {
       }
       return result
     }, [])
-    this.program.wrap(() => body)
   }
   simplifyReturnValue () {
-    const body = this.program.body
-    this.program.wrap(() => body)
+    const { body } = this.program
     if (body.length === 2) {
       const { value } = body[0].declarations[0].init
-      this.program.wrap(() => [{ type: 'ReturnStatement', argument: { type: 'Literal', value } }])
+      this.program.body = [{ type: 'ReturnStatement', argument: { type: 'Literal', value } }]
     }
   }
 }

@@ -30,6 +30,7 @@ const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { placeholderName, addPlaceholders } = require('./keywords')
+const { isCurlyTag } = require('./string')
 const { wordsToNumbers } = require('words-to-numbers')
 let asyncCounter = 0
 
@@ -124,7 +125,7 @@ function collectComponentsFromPartialAttribute (fragment, statistics, options) {
 }
 
 function convertValueToNode (value, variables) {
-  if (value.includes('{') && value.includes('}')) {
+  if (isCurlyTag(value)) {
     value = value.replace(/{|}/g, '')
     const expression = convertToExpression(value)
     if (expression.type === 'Identifier') {
@@ -159,8 +160,9 @@ function resolveComponent (component, fragment, components, plugins, statistics,
   const localVariables = fragment.attributes
   let content = component.content
   localVariables.forEach(variable => {
-    // is this the best way to ensure that a value is not an expresion?
-    if (!variable.value.includes('{') && !variable.value.includes('}')) {
+    if (variable.value === null) { variable.value = '{true}' }
+    if (variable.value === '') { variable.value = '{""}' }
+    if (!isCurlyTag(variable.value)) {
       content = content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
     }
   })
@@ -193,11 +195,6 @@ function resolveComponent (component, fragment, components, plugins, statistics,
       leaf.root = true
     }
     if (leaf.attributes) {
-      // TODO optimize
-      // check attributes and inline values
-      // the code could be analyzed and simplified afterwards
-      // to simplify some of the conditions
-      // e.g. as a result you can get expressions like "hello" || ""
       leaf.attributes.forEach(attr => {
         const { value } = attr
         if (

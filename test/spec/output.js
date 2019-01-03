@@ -1,6 +1,7 @@
 import test from '../helpers/test'
 import compile from '../helpers/compile'
 import { normalize } from '../helpers/string'
+import path from 'path'
 
 test('output: empty string', async assert => {
   const template = await compile('')
@@ -165,6 +166,59 @@ test('output: falsy condition with greater than operator (is at least)', async a
       if (__o.number < 5) {
         __t += __e(__o.number);
       }
+      return __t;
+    }
+  `))
+})
+
+test('output: useless branches are removed', async assert => {
+  let template
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar />
+  `, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "baz"; }`))
+
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar={true} />
+  `, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "baz"; }`))
+
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar={false} />
+  `, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "qux"; }`))
+
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar={null} />
+  `, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "qux"; }`))
+})
+
+test('output: useless logical expressions are removed', async assert => {
+  let template
+  template = await compile(`
+    <import bar from='./bar.html'>
+    <bar foo="foo" />
+  `, {
+    paths: [ path.join(__dirname, '../fixtures/import') ]
+  })
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "<div class=\\"";
+      __t += __e("foo");
+      __t += "\\">baz</div>";
       return __t;
     }
   `))

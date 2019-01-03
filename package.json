@@ -1,6 +1,6 @@
 {
   "name": "pure-engine",
-  "version": "0.9.16",
+  "version": "0.9.17",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
@@ -41,7 +41,7 @@
   "homepage": "https://github.com/buxlabs/pure-engine#readme",
   "dependencies": {
     "abstract-syntax-tree": "^2.0.1",
-    "astoptech": "^1.0.1",
+    "astoptech": "^1.0.4",
     "asttv": "^1.0.1",
     "css-tree": "^1.0.0-alpha.29",
     "himalaya": "^1.1.0",

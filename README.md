@@ -45,10 +45,10 @@ expect(template({ foo: 'bar' }, escape)).to.equal('<div>bar</div>')
 * import and require tags
 
 ```html
-<import layout from="./layouts/default.html"/>
-<import form from="./components/form.html"/>
-<import input from="./components/input.html"/>
-<import button from="./components/button.html"/>
+<import layout from="./layouts/default.html">
+<import form from="./components/form.html">
+<import input from="./components/input.html">
+<import button from="./components/button.html">
 
 <layout>
   <h1>Hello, world!</h1>
@@ -102,7 +102,7 @@ hello:
 - 'Hej!'
 - 'Hello!'
 </i18n>
-<h1><translate hello /></h1>
+<h1><translate hello></h1>
 ```
 
 * compiler tag for scripts

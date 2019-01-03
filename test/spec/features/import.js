@@ -369,9 +369,9 @@ test('import: same component in two components', async assert => {
 
 test('import: same component everywhere', async assert => {
   const template = await compile(`
-    <import header from='./header.html' />
-    <import footer from='./footer.html' />
-    <import segment from='./segment.html' />
+    <import header from='./header.html'>
+    <import footer from='./footer.html'>
+    <import segment from='./segment.html'>
     <header>foo</header>
     <footer>bar</footer>
     <segment>baz</segment>
@@ -379,4 +379,39 @@ test('import: same component everywhere', async assert => {
     paths: [ path.join(__dirname, '../../fixtures/import/similar') ]
   })
   assert.deepEqual(template({}, escape), '<div class="segment">foo</div><div class="segment">bar</div><div class="segment">baz</div>')
+})
+
+test('import: boolean attributes', async assert => {
+  let template
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar />
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), 'baz')
+
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo />
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), 'qux')
+
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar="baz" />
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), 'baz')
+
+  template = await compile(`
+    <import foo from='./foo.html'>
+    <foo bar="" />
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), 'qux')
 })
