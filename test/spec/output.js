@@ -223,3 +223,9 @@ test('output: useless logical expressions are removed', async assert => {
     }
   `))
 })
+
+test('output: binary expressions with literals are precalculated', async assert => {
+  const template = await compile('<if 0 equals 0>foo</if>')
+
+  assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "foo"; }`))
+})

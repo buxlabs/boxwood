@@ -132,13 +132,13 @@ render(
 ## Input / Output
 
 ```
-<if foo is present>{bar}</if>
+<if foo.length equals 0>{bar}</if>
 ```
 
 ```js
 function render(__o, __e) {
   var __t = "";
-  if (__o.foo !== void 0) {
+  if (__o.foo.length === 0) {
     __t += __e(__o.bar);
   }
   return __t;
