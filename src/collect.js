@@ -439,9 +439,11 @@ async function collect (tree, fragment, variables, filters, components, statisti
       // e.g. this possibly will cause issues if the identifier is a part of a more complex node
       ast.replace({
         enter: node => {
-          const variable = localVariables.find(variable => variable.key === node.name)
-          if (node.type === 'Identifier' && variable) {
-            return convertText(variable.value, variables, filters, translations, languages, translationsPaths)[0]
+          if (node.type === 'Identifier') {
+            const variable = localVariables.find(variable => variable.key === node.name)
+            if (variable) {
+              return convertText(variable.value, variables, filters, translations, languages, translationsPaths)[0]
+            }
           }
         }
       })
