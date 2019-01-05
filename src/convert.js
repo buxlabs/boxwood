@@ -3,7 +3,7 @@ const {
   getLiteral, getIdentifier, getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
-const { extract, getName } = require('./string')
+const { extract, getName, isCurlyTag, getExpressionFromCurlyTag } = require('./string')
 const { getFilterName, extractFilterName } = require('./filters')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { array, math, collection, object, json, date } = require('pure-utilities')
@@ -324,6 +324,9 @@ function convertTag (fragment, variables, currentFilters, translations, language
 }
 
 function convertKey (key, variables) {
+  if (isCurlyTag(key)) {
+    key = getExpressionFromCurlyTag(key)
+  }
   const tree = convertToExpression(key)
   return getTemplateNode(tree, variables, true)
 }

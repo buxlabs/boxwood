@@ -43,7 +43,7 @@ test('example: theme', async assert => {
   await suite('theme', {}, assert)
 })
 
-test.skip('example: inlining', async assert => {
+test('example: inlining', async assert => {
   await suite('inlining', {}, assert)
 })
 

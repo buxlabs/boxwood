@@ -2036,8 +2036,14 @@ test('if: numbers', async assert => {
   assert.deepEqual(template({ photos: [] }, escape), 'foo')
 })
 
-test.skip('if: variables with curly brackets', async assert => {
+test('if: variables with curly brackets', async assert => {
   let template
   template = await compile('<if {photos.length} equals {0}>foo</if>')
   assert.deepEqual(template({ photos: [] }, escape), 'foo')
+
+  template = await compile('<if foo equals {"bar"}>baz</if>')
+  assert.deepEqual(template({ foo: 'bar' }, escape), 'baz')
+
+  template = await compile('<if {2+2} equals 4>foo</if>')
+  assert.deepEqual(template({}, escape), 'foo')
 })

@@ -4,6 +4,10 @@ function isCurlyTag (value) {
   return value.startsWith('{') && value.endsWith('}')
 }
 
+function getExpressionFromCurlyTag (value) {
+  return value.substring(1, value.length - 1)
+}
+
 function extract (value) {
   let objects = []
   let string = ''
@@ -48,4 +52,4 @@ function getName (name) {
   return name
 }
 
-module.exports = {extract, getName, isCurlyTag}
+module.exports = {extract, getName, isCurlyTag, getExpressionFromCurlyTag}

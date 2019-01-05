@@ -406,8 +406,10 @@ test('import: boolean attributes', async assert => {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
   assert.deepEqual(template({}, escape), 'baz')
+})
 
-  template = await compile(`
+test('import: empty attribute', async assert => {
+  const template = await compile(`
     <import foo from='./foo.html'>
     <foo bar="" />
   `, {

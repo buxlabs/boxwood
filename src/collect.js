@@ -158,15 +158,8 @@ function convertValueToNode (value, variables) {
 
 function resolveComponent (component, fragment, components, plugins, statistics, options) {
   const localVariables = fragment.attributes
-  let content = component.content
-  localVariables.forEach(variable => {
-    if (variable.value === null) { variable.value = '{true}' }
-    if (variable.value === '') { variable.value = '{""}' }
-    if (!isCurlyTag(variable.value)) {
-      content = content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-    }
-  })
-  const htmlTree = parse(content)
+
+  const htmlTree = parse(component.content)
   let children = fragment.children
 
   walk(htmlTree, leaf => {
@@ -179,6 +172,26 @@ function resolveComponent (component, fragment, components, plugins, statistics,
         ...leaf
       })
     })
+    if (leaf.type === 'text') {
+      localVariables.forEach(variable => {
+        if (variable.value === null) { variable.value = '{true}' }
+        if (!isCurlyTag(variable.value)) {
+          leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+        }
+      })
+    }
+
+    if (leaf.tagName === 'if') {
+      const normalizedAttributes = normalize(leaf.attributes)
+
+      leaf.attributes = normalizedAttributes.map(attr => {
+        // TODO handle or remove words to numbers functionality
+        if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
+          attr.key = `{${attr.key}}`
+        }
+        return attr
+      })
+    }
   })
 
   walk(htmlTree, leaf => {
@@ -196,39 +209,47 @@ function resolveComponent (component, fragment, components, plugins, statistics,
     }
     if (leaf.attributes) {
       leaf.attributes.forEach(attr => {
-        const { value } = attr
-        if (
-          value &&
-          value.startsWith('{') &&
-          value.endsWith('}') &&
-          // TODO reuse
-          // add occurances method to pure-utilities
-          (value.match(/{/g) || []).length === 1 &&
-          (value.match(/}/g) || []).length === 1
-        ) {
-          let source = value.substr(1, value.length - 2)
-          source = addPlaceholders(source)
-          const ast = new AbstractSyntaxTree(source)
-          let replaced = false
-          ast.replace({
-            enter: node => {
-              // TODO investigate
-              // this is too optimistic
-              // should avoid member expressions etc.
-              if (node.type === 'Identifier') {
-                const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
-                if (variable) {
-                  replaced = true
-                  return { type: 'Literal', value: variable.value }
+        const { key, value } = attr
+        function inlineExpression (type, attr, string) {
+          if (
+            string &&
+            string.startsWith('{') &&
+            string.endsWith('}') &&
+            // TODO reuse
+            // add occurances method to pure-utilities
+            (string.match(/{/g) || []).length === 1 &&
+            (string.match(/}/g) || []).length === 1
+          ) {
+            let source = string.substr(1, string.length - 2)
+            source = addPlaceholders(source)
+            const ast = new AbstractSyntaxTree(source)
+            let replaced = false
+            ast.replace({
+              enter: node => {
+                // TODO investigate
+                // this is too optimistic
+                // should avoid member expressions etc.
+                if (node.type === 'Identifier') {
+                  const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
+                  if (variable) {
+                    replaced = true
+                    if (isCurlyTag(variable.value)) {
+                      return convertToExpression(variable.value)
+                    }
+                    return { type: 'Literal', value: variable.value }
+                  }
                 }
+                return node
               }
-              return node
+            })
+            if (replaced) {
+              attr[type] = '{' + ast.source.replace(/;\n$/, '') + '}'
             }
-          })
-          if (replaced) {
-            attr.value = '{' + ast.source.replace(/;$/, '') + '}'
           }
         }
+
+        inlineExpression('key', attr, key)
+        inlineExpression('value', attr, value)
       })
     }
   })
