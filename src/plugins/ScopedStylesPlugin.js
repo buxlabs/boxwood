@@ -2,6 +2,7 @@ const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')
 const { isCurlyTag } = require('../string')
 const { unique } = require('pure-utilities/array')
+const { extractValues } = require('../string')
 
 function addScopeToCssSelectors (node, scopes) {
   const id = `scope-${hash(node.content)}`
@@ -28,7 +29,7 @@ function addScopeToCssSelectors (node, scopes) {
 
 function addScopeToHtmlTags (attributes, scopes) {
   const attribute = attributes.find(attribute => attribute.key === 'class')
-  const values = attribute.value.split(/\s+/g)
+  const values = extractValues(attribute)
   const classes = values.reduce((strings, string) => {
     strings.push(string)
     if (!isCurlyTag(string)) {

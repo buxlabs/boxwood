@@ -417,3 +417,13 @@ test('import: empty attribute', async assert => {
   })
   assert.deepEqual(template({}, escape), 'qux')
 })
+
+test('import: component with scoped styles', async assert => {
+  const template = await compile(`
+    <import button from='./button.html'>
+    <button block>Send</button>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import/style') ]
+  })
+  assert.deepEqual(template({}, escape), '<button class="scope-3638639787  block button">Send</button><style>.scope-3638639787.button{cursor:pointer}</style>')
+})

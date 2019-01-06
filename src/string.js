@@ -45,6 +45,19 @@ function extract (value) {
   return objects.filter(object => !!object.value)
 }
 
+function extractValues (attribute) {
+  return extract(attribute.value)
+    .reduce((values, { value }) => {
+      if (isCurlyTag(value)) {
+        values.push(value.trim())
+      } else {
+        const parts = value.split(/\s+/g)
+        parts.forEach(part => values.push(part))
+      }
+      return values
+    }, [])
+}
+
 function getName (name) {
   if (name.endsWith('.bind')) {
     return name.substring(0, name.length - 5)
@@ -52,4 +65,4 @@ function getName (name) {
   return name
 }
 
-module.exports = {extract, getName, isCurlyTag, getExpressionFromCurlyTag}
+module.exports = {extract, extractValues, getName, isCurlyTag, getExpressionFromCurlyTag}
