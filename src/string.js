@@ -1,4 +1,5 @@
-const { string: { singlespace } } = require('pure-utilities')
+const { string: { singlespace, ltrim } } = require('pure-utilities')
+const lexer = require('./lexer')
 
 function isCurlyTag (value) {
   return value.startsWith('{') && value.endsWith('}')
@@ -9,39 +10,31 @@ function getExpressionFromCurlyTag (value) {
 }
 
 function extract (value) {
-  let objects = []
-  let string = ''
-  let depth = 0
-  singlespace(value.trim()).split('').forEach(character => {
-    if (character === '{') {
-      depth++
-      if (string && depth === 1) {
-        objects.push({ value: string })
-        string = ''
+  const tokens = lexer(value.trim())
+
+  const objects = tokens.map((token, index) => {
+    if (token.type === 'expression') {
+      // TODO
+      // what about {(foo || bar) | capitalize} ?
+      if (token.value.includes('|') && !token.value.includes('||')) {
+        let parts = token.value.split('|').map(string => string.trim())
+        token.value = `{${parts[0]}}`
+        token.filters = parts.slice(1)
+      } else {
+        token.value = `{${token.value}}`
+      }
+    } else if (token.type === 'text') {
+      const previous = tokens[index - 1]
+      const next = tokens[index + 1]
+      if (previous && previous.type === 'expression') {
+        token.value = token.value.replace(/\n/g, '')
+      } else {
+        token.value = ltrim(token.value.replace(/\n/g, ''))
       }
     }
-    string += character
-    if (character === '}') {
-      if (depth === 1) {
-        objects.push({ value: string })
-        string = ''
-      }
-      depth--
-    }
+    return token
   })
-  objects.push({ value: string })
-  objects = objects.map(object => {
-    let value = object.value
-    if (value.startsWith('{') && value.endsWith('}')) {
-      if (value.includes('|') && !value.includes('||')) {
-        value = value.substring(1, value.length - 1)
-        let parts = value.split('|').map(string => string.trim())
-        object.value = `{${parts[0]}}`
-        object.filters = parts.slice(1)
-      }
-    }
-    return object
-  })
+
   return objects.filter(object => !!object.value)
 }
 

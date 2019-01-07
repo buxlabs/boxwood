@@ -209,7 +209,7 @@ test('basic', async assert => {
   assert.deepEqual(template({ baz: 'qux' }, value => { return value }), '<div class="foo bar qux"></div>')
 
   template = await compile('<div class="foo   bar    {baz}"></div>')
-  assert.deepEqual(template({ baz: 'qux' }, value => { return value }), '<div class="foo bar qux"></div>')
+  assert.deepEqual(template({ baz: 'qux' }, value => { return value }), '<div class="foo   bar    qux"></div>')
 
   template = await compile('<div class="{foo} bar"></div>')
   assert.deepEqual(template({ foo: 'baz' }, value => { return value }), '<div class="baz bar"></div>')
