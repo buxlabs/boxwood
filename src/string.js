@@ -1,4 +1,4 @@
-const { string: { singlespace, ltrim } } = require('pure-utilities')
+const { ltrim } = require('pure-utilities/string')
 const lexer = require('./lexer')
 
 function isCurlyTag (value) {
@@ -10,7 +10,7 @@ function getExpressionFromCurlyTag (value) {
 }
 
 function extract (value) {
-  const tokens = lexer(value.trim())
+  const tokens = lexer(value.trim().replace(/\n/g, ''))
 
   const objects = tokens.map((token, index) => {
     if (token.type === 'expression') {
@@ -25,11 +25,8 @@ function extract (value) {
       }
     } else if (token.type === 'text') {
       const previous = tokens[index - 1]
-      const next = tokens[index + 1]
-      if (previous && previous.type === 'expression') {
-        token.value = token.value.replace(/\n/g, '')
-      } else {
-        token.value = ltrim(token.value.replace(/\n/g, ''))
+      if (!previous || previous.type !== 'expression') {
+        token.value = ltrim(token.value)
       }
     }
     return token

@@ -17,18 +17,14 @@ module.exports = function lexer (input) {
   function current (tag) {
     return character === tag
   }
-  function next (tag) {
-    return input[index + 1] === tag
-  }
-  function push(type, value) {
+  function push (type, value) {
     if (value) tokens.push({ type, value })
   }
   let value = ''
   let type = current(START_TAG) ? EXPRESSION : TEXT
   let depth = 0
   while (index < length) {
-    if (current(START_TAG)) { depth += 1 }
-    else if (current(END_TAG)) { depth -= 1 }
+    if (current(START_TAG)) { depth += 1 } else if (current(END_TAG)) { depth -= 1 }
 
     if (current(START_TAG) && depth === 1) {
       push(type, value)
