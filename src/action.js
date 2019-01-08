@@ -1,4 +1,4 @@
-const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { parse, replace, first } = require('abstract-syntax-tree')
 const conditions = require('pure-conditions')
 const negate = require('negate-sentence')
 const { negationOperatorRemoval } = require('astoptech')
@@ -6,32 +6,32 @@ const { negationOperatorRemoval } = require('astoptech')
 function getCondition (name) {
   return function (...args) {
     const source = 'function ' + conditions[name].toString()
-    const tree = new AbstractSyntaxTree(source)
-    const fn = tree.first('FunctionDeclaration')
-    const { body } = fn.body
-    const params = fn.params.map(param => param.name)
+    const tree = parse(source)
+    const method = first(tree, 'FunctionDeclaration')
+    const { body } = method.body
+    const params = method.params.map(param => param.name)
+
+    function enter (leaf) {
+      const index = params.indexOf(leaf.name)
+      if (leaf.type === 'Identifier' && index >= 0) {
+        return args[index]
+      }
+      return leaf
+    }
+
+    // TODO if the arguments that are passed are only literals
+    // then in some cases we could evaluate the code at compile time
+    // example:
+    // {[1, 2, 3] | max}
+    // {"hello" | capitalize}
+    // exceptions: translate?
+
     if (body.length === 1) {
-      const statement = body[0].argument
-      AbstractSyntaxTree.replace(statement, {
-        enter: leaf => {
-          const index = params.indexOf(leaf.name)
-          if (leaf.type === 'Identifier' && index >= 0) {
-            return args[index]
-          }
-          return leaf
-        }
-      })
-      return statement
+      const { argument } = body[0]
+      replace(argument, { enter })
+      return argument
     } else {
-      AbstractSyntaxTree.replace({ type: 'BlockStatement', body }, {
-        enter: leaf => {
-          const index = params.indexOf(leaf.name)
-          if (leaf.type === 'Identifier' && index >= 0) {
-            return args[index]
-          }
-          return leaf
-        }
-      })
+      replace({ type: 'BlockStatement', body }, { enter })
       return {
         type: 'CallExpression',
         callee: {
