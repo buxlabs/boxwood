@@ -59,6 +59,14 @@ expect(template({ foo: 'bar' }, escape)).to.equal('<div>bar</div>')
 </layout>
 ```
 
+* render, partial and include tags
+
+```html
+<partial from="./foo.html" />
+<include partial="./foo.html" />
+<render partial="./foo.html" />
+```
+
 * conditional tags: if, else, elseif, unless, elseunless
 
 ```html

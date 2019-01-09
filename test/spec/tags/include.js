@@ -6,44 +6,44 @@ import escape from 'escape-html'
 test('partial', async assert => {
   let template
 
-  template = await compile(`<partial from="./terms.html" />`, {
+  template = await compile(`<include partial="./terms.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}), '<div>foo bar baz</div>')
 
-  template = await compile(`<partial from="./footer.html" />`, {
+  template = await compile(`<include partial="./footer.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
 
-  template = await compile(`<partial from="./header.html" />`, {
+  template = await compile(`<include partial="./header.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  template = await compile(`<partial from="./header.html">`, {
+  template = await compile(`<include partial="./header.html">`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  template = await compile(`<partial from="./header.html" />`, {
+  template = await compile(`<include partial="./header.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
   await assert.throwsAsync(
-    compile(`<partial from='./partial.html' />`, {}),
+    compile(`<include partial='./partial.html' />`, {}),
     /Compiler option is undefined: paths\./
   )
 
   await assert.throwsAsync(
-    compile(`<partial from='./partial.html' />`, { paths: [] }),
+    compile(`<include partial='./partial.html' />`, { paths: [] }),
     /Asset not found: \.\/partial\.html/
   )
 })
 
-test('partial: can import components', async assert => {
-  const template = await compile(`<partial from="./newsletter.html" />`, {
+test('include: can import components', async assert => {
+  const template = await compile(`<include partial="./newsletter.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}, escape), '<form class="ui form"><button class="btn primary">foo</button></form>')

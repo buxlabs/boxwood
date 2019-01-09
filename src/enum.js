@@ -66,6 +66,7 @@ module.exports = {
     'require',
     'partial',
     'render',
+    'include',
     'content'
   ],
   UNESCAPED_NAMES: [

@@ -259,7 +259,7 @@ function resolveComponent (component, fragment, components, plugins, statistics,
   walk(htmlTree, async (current, parent) => {
     if (current.tagName === 'import' || current.tagName === 'require') {
       collectComponentsFromImport(current, statistics, currentComponents, component, options)
-    } else if (current.tagName === 'partial' || current.tagName === 'render') {
+    } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
       collectComponentsFromPartialOrRender(current, statistics, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
       collectComponentsFromPartialAttribute(current, statistics, options)
@@ -991,7 +991,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       })
     } else if (tag === 'import' || tag === 'require') {
       collectComponentsFromImport(fragment, statistics, components, null, options)
-    } else if (tag === 'partial' || tag === 'render') {
+    } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
       collectComponentsFromPartialOrRender(fragment, statistics, options)
     }
     depth -= 1
