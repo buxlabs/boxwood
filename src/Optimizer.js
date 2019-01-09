@@ -1,4 +1,9 @@
-const { logicalExpressionReduction, binaryExpressionReduction, ifStatementRemoval } = require('astoptech')
+const {
+  logicalExpressionReduction,
+  binaryExpressionReduction,
+  ternaryOperatorReduction,
+  ifStatementRemoval
+} = require('astoptech')
 const { TEMPLATE_VARIABLE } = require('./enum')
 
 function isAssignmentExpressionWithLiteral (node) {
@@ -16,9 +21,10 @@ class Optimizer {
     this.program = program
   }
   optimize () {
-    // ideally these optimizations would require one walk only
+    // can the below be done in one walk?
     this.program.replace({ enter: logicalExpressionReduction })
     this.program.replace({ enter: binaryExpressionReduction })
+    this.program.replace({ enter: ternaryOperatorReduction })
     this.program.replace({ enter: ifStatementRemoval })
     this.concatenateLiterals()
     this.simplifyReturnValue()
