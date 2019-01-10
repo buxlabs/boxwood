@@ -10,6 +10,7 @@ const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
 const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
+const InternationalizationPlugin = require('./plugins/InternationalizationPlugin')
 
 async function render (htmltree, options) {
   if (!htmltree) { return null }
@@ -27,19 +28,27 @@ async function render (htmltree, options) {
   const promises = []
   const errors = []
   const plugins = [
-    new ScopedStylesPlugin()
+    new ScopedStylesPlugin(),
+    new InternationalizationPlugin({ translations, statistics, filters })
   ]
   let depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
   walk(htmltree, async fragment => {
-    plugins.forEach(plugin => {
-      plugin.prepare({
-        tag: fragment.tagName,
-        keys: fragment.attributes && fragment.attributes.map(attribute => attribute.key),
-        fragment,
-        ...fragment
+    try {
+      const attrs = fragment.attributes || []
+      plugins.forEach(plugin => {
+        plugin.prepare({
+          tag: fragment.tagName,
+          keys: attrs.map(attribute => attribute.key),
+          attrs,
+          fragment,
+          options,
+          ...fragment
+        })
       })
-    })
+    } catch (exception) {
+      errors.push(exception)
+    }
   })
 
   walk(htmltree, async fragment => {

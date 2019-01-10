@@ -9,8 +9,7 @@ const {
   getForLoopVariable,
   getForInLoop,
   getForInLoopVariable,
-  getTemplateVariableDeclaration,
-  getTranslateCallExpression
+  getTemplateVariableDeclaration
 } = require('./factory')
 const {
   convertText,
@@ -19,18 +18,18 @@ const {
   convertToExpression,
   convertKey
 } = require('./convert')
-const { parseYAML, parseJSON, parseJS, mergeTranslations } = require('./translations')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
-const { readFileSync, existsSync } = require('fs')
-const { join, dirname } = require('path')
+const { readFileSync } = require('fs')
+const { dirname } = require('path')
 const parse = require('./parse')
 const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { placeholderName, addPlaceholders } = require('./keywords')
-const { isCurlyTag } = require('./string')
+const { isCurlyTag, getExpressionFromCurlyTag } = require('./string')
+const { findFile } = require('./files')
 const { wordsToNumbers } = require('words-to-numbers')
 let asyncCounter = 0
 
@@ -45,19 +44,6 @@ function findActions (attributes) {
       if (attr.key === 'is_between') array.splice([index + 1], 1)
       return getAction(attr.key)
     }).filter(Boolean)
-}
-
-function findFile (path, options, callback) {
-  if (!options.paths) { throw new Error('Compiler option is undefined: paths.') }
-  let found = false
-  for (let i = 0, ilen = options.paths.length; i < ilen; i += 1) {
-    const location = join(options.paths[i], path)
-    if (!existsSync(location)) continue
-    callback(location)
-    found = true
-    break
-  }
-  if (!found) { throw new Error(`Asset not found: ${path}.`) }
 }
 
 function setDimension (fragment, attrs, keys, statistics, dimension, options) {
@@ -126,7 +112,7 @@ function collectComponentsFromPartialAttribute (fragment, statistics, options) {
 
 function convertValueToNode (value, variables) {
   if (isCurlyTag(value)) {
-    value = value.replace(/{|}/g, '')
+    value = getExpressionFromCurlyTag(value)
     const expression = convertToExpression(value)
     if (expression.type === 'Identifier') {
       return convertKey(value, variables)
@@ -156,53 +142,67 @@ function convertValueToNode (value, variables) {
   return getLiteral(value)
 }
 
-function resolveComponent (component, fragment, components, plugins, statistics, options) {
+function resolveComponent (tree, component, fragment, components, plugins, statistics, errors, options) {
   const localVariables = fragment.attributes
 
   const htmlTree = parse(component.content)
   let children = fragment.children
 
   walk(htmlTree, leaf => {
-    const keys = leaf.attributes && leaf.attributes.map(attribute => attribute.key)
-    plugins.forEach(plugin => {
-      plugin.prepare({
-        tag: leaf.tagName,
-        keys,
-        fragment: leaf,
-        ...leaf
+    try {
+      const attrs = leaf.attributes || []
+      const keys = attrs.map(attribute => attribute.key)
+      plugins.forEach(plugin => {
+        plugin.prepare({
+          tag: leaf.tagName,
+          keys,
+          attrs,
+          options,
+          fragment: leaf,
+          ...leaf
+        })
       })
-    })
-    if (leaf.type === 'text') {
-      localVariables.forEach(variable => {
-        if (variable.value === null) { variable.value = '{true}' }
-        if (!isCurlyTag(variable.value)) {
-          leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-        }
-      })
-    }
+      if (leaf.type === 'text') {
+        localVariables.forEach(variable => {
+          if (variable.value === null) { variable.value = '{true}' }
+          if (!isCurlyTag(variable.value)) {
+            leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+          }
+        })
+      }
 
-    if (leaf.tagName === 'if') {
-      const normalizedAttributes = normalize(leaf.attributes)
+      if (leaf.tagName === 'if') {
+        const normalizedAttributes = normalize(leaf.attributes)
 
-      leaf.attributes = normalizedAttributes.map(attr => {
-        // TODO handle or remove words to numbers functionality
-        if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
-          attr.key = `{${attr.key}}`
-        }
-        return attr
-      })
+        leaf.attributes = normalizedAttributes.map(attr => {
+          // TODO handle or remove words to numbers functionality
+          if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
+            attr.key = `{${attr.key}}`
+          }
+          return attr
+        })
+      }
+    } catch (exception) {
+      errors.push(exception)
     }
   })
 
   walk(htmlTree, leaf => {
-    const keys = leaf.attributes && leaf.attributes.map(attribute => attribute.key)
+    const attrs = leaf.attributes || []
+    const keys = attrs.map(attribute => attribute.key)
     leaf.imported = true
     plugins.forEach(plugin => {
-      plugin.run({
+      const node = plugin.run({
+        tag: leaf.tagName,
         keys,
+        attrs,
         fragment: leaf,
+        options,
         ...leaf
       })
+      if (node) {
+        tree.append(node)
+      }
     })
     if (leaf.tagName === component.name) {
       leaf.root = true
@@ -266,7 +266,7 @@ function resolveComponent (component, fragment, components, plugins, statistics,
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
-      resolveComponent(currentComponent, current, components, plugins, statistics, options)
+      resolveComponent(tree, currentComponent, current, components, plugins, statistics, errors, options)
       current.used = true
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
@@ -439,14 +439,20 @@ async function collect (tree, fragment, variables, filters, components, statisti
     const component = components.find(component => component.name === tag)
     const { languages, translationsPaths } = options
     plugins.forEach(plugin => {
-      plugin.run({
+      const node = plugin.run({
+        tag,
         keys,
+        attrs,
         fragment,
+        options,
         ...fragment
       })
+      if (node) {
+        tree.append(node)
+      }
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(component, fragment, components, plugins, statistics, options)
+      const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, statistics, errors, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
@@ -476,16 +482,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
       fragment.children.forEach(child => {
         child.used = true
       })
-    } else if (tag === 'translate') {
-      const attribute = fragment.attributes[0]
-      if (attribute) {
-        const { key } = attribute
-        filters.push('translate')
-        translations = mergeTranslations(key, translations, languages, translationsPaths)
-        tree.append(getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(key)))
-      } else {
-        throw new Error('Translate tag must define a key')
-      }
     } else if ((tag === 'script' && keys.includes('inline')) || options.inline.includes('scripts')) {
       if (keys.includes('src')) {
         const { value: path } = attrs.find(attr => attr.key === 'src')
@@ -585,35 +581,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
       })
       content += '</style>'
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
-    } else if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
-      let leaf = fragment.children[0]
-      if (!leaf) {
-        if (keys.includes('from')) {
-          const { value: path } = attrs.find(attr => attr.key === 'from')
-          const parts = path.split('.')
-          const extension = parts[parts.length - 1]
-          findFile(path, options, location => {
-            leaf = { content: readFileSync(location, 'utf8') }
-            statistics.translations.push({ path: location })
-          })
-          keys.push(extension)
-        } else {
-          throw new Error('The translation script cannot be empty')
-        }
-      }
-      leaf.used = true
-      let data = {}
-      if (keys.includes('yaml')) {
-        data = parseYAML(leaf.content)
-      } else if (keys.includes('json')) {
-        data = parseJSON(leaf.content)
-      } else {
-        data = parseJS(leaf.content)
-      }
-      for (let key in data) {
-        if (translations[key]) { throw new Error('Translation already exists') }
-        translations[key] = data[key]
-      }
     } else if (tag === 'style' || tag === 'script' || tag === 'template') {
       let content = `<${tag}`
       fragment.attributes.forEach(attribute => {

@@ -3,22 +3,31 @@ import compile from '../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
 
-test('i18n: translate modifier', async assert => {
-  const template = await compile(
-    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{"submit" | translate}</div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
-})
-
 test('i18n: translate tag', async assert => {
   const template = await compile(
-    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit></div>`,
+    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><translate submit>`,
     { languages: ['pl', 'en'] }
   )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), 'Wyślij')
+  assert.deepEqual(template({ language: 'en' }, escape), 'Send')
+})
+
+test('i18n: translate tag with translations defined at the end of the file', async assert => {
+  const template = await compile(
+    `<translate submit><script i18n>export default { submit: ['Wyślij', 'Send'] }</script>`,
+    { languages: ['pl', 'en'] }
+  )
+  assert.deepEqual(template({ language: 'pl' }, escape), 'Wyślij')
+  assert.deepEqual(template({ language: 'en' }, escape), 'Send')
+})
+
+test('i18n: translate modifier', async assert => {
+  const template = await compile(
+    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script>{"submit" | translate}`,
+    { languages: ['pl', 'en'] }
+  )
+  assert.deepEqual(template({ language: 'pl' }, escape), 'Wyślij')
+  assert.deepEqual(template({ language: 'en' }, escape), 'Send')
 })
 
 test('i18n: translate modifier for a string with dot', async assert => {

@@ -105,12 +105,12 @@ expect(template({ foo: 'bar' }, escape)).to.equal('<div>bar</div>')
 * built-in i18n support (translate tag and filter)
 
 ```html
+<h1><translate hello></h1>
 <i18n yaml>
 hello:
 - 'Hej!'
 - 'Hello!'
 </i18n>
-<h1><translate hello></h1>
 ```
 
 * compiler tag for scripts

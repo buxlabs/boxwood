@@ -13,7 +13,6 @@ const COLLECTION_UTILITIES = Object.keys(collection)
 const OBJECT_UTILITIES = Object.keys(object)
 const JSON_UTILITIES = Object.keys(json)
 const DATE_UTILITIES = Object.keys(date)
-const { mergeTranslations } = require('./translations')
 const { placeholderName, addPlaceholders } = require('./keywords')
 
 function isUnescapedFilter (filter) {
@@ -248,11 +247,7 @@ function modify (node, filters, translations, languages, translationsPaths) {
       }
       const args = [leaf]
       if (filter === 'translate') {
-        const { type, value } = leaf
         if (!languages) throw new Error('Compiler option is undefined: languages.')
-        if (type === 'Literal') {
-          translations = mergeTranslations(value, translations, languages, translationsPaths)
-        }
         const expression = {
           type: 'MemberExpression',
           object: {
