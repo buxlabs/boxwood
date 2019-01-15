@@ -26,21 +26,28 @@ class CurlyStylesPlugin {
     this.scopes = []
   }
   prepare ({ keys, fragment, attrs }) {
-    if (keys.includes('style')) {
-      const attr = attrs.find(attr => attr.key === 'style')
-      if (isCurlyTag(attr.value)) {
-        try {
-          const expression = getExpressionFromCurlyTag(attr.value)
-          const tree = new AbstractSyntaxTree(`(${expression})`)
-          const object = serialize(tree.first('ObjectExpression'))
-          attr.value = stringify(object)
-        } catch (exception) {
-          // TODO implement
+    function inline (name) {
+      if (keys.includes(name)) {
+        const attr = attrs.find(attr => attr.key === name)
+        if (isCurlyTag(attr.value)) {
+          try {
+            const expression = getExpressionFromCurlyTag(attr.value)
+            const tree = new AbstractSyntaxTree(`(${expression})`)
+            const object = serialize(tree.first('ObjectExpression'))
+            attr.value = stringify(object)
+          } catch (exception) {
+            // TODO implement
+          }
         }
       }
     }
+
+    inline('style')
+    inline('css')
   }
-  run () {}
+  run () {
+
+  }
 }
 
 module.exports = CurlyStylesPlugin
