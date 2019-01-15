@@ -1,6 +1,11 @@
 const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
 const serialize = require('asttv')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { flatten } = require('pure-utilities/object')
+
+function dasherize (string) {
+  return string.replace(/\./g, '-')
+}
 
 function hyphenate (string) {
   return string.replace(/([A-Z])/g, character => {
@@ -9,8 +14,9 @@ function hyphenate (string) {
 }
 
 function stringify (object) {
+  object = flatten(object)
   const array = Object.keys(object).map(attribute => {
-    return hyphenate(attribute) + ':' + object[attribute] + ';'
+    return hyphenate(dasherize(attribute)) + ':' + object[attribute] + ';'
   })
   return array.join('')
 }
