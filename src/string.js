@@ -2,7 +2,7 @@ const { ltrim } = require('pure-utilities/string')
 const lexer = require('./lexer')
 
 function isCurlyTag (value) {
-  return value.startsWith('{') && value.endsWith('}')
+  return value && value.startsWith('{') && value.endsWith('}')
 }
 
 function getExpressionFromCurlyTag (value) {

@@ -9,6 +9,7 @@ const Parser = require('./Parser')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
+const CurlyStylesPlugin = require('./plugins/CurlyStylesPlugin')
 const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
 const InternationalizationPlugin = require('./plugins/InternationalizationPlugin')
 
@@ -28,6 +29,7 @@ async function render (htmltree, options) {
   const promises = []
   const errors = []
   const plugins = [
+    new CurlyStylesPlugin(),
     new ScopedStylesPlugin(),
     new InternationalizationPlugin({ translations, statistics, filters })
   ]
