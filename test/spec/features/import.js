@@ -427,3 +427,42 @@ test('import: component with scoped styles', async assert => {
   })
   assert.deepEqual(template({}, escape), '<button class="scope-3638639787   block button">Send</button><style>.scope-3638639787.button{cursor:pointer}</style>')
 })
+
+test('import: self closing component', async assert => {
+  let template
+  template = await compile(`
+    <import input from='./input.html'>
+    <input type="text">
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<input type="text" placeholder="" id="" name="" maxlength="30">')
+
+  template = await compile(`
+    <import input from='./input.html'>
+    <div><input type="text"/></div>
+    <div>foo</div>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<div><input type="text" placeholder="" id="" name="" maxlength="30"></div><div>foo</div>')
+
+  template = await compile(`
+    <import header from='./header2.html'>
+    <import label from='./label.html'>
+    <import input from='./input.html'>
+    <header>
+      <div>
+        <label>foo</label>
+        <input type="text"/>
+      </div>
+      <div>
+        <label>bar</label>
+        baz
+      </div>
+    </header>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" placeholder="" id="" name="" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
+})
