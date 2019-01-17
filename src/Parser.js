@@ -1,4 +1,4 @@
-const parse = require('./parse')
+const parse = require('./html/parse')
 
 class Parser {
   parse (source) {

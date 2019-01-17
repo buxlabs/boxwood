@@ -23,7 +23,7 @@ const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VA
 const { getAction } = require('./action')
 const { readFileSync } = require('fs')
 const { dirname } = require('path')
-const parse = require('./parse')
+const parse = require('./html/parse')
 const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')

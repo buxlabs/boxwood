@@ -1,7 +1,7 @@
-const { parse, parseDefaults } = require('himalaya')
-const { VOID_TAGS } = require('./enum')
+const { parseDefaults } = require('himalaya')
+const { VOID_TAGS } = require('../enum')
 
-module.exports = function (source, options) {
+module.exports = function defaults (source, options) {
   const voidTags = VOID_TAGS.concat(parseDefaults.voidTags).filter(tag => {
     const regexp = new RegExp(`<import\\s+${tag}\\s+`)
     return !regexp.test(source)
@@ -12,5 +12,5 @@ module.exports = function (source, options) {
   // another option is that the user could specify it, e.g. by:
   // - passing global options,
   // - setting it as an attribute on the import tag
-  return parse(source, { ...parseDefaults, voidTags, ...options })
+  return { ...parseDefaults, voidTags, ...options }
 }
