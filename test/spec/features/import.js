@@ -466,3 +466,42 @@ test('import: self closing component', async assert => {
   })
   assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" placeholder="" id="" name="" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
 })
+
+test('import: self closing component for the require tag', async assert => {
+  let template
+  template = await compile(`
+    <require input from='./input.html'>
+    <input type="text">
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<input type="text" placeholder="" id="" name="" maxlength="30">')
+
+  template = await compile(`
+    <require input from='./input.html'>
+    <div><input type="text"/></div>
+    <div>foo</div>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<div><input type="text" placeholder="" id="" name="" maxlength="30"></div><div>foo</div>')
+
+  template = await compile(`
+    <require header from='./header2.html'>
+    <require label from='./label.html'>
+    <require input from='./input.html'>
+    <header>
+      <div>
+        <label>foo</label>
+        <input type="text"/>
+      </div>
+      <div>
+        <label>bar</label>
+        baz
+      </div>
+    </header>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" placeholder="" id="" name="" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
+})
