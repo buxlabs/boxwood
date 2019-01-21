@@ -12,6 +12,7 @@ const Statistics = require('./Statistics')
 const CurlyStylesPlugin = require('./plugins/CurlyStylesPlugin')
 const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
 const InternationalizationPlugin = require('./plugins/InternationalizationPlugin')
+const PaddingPlugin = require('./plugins/PaddingPlugin')
 
 async function render (htmltree, options) {
   if (!htmltree) { return null }
@@ -31,7 +32,8 @@ async function render (htmltree, options) {
   const plugins = [
     new CurlyStylesPlugin(),
     new ScopedStylesPlugin(),
-    new InternationalizationPlugin({ translations, statistics, filters })
+    new InternationalizationPlugin({ translations, statistics, filters }),
+    new PaddingPlugin()
   ]
   let depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
