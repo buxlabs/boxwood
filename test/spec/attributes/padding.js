@@ -83,4 +83,13 @@ test('div[padding]: works with object', async assert => {
 
   template = await compile(`<div padding="{{ top: '15px', left: '30px', right: 0, bottom: '100px' }}"></div>`)
   assert.deepEqual(template({}, escape), '<div style="padding-top: 15px; padding-left: 30px; padding-right: 0; padding-bottom: 100px;"></div>')
+
+  template = await compile(`<div style="margin: 0;" padding="{{ top: 30 }}"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="margin: 0; padding-top: 30px;"></div>')
+
+  template = await compile(`<div style="margin: 0;" padding="{{ top: 30, right: 25 }}"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="margin: 0; padding-top: 30px; padding-right: 25px;"></div>')
+
+  template = await compile(`<div style="display: flex; justify-content: center;" padding="{{top: '3em', bottom: '3em', right: 10, left: '5%'}}"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="display: flex; justify-content: center; padding-top: 3em; padding-bottom: 3em; padding-right: 10px; padding-left: 5%;"></div>')
 })
