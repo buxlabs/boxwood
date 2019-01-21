@@ -1,11 +1,10 @@
 const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
-const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 
 class PaddingPlugin {
-  getValue (attribute) {
-    let value = attribute.value.replace(/\s+/g, '')
+  convertValue (value) {
+    value = value.replace(/\s+/g, '')
     if (isCurlyTag(value)) {
       value = getExpressionFromCurlyTag(value)
       const { expression } = new AbstractSyntaxTree(value).body[0]
@@ -15,16 +14,18 @@ class PaddingPlugin {
   }
 
   prepare ({ keys, fragment, attrs }) {
-    const padding = attrs.find(attr => attr.key === 'padding')
-    const style = attrs.find(attr => attr.key === 'style')
-    const index = attrs.findIndex(attr => attr.key === 'padding')
-    if (style) {
-
-    } else if (padding) {
-      let value = this.getValue(padding)
-      fragment.attributes.splice(index, 1)
+    const attribute = attrs.find(attr => attr.key === 'padding')
+    if (attribute) {
+      let { key, value } = attribute
+      value = this.convertValue(value)
       const suffix = (isNumeric(value) && Number(value) !== 0) ? 'px' : ''
-      fragment.attributes.push({ key: 'style', value: `${padding.key}: ${value}${suffix};` })
+      fragment.attributes.splice(attrs.findIndex(attr => attr.key === 'padding'), 1)
+      if (attrs.find(attr => attr.key === 'style')) {
+        const styleIndex = fragment.attributes.findIndex(attr => attr.key === 'style')
+        fragment.attributes[styleIndex].value += ` ${key}: ${value}${suffix};`
+      } else {
+        fragment.attributes.push({ key: 'style', value: `${key}: ${value}${suffix};` })
+      }
     }
   }
   run () {}
