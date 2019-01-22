@@ -29,6 +29,18 @@ test('div[padding]: works with values', async assert => {
 
   template = await compile(`<div padding="15px" style="margin: 0 auto; background: #f0f;"><h1>Hello World!</h1></div>`)
   assert.deepEqual(template({}, escape), '<div style="margin: 0 auto; background: #f0f; padding: 15px;"><h1>Hello World!</h1></div>')
+
+  template = await compile(`<div padding="15px 10px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding: 15px 10px;"></div>')
+
+  template = await compile(`<div padding="15px 10px 20px 30px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding: 15px 10px 20px 30px;"></div>')
+
+  template = await compile(`<div padding=" 15px  10px  20px  30px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding:  15px  10px  20px  30px;"></div>')
+
+  template = await compile(`<div style="margin: 0 auto;" padding=" 15px  10px  20px  30px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="margin: 0 auto; padding:  15px  10px  20px  30px;"></div>')
 })
 
 test('div[padding]: works with expressions', async assert => {
@@ -48,6 +60,9 @@ test('div[padding]: works with expressions', async assert => {
   assert.deepEqual(template({}, escape), '<div id="qux" class="foo bar ban" style="padding: 15px;"></div>')
 
   await assert.throwsAsync(compile(`<div id="qux" class="foo bar ban" padding="{15px}"></div>`))
+
+  template = await compile(`<div id="qux" class="foo bar ban" padding={15}></div>`)
+  assert.deepEqual(template({}, escape), `<div id="qux" class="foo bar ban" style="padding: 15px;"></div>`)
 
   template = await compile(`<div padding="{20}" style="margin: 0 auto;"></div>`)
   assert.deepEqual(template({}, escape), '<div style="margin: 0 auto; padding: 20px;"></div>')

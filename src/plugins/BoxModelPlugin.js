@@ -3,13 +3,13 @@ const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 
-function getAttribute (attributes, attribute) {
+function findAttributeByKey (attributes, attribute) {
   if (attributes) return attributes.find(attr => attr.key === attribute)
 }
 
 function convert (value) {
-  value = value.replace(/\s+/g, '')
   if (isCurlyTag(value)) {
+    value = value.replace(/\s+/g, '')
     value = getExpressionFromCurlyTag(value)
     const { expression } = new AbstractSyntaxTree(`(${value})`).body[0]
     if (expression.type === 'ObjectExpression') {
@@ -21,19 +21,19 @@ function convert (value) {
   return value
 }
 
-function getInlineStyles (key, value) {
-  let inlineStyles = ``
+function getStyles (key, value) {
+  let styles = ''
   if (typeof value === 'object') {
     for (let property in value) {
       const suffix = getSuffix(value[property])
-      inlineStyles += `${key}-${property}: ${value[property]}${suffix} `
+      styles += `${key}-${property}: ${value[property]}${suffix} `
     }
-    inlineStyles = inlineStyles.trim()
+    styles = styles.trim()
   } else {
     const suffix = getSuffix(value)
-    inlineStyles = `${key}: ${value}${suffix}`
+    styles = `${key}: ${value}${suffix}`
   }
-  return inlineStyles
+  return styles
 }
 
 function getSuffix (value) {
@@ -41,8 +41,12 @@ function getSuffix (value) {
 }
 
 function generatePadding (attributes, value) {
-  const index = attributes.findIndex(attr => attr.key === 'style')
-  index !== -1 ? attributes[index].value += ` ${value}` : attributes.push({ key: 'style', value })
+  const attribute = findAttributeByKey(attributes, 'style')
+  if (attribute) {
+    attribute.value += ` ${value}`
+  } else {
+    attributes.push({ key: 'style', value })
+  }
 }
 
 function removeAttribute (attributes, attribute) {
@@ -51,10 +55,10 @@ function removeAttribute (attributes, attribute) {
 
 class PaddingPlugin {
   prepare ({ keys, fragment }) {
-    const attribute = getAttribute(fragment.attributes, 'padding')
+    const attribute = findAttributeByKey(fragment.attributes, 'padding')
     if (attribute) {
       attribute.value = convert(attribute.value)
-      const inlineStyles = getInlineStyles(attribute.key, attribute.value)
+      const inlineStyles = getStyles(attribute.key, attribute.value)
       generatePadding(fragment.attributes, inlineStyles)
       removeAttribute(fragment.attributes, 'padding')
     }
