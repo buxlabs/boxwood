@@ -505,3 +505,16 @@ test('import: self closing component for the require tag', async assert => {
   })
   assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" placeholder="" id="" name="" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
 })
+
+test.skip('import: inlined values should not propagate to imported components', async assert => {
+  const template = await compile(`
+    <import foo from='./foo.html'>
+    <import bar from='./bar.html'>
+    <foo foo='foo'>
+      <bar>baz</bar>
+    </foo>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/attributes') ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="foo"><div class="">baz</div></div>')
+})
