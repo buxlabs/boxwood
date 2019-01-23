@@ -214,12 +214,7 @@ test('output: useless logical expressions are removed', async assert => {
     paths: [ path.join(__dirname, '../fixtures/import') ]
   })
   assert.deepEqual(normalize(template.toString()), normalize(`
-    function render(__o, __e) {
-      var __t = "<div class=\\"";
-      __t += __e("foo");
-      __t += "\\">baz</div>";
-      return __t;
-    }
+    function render() { return "<div class=\\"foo\\">baz</div>"; }
   `))
 })
 
@@ -230,13 +225,9 @@ test('output: useless ternary operators are removed', async assert => {
   `, {
     paths: [ path.join(__dirname, '../fixtures/import') ]
   })
-  // TODO this could be optimized further
+
   assert.deepEqual(normalize(template.toString()), normalize(`
-    function render (__o, __e) {
-      var __t = "";
-      __t += __e("foo");
-      return __t;
-    }
+    function render () { return "foo"; }
   `))
 })
 

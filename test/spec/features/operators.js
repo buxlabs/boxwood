@@ -223,13 +223,13 @@ test('operators: ternary operator works inside loops', async assert => {
 
   template = await compile(`
     <import layout from="./layouts/blank1.html">
-    <layout>
+    <layout foo="minimal">
       <for number in range="1..3">
         <div class="{ number == bar ? 'selected' : '' }">{number}</div>
       </for>
     </layout>
   `, { paths: path.join(__dirname, '..', '..', 'fixtures') })
-  assert.deepEqual(template({ foo: 'minimal', bar: '2' }, escape), '<div class="minimal"><div class="">1</div><div class="selected">2</div><div class="">3</div></div>')
+  assert.deepEqual(template({ bar: '2' }, escape), '<div class="minimal"><div class="">1</div><div class="selected">2</div><div class="">3</div></div>')
 })
 
 test('operators: filters boolean attributes', async assert => {

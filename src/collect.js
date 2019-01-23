@@ -31,6 +31,7 @@ const { placeholderName, addPlaceholders } = require('./keywords')
 const { isCurlyTag, getExpressionFromCurlyTag } = require('./string')
 const { findFile } = require('./files')
 const { wordsToNumbers } = require('words-to-numbers')
+const Component = require('./Component')
 let asyncCounter = 0
 
 function getFreeIdentifier (variables) {
@@ -145,7 +146,17 @@ function convertValueToNode (value, variables) {
 function resolveComponent (tree, component, fragment, components, plugins, statistics, errors, options) {
   const localVariables = fragment.attributes
 
-  const htmlTree = parse(component.content)
+  let content
+  const htmlComponent = new Component(component.content, localVariables)
+  try {
+    htmlComponent.optimize()
+    content = htmlComponent.source
+  } catch (exception) {
+    // TODO handle expception, add extra specs
+    content = component.content
+  }
+
+  const htmlTree = parse(content)
   let children = fragment.children
 
   walk(htmlTree, leaf => {
