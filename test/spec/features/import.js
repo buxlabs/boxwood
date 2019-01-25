@@ -518,3 +518,31 @@ test('import: inlined values should not propagate to imported components', async
   })
   assert.deepEqual(template({}, escape), '<div class="foo"><div class="">baz</div></div>')
 })
+
+test('import: passing variables to components with different name', async assert => {
+  const template = await compile(`<import foo from='./foo.html'><foo foo="{bar}" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(template({ bar: 'baz' }, escape), '<div class="baz"></div>')
+})
+
+test('import: passing variables to components with same name', async assert => {
+  const template = await compile(`<import foo from='./foo.html'><foo foo="{foo}" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"></div>')
+})
+
+test('import: passing objects', async assert => {
+  const template = await compile(`<import bar from='./bar.html'><bar bar="{baz}" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(template({ baz: { qux: 'quux' } }, escape), '<div class="quux"></div>')
+})
+
+test.skip('import: passing objects with same name', async assert => {
+  const template = await compile(`<import bar from='./bar.html'><bar bar="{bar}" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(template({ bar: { qux: 'quux' } }, escape), '<div class="quux"></div>')
+})

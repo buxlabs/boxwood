@@ -158,7 +158,6 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
 
   const htmlTree = parse(content)
   let children = fragment.children
-
   walk(htmlTree, leaf => {
     try {
       const attrs = leaf.attributes || []
@@ -197,7 +196,6 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
       errors.push(exception)
     }
   })
-
   walk(htmlTree, leaf => {
     const attrs = leaf.attributes || []
     const keys = attrs.map(attribute => attribute.key)
@@ -264,7 +262,6 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
       })
     }
   })
-
   const currentComponents = []
   let slots = 0
   walk(htmlTree, async (current, parent) => {
@@ -477,10 +474,12 @@ async function collect (tree, fragment, variables, filters, components, statisti
       // e.g. this possibly will cause issues if the identifier is a part of a more complex node
       ast.replace({
         enter: node => {
-          if (node.type === 'Identifier') {
+          if (node.type === 'Identifier' && !node.inlined) {
             const variable = localVariables.find(variable => variable.key === node.name)
             if (variable) {
-              return convertText(variable.value, variables, filters, translations, languages, translationsPaths)[0]
+              const node = convertText(variable.value, [], filters, translations, languages, translationsPaths)[0]
+              AbstractSyntaxTree.walk(node, leaf => { leaf.inlined = true })
+              return node
             }
           }
         }
