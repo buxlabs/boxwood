@@ -9,6 +9,10 @@ test('acceptance: components-in-a-loop', async assert => {
   await suite('components-in-a-loop', assert)
 })
 
+test('acceptance: same-attributes', async assert => {
+  await suite('same-attributes', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
