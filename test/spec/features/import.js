@@ -540,7 +540,7 @@ test('import: passing objects', async assert => {
   assert.deepEqual(template({ baz: { qux: 'quux' } }, escape), '<div class="quux"></div>')
 })
 
-test.skip('import: passing objects with same name', async assert => {
+test('import: passing objects with same name', async assert => {
   const template = await compile(`<import bar from='./bar.html'><bar bar="{bar}" />`, {
     paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
   })

@@ -170,17 +170,18 @@ function getTemplateNode (expression, variables, unescape) {
           }
         } else if (parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
           node.omit = true
-        } else if (node.type === 'MemberExpression' && node.property.type === 'Identifier' && !node.computed) {
-          node.property.omit = true
+        } else if (node.type === 'MemberExpression') {
+          if (node.property.type === 'Identifier' && !node.computed) node.property.omit = true
         } else if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
-          node.omit = true
           if (!variables.includes(node.name)) {
+            node.omit = true
             const object = getIdentifier(OBJECT_VARIABLE)
             object.omit = true
             node = {
               type: 'MemberExpression',
               object,
-              property: node
+              property: node,
+              omit: true
             }
           }
         }
@@ -204,14 +205,14 @@ function isBooleanReturnFromExpression (node) {
   return node.type === 'BinaryExpression' && isComparisonOperator(node.operator)
 }
 
-function convertText (text, variables, currentFilters, translations, languages, translationsPaths) {
+function convertText (text, variables, currentFilters, translations, languages, translationsPaths, unescaped = false) {
   const nodes = extract(text).map(({ value, filters = [] }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
       filters.forEach(filter => currentFilters.push(filter))
       const name = expression.name
-      let unescape = name ? UNESCAPED_NAMES.includes(name) : false
+      let unescape = unescaped || UNESCAPED_NAMES.includes(name)
       if (!unescape) {
         filters.forEach(filter => {
           if (isUnescapedFilter(filter)) {

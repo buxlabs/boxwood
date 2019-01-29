@@ -472,12 +472,17 @@ async function collect (tree, fragment, variables, filters, components, statisti
 
       // this part of the code also deserves to have more specs
       // e.g. this possibly will cause issues if the identifier is a part of a more complex node
+
+      // similar code is in the getTemplateNode / convert.js
+      // we could consider changing the variables format and having info if it's a local or global
+      // variable and inline it there
+      // so that the replacement code is only in one place
       ast.replace({
         enter: node => {
-          if (node.type === 'Identifier' && !node.inlined) {
+          if (node.type === 'Identifier' && !node.inlined && !node.omit) {
             const variable = localVariables.find(variable => variable.key === node.name)
             if (variable) {
-              const node = convertText(variable.value, [], filters, translations, languages, translationsPaths)[0]
+              const node = convertText(variable.value, [], filters, translations, languages, translationsPaths, true)[0]
               AbstractSyntaxTree.walk(node, leaf => { leaf.inlined = true })
               return node
             }
