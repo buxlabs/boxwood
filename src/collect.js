@@ -111,6 +111,15 @@ function collectComponentsFromPartialAttribute (fragment, statistics, options) {
   }
 }
 
+function collectInlineComponents (fragment, attributes, components) {
+  const { key } = attributes[attributes.length - 1]
+  const { content } = fragment.children[0]
+  components.push({ name: key, content, path: null })
+  fragment.children.forEach(child => {
+    child.used = true
+  })
+}
+
 function convertValueToNode (value, variables) {
   if (isCurlyTag(value)) {
     value = getExpressionFromCurlyTag(value)
@@ -214,6 +223,9 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
       }
     })
     if (leaf.tagName === component.name) {
+      // TODO allow inlined components to have
+      // the same name as imported one
+      // the limitation can be unexpected
       leaf.root = true
     }
     if (leaf.attributes) {
@@ -265,12 +277,19 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
   const currentComponents = []
   let slots = 0
   walk(htmlTree, async (current, parent) => {
+    const attrs = current.attributes || []
+    const keys = attrs.map(attr => attr.key)
     if (current.tagName === 'import' || current.tagName === 'require') {
       collectComponentsFromImport(current, statistics, currentComponents, component, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
       collectComponentsFromPartialOrRender(current, statistics, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
       collectComponentsFromPartialAttribute(current, statistics, options)
+    } else if (
+      (current.tagName === 'template' && keys.length > 0) ||
+      (current.tagName === 'script' && keys.includes('component'))
+    ) {
+      collectInlineComponents(current, attrs, currentComponents)
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
@@ -497,6 +516,11 @@ async function collect (tree, fragment, variables, filters, components, statisti
       fragment.children.forEach(child => {
         child.used = true
       })
+    } else if (
+      (tag === 'template' && keys.length > 0) ||
+      (tag === 'script' && keys.includes('component'))
+    ) {
+      collectInlineComponents(fragment, attrs, components)
     } else if ((tag === 'script' && keys.includes('inline')) || options.inline.includes('scripts')) {
       if (keys.includes('src')) {
         const { value: path } = attrs.find(attr => attr.key === 'src')
