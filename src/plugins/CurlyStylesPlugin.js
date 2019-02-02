@@ -2,6 +2,7 @@ const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
 const serialize = require('asttv')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { flatten } = require('pure-utilities/object')
+const Plugin = require('./Plugin')
 
 function dasherize (string) {
   return string.replace(/\./g, '-')
@@ -21,11 +22,12 @@ function stringify (object) {
   return array.join('')
 }
 
-class CurlyStylesPlugin {
+class CurlyStylesPlugin extends Plugin {
   constructor () {
+    super()
     this.scopes = []
   }
-  prepare ({ keys, fragment, attrs }) {
+  prerun ({ keys, fragment, attrs }) {
     function inline (name) {
       if (keys.includes(name)) {
         const attr = attrs.find(attr => attr.key === name)

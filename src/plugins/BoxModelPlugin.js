@@ -2,6 +2,7 @@ const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
 const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const Plugin = require('./Plugin')
 
 function findAttributeByKey (attributes, attribute) {
   if (attributes) return attributes.find(attr => attr.key === attribute)
@@ -21,7 +22,10 @@ function convert (value) {
   return value
 }
 
-function getStyles (key, value) {
+function getStyles (attributeKey, key, value) {
+  if (attributeKey === 'border') {
+    return `border: ${value};`
+  }
   let styles = ''
   if (typeof value === 'object') {
     for (let property in value) {
@@ -53,19 +57,35 @@ function removeAttribute (attributes, attribute) {
   attributes.splice(attributes.findIndex(attr => attr.key === attribute), 1)
 }
 
-class BoxModelPlugin {
-  prepare ({ keys, fragment }) {
+class BoxModelPlugin extends Plugin {
+  beforeprerun () {
+    this.components = []
+  }
+
+  prerun ({ tag, keys, fragment }) {
     function transform (key) {
       const attribute = findAttributeByKey(fragment.attributes, key)
       if (attribute) {
         attribute.value = convert(attribute.value)
-        const inlineStyles = getStyles(attribute.key, attribute.value)
+        const inlineStyles = getStyles(key, attribute.key, attribute.value)
         appendStyles(fragment.attributes, inlineStyles)
         removeAttribute(fragment.attributes, key)
       }
     }
-    transform('padding')
-    transform('margin')
+    if (tag === 'import' || tag === 'require') {
+      const name = keys[0]
+      this.components.push(name)
+    }
+
+    if (!this.components.includes(tag)) {
+      transform('padding')
+      transform('margin')
+      transform('border')
+    }
+  }
+
+  afterprerun () {
+    this.components = []
   }
 
   run () {}

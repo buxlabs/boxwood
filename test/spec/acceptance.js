@@ -17,6 +17,10 @@ test('acceptance: objects-as-parameters', async assert => {
   await suite('objects-as-parameters', assert)
 })
 
+test('acceptance: components-with-box-model-attributes', async assert => {
+  await suite('components-with-box-model-attributes', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

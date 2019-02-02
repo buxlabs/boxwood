@@ -167,17 +167,18 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
 
   const htmlTree = parse(content)
   let children = fragment.children
+  plugins.forEach(plugin => { plugin.beforeprerun() })
   walk(htmlTree, leaf => {
     try {
       const attrs = leaf.attributes || []
       const keys = attrs.map(attribute => attribute.key)
       plugins.forEach(plugin => {
-        plugin.prepare({
+        plugin.prerun({
           tag: leaf.tagName,
           keys,
           attrs,
-          options,
           fragment: leaf,
+          options,
           ...leaf
         })
       })
@@ -205,6 +206,7 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
       errors.push(exception)
     }
   })
+  plugins.forEach(plugin => { plugin.afterprerun() })
   walk(htmlTree, leaf => {
     const attrs = leaf.attributes || []
     const keys = attrs.map(attribute => attribute.key)

@@ -37,11 +37,12 @@ async function render (htmltree, options) {
   ]
   let depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
+  plugins.forEach(plugin => { plugin.beforeprerun() })
   walk(htmltree, async fragment => {
     try {
       const attrs = fragment.attributes || []
       plugins.forEach(plugin => {
-        plugin.prepare({
+        plugin.prerun({
           tag: fragment.tagName,
           keys: attrs.map(attribute => attribute.key),
           attrs,
@@ -54,6 +55,7 @@ async function render (htmltree, options) {
       errors.push(exception)
     }
   })
+  plugins.forEach(plugin => { plugin.afterprerun() })
 
   walk(htmltree, async fragment => {
     await collect(tree, fragment, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors)

@@ -5,6 +5,7 @@ const serialize = require('asttv')
 const { load } = require('yaml-js')
 const { findFile } = require('../files')
 const { getTemplateAssignmentExpression, getTranslateCallExpression } = require('../factory')
+const Plugin = require('./Plugin')
 
 function parseYAML (content) {
   try {
@@ -71,13 +72,14 @@ function getTranslationsFormat (keys) {
   return 'js'
 }
 
-class InternationalizationPlugin {
+class InternationalizationPlugin extends Plugin {
   constructor ({ translations, statistics, filters }) {
+    super()
     this.translations = translations
     this.statistics = statistics
     this.filters = filters
   }
-  prepare ({ tag, attrs, keys, fragment, options }) {
+  prerun ({ tag, attrs, keys, fragment, options }) {
     if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
       fragment.used = true
       let leaf = fragment.children[0]

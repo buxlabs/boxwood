@@ -3,6 +3,7 @@ const hash = require('string-hash')
 const { isCurlyTag } = require('../string')
 const { unique } = require('pure-utilities/array')
 const { extractValues } = require('../string')
+const Plugin = require('./Plugin')
 
 function addScopeToCssSelectors (node, scopes) {
   const id = `scope-${hash(node.content)}`
@@ -42,11 +43,12 @@ function addScopeToHtmlTags (attributes, scopes) {
   attribute.value = unique(classes).join(' ')
 }
 
-class ScopedStylesPlugin {
+class ScopedStylesPlugin extends Plugin {
   constructor () {
+    super()
     this.scopes = []
   }
-  prepare ({ tag, keys, children }) {
+  prerun ({ tag, keys, children }) {
     if (tag === 'style' && keys.includes('scoped')) {
       children.forEach(node => addScopeToCssSelectors(node, this.scopes))
     }
