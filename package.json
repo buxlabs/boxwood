@@ -41,7 +41,7 @@
   "homepage": "https://github.com/buxlabs/pure-engine#readme",
   "dependencies": {
     "abstract-syntax-tree": "^2.0.1",
-    "astoptech": "^1.0.5",
+    "astoptech": "^1.0.6",
     "asttv": "^1.0.1",
     "css-tree": "^1.0.0-alpha.29",
     "himalaya": "^1.1.0",
@@ -58,7 +58,7 @@
     "@babel/core": "^7.1.6",
     "@babel/plugin-transform-react-jsx": "^7.1.6",
     "ansi-colors": "^3.2.1",
-    "ava": "^1.1.0",
+    "ava": "^1.2.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "benchmark": "^2.1.4",

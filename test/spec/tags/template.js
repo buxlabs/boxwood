@@ -19,3 +19,11 @@ test('template: component inside of a imported component', async assert => {
   })
   assert.deepEqual(template({}, escape), 'bar')
 })
+
+test('template: objects as parameters', async assert => {
+  const template = await compile(`
+    <template foo>{bar.baz}</template>
+    <foo bar="{ { baz: 'qux' } }" />
+  `)
+  assert.deepEqual(template({}, escape), 'qux')
+})

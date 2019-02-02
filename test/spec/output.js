@@ -236,3 +236,12 @@ test('output: binary expressions with literals are precalculated', async assert 
 
   assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "foo"; }`))
 })
+
+test('output: object inlining', async assert => {
+  const template = await compile(`
+    <template foo>{bar.baz}</template>
+    <foo bar="{ { baz: 'qux' } }" />
+  `)
+
+  assert.deepEqual(normalize(template.toString()), normalize('function render() { return "qux"; }'))
+})

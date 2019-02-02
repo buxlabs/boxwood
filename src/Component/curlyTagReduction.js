@@ -4,6 +4,7 @@ const {
   logicalExpressionReduction,
   binaryExpressionReduction,
   ternaryOperatorReduction,
+  memberExpressionReduction,
   ifStatementRemoval
 } = require('astoptech')
 const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
@@ -72,6 +73,7 @@ function falsyCodeRemoval (node) {
 function optimizeExpressionToken (token, variables) {
   const tree = new AbstractSyntaxTree(token.value)
   tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables) })
+  tree.replace({ enter: memberExpressionReduction })
   tree.replace({ enter: logicalExpressionReduction })
   tree.replace({ enter: binaryExpressionReduction })
   tree.replace({ enter: ternaryOperatorReduction })

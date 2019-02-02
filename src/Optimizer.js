@@ -1,4 +1,5 @@
 const {
+  memberExpressionReduction,
   logicalExpressionReduction,
   binaryExpressionReduction,
   ternaryOperatorReduction,
@@ -22,6 +23,7 @@ class Optimizer {
   }
   optimize () {
     // can the below be done in one walk?
+    this.program.replace({ enter: memberExpressionReduction })
     this.program.replace({ enter: logicalExpressionReduction })
     this.program.replace({ enter: binaryExpressionReduction })
     this.program.replace({ enter: ternaryOperatorReduction })
