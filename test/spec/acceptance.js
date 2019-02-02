@@ -13,6 +13,10 @@ test('acceptance: same-attributes', async assert => {
   await suite('same-attributes', assert)
 })
 
+test('acceptance: objects-as-parameters', async assert => {
+  await suite('objects-as-parameters', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
