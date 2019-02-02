@@ -40,7 +40,7 @@ function getSuffix (value) {
   return (isNumeric(value) && Number(value) !== 0) ? 'px;' : ';'
 }
 
-function generatePadding (attributes, value) {
+function appendStyles (attributes, value) {
   const attribute = findAttributeByKey(attributes, 'style')
   if (attribute) {
     attribute.value += ` ${value}`
@@ -53,18 +53,22 @@ function removeAttribute (attributes, attribute) {
   attributes.splice(attributes.findIndex(attr => attr.key === attribute), 1)
 }
 
-class PaddingPlugin {
+class BoxModelPlugin {
   prepare ({ keys, fragment }) {
-    const attribute = findAttributeByKey(fragment.attributes, 'padding')
-    if (attribute) {
-      attribute.value = convert(attribute.value)
-      const inlineStyles = getStyles(attribute.key, attribute.value)
-      generatePadding(fragment.attributes, inlineStyles)
-      removeAttribute(fragment.attributes, 'padding')
+    function transform (key) {
+      const attribute = findAttributeByKey(fragment.attributes, key)
+      if (attribute) {
+        attribute.value = convert(attribute.value)
+        const inlineStyles = getStyles(attribute.key, attribute.value)
+        appendStyles(fragment.attributes, inlineStyles)
+        removeAttribute(fragment.attributes, key)
+      }
     }
+    transform('padding')
+    transform('margin')
   }
 
   run () {}
 }
 
-module.exports = PaddingPlugin
+module.exports = BoxModelPlugin
