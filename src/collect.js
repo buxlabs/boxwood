@@ -154,16 +154,14 @@ function convertValueToNode (value, variables) {
 
 function resolveComponent (tree, component, fragment, components, plugins, statistics, errors, options) {
   const localVariables = fragment.attributes
+  localVariables.forEach(variable => {
+    if (variable.value === null) { variable.value = '{true}' }
+  })
 
   let content
   const htmlComponent = new Component(component.content, localVariables)
-  try {
-    htmlComponent.optimize()
-    content = htmlComponent.source
-  } catch (exception) {
-    // TODO handle expception, add extra specs
-    content = component.content
-  }
+  htmlComponent.optimize()
+  content = htmlComponent.source
 
   const htmlTree = parse(content)
   let children = fragment.children
@@ -184,7 +182,6 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
       })
       if (leaf.type === 'text') {
         localVariables.forEach(variable => {
-          if (variable.value === null) { variable.value = '{true}' }
           if (!isCurlyTag(variable.value)) {
             leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
           }

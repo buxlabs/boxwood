@@ -11,6 +11,8 @@ const { isCurlyTag, getExpressionFromCurlyTag, curlyTag } = require('../string')
 const parse = require('../html/parse')
 const stringify = require('../html/stringify')
 const walk = require('himalaya-walk')
+const { placeholderName, addPlaceholders } = require('../keywords')
+const { RESERVED_KEYWORDS } = require('../enum')
 
 function canInlineTree ({ body }) {
   const statement = body[0]
@@ -74,7 +76,21 @@ function falsyCodeRemoval (node) {
 }
 
 function optimizeCurlyTag (value, variables) {
+  value = addPlaceholders(value)
   const tree = new AbstractSyntaxTree(value)
+  // TODO: unify same thing is done in convert.js
+  tree.replace({
+    enter: node => {
+      if (node.type === 'Identifier') {
+        RESERVED_KEYWORDS.forEach(keyword => {
+          if (node.name === placeholderName(keyword)) {
+            node.name = keyword
+          }
+        })
+      }
+      return node
+    }
+  })
   tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables) })
   tree.replace({ enter: memberExpressionReduction })
   tree.replace({ enter: logicalExpressionReduction })
@@ -114,6 +130,7 @@ function curlyTagReduction (string, variables) {
 }
 
 function optimizeText (text, variables) {
+  if (!text) return text
   let tokens = lexer(text)
   tokens = tokens.map(token => {
     if (token.type === 'expression') {
