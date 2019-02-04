@@ -1,5 +1,4 @@
 const curlyTagReduction = require('./curlyTagReduction')
-const htmlTagRemoval = require('./htmlTagRemoval')
 
 class Component {
   constructor (source, variables) {
@@ -9,7 +8,6 @@ class Component {
 
   optimize () {
     this.source = curlyTagReduction(this.source, this.variables)
-    this.source = htmlTagRemoval(this.source, this.variables)
   }
 }
 

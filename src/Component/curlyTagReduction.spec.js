@@ -26,6 +26,7 @@ assert.deepEqual(curlyTagReduction('{foo}', [{ key: 'foo', value: '{foo[bar]}' }
 assert.deepEqual(curlyTagReduction('{foo || ""}', [{ key: 'foo', value: '{foo[bar]}' }]), '{foo[bar] || ""}')
 assert.deepEqual(curlyTagReduction('{foo || "bar"}', [{ key: 'foo', value: '{foo[bar]}' }]), '{foo[bar] || "bar"}')
 
+// TODO: Ensure that is needed
 assert.deepEqual(curlyTagReduction('{foo}', [{ key: 'foo', value: '{true}' }]), '{true}')
 assert.deepEqual(curlyTagReduction('{foo || ""}', [{ key: 'foo', value: '{true}' }]), '{true}')
 assert.deepEqual(curlyTagReduction('{foo || "bar"}', [{ key: 'foo', value: '{true}' }]), '{true}')
@@ -33,3 +34,11 @@ assert.deepEqual(curlyTagReduction('{foo || "bar"}', [{ key: 'foo', value: '{tru
 assert.deepEqual(curlyTagReduction('{foo}', [{ key: 'foo', value: '{false}' }]), '{false}')
 assert.deepEqual(curlyTagReduction('{foo || ""}', [{ key: 'foo', value: '{false}' }]), '')
 assert.deepEqual(curlyTagReduction('{foo || "bar"}', [{ key: 'foo', value: '{false}' }]), 'bar')
+
+assert.deepEqual(curlyTagReduction('{foo}{bar}', []), '')
+assert.deepEqual(curlyTagReduction('{foo} {bar}', []), ' ')
+
+// TODO: Optimize and remove empty class attribute.
+assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', []), `<div class=''></div>`)
+
+assert.deepEqual(curlyTagReduction('<style>.foo { color: red }</style>', []), `<style>.foo { color: red }</style>`)

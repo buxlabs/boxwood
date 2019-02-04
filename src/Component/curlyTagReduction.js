@@ -7,7 +7,10 @@ const {
   memberExpressionReduction,
   ifStatementRemoval
 } = require('astoptech')
-const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
+const { isCurlyTag, getExpressionFromCurlyTag, curlyTag } = require('../string')
+const parse = require('../html/parse')
+const stringify = require('../html/stringify')
+const walk = require('himalaya-walk')
 
 function canInlineTree ({ body }) {
   const statement = body[0]
@@ -70,8 +73,8 @@ function falsyCodeRemoval (node) {
   return node
 }
 
-function optimizeExpressionToken (token, variables) {
-  const tree = new AbstractSyntaxTree(token.value)
+function optimizeCurlyTag (value, variables) {
+  const tree = new AbstractSyntaxTree(value)
   tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables) })
   tree.replace({ enter: memberExpressionReduction })
   tree.replace({ enter: logicalExpressionReduction })
@@ -79,43 +82,46 @@ function optimizeExpressionToken (token, variables) {
   tree.replace({ enter: ternaryOperatorReduction })
   tree.replace({ enter: ifStatementRemoval })
   tree.replace({ enter: falsyCodeRemoval })
-
   if (canInlineTree(tree)) {
-    token.type = 'text'
-    token.value = tree.body[0].expression.value
+    const { value } = tree.body[0].expression
+    return value
   } else if (!tree.source) {
-    return null
-  } else {
-    const value = tree.source.replace(/;\n$/, '')
-    token.value = `${value}`
+    return ''
   }
-  return token
+  return curlyTag(tree.source.replace(/;\n$/, ''))
 }
 
+const FORBIDDEN_TAGS = ['template', 'script', 'style']
 function curlyTagReduction (string, variables) {
-  const tokens = lexer(string)
+  const tree = parse(string)
+  walk(tree, node => {
+    if (node.forbidden) return
+    const { attributes } = node
+    if (FORBIDDEN_TAGS.includes(node.tagName)) {
+      node.children.forEach(node => {
+        node.forbidden = true
+      })
+    }
+    if (node.type === 'text') {
+      node.content = optimizeText(node.content, variables)
+    } else if (attributes && attributes.length > 0) {
+      attributes.forEach(attribute => {
+        attribute.value = optimizeText(attribute.value, variables)
+      })
+    }
+  })
+  return stringify(tree, string)
+}
 
-  // TODO this might break tags on e.g.
-  // <style>.foo{color:red}</style>
-  // <script>const foo = {}</script>
-  // etc.
-  // we might need to traverse through the tree instead of
-  // relying on the lexer only
-  return tokens
-    .map(token => {
-      if (token.type === 'expression') {
-        return optimizeExpressionToken(token, variables)
-      }
-      return token
-    })
-    .filter(Boolean)
-    .map(token => {
-      if (token.type === 'expression') {
-        return `{${token.value}}`
-      }
-      return token.value
-    })
-    .join('')
+function optimizeText (text, variables) {
+  let tokens = lexer(text)
+  tokens = tokens.map(token => {
+    if (token.type === 'expression') {
+      token.value = optimizeCurlyTag(token.value, variables)
+    }
+    return token
+  })
+  return tokens.map(token => token.value).join('')
 }
 
 module.exports = curlyTagReduction

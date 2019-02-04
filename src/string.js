@@ -1,6 +1,10 @@
 const { ltrim } = require('pure-utilities/string')
 const lexer = require('./lexer')
 
+function curlyTag (string) {
+  return `{${string}}`
+}
+
 function isCurlyTag (value) {
   return value && value.startsWith('{') && value.endsWith('}')
 }
@@ -55,4 +59,4 @@ function getName (name) {
   return name
 }
 
-module.exports = {extract, extractValues, getName, isCurlyTag, getExpressionFromCurlyTag}
+module.exports = {extract, extractValues, getName, isCurlyTag, getExpressionFromCurlyTag, curlyTag}
