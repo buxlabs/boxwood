@@ -352,7 +352,7 @@ test('import: same component in different files', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/layouts') ]
   })
-  assert.deepEqual(template({}, escape), '<body><main><ul class=""><li>foo</li></ul></main><footer><ul class="horizontal"><li>bar</li></ul></footer></body>')
+  assert.deepEqual(template({}, escape), '<body><main><ul><li>foo</li></ul></main><footer><ul class="horizontal"><li>bar</li></ul></footer></body>')
 })
 
 test('import: same component in two components', async assert => {
@@ -436,7 +436,7 @@ test('import: self closing component', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
-  assert.deepEqual(template({}, escape), '<input type="text" placeholder="" id="" name="" maxlength="30">')
+  assert.deepEqual(template({}, escape), '<input type="text" maxlength="30">')
 
   template = await compile(`
     <import input from='./input.html'>
@@ -445,7 +445,7 @@ test('import: self closing component', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
-  assert.deepEqual(template({}, escape), '<div><input type="text" placeholder="" id="" name="" maxlength="30"></div><div>foo</div>')
+  assert.deepEqual(template({}, escape), '<div><input type="text" maxlength="30"></div><div>foo</div>')
 
   template = await compile(`
     <import header from='./header2.html'>
@@ -464,7 +464,7 @@ test('import: self closing component', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
-  assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" placeholder="" id="" name="" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
+  assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
 })
 
 test('import: self closing component for the require tag', async assert => {
@@ -475,7 +475,7 @@ test('import: self closing component for the require tag', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
-  assert.deepEqual(template({}, escape), '<input type="text" placeholder="" id="" name="" maxlength="30">')
+  assert.deepEqual(template({}, escape), '<input type="text" maxlength="30">')
 
   template = await compile(`
     <require input from='./input.html'>
@@ -484,7 +484,7 @@ test('import: self closing component for the require tag', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
-  assert.deepEqual(template({}, escape), '<div><input type="text" placeholder="" id="" name="" maxlength="30"></div><div>foo</div>')
+  assert.deepEqual(template({}, escape), '<div><input type="text" maxlength="30"></div><div>foo</div>')
 
   template = await compile(`
     <require header from='./header2.html'>
@@ -503,7 +503,7 @@ test('import: self closing component for the require tag', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import') ]
   })
-  assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" placeholder="" id="" name="" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
+  assert.deepEqual(template({}, escape), '<header><div><label class="ui label">foo</label><input type="text" maxlength="30"></div><div><label class="ui label">bar</label>baz</div></header>')
 })
 
 test('import: inlined values should not propagate to imported components', async assert => {
@@ -516,7 +516,7 @@ test('import: inlined values should not propagate to imported components', async
   `, {
     paths: [ path.join(__dirname, '../../fixtures/attributes') ]
   })
-  assert.deepEqual(template({}, escape), '<div class="foo"><div class="">baz</div></div>')
+  assert.deepEqual(template({}, escape), '<div class="foo"><div>baz</div></div>')
 })
 
 test('import: passing variables to components with different name', async assert => {

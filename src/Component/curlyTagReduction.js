@@ -124,6 +124,7 @@ function curlyTagReduction (string, variables) {
       attributes.forEach(attribute => {
         attribute.value = optimizeText(attribute.value, variables)
       })
+      node.attributes = attributes.filter(attribute => attribute.value !== '')
     }
   })
   return stringify(tree, string)

@@ -38,7 +38,10 @@ assert.deepEqual(curlyTagReduction('{foo || "bar"}', [{ key: 'foo', value: '{fal
 assert.deepEqual(curlyTagReduction('{foo}{bar}', []), '')
 assert.deepEqual(curlyTagReduction('{foo} {bar}', []), ' ')
 
-// TODO: Optimize and remove empty class attribute.
-assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', []), `<div class=''></div>`)
+assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', []), `<div></div>`)
+assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: '' }]), `<div></div>`)
+assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: '  ' }]), `<div class='  '></div>`)
+assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: undefined }]), `<div class='{undefined}'></div>`)
+assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: null }]), `<div class='{null}'></div>`)
 
 assert.deepEqual(curlyTagReduction('<style>.foo { color: red }</style>', []), `<style>.foo { color: red }</style>`)
