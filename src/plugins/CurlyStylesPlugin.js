@@ -1,7 +1,7 @@
 const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
 const serialize = require('asttv')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { flatten } = require('pure-utilities/object')
+const { flatten } = require('pure-utilities/collection')
 const Plugin = require('./Plugin')
 
 function dasherize (string) {
