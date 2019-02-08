@@ -530,4 +530,16 @@ test('filters', async assert => {
 
   template = await compile(`{foo | append(4, 5, 6) | last}`)
   assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '6')
+
+  template = await compile('{foo | flatten | size}')
+  assert.deepEqual(template({ foo: [1, [2, [3, [4]], 5]] }, escape), '5')
+
+  template = await compile('{foo | pluck("name") | first}')
+  assert.deepEqual(template({ foo: [{ name: 'baz' }, { name: 'ban' }] }, escape), 'baz')
+
+  template = await compile('{foo | merge({ b: 2 }) | keys}')
+  assert.deepEqual(template({ foo: { a: 1 } }, escape), 'a,b')
+
+  template = await compile('{foo | clone | keys}')
+  assert.deepEqual(template({ foo: { a: 1 } }, escape), 'a')
 })
