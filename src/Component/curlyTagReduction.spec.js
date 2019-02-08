@@ -43,6 +43,6 @@ assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', v
 assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: '  ' }]), `<div class='  '></div>`)
 assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: undefined }]), `<div class='{undefined}'></div>`)
 assert.deepEqual(curlyTagReduction('<div class="{foo}"></div>', [{ key: 'foo', value: null }]), `<div class='{null}'></div>`)
-assert.deepEqual(curlyTagReduction('<div padding="{{bottom:30}}"></div>', []), `<div padding=\'{({\n  bottom: 30\n})}\'></div>`)
+assert.deepEqual(curlyTagReduction('<div padding="{{bottom:30}}"></div>', []), `<div padding='{({\n  bottom: 30\n})}'></div>`)
 
 assert.deepEqual(curlyTagReduction('<style>.foo { color: red }</style>', []), `<style>.foo { color: red }</style>`)
