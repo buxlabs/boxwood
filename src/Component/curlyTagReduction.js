@@ -25,7 +25,7 @@ function canInlineTree ({ body }) {
 function inlineVariables (node, parent, variables) {
   if (node.inlined) return node
   if (parent.type === 'MemberExpression' && node === parent.property) return node
-
+  if (parent.type === 'Property') return node
   if (node.type === 'Identifier') {
     const variable = variables.find(variable => variable.key === node.name)
     if (variable) {
@@ -68,6 +68,10 @@ function isFalsyNode (node) {
   return isEmptyString(node) || isUndefined(node)
 }
 
+function isObject (value) {
+  return isCurlyTag(value)
+}
+
 function falsyCodeRemoval (node) {
   if (isExpressionStatement(node) && isFalsyNode(node.expression)) {
     return null
@@ -77,6 +81,7 @@ function falsyCodeRemoval (node) {
 
 function optimizeCurlyTag (value, variables) {
   value = addPlaceholders(value)
+  if (isObject(value)) value = `(${value})`
   const tree = new AbstractSyntaxTree(value)
   // TODO: unify same thing is done in convert.js
   tree.replace({
