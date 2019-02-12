@@ -1,13 +1,24 @@
 # pure-engine
 
-> Compile HTML templates into JS
-
 ![npm (scoped)](https://img.shields.io/npm/v/pure-engine.svg)
 [![Codeship Status for buxlabs/pure-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
 
-[REPL](https://buxlabs.pl/en/tools/js/pure-engine)
+> Compile HTML templates into JS
 
-## Description
+## Table of Contents
+
+- [Background](#background)
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+- [Examples](#examples)
+- [Benchmarks](#benchmarks)
+- [REPL](https://buxlabs.pl/en/tools/js/pure-engine)
+- [Maintainers](#maintainers)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Background
 
 Pure Engine is a library designed to compile HTML templates into JS. It analyses the template and generates an optimal rendering function that can be used on the client and the server. The compilation process should ideally happen in a build step (for the client) or the output could be memoized after first usage (for the server).
 
@@ -28,19 +39,27 @@ They can also contain additional filters like `{name | capitalize}`
 
 HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a valid tag. The attribute syntax follows the natural language principles.
 
-## Usage
+## Install
 
 `npm install pure-engine escape-html`
+
+## Usage
 
 ```js
 const { compile } = import 'pure-engine'
 const escape = import 'escape-html'
-// ... later, inside of an async function
-const template = await compile('<div>{foo}</div>')
-expect(template({ foo: 'bar' }, escape)).to.equal('<div>bar</div>')
+
+async function example () {
+  const { template } = await compile('<div>{foo}</div>')
+  console.log(template({ foo: 'bar' }, escape))
+}
+
+example()
 ```
 
-## Features
+If you're using webpack you should use `pure-engine-loader`.
+
+## API
 
 * import and require tags
 
@@ -137,7 +156,7 @@ render(
 ```
 
 
-## Input / Output
+## Examples
 
 ```
 <if foo.length equals 0>{bar}</if>
@@ -194,6 +213,14 @@ handlebars x 1,699,469 ops/sec ±1.12% (85 runs sampled)
 mustache x 447,168 ops/sec ±1.09% (82 runs sampled)
 Fastest is pure-engine
 ```
+
+## Maintainers
+
+[@emilos](https://github.com/emilos), [@pkonieczniak](https://github.com/pkonieczniak).
+
+## Contributing
+
+All contributions are highly appreciated. Please feel free to open new issues and send PRs.
 
 ## License
 
