@@ -79,7 +79,7 @@ function convertAttribute (name, value, variables, currentFilters, translations,
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), filters, translations, languages, translationsPaths)
+      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages, translationsPaths)
     } else {
       const nodes = values.map(({ value, filters = [] }, index) => {
         filters.forEach(filter => currentFilters.push(filter))
@@ -94,9 +94,9 @@ function convertAttribute (name, value, variables, currentFilters, translations,
               }
             })
           }
-          return modify(getTemplateNode(expression, variables, unescape), filters, translations, languages, translationsPaths)
+          return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages, translationsPaths)
         }
-        return modify(getLiteral(value), filters, translations, languages, translationsPaths)
+        return modify(getLiteral(value), variables, filters, translations, languages, translationsPaths)
       })
       const expression = convertToBinaryExpression(nodes)
       return { type: 'ExpressionStatement', expression }
@@ -136,6 +136,71 @@ function convertIdentifier (node, variables) {
   }
 }
 
+function prependObjectVariableToProperty (node, variables) {
+  if (!variables.includes(node.key.name)) {
+    const object = getIdentifier(OBJECT_VARIABLE)
+    object.omit = true
+    node.value = {
+      type: 'MemberExpression',
+      object,
+      property: node.value
+    }
+    node.shorthand = false
+    node.value.omit = true
+    node.value.property.omit = true
+  }
+  return node
+}
+
+function prependObjectVariableToIdentifier (node, variables) {
+  if (!variables.includes(node.name)) {
+    node.omit = true
+    const object = getIdentifier(OBJECT_VARIABLE)
+    object.omit = true
+    node = {
+      type: 'MemberExpression',
+      object,
+      property: node,
+      omit: true
+    }
+  }
+  return node
+}
+
+function isPropertyPrependCandidate (node) {
+  return node.type === 'Property' && node.key === node.value
+}
+
+function isIdentifierPrependCandidate (node) {
+  return node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)
+}
+
+function isMemberExpression (node) {
+  return node.type === 'MemberExpression'
+}
+
+function replaceCandidates (node, parent, variables) {
+  if (isPropertyPrependCandidate(node)) {
+    node = prependObjectVariableToProperty(node, variables)
+  } else if (parent && parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
+    node.omit = true
+  } else if (isMemberExpression(node)) {
+    if (node.property.type === 'Identifier' && !node.computed) node.property.omit = true
+  } else if (isIdentifierPrependCandidate(node)) {
+    node = prependObjectVariableToIdentifier(node, variables)
+  }
+  return node
+}
+
+function prependObjectVariable (expression, variables) {
+  AbstractSyntaxTree.replace(expression, {
+    enter: (node, parent) => {
+      return replaceCandidates(node, parent, variables)
+    }
+  })
+  return expression
+}
+
 function getTemplateNode (expression, variables, unescape) {
   if (expression.type === 'Literal') {
     return expression
@@ -153,41 +218,7 @@ function getTemplateNode (expression, variables, unescape) {
     'LogicalExpression',
     'BinaryExpression'
   ].includes(expression.type)) {
-    AbstractSyntaxTree.replace(expression, {
-      enter: (node, parent) => {
-        if (node.type === 'Property' && node.key === node.value) {
-          if (!variables.includes(node.key.name)) {
-            const object = getIdentifier(OBJECT_VARIABLE)
-            object.omit = true
-            node.value = {
-              type: 'MemberExpression',
-              object,
-              property: node.value
-            }
-            node.shorthand = false
-            node.value.omit = true
-            node.value.property.omit = true
-          }
-        } else if (parent.type === 'Property' && node.type === 'Identifier' && parent.key === node) {
-          node.omit = true
-        } else if (node.type === 'MemberExpression') {
-          if (node.property.type === 'Identifier' && !node.computed) node.property.omit = true
-        } else if (node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)) {
-          if (!variables.includes(node.name)) {
-            node.omit = true
-            const object = getIdentifier(OBJECT_VARIABLE)
-            object.omit = true
-            node = {
-              type: 'MemberExpression',
-              object,
-              property: node,
-              omit: true
-            }
-          }
-        }
-        return node
-      }
-    })
+    expression = prependObjectVariable(expression, variables)
     if (unescape || isBooleanReturnFromExpression(expression)) {
       return expression
     }
@@ -220,7 +251,7 @@ function convertText (text, variables, currentFilters, translations, languages, 
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), filters, translations, languages, translationsPaths)
+      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages, translationsPaths)
     }
     return getLiteral(value)
   })
@@ -231,17 +262,21 @@ function convertText (text, variables, currentFilters, translations, languages, 
   return nodes
 }
 
-function modify (node, filters, translations, languages, translationsPaths) {
+function modify (node, variables, filters, translations, languages, translationsPaths) {
   if (filters) {
     return filters.reduce((leaf, filter) => {
       const tree = new AbstractSyntaxTree(filter)
       const node = tree.body[0].expression
       if (node.type === 'CallExpression') {
+        const name = getFilterName(node.callee.name)
+        node.arguments = node.arguments.map(argument => {
+          return replaceCandidates(argument, null, variables)
+        })
         return {
           type: 'CallExpression',
           callee: {
             type: 'Identifier',
-            name: getFilterName(node.callee.name)
+            name
           },
           arguments: [leaf].concat(node.arguments)
         }
@@ -262,11 +297,12 @@ function modify (node, filters, translations, languages, translationsPaths) {
         }
         args.push(expression)
       }
+      const name = getFilterName(node.name)
       return {
         type: 'CallExpression',
         callee: {
           type: 'Identifier',
-          name: getFilterName(node.name)
+          name
         },
         arguments: args
       }

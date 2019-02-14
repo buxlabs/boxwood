@@ -540,6 +540,13 @@ test('filters', async assert => {
   template = await compile('{foo | merge({ b: 2 }) | keys}')
   assert.deepEqual(template({ foo: { a: 1 } }, escape), 'a,b')
 
+  template = await compile('{foo | merge(bar) | keys}')
+  assert.deepEqual(template({ foo: { a: 1 }, bar: { b: 2 } }, escape), 'a,b')
+
+  // TODO handle nested variables
+  // template = await compile('{foo | merge(bar.baz) | keys}')
+  // assert.deepEqual(template({ foo: { a: 1 }, bar: { baz: { c: 3 } } }, escape), 'a,c')
+
   template = await compile('{foo | clone | keys}')
   assert.deepEqual(template({ foo: { a: 1 } }, escape), 'a')
 })
