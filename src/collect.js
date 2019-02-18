@@ -532,7 +532,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
         })
         content += '>'
         findFile(path, options, location => {
-          content += readFileSync(location, 'utf8')
+          const string = readFileSync(location, 'utf8')
+          content += string.trim()
           statistics.scripts.push({ path: location })
         })
         content += `</script>`
@@ -614,7 +615,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
       const { value: path } = attrs.find(attr => attr.key === 'href')
       let content = '<style>'
       findFile(path, options, location => {
-        content += readFileSync(location, 'utf8')
+        const string = readFileSync(location, 'utf8')
+        content += string.trim()
         statistics.stylesheets.push({ path: location })
       })
       content += '</style>'
@@ -644,7 +646,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
         const { value: path } = attr
         if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
         findFile(path, options, location => {
-          const content = parse(readFileSync(location, 'utf8'))[0]
+          const string = readFileSync(location, 'utf8')
+          const content = parse(string.trim())[0]
           statistics.svgs.push({ path: location })
           fragment.attributes = content.attributes
           fragment.children = content.children
@@ -668,7 +671,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
               if (extensions.includes(extension)) {
                 const path = attr.value
                 findFile(path, options, location => {
-                  const content = readFileSync(location, 'base64')
+                  const string = readFileSync(location, 'base64')
+                  const content = string.trim()
                   statistics.images.push({ path: location })
                   attr.value = `data:image/${extension};base64, ${content}`
                 })

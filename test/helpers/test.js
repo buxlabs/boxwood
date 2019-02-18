@@ -1,15 +1,14 @@
 const ava = require('ava')
-const colors = require('ansi-colors')
 const verbose = process.env.VERBOSE
 
 function test (description, callback) {
   ava(description, async assert => {
     if (verbose) {
-      console.time(colors.yellowBright(description))
+      console.time(description)
     }
     await callback(assert)
     if (verbose) {
-      console.timeEnd(colors.yellowBright(description))
+      console.timeEnd(description)
     }
   })
 }

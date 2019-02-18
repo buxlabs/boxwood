@@ -5,12 +5,12 @@ import escape from 'escape-html'
 
 test('link: inline for css', async assert => {
   const template = await compile(`<link href="./foo.css" inline>`, { paths: [path.join(__dirname, '../../fixtures/stylesheets')] })
-  assert.deepEqual(template({}, escape), '<style>.foo { color: red; }\n</style>')
+  assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
 })
 
 test('link: global inline for css', async assert => {
   const template = await compile(`<link href="./foo.css">`, { paths: [path.join(__dirname, '../../fixtures/stylesheets')], inline: ['stylesheets'] })
-  assert.deepEqual(template({}, escape), '<style>.foo { color: red; }\n</style>')
+  assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
 })
 
 test('link: can be used as a non self closing tag when imported as component', async assert => {

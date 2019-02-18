@@ -35,7 +35,7 @@ test('img: inline for jpg', async assert => {
 
 test('img: inline for svg', async assert => {
   const template = await compile(`<img src='./placeholder.svg' inline>`, { paths: [path.join(__dirname, '../../fixtures/images')] })
-  assert.deepEqual(template({}, escape), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
+  assert.deepEqual(template({}, escape), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+DQo=">`)
 })
 
 test('img: global inline for png', async assert => {
@@ -50,7 +50,7 @@ test('img: global inline for jpg', async assert => {
 
 test('img: global inline for svg', async assert => {
   const template = await compile(`<img src='./placeholder.svg'>`, { paths: [ path.join(__dirname, '../../fixtures/images') ], inline: ['images'] })
-  assert.deepEqual(template({}, escape), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
+  assert.deepEqual(template({}, escape), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+DQo=">`)
 })
 
 test('img: inline throws if there are not paths', async assert => {

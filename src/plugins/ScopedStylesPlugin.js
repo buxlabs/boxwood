@@ -6,8 +6,9 @@ const { extractValues } = require('../string')
 const Plugin = require('./Plugin')
 
 function addScopeToCssSelectors (node, scopes) {
-  const id = `scope-${hash(node.content)}`
-  const tree = parse(node.content)
+  const content = node.content.trim()
+  const id = `scope-${hash(content)}`
+  const tree = parse(content)
   walk(tree, node => {
     if (node.type === 'SelectorList') {
       node.children.forEach(child => {

@@ -20,12 +20,12 @@ test('script: inline functions', async assert => {
 
 test('script: inline for a js file', async assert => {
   const template = await compile(`<script src="./foo.js" inline></script>`, { paths: [path.join(__dirname, '../../../fixtures/scripts')] })
-  assert.deepEqual(template({}, escape), `<script>console.log('foo')\n</script>`)
+  assert.deepEqual(template({}, escape), `<script>console.log('foo')</script>`)
 })
 
 test('script: global inline for a js file', async assert => {
   const template = await compile(`<script src="./foo.js"></script>`, { paths: [path.join(__dirname, '../../../fixtures/scripts')], inline: ['scripts'] })
-  assert.deepEqual(template({}, escape), `<script>console.log('foo')\n</script>`)
+  assert.deepEqual(template({}, escape), `<script>console.log('foo')</script>`)
 })
 
 test('script: inline throws if the file does not exist', async assert => {
