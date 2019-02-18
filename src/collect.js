@@ -32,6 +32,7 @@ const { isCurlyTag, getExpressionFromCurlyTag } = require('./string')
 const { findFile } = require('./files')
 const { wordsToNumbers } = require('words-to-numbers')
 const Component = require('./Component')
+const normalizeNewline = require('normalize-newline')
 let asyncCounter = 0
 
 function getFreeIdentifier (variables) {
@@ -672,7 +673,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
                 const path = attr.value
                 findFile(path, options, location => {
                   const string = readFileSync(location, 'base64')
-                  const content = string.trim()
+                  const content = normalizeNewline(string).trim()
                   statistics.images.push({ path: location })
                   attr.value = `data:image/${extension};base64, ${content}`
                 })

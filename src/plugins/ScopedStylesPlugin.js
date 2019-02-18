@@ -4,9 +4,10 @@ const { isCurlyTag } = require('../string')
 const { unique } = require('pure-utilities/array')
 const { extractValues } = require('../string')
 const Plugin = require('./Plugin')
+const normalize = require('normalize-newline')
 
 function addScopeToCssSelectors (node, scopes) {
-  const content = node.content.trim()
+  const content = normalize(node.content).trim()
   const id = `scope-${hash(content)}`
   const tree = parse(content)
   walk(tree, node => {

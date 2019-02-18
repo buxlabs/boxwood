@@ -425,7 +425,7 @@ test('import: component with scoped styles', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/import/style') ]
   })
-  assert.deepEqual(template({}, escape), '<button class="scope-475421227 block button">Send</button><style>.scope-475421227.button{cursor:pointer}</style>')
+  assert.deepEqual(template({}, escape), '<button class="scope-2412184555 block button">Send</button><style>.scope-2412184555.button{cursor:pointer}</style>')
 })
 
 test('import: self closing component', async assert => {

@@ -53,6 +53,7 @@
     "himalaya-walk": "^1.0.0",
     "image-size": "^0.6.3",
     "negate-sentence": "^0.1.2",
+    "normalize-newline": "^3.0.0",
     "pure-conditions": "^0.1.9",
     "pure-utilities": "^1.1.10",
     "string-hash": "^1.1.3",
