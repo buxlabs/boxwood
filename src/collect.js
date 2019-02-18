@@ -648,7 +648,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
         findFile(path, options, location => {
           const string = readFileSync(location, 'utf8')
-          const content = parse(string.trim())[0]
+          const content = parse(normalizeNewline(string).trim())[0]
           statistics.svgs.push({ path: location })
           fragment.attributes = content.attributes
           fragment.children = content.children
