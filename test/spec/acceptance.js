@@ -21,6 +21,10 @@ test('acceptance: components-with-box-model-attributes', async assert => {
   await suite('components-with-box-model-attributes', assert)
 })
 
+test('acceptance: scoped-styles-are-not-shared', async assert => {
+  await suite('scoped-styles-are-not-shared', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

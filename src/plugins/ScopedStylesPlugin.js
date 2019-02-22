@@ -46,8 +46,7 @@ function addScopeToHtmlTags (attributes, scopes) {
 }
 
 class ScopedStylesPlugin extends Plugin {
-  constructor () {
-    super()
+  beforeprerun () {
     this.scopes = []
   }
   prerun ({ tag, keys, children }) {
@@ -59,6 +58,9 @@ class ScopedStylesPlugin extends Plugin {
     if (this.scopes.length > 0 && keys && keys.includes('class')) {
       addScopeToHtmlTags(attributes, this.scopes)
     }
+  }
+  afterrun () {
+    this.scopes = []
   }
 }
 
