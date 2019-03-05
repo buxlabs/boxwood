@@ -57,7 +57,7 @@ async function example () {
 example()
 ```
 
-If you're using webpack you should use `pure-engine-loader`.
+If you're using webpack you should use [pure-engine-loader](https://github.com/buxlabs/pure-engine-loader).
 
 ## API
 
@@ -65,9 +65,7 @@ If you're using webpack you should use `pure-engine-loader`.
 
 ```html
 <import layout from="./layouts/default.html">
-<import form from="./components/form.html">
-<import input from="./components/input.html">
-<import button from="./components/button.html">
+<import { form, input, button } from="./components">
 
 <layout>
   <h1>Hello, world!</h1>
@@ -77,6 +75,8 @@ If you're using webpack you should use `pure-engine-loader`.
   </form>
 </layout>
 ```
+
+It's possible to import multiple components from a given directory. Curly brackets within the import tag are optional.
 
 * render, partial and include tags
 

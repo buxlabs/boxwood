@@ -25,6 +25,10 @@ test('acceptance: scoped-styles-are-not-shared', async assert => {
   await suite('scoped-styles-are-not-shared', assert)
 })
 
+test('acceptance: import-multiple-components', async assert => {
+  await suite('import-multiple-components', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

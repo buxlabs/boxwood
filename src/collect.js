@@ -22,7 +22,7 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync } = require('fs')
-const { dirname } = require('path')
+const { join, dirname } = require('path')
 const parse = require('./html/parse')
 const size = require('image-size')
 const { normalize } = require('./array')
@@ -30,6 +30,7 @@ const { clone } = require('./object')
 const { placeholderName, addPlaceholders } = require('./keywords')
 const { isCurlyTag, getExpressionFromCurlyTag } = require('./string')
 const { findFile } = require('./files')
+const { extractComponentNames } = require('./extract')
 const { wordsToNumbers } = require('words-to-numbers')
 const Component = require('./Component')
 const normalizeNewline = require('normalize-newline')
@@ -69,8 +70,22 @@ function setDimension (fragment, attrs, keys, statistics, dimension, options) {
 
 function collectComponentsFromImport (fragment, statistics, components, component, options) {
   const attrs = fragment.attributes
-  const name = attrs[0].key
-  const path = attrs[1].value
+  const names = extractComponentNames(attrs)
+  if (names.length === 1) {
+    const name = names[0]
+    const path = attrs[1].value
+    collectComponent(name, path, statistics, components, component, options)
+  } else {
+    const lastAttribute = attrs[attrs.length - 1]
+    const dir = lastAttribute.value
+    names.forEach(name => {
+      const path = join(dir, `${name}.html`)
+      collectComponent(name, path, statistics, components, component, options)
+    })
+  }
+}
+
+function collectComponent (name, path, statistics, components, component, options) {
   let paths = []
   if (options.paths) {
     paths = paths.concat(options.paths)

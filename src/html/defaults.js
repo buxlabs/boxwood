@@ -1,5 +1,6 @@
 const { parse, parseDefaults } = require('himalaya')
 const { VOID_TAGS } = require('../enum')
+const { extractComponentNames } = require('../extract')
 const walk = require('himalaya-walk')
 
 function matchImportTags (source) {
@@ -12,27 +13,13 @@ function getImportTags (source) {
   return imports.join('')
 }
 
-function getTags (attributes) {
-  const { key } = attributes[0]
-  // TODO support other syntax, e.g.
-  // <import foo,bar from="./components" />
-  // <import foo, bar from="./components" />
-  // <import {foo,bar} from="./components" />
-  // <import { foo,bar} from="./components" />
-  // <import {foo,bar } from="./components" />
-  // <import { foo,bar } from="./components" />
-  // <import { foo, bar } from="./components" />
-  // <import { foo , bar } from="./components" />
-  return [key]
-}
-
 function deduceVoidTags (source) {
   const tags = []
   const imports = getImportTags(source)
   const tree = parse(imports)
   walk(tree, node => {
     if (node.tagName === 'import' || node.tagName === 'require') {
-      getTags(node.attributes).forEach(tag => {
+      extractComponentNames(node.attributes).forEach(tag => {
         tags.push(tag)
       })
     }

@@ -546,3 +546,87 @@ test('import: passing objects with same name', async assert => {
   })
   assert.deepEqual(template({ bar: { qux: 'quux' } }, escape), '<div class="quux"></div>')
 })
+
+test('import: importing multiple components within one import tag', async assert => {
+  let template
+
+  template = await compile(`<import { foo, bar } from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import {foo, bar} from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import {foo,bar} from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import foo,bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import foo, bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import foo ,bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import foo , bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<import { baz, qux } from="./components"><baz /><qux />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'bazqux')
+
+  template = await compile(`<require { foo, bar } from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require {foo, bar} from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require {foo,bar} from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require foo,bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require foo, bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require foo ,bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require foo , bar from="."><foo /><bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foobar')
+
+  template = await compile(`<require { baz, qux } from="./components"><baz /><qux />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'bazqux')
+})
