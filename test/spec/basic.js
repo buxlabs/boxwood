@@ -493,3 +493,27 @@ test('basic', async assert => {
   template = await compile('<img src="./placeholder.png">')
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img src="./placeholder.png">')
 })
+
+test('removes unnecessary whitespace', async function (assert) {
+  let template = await compile(`
+    <template foo>
+      <div class="{ color || '' } { size || '' }"></div>
+    </template>
+    <foo/>
+  `)
+  assert.deepEqual(template({}, escape), '<div></div>')
+
+  template = await compile(`
+    <template foo>
+      <div class="
+        { color || '' } 
+        { size || '' } 
+        { width || ''}
+      "></div>
+    </template>
+    <foo color="{color}" size="{size}"/>
+  `)
+  assert.deepEqual(template({}, escape), '<div class=" "></div>')
+  assert.deepEqual(template({ color: 'white' }, escape), '<div class="white "></div>')
+  assert.deepEqual(template({ color: 'white', size: 'big' }, escape), '<div class="white big"></div>')
+})

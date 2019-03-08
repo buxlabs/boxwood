@@ -198,7 +198,7 @@ test('import', async assert => {
      <section class="  "></section>
   `, { paths: [ path.join(__dirname, '../../fixtures/import') ] }
   )
-  assert.deepEqual(template({}, escape), `<section class="black big rounded"></section><section class="  "></section>`)
+  assert.deepEqual(template({}, escape), `<section class="black big rounded"></section><section></section>`)
 
   template = await compile(`
     <import layout from="./blank1.html">

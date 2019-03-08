@@ -144,7 +144,12 @@ function optimizeText (text, variables) {
     }
     return token
   })
-  return tokens.map(token => token.value).join('')
+  const value = tokens.map(token => token.value).join('')
+  return optimizeWhitespace(value)
+}
+
+function optimizeWhitespace (text) {
+  return text.trim().replace(/\s\s+/, ' ')
 }
 
 module.exports = curlyTagReduction
