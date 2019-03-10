@@ -1,5 +1,6 @@
 import test from '../../helpers/test'
 import compile from '../../helpers/compile'
+import { join } from 'path'
 import escape from 'escape-html'
 
 test('style[scoped]: first tag', async assert => {
@@ -42,4 +43,18 @@ test('style[scoped]: type selectors', async assert => {
     <style scoped>a.foo::after{content:"⤴"}</style>
   `)
   assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>a.scope-504633481.foo::after{content:"⤴"}</style>')
+})
+
+test('style[inline]: inline fonts', async assert => {
+  const template = await compile(`
+    <style inline>
+      @font-face {
+        font-family: 'Example';
+        src: local('Example Regular'), local('Example-Regular'), url(./fonts/Example.ttf) format('ttf');
+      }
+    </style>
+  `, {
+    paths: [ join(__dirname, '../../fixtures') ]
+  })
+  assert.truthy(template({}, escape).includes('EABQAlACkAMQHiAeM=) format(\'ttf\')'))
 })

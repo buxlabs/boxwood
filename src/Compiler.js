@@ -13,6 +13,7 @@ const CurlyStylesPlugin = require('./plugins/CurlyStylesPlugin')
 const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
 const InternationalizationPlugin = require('./plugins/InternationalizationPlugin')
 const BoxModelPlugin = require('./plugins/BoxModelPlugin')
+const InlinePlugin = require('./plugins/InlinePlugin')
 
 async function render (htmltree, options) {
   if (!htmltree) { return null }
@@ -30,6 +31,7 @@ async function render (htmltree, options) {
   const promises = []
   const errors = []
   const plugins = [
+    new InlinePlugin(),
     new BoxModelPlugin(),
     new CurlyStylesPlugin(),
     new ScopedStylesPlugin(),
