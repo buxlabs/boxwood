@@ -50,7 +50,7 @@ test('style[inline]: inline fonts', async assert => {
     <style inline>
       @font-face {
         font-family: 'Example';
-        src: local('Example Regular'), local('Example-Regular'), url(./fonts/Example.ttf) format('ttf');
+        src: local('Example Regular'), local('Example-Regular'), url(./fonts/Example.ttf) format('truetype');
       }
     </style>
   `, {
@@ -58,5 +58,5 @@ test('style[inline]: inline fonts', async assert => {
   })
   const output = template({}, escape)
   assert.truthy(output.includes('url(data:application/font-ttf;charset=utf-8;base64'))
-  assert.truthy(output.includes('EABQAlACkAMQHiAeM=) format(\'ttf\')'))
+  assert.truthy(output.includes('EABQAlACkAMQHiAeM=) format(\'truetype\')'))
 })
