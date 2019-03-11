@@ -23,7 +23,7 @@ class InlinePlugin extends Plugin {
               const parts = path.split('.')
               const extension = parts[parts.length - 1]
               const content = readFileSync(path, 'base64')
-              node.value.value = `data:application/${extension};charset=utf-8;base64,${content}`
+              node.value.value = `data:application/font-${extension};charset=utf-8;base64,${content}`
             })
           }
         }

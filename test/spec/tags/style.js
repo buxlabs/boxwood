@@ -56,5 +56,7 @@ test('style[inline]: inline fonts', async assert => {
   `, {
     paths: [ join(__dirname, '../../fixtures') ]
   })
-  assert.truthy(template({}, escape).includes('EABQAlACkAMQHiAeM=) format(\'ttf\')'))
+  const output = template({}, escape)
+  assert.truthy(output.includes('url(data:application/font-ttf;charset=utf-8;base64'))
+  assert.truthy(output.includes('EABQAlACkAMQHiAeM=) format(\'ttf\')'))
 })
