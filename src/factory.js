@@ -172,5 +172,27 @@ module.exports = {
         getObjectMemberExpression('language')
       ]
     }
+  },
+  getTryStatement (body) {
+    return {
+      type: 'TryStatement',
+      block: {
+        type: 'BlockStatement',
+        body
+      }
+    }
+  },
+  getCatchClause (body) {
+    return {
+      type: 'CatchClause',
+      param: {
+        type: 'Identifier',
+        name: 'exception'
+      },
+      body: {
+        type: 'BlockStatement',
+        body
+      }
+    }
   }
 }

@@ -1,19 +1,8 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const {
-  getIdentifier,
-  getLiteral,
-  getTemplateAssignmentExpression,
-  getObjectMemberExpression,
-  getTemplateVariableDeclaration
-} = require('./factory')
-const {
-  convertText,
-  convertTag,
-  convertToExpression,
-  convertKey
-} = require('./convert')
+const { getIdentifier, getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
+const { convertText, convertTag, convertToExpression, convertKey } = require('./convert')
 const walk = require('himalaya-walk')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE, TEMPLATE_VARIABLE } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
 const { getAction } = require('./action')
 const { readFileSync } = require('fs')
 const { join, dirname } = require('path')
@@ -29,6 +18,8 @@ const { wordsToNumbers } = require('words-to-numbers')
 const Component = require('./Component')
 const foreachTag = require('./tags/foreach')
 const forTag = require('./tags/for')
+const tryTag = require('./tags/try')
+const catchTag = require('./tags/catch')
 const normalizeNewline = require('normalize-newline')
 let asyncCounter = 0
 
@@ -778,37 +769,9 @@ async function collect (tree, fragment, variables, filters, components, statisti
       collectChildren(fragment, ast)
       ast.body.forEach(node => tree.append(node))
     } else if (tag === 'try') {
-      const ast = new AbstractSyntaxTree('')
-      const variable = `_${TEMPLATE_VARIABLE}`
-      ast.append(getTemplateVariableDeclaration(variable))
-      options.variables.template = variable
-      collectChildren(fragment, ast)
-      ast.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, { type: 'Identifier', name: variable }))
-      options.variables.template = TEMPLATE_VARIABLE
-      tree.append({
-        type: 'TryStatement',
-        block: {
-          type: 'BlockStatement',
-          body: ast.body
-        }
-      })
+      tryTag({ fragment, tree, options, collectChildren })
     } else if (tag === 'catch') {
-      const leaf = tree.last('TryStatement')
-      if (leaf) {
-        const ast = new AbstractSyntaxTree('')
-        collectChildren(fragment, ast)
-        leaf.handler = {
-          type: 'CatchClause',
-          param: {
-            type: 'Identifier',
-            name: 'exception'
-          },
-          body: {
-            type: 'BlockStatement',
-            body: ast.body
-          }
-        }
-      }
+      catchTag({ fragment, tree, collectChildren })
     } else if (tag === 'unless') {
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
