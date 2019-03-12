@@ -1,20 +1,14 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { array } = require('pure-utilities')
 const {
   getIdentifier,
   getLiteral,
   getTemplateAssignmentExpression,
   getObjectMemberExpression,
-  getForLoop,
-  getForLoopVariable,
-  getForInLoop,
-  getForInLoopVariable,
   getTemplateVariableDeclaration
 } = require('./factory')
 const {
   convertText,
   convertTag,
-  convertAttribute,
   convertToExpression,
   convertKey
 } = require('./convert')
@@ -33,12 +27,10 @@ const { findFile } = require('./files')
 const { extractComponentNames } = require('./extract')
 const { wordsToNumbers } = require('words-to-numbers')
 const Component = require('./Component')
+const foreachTag = require('./tags/foreach')
+const forTag = require('./tags/for')
 const normalizeNewline = require('normalize-newline')
 let asyncCounter = 0
-
-function getFreeIdentifier (variables) {
-  return array.identifier(variables)
-}
 
 function findActions (attributes) {
   return attributes
@@ -780,53 +772,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         }
       }
     } else if (tag === 'for') {
-      if (attrs.length <= 3) {
-        const ast = new AbstractSyntaxTree('')
-        const [left, operator, right] = attrs
-        let range
-        if (right && right.key === 'range' && right.value) {
-          if (right.value.includes('...')) {
-            range = right.value.split('...').map(Number)
-          } else if (right.value.includes('..')) {
-            range = right.value.split('..').map(Number)
-            range[1] += 1
-          } else {
-            range = [0, Number(right.value) + 1]
-          }
-        }
-        const variable = left.key
-        let parent = operator.value || `{${right.key}}`
-        const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
-
-        variables.push(variable)
-        parent = parent.substring(1, parent.length - 1) // TODO: Handle nested properties
-        const index = getFreeIdentifier(variables.concat(parent))
-        variables.push(index)
-        const guard = getFreeIdentifier(variables.concat(parent))
-        variables.push(guard)
-        ast.append(getForLoopVariable(variable, name, variables, index, range))
-        collectChildren(fragment, ast)
-        tree.append(getForLoop(name, ast.body, variables, index, guard, range))
-        variables.pop()
-        variables.pop()
-        variables.pop()
-      } else if (attrs.length <= 5) {
-        const ast = new AbstractSyntaxTree('')
-        const [key, , value, operator, right] = attrs
-        const keyIdentifier = key.key
-        const valueIdentifier = value.key
-        variables.push(keyIdentifier)
-        variables.push(valueIdentifier)
-
-        let parent = operator.value || `{${right.key}}`
-        const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
-        ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
-
-        collectChildren(fragment, ast)
-        tree.append(getForInLoop(keyIdentifier, name, ast.body))
-        variables.pop()
-        variables.pop()
-      }
+      forTag({ fragment, tree, attrs, variables, translations, languages, translationsPaths, collectChildren })
     } else if (tag === 'slot' || tag === 'yield') {
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
@@ -954,66 +900,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
         })
       }
     } else if (tag === 'foreach' || tag === 'each') {
-      const ast = new AbstractSyntaxTree('')
-      let left, right, key, value
-
-      if (attrs.length === 3) {
-        [left, , right] = attrs
-      } else if (attrs.length === 5) {
-        [key, , value, , right] = attrs
-      }
-
-      if (left) {
-        variables.push(left.key)
-      } else if (key && value) {
-        variables.push(key.key)
-        variables.push(value.key)
-      }
-      collectChildren(fragment, ast)
-      if (left) {
-        variables.pop()
-      } else if (key && value) {
-        variables.pop()
-        variables.pop()
-      }
-      tree.append({
-        type: 'ExpressionStatement',
-        expression: {
-          type: 'CallExpression',
-          callee: {
-            type: 'MemberExpression',
-            object: convertKey(right.key, variables),
-            property: {
-              type: 'Identifier',
-              name: tag === 'foreach' ? 'forEach' : 'each'
-            },
-            computed: false
-          },
-          arguments: [
-            {
-              type: 'FunctionExpression',
-              params: [
-                left ? {
-                  type: 'Identifier',
-                  name: left.key
-                } : null,
-                key ? {
-                  type: 'Identifier',
-                  name: key.key
-                } : null,
-                value ? {
-                  type: 'Identifier',
-                  name: value.key
-                } : null
-              ].filter(Boolean),
-              body: {
-                type: 'BlockStatement',
-                body: ast.body
-              }
-            }
-          ]
-        }
-      })
+      foreachTag({ fragment, tree, variables, attrs, collectChildren })
     } else if (tag === 'import' || tag === 'require') {
       collectComponentsFromImport(fragment, statistics, components, null, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
