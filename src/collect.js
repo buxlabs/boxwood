@@ -1,9 +1,8 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getIdentifier, getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
-const { convertText, convertTag, convertToExpression, convertKey } = require('./convert')
+const { getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
+const { convertText, convertTag, convertToExpression } = require('./convert')
 const walk = require('himalaya-walk')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OPERATORS, OBJECT_VARIABLE } = require('./enum')
-const { getAction } = require('./action')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OBJECT_VARIABLE } = require('./enum')
 const { readFileSync } = require('fs')
 const { join, dirname } = require('path')
 const parse = require('./html/parse')
@@ -11,26 +10,21 @@ const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { placeholderName, addPlaceholders } = require('./keywords')
-const { isCurlyTag, getExpressionFromCurlyTag } = require('./string')
+const { isCurlyTag } = require('./string')
 const { findFile } = require('./files')
 const { extractComponentNames } = require('./extract')
-const { wordsToNumbers } = require('words-to-numbers')
 const Component = require('./Component')
 const foreachTag = require('./tags/foreach')
 const forTag = require('./tags/for')
 const tryTag = require('./tags/try')
 const catchTag = require('./tags/catch')
+const unlessTag = require('./tags/unless')
+const elseunlessTag = require('./tags/elseunless')
+const switchTag = require('./tags/switch')
+const caseTag = require('./tags/case')
+const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 let asyncCounter = 0
-
-function findActions (attributes) {
-  return attributes
-    .filter(attr => attr.type === 'Action')
-    .map((attr, index, array) => {
-      if (attr.key === 'is_between') array.splice([index + 1], 1)
-      return getAction(attr.key)
-    }).filter(Boolean)
-}
 
 function setDimension (fragment, attrs, keys, statistics, dimension, options) {
   if (keys.includes(dimension)) {
@@ -117,38 +111,6 @@ function collectInlineComponents (fragment, attributes, components) {
   fragment.children.forEach(child => {
     child.used = true
   })
-}
-
-function convertValueToNode (value, variables) {
-  if (isCurlyTag(value)) {
-    value = getExpressionFromCurlyTag(value)
-    const expression = convertToExpression(value)
-    if (expression.type === 'Identifier') {
-      return convertKey(value, variables)
-    } else if (expression.type === 'Literal') {
-      return getLiteral(expression.value)
-    } else if (expression.type === 'BinaryExpression') {
-      AbstractSyntaxTree.replace(expression, {
-        enter: (node, parent) => {
-          if (node.type === 'MemberExpression') {
-            if (node.object.type === 'Identifier' && !node.object.transformed) {
-              node.object.transformed = true
-              const object = getIdentifier(OBJECT_VARIABLE)
-              object.transformed = true
-              node.object = {
-                type: 'MemberExpression',
-                object,
-                property: node.object
-              }
-            }
-          }
-          return node
-        }
-      })
-      return expression
-    }
-  }
-  return getLiteral(value)
 }
 
 function resolveComponent (tree, component, fragment, components, plugins, statistics, errors, options) {
@@ -332,113 +294,6 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
   // can we do it better than marking the node as a slot?
   fragment.tagName = 'slot'
   return { fragment, localVariables }
-}
-
-function getTest (action, keys, values, variables) {
-  if (action.args === 1) {
-    const key = keys[0] === 'not' ? keys[1] : keys[0]
-    const node = getLiteralOrIdentifier(key, variables)
-    return action.handler(node)
-  } else if (action.args === 2) {
-    let left = getLiteralOrIdentifier(keys[0], variables)
-    let right = values[1] ? convertValueToNode(values[1], variables) : getLiteralOrIdentifier(keys[2], variables)
-    return action.handler(left, right)
-  } else if (action.args === 3) {
-    const node = getLiteralOrIdentifier(keys[0], variables)
-    const startRange = getLiteralOrIdentifier(keys[2], variables)
-    const endRange = getLiteralOrIdentifier(keys[4], variables)
-    return action.handler(node, startRange, endRange)
-  }
-}
-
-function getLeftNodeFromAttribute (last, variables) {
-  if (!last) return null
-  return getLiteralOrIdentifier(last, variables)
-}
-
-function getRightNodeFromAttribute (current, next, variables) {
-  if (current.value) return convertValueToNode(current.value, variables)
-  return getLiteralOrIdentifier(next, variables)
-}
-
-function getLiteralOrIdentifier (attribute, variables) {
-  const key = attribute.key || attribute
-  const value = wordsToNumbers(key)
-  return typeof value === 'number' ? getLiteral(value) : convertKey(key, variables)
-}
-
-function getCondition (attrs, variables) {
-  let attributes = normalize(attrs)
-  let keys = attributes.map(attr => attr.key)
-  const values = attributes.map(attr => attr.value)
-  const actions = findActions(attributes)
-  if (actions.length === 0) {
-    const key = keys[0]
-    return convertKey(key, variables)
-  } else if (actions.length === 1) {
-    return getTest(actions[0], keys, values, variables)
-  } else {
-    const expressions = []
-    for (let i = 0, ilen = attributes.length; i < ilen; i += 1) {
-      const attribute = attributes[i]
-      if (attribute.type === 'Identifier') {
-        const last = attributes[i - 1]
-        const next = attributes[i + 1]
-        if (!next || OPERATORS.includes(next.key)) {
-          let node = getLeftNodeFromAttribute(attribute, variables)
-          if (last && last.key === 'not') {
-            node = { type: 'UnaryExpression', operator: '!', prefix: true, argument: node }
-          }
-          expressions.push(node)
-        }
-      } else if (attribute.type === 'Action') {
-        const action = actions.find(action => action.name === attribute.key)
-        if (OPERATORS.includes(attribute.key)) {
-          expressions.push(action)
-        } else {
-          if (action.args === 1) {
-            if (action.name === 'not') {
-              const next = attributes[i + 1]
-              i += 1
-              const left = getLeftNodeFromAttribute(next, variables)
-              expressions.push(action.handler(left))
-            } else {
-              const previous = attributes[i - 1]
-              const left = getLeftNodeFromAttribute(previous, variables)
-              expressions.push(action.handler(left))
-            }
-          } else if (action.args === 2) {
-            const previous = attributes[i - 1]
-            const current = attributes[i]
-            const next = attributes[i + 1]
-            i += 1
-            const left = getLeftNodeFromAttribute(previous, variables)
-            const right = getRightNodeFromAttribute(current, next, variables)
-            expressions.push(action.handler(left, right))
-          } else if (action.args === 3) {
-            const node = getLiteralOrIdentifier(attributes[i - 1], variables)
-            const startRange = getLiteralOrIdentifier(attributes[i + 1], variables)
-            const endRange = getLiteralOrIdentifier(attributes[i + 3], variables)
-            expressions.push(action.handler(node, startRange, endRange))
-          }
-        }
-      }
-    }
-    const stack = []
-    const conditions = []
-    for (let i = 0, ilen = expressions.length; i < ilen; i += 1) {
-      const expression = expressions[i]
-      if (OPERATORS.includes(expression.name)) {
-        const left = stack.shift() || expressions[i - 1]
-        const right = expressions[i + 1]
-        i += 1
-        const condition = expression.handler(left, right)
-        stack.push(condition)
-        conditions.push(condition)
-      }
-    }
-    return conditions[conditions.length - 1]
-  }
 }
 
 function getExtension (value) {
@@ -773,80 +628,13 @@ async function collect (tree, fragment, variables, filters, components, statisti
     } else if (tag === 'catch') {
       catchTag({ fragment, tree, collectChildren })
     } else if (tag === 'unless') {
-      const ast = new AbstractSyntaxTree('')
-      collectChildren(fragment, ast)
-      const { key } = attrs[0]
-      tree.append({
-        type: 'IfStatement',
-        test: {
-          type: 'UnaryExpression',
-          operator: '!',
-          prefix: true,
-          argument: convertKey(key, variables)
-        },
-        consequent: {
-          type: 'BlockStatement',
-          body: ast.body
-        },
-        depth
-      })
+      unlessTag({ fragment, tree, attrs, variables, depth, collectChildren })
     } else if (tag === 'elseunless') {
-      let leaf = tree.last(`IfStatement[depth="${depth}"]`)
-      if (leaf) {
-        const ast = new AbstractSyntaxTree('')
-        collectChildren(fragment, ast)
-        while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
-          leaf = leaf.alternate
-        }
-        const { key } = attrs[0]
-        leaf.alternate = {
-          type: 'IfStatement',
-          test: {
-            type: 'UnaryExpression',
-            operator: '!',
-            prefix: true,
-            argument: convertKey(key, variables)
-          },
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body
-          },
-          depth
-        }
-      }
+      elseunlessTag({ fragment, tree, attrs, variables, depth, collectChildren })
     } else if (tag === 'switch') {
-      tree.append({
-        type: 'SwitchStatement',
-        discriminant: {
-          type: 'Literal',
-          value: true
-        },
-        attribute: attrs[0],
-        cases: []
-      })
+      switchTag({ tree, attrs })
     } else if (tag === 'case') {
-      let leaf = tree.last('SwitchStatement')
-      if (leaf) {
-        const attributes = [leaf.attribute]
-        attrs.forEach(attr => {
-          attributes.push(attr)
-          if (OPERATORS.includes(attr.key)) {
-            attributes.push(leaf.attribute)
-          }
-        })
-        const condition = getCondition(attributes, variables)
-        const ast = new AbstractSyntaxTree('')
-        collectChildren(fragment, ast)
-        ast.append({
-          type: 'BreakStatement',
-          label: null
-        })
-        leaf.cases.push({
-          type: 'SwitchCase',
-          consequent: ast.body,
-          test: condition
-        })
-      }
+      caseTag({ fragment, tree, attrs, variables, collectChildren })
     } else if (tag === 'default') {
       let leaf = tree.last('SwitchStatement')
       if (leaf) {
