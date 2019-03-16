@@ -29,6 +29,10 @@ test('acceptance: import-multiple-components', async assert => {
   await suite('import-multiple-components', assert)
 })
 
+test('acceptance: shorthand-attribute-syntax', async assert => {
+  await suite('shorthand-attribute-syntax', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

@@ -5,11 +5,27 @@ function curlyTag (string) {
   return `{${string}}`
 }
 
-function isCurlyTag (value) {
-  return value && value.startsWith('{') && value.endsWith('}')
+function isTag (value, startTag, endTag) {
+  return value && value.startsWith(startTag) && value.endsWith(endTag)
 }
 
-function getExpressionFromCurlyTag (value) {
+function containsTag (value, startTag, endTag) {
+  return value && value.includes(startTag) && value.includes(endTag)
+}
+
+function isCurlyTag (value) {
+  return isTag(value, '{', '}')
+}
+
+function isSquareTag (value) {
+  return isTag(value, '[', ']')
+}
+
+function containsCurlyTag (value) {
+  return containsTag(value, '{', '}')
+}
+
+function getTagValue (value) {
   return value.substring(1, value.length - 1)
 }
 
@@ -59,4 +75,4 @@ function getName (name) {
   return name
 }
 
-module.exports = {extract, extractValues, getName, isCurlyTag, getExpressionFromCurlyTag, curlyTag}
+module.exports = {extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag}

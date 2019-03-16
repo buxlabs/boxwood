@@ -1,7 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { identifier } = require('pure-utilities/array')
 const { convertAttribute } = require('../convert')
-const { curlyTag, getExpressionFromCurlyTag } = require('../string')
+const { curlyTag, getTagValue } = require('../string')
 const { getForLoop, getForLoopVariable, getForInLoop, getForInLoopVariable } = require('../factory')
 const THREE_DOTS = '...'
 const TWO_DOTS = '..'
@@ -29,7 +29,7 @@ module.exports = function ({ fragment, tree, attrs, variables, translations, lan
     const variable = left.key
     const parent = operator.value || curlyTag(right.key)
     const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
-    const expression = getExpressionFromCurlyTag(parent) // TODO: Handle nested properties
+    const expression = getTagValue(parent) // TODO: Handle nested properties
     variables.push(variable)
     const index = identifier(variables.concat(expression))
     variables.push(index)

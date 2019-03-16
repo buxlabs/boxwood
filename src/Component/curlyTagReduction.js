@@ -7,12 +7,11 @@ const {
   memberExpressionReduction,
   ifStatementRemoval
 } = require('astoptech')
-const { isCurlyTag, getExpressionFromCurlyTag, curlyTag } = require('../string')
+const { isCurlyTag, getTagValue, curlyTag } = require('../string')
 const parse = require('../html/parse')
 const stringify = require('../html/stringify')
 const walk = require('himalaya-walk')
-const { placeholderName, addPlaceholders } = require('../keywords')
-const { RESERVED_KEYWORDS } = require('../enum')
+const { addPlaceholders, removePlaceholders } = require('../keywords')
 
 function canInlineTree ({ body }) {
   const statement = body[0]
@@ -30,7 +29,7 @@ function inlineVariables (node, parent, variables) {
     const variable = variables.find(variable => variable.key === node.name)
     if (variable) {
       if (isCurlyTag(variable.value)) {
-        const expression = getExpressionFromCurlyTag(variable.value)
+        const expression = getTagValue(variable.value)
         const tree = new AbstractSyntaxTree(`(${expression})`)
         tree.walk(node => { node.inlined = true })
         return tree.first('ExpressionStatement').expression
@@ -83,19 +82,7 @@ function optimizeCurlyTag (value, variables) {
   value = addPlaceholders(value)
   if (isObject(value)) value = `(${value})`
   const tree = new AbstractSyntaxTree(value)
-  // TODO: unify same thing is done in convert.js
-  tree.replace({
-    enter: node => {
-      if (node.type === 'Identifier') {
-        RESERVED_KEYWORDS.forEach(keyword => {
-          if (node.name === placeholderName(keyword)) {
-            node.name = keyword
-          }
-        })
-      }
-      return node
-    }
-  })
+  tree.replace({ enter: removePlaceholders })
   tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables) })
   tree.replace({ enter: memberExpressionReduction })
   tree.replace({ enter: logicalExpressionReduction })

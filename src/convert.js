@@ -1,9 +1,9 @@
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES, RESERVED_KEYWORDS } = require('./enum')
+const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
 const {
   getLiteral, getIdentifier, getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
-const { extract, getName, isCurlyTag, getExpressionFromCurlyTag } = require('./string')
+const { extract, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue } = require('./string')
 const { getFilterName, extractFilterName } = require('./filters')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { array, math, collection, object, json, date } = require('pure-utilities')
@@ -13,7 +13,7 @@ const COLLECTION_UTILITIES = Object.keys(collection)
 const OBJECT_UTILITIES = Object.keys(object)
 const JSON_UTILITIES = Object.keys(json)
 const DATE_UTILITIES = Object.keys(date)
-const { placeholderName, addPlaceholders } = require('./keywords')
+const { addPlaceholders, removePlaceholders } = require('./keywords')
 
 function isUnescapedFilter (filter) {
   const name = getFilterName(extractFilterName(filter))
@@ -47,24 +47,13 @@ function convertToBinaryExpression (nodes) {
 function convertToExpression (string) {
   string = addPlaceholders(string)
   const tree = new AbstractSyntaxTree(string)
-  tree.replace({
-    enter: node => {
-      if (node.type === 'Identifier') {
-        RESERVED_KEYWORDS.forEach(keyword => {
-          if (node.name === placeholderName(keyword)) {
-            node.name = keyword
-          }
-        })
-      }
-      return node
-    }
-  })
+  tree.replace({ enter: removePlaceholders })
   const { expression } = tree.body[0]
   return expression
 }
 
 function convertAttribute (name, value, variables, currentFilters, translations, languages, translationsPaths) {
-  if (value && value.includes('{') && value.includes('}')) {
+  if (containsCurlyTag(value)) {
     let values = extract(value)
     if (values.length === 1) {
       let property = values[0].value.substring(1, values[0].value.length - 1)
@@ -101,12 +90,18 @@ function convertAttribute (name, value, variables, currentFilters, translations,
       const expression = convertToBinaryExpression(nodes)
       return { type: 'ExpressionStatement', expression }
     }
+  } else if (isSquareTag(value)) {
+    value = addPlaceholders(value)
+    const tree = new AbstractSyntaxTree(value)
+    tree.replace({ enter: removePlaceholders })
+    const expression = prependObjectVariable(tree, variables)
+    const array = expression.first('ArrayExpression')
+    return AbstractSyntaxTree.template('<%= array %>.filter(Boolean).join(" ")', { array })[0]
   } else if (name.endsWith('.bind')) {
     const expression = convertToExpression(value)
     return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('.')[0]))
-  } else {
-    return getLiteral(value)
   }
+  return getLiteral(value)
 }
 
 function convertHtmlOrTextAttribute (fragment, variables, currentFilters, translations, languages, translationsPaths) {
@@ -357,7 +352,7 @@ function convertTag (fragment, variables, currentFilters, translations, language
 
 function convertKey (key, variables) {
   if (isCurlyTag(key)) {
-    key = getExpressionFromCurlyTag(key)
+    key = getTagValue(key)
   }
   const tree = convertToExpression(key)
   return getTemplateNode(tree, variables, true)

@@ -1,4 +1,4 @@
-const { isCurlyTag, getExpressionFromCurlyTag } = require('../string')
+const { isCurlyTag, getTagValue } = require('../string')
 const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
@@ -11,7 +11,7 @@ function findAttributeByKey (attributes, attribute) {
 function convert (value) {
   if (isCurlyTag(value)) {
     value = value.replace(/\s+/g, '')
-    value = getExpressionFromCurlyTag(value)
+    value = getTagValue(value)
     const { expression } = new AbstractSyntaxTree(`(${value})`).body[0]
     if (expression.type === 'ObjectExpression') {
       const object = serialize(expression)

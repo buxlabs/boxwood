@@ -11,7 +11,19 @@ function addPlaceholders (string) {
   return string
 }
 
+function removePlaceholders (node) {
+  if (node.type === 'Identifier') {
+    RESERVED_KEYWORDS.forEach(keyword => {
+      if (node.name === placeholderName(keyword)) {
+        node.name = keyword
+      }
+    })
+  }
+  return node
+}
+
 module.exports = {
   placeholderName,
-  addPlaceholders
+  addPlaceholders,
+  removePlaceholders
 }

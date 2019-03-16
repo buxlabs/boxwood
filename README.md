@@ -22,7 +22,7 @@
 
 Pure Engine is a library designed to compile HTML templates into JS. It analyses the template and generates an optimal rendering function that can be used on the client and the server. The compilation process should ideally happen in a build step (for the client) or the output could be memoized after first usage (for the server).
 
-The syntax of the template should be easy to read and write. There are two types of tags: curly and html tags.
+The syntax of the template should be easy to read and write. There are three types of tags: curly, square and html tags.
 
 Status: Alpha / Proof of concept
 
@@ -31,13 +31,33 @@ Status: Alpha / Proof of concept
 `{name}` is a curly tag
 
 Curly tags can contain expressions, e.g. `{1 + 2}` is a valid tag.
-They can also contain additional filters like `{name | capitalize}`
+They can also contain additional filters like `{name | capitalize}`.
+
+```html
+<div>{name}</div>
+```
+
+### Square Tags
+
+`[color]` is a square tag
+
+Square tags are array expressions and can be used as values of html attributes.
+
+```html
+<button class="[color, size, shape]"><slot/></button>
+```
 
 ### HTML Tags
 
 `<if>` is an html tag
 
 HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a valid tag. The attribute syntax follows the natural language principles.
+
+```html
+<if name is present>
+  <div>hello {name}</div>
+</if>
+```
 
 ## Install
 

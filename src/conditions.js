@@ -4,7 +4,7 @@ const { getAction } = require('./action')
 const { normalize } = require('./array')
 const { getLiteral, getIdentifier } = require('./factory')
 const { convertKey, convertToExpression } = require('./convert')
-const { isCurlyTag, getExpressionFromCurlyTag } = require('./string')
+const { isCurlyTag, getTagValue } = require('./string')
 const { OBJECT_VARIABLE, OPERATORS } = require('./enum')
 
 function getLiteralOrIdentifier (attribute, variables) {
@@ -15,7 +15,7 @@ function getLiteralOrIdentifier (attribute, variables) {
 
 function convertValueToNode (value, variables) {
   if (isCurlyTag(value)) {
-    value = getExpressionFromCurlyTag(value)
+    value = getTagValue(value)
     const expression = convertToExpression(value)
     if (expression.type === 'Identifier') {
       return convertKey(value, variables)
