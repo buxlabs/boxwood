@@ -22,6 +22,7 @@ const unlessTag = require('./tags/unless')
 const elseunlessTag = require('./tags/elseunless')
 const switchTag = require('./tags/switch')
 const caseTag = require('./tags/case')
+const markdownTag = require('./tags/markdown')
 const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 let asyncCounter = 0
@@ -656,6 +657,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
       collectComponentsFromImport(fragment, statistics, components, null, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
       collectComponentsFromPartialOrRender(fragment, statistics, options)
+    } else if (tag === 'markdown') {
+      markdownTag({ fragment, tree })
     }
     depth -= 1
   } catch (exception) {

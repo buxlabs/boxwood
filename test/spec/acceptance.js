@@ -33,6 +33,10 @@ test('acceptance: shorthand-attribute-syntax', async assert => {
   await suite('shorthand-attribute-syntax', assert)
 })
 
+test('acceptance: markdown', async assert => {
+  await suite('markdown', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

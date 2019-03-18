@@ -68,7 +68,8 @@ module.exports = {
     'render',
     'include',
     'content',
-    'translate'
+    'translate',
+    'markdown'
   ],
   UNESCAPED_NAMES: [
     'value',
