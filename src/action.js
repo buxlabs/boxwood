@@ -139,7 +139,7 @@ const STANDARD_ACTIONS = [
   { name: 'has_length_of_at_most', handler: getCondition('hasLengthOfAtMost'), args: 2 },
   { name: 'has_length_of', handler: getCondition('hasLengthOf'), args: 2 },
   { name: 'is_type_of', handler: getCondition('hasTypeOf'), args: 2 },
-  { name: 'has_type_of', handler: getCondition('hasTypeOf'), args: 2 },  
+  { name: 'has_type_of', handler: getCondition('hasTypeOf'), args: 2 },
   { name: 'have', handler: getCondition('have'), args: 2 },
   { name: 'has_more_than', handler: getCondition('haveMoreThan'), args: 2 },
   { name: 'has_less_than', handler: getCondition('haveLessThan'), args: 2 },

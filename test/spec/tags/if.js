@@ -309,10 +309,10 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: { bar: { baz: 'baz' } } }, escape), 'ban')
 
   template = await compile('<if foo["bar"].baz>ban</if>')
-  assert.deepEqual(template({foo: { bar: {} }}, escape), '')
+  assert.deepEqual(template({ foo: { bar: {} } }, escape), '')
 
   template = await compile('<if not foo["bar"].baz>ban</if>')
-  assert.deepEqual(template({foo: { bar: {} }}, escape), 'ban')
+  assert.deepEqual(template({ foo: { bar: {} } }, escape), 'ban')
 
   template = await compile('<if foo[qux].baz>ban</if>')
   assert.deepEqual(template({ foo: { bar: { baz: 'baz' } }, qux: 'bar' }, escape), 'ban')
@@ -2019,82 +2019,82 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: new Error('ValidationError') }, escape), 'bar')
 
   template = await compile('<if foo is not an error>bar</if>')
-  assert.deepEqual(template({ foo: new Object({}) }, escape), 'bar')
+  assert.deepEqual(template({ foo: {} }, escape), 'bar')
 
   template = await compile('<if foo has any keys>bar</if>')
   assert.deepEqual(template({ foo: { baz: 'baz' } }, escape), 'bar')
-  
+
   template = await compile('<if foo has any keys>bar</if>')
   assert.deepEqual(template({ foo: ['baz'] }, escape), 'bar')
-  
+
   template = await compile('<if foo has any keys>bar</if>')
-  assert.deepEqual(template({ foo: {} }, escape), '')     
+  assert.deepEqual(template({ foo: {} }, escape), '')
 
   template = await compile('<if foo has any keys>bar</if>')
   assert.deepEqual(template({ foo: [] }, escape), '')
-  
+
   template = await compile('<if foo does not have any keys>bar</if>')
   assert.deepEqual(template({ foo: {} }, escape), 'bar')
-  
+
   template = await compile('<if foo is nan>bar</if>')
   assert.deepEqual(template({ foo: NaN }, escape), 'bar')
-  
+
   template = await compile('<if foo is not nan>bar</if>')
   assert.deepEqual(template({ foo: null }, escape), 'bar')
-  
-  template = await compile('<if foo exists>bar</if>')
-  assert.deepEqual(template({ foo: {} }, escape), 'bar')  
 
   template = await compile('<if foo exists>bar</if>')
-  assert.deepEqual(template({ foo: undefined }, escape), '')   
-  
+  assert.deepEqual(template({ foo: {} }, escape), 'bar')
+
+  template = await compile('<if foo exists>bar</if>')
+  assert.deepEqual(template({ foo: undefined }, escape), '')
+
   template = await compile('<if foo not exist>bar</if>')
   assert.deepEqual(template({ foo: undefined }, escape), 'bar')
-  
-  template = await compile('<if foo is missing>bar</if>')
-  assert.deepEqual(template({ foo: {} }, escape), '')  
 
   template = await compile('<if foo is missing>bar</if>')
-  assert.deepEqual(template({ foo: undefined }, escape), 'bar')   
-  
+  assert.deepEqual(template({ foo: {} }, escape), '')
+
+  template = await compile('<if foo is missing>bar</if>')
+  assert.deepEqual(template({ foo: undefined }, escape), 'bar')
+
   template = await compile('<if foo is not missing>bar</if>')
   assert.deepEqual(template({ foo: null }, escape), 'bar')
-  
+
   template = await compile('<if foo is function>bar</if>')
   assert.deepEqual(template({ foo: () => {} }, escape), 'bar')
 
   template = await compile('<if foo is function>bar</if>')
-  assert.deepEqual(template({ foo: function () {} }, escape), 'bar')  
-  
+  assert.deepEqual(template({ foo: function () {} }, escape), 'bar')
+
   template = await compile('<if foo is function>bar</if>')
   assert.deepEqual(template({ foo: {} }, escape), '')
 
   template = await compile('<if foo has type of bar>bar</if>')
   assert.deepEqual(template({ foo: {}, bar: 'object' }, escape), 'bar')
-  
+
   template = await compile('<if foo has type of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), '')
-  
+  assert.deepEqual(template({ foo: {}, bar: 'string' }, escape), '')
+
   template = await compile('<if foo does not have type of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), 'bar')
-  
+  assert.deepEqual(template({ foo: {}, bar: 'string' }, escape), 'bar')
+
   template = await compile('<if foo ist type of bar>bar</if>')
   assert.deepEqual(template({ foo: {}, bar: 'object' }, escape), 'bar')
-  
+
   template = await compile('<if foo is type of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), '')
-  
+  assert.deepEqual(template({ foo: {}, bar: 'string' }, escape), '')
+
   template = await compile('<if foo is not type of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), 'bar')
-  
+  assert.deepEqual(template({ foo: {}, bar: 'string' }, escape), 'bar')
+
   template = await compile('<if foo is an instance of bar>bar</if>')
-  assert.deepEqual(template({ foo: new Date(), bar: Date}, escape), 'bar')
-  
+  assert.deepEqual(template({ foo: new Date(), bar: Date }, escape), 'bar')
+
   template = await compile('<if foo is an instance of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: Date}, escape), '')
-  
+  assert.deepEqual(template({ foo: {}, bar: Date }, escape), '')
+
   template = await compile('<if foo is not an instance of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: Date}, escape), 'bar')  
+  assert.deepEqual(template({ foo: {}, bar: Date }, escape), 'bar')
 })
 
 test('if: words to numbers', async assert => {
@@ -2136,7 +2136,4 @@ test('if: variables with curly brackets', async assert => {
 
   template = await compile('<if {2+2} equals 4>foo</if>')
   assert.deepEqual(template({}, escape), 'foo')
-  
 })
-
-
