@@ -167,7 +167,8 @@ const STANDARD_ACTIONS = [
   { name: 'is_nan', handler: getCondition('isNaN'), args: 1 },
   { name: 'exists', handler: getCondition('exists'), args: 1 },
   { name: 'is_missing', handler: getCondition('isMissing'), args: 1 },
-  { name: 'is_function', handler: getCondition('isFunction'), args: 1 }
+  { name: 'is_function', handler: getCondition('isFunction'), args: 1 },
+  { name: 'is_an_instance_of', handler: getCondition('isInstanceOf'), args: 2 }
 ]
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => {
   let { name } = action

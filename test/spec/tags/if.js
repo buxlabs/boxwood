@@ -2085,7 +2085,16 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), '')
   
   template = await compile('<if foo is not type of bar>bar</if>')
-  assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), 'bar')  
+  assert.deepEqual(template({ foo: {}, bar: 'string'}, escape), 'bar')
+  
+  template = await compile('<if foo is an instance of bar>bar</if>')
+  assert.deepEqual(template({ foo: new Date(), bar: Date}, escape), 'bar')
+  
+  template = await compile('<if foo is an instance of bar>bar</if>')
+  assert.deepEqual(template({ foo: {}, bar: Date}, escape), '')
+  
+  template = await compile('<if foo is not an instance of bar>bar</if>')
+  assert.deepEqual(template({ foo: {}, bar: Date}, escape), 'bar')  
 })
 
 test('if: words to numbers', async assert => {
