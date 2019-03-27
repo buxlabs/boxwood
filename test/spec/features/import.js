@@ -550,6 +550,16 @@ test('import: passing objects with same name', async assert => {
 test('import: importing multiple components within one import tag', async assert => {
   let template
 
+  template = await compile(`<import { foo } from="."><foo />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foo')
+
+  template = await compile(`<import { foo-bar } from="."><foo-bar />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
+  })
+  assert.deepEqual(template({}, escape), 'foo-bar')
+
   template = await compile(`<import { foo, bar } from="."><foo /><bar />`, {
     paths: [ path.join(__dirname, '../../fixtures/import/multiple') ]
   })
