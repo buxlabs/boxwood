@@ -66,3 +66,11 @@ test('img: inline throws if asset does not exist', async assert => {
     /Asset not found: \.\.\/circle\.svg/
   )
 })
+
+test('img: makes image responsive when fluid attribute has been set', async assert => {
+  let template = await compile(`<img src="./placeholder.png" fluid>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
+
+  template = await compile(`<img src="./placeholder.png" style="border-radius: 10px;" fluid>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="border-radius: 10px; max-width: 100%; height: auto;">')
+})
