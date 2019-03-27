@@ -51,13 +51,14 @@ function collectComponentsFromImport (fragment, statistics, components, componen
   const names = extractComponentNames(attrs)
   if (names.length === 1) {
     const name = names[0]
-    let path = attrs[1].value
-    if (path) {
+    const isShorthandSyntax = !!attrs.filter(attr => attr.key.includes('{') || attr.key.includes('}')).length
+    if (!isShorthandSyntax) {
+      const path = attrs[1].value
       collectComponent(name, path, statistics, components, component, options)
     } else {
       const lastAttribute = attrs[attrs.length - 1]
       const dir = lastAttribute.value
-      path = join(dir, `${name}.html`)
+      const path = join(dir, `${name}.html`)
       collectComponent(name, path, statistics, components, component, options)
     }
   } else {
