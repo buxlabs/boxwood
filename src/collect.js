@@ -508,12 +508,23 @@ async function collect (tree, fragment, variables, filters, components, statisti
           fragment.children = content.children
         })
       } else if (tag === 'img') {
-        if (attrs.find(attr => attr.key === 'size')) {
-          const index = attrs.findIndex(attr => attr.key === 'size')
-          const [width, height] = attrs[index].value.split('x')
+        const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
+        const sizeAttributeIndex = attrs.findIndex(attr => attr.key === 'size')
+        const fluidAttributeIndex = attrs.findIndex(attr => attr.key === 'fluid')
+        if (sizeAttributeIndex !== -1) {
+          const [width, height] = attrs[sizeAttributeIndex].value.split('x')
           attrs.push({ key: 'width', value: width })
           attrs.push({ key: 'height', value: height })
-          attrs.splice(index, 1)
+          attrs.splice(sizeAttributeIndex, 1)
+        }
+        if (fluidAttributeIndex !== -1) {
+          const responsiveImageStyles = 'max-width: 100%; height: auto;'
+          attrs.splice(fluidAttributeIndex, 1)
+          if (styleAttributeIndex === -1) {
+            attrs.push({ key: 'style', value: responsiveImageStyles })
+          } else {
+            attrs[styleAttributeIndex].value += ` ${responsiveImageStyles}`
+          }
         }
         setDimension(fragment, attrs, keys, statistics, 'width', options)
         setDimension(fragment, attrs, keys, statistics, 'height', options)
