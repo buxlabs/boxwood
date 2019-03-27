@@ -54,3 +54,21 @@ test('attributes: shorthand syntax with multiple strings', async assert => {
   assert.deepEqual(template({}, escape), '<div class="foo baz"></div>')
   assert.deepEqual(template({ bar: 'bar' }, escape), '<div class="foo bar baz"></div>')
 })
+
+test('attributes: shorthand syntax with components', async assert => {
+  let template = await compile(`
+    <template foo>
+      <div class="['container', fluid && 'fluid']"><slot></slot></div>
+    </template>
+    <foo><p>foo bar baz</p></foo>`
+  )
+  assert.deepEqual(template({}, escape), '<div class="container"><p>foo bar baz</p></div>')
+
+  template = await compile(`
+    <template foo>
+      <div class="['container', fluid && 'fluid']"><slot></slot></div>
+    </template>
+    <foo fluid><p>foo bar baz</p></foo>`
+  )
+  assert.deepEqual(template({}, escape), '<div class="container fluid"><p>foo bar baz</p></div>')
+})
