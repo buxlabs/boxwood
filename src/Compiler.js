@@ -6,6 +6,7 @@ const collect = require('./collect')
 const { getFilter } = require('./filters')
 const { array: { unique } } = require('pure-utilities')
 const Parser = require('./Parser')
+const Linter = require('./Linter')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
@@ -113,6 +114,10 @@ class Compiler {
   parse (source) {
     const parser = new Parser()
     return parser.parse(source)
+  }
+  lint (tree) {
+    const linter = new Linter()
+    return linter.lint(tree)
   }
   async transform ({ template, rescue }) {
     return Promise.all([
