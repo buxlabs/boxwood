@@ -37,6 +37,7 @@ module.exports = class Linter {
   }
 
   verifyHTML (source) {
+    if (source.includes('import') || source.includes('require')) return []
     return new Promise(resolve => {
       htmllint(source, {
         'line-end-style': false
