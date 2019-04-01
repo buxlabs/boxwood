@@ -115,9 +115,9 @@ class Compiler {
     const parser = new Parser()
     return parser.parse(source)
   }
-  lint (tree) {
+  lint (tree, source) {
     const linter = new Linter()
-    return linter.lint(tree)
+    return linter.lint(tree, source)
   }
   async transform ({ template, rescue }) {
     return Promise.all([
