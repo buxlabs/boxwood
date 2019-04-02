@@ -1,12 +1,13 @@
 const walk = require('himalaya-walk')
 const { extractComponentNames } = require('./extract')
 const { HtmlValidate } = require('html-validate')
+const { VOID_TAGS } = require('./enum')
 const linter = new HtmlValidate()
 
 module.exports = class Linter {
-  async lint (tree, source) {
+  lint (tree, source) {
     const unusedComponentsWarnings = this.verifyComponents(tree)
-    const invalidHtmlWarnings = await this.verifyHTML(source)
+    const invalidHtmlWarnings = this.verifyHTML(source)
     const warnings = unusedComponentsWarnings.concat(invalidHtmlWarnings)
     return { warnings }
   }
@@ -38,19 +39,23 @@ module.exports = class Linter {
   }
 
   verifyHTML (source) {
-    if (source.includes('import') || source.includes('require')) return []
-    return new Promise(resolve => {
-      const { results } = linter.validateString(source)
-      if (results.length === 0) return resolve([])
-      const warnings = []
-      results.forEach(result => {
-        result.messages.forEach(message => {
-          if (message.ruleId === 'close-order' || message.ruleId === 'no-implicit-close') {
-            warnings.push({ type: 'UNCLOSED_TAG', message: `Unclosed tag in line ${message.line}` })
-          }
-        })
+    const { results } = linter.validateString(source)
+    const warnings = []
+    results.forEach(result => {
+      result.messages.forEach(message => {
+        if (this.isClosingTagError(message)) {
+          const tagName = message.message.match(/'?<\/?\w+'?>/g)[0].replace('\'', '')
+          warnings.push({ type: 'UNCLOSED_TAG', message: `Unclosed tag ${tagName} in line ${message.line}` })
+        }
       })
-      return resolve(warnings)
     })
+    return warnings
+  }
+
+  isClosingTagError (message) {
+    for (let tag of VOID_TAGS) {
+      if (message.message.includes(tag)) return false
+    }
+    return message.ruleId === 'close-order' || message.ruleId === 'no-implicit-close'
   }
 }

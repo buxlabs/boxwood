@@ -2,27 +2,27 @@ import test from 'ava'
 import parse from './html/parse'
 import Linter from './Linter'
 
-test('Linter: unused components', async t => {
+test('Linter: unused components', async assert => {
   const linter = new Linter()
   let source = '<div></div>'
   let template = parse(source)
   let tree = { template }
-  t.deepEqual(await await linter.lint(tree, source), { warnings: [] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [] })
 
   source = '<import button from="./foo.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
 
   source = '<import button from="./foo.html"><import input from="./input.html"><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'input component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'input component is unused' }] })
 
   source = '<import button from="./foo.html"><import input from="./input.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(
+  assert.deepEqual(
     await linter.lint(tree, source),
     {
       warnings:
@@ -36,22 +36,22 @@ test('Linter: unused components', async t => {
   source = '<import { button } from="./foo.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
 
   source = '<import {button} from="./foo.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
 
   source = '<import { button } from="./foo.html"><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [] })
 
   source = '<import { button, input } from="./components.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(
+  assert.deepEqual(
     await linter.lint(tree, source),
     {
       warnings:
@@ -65,37 +65,37 @@ test('Linter: unused components', async t => {
   source = '<import { button, input } from="./components.html"><input/>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ] })
 
   source = '<import { button, input } from="./components.html"><input/><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [] })
 
   source = '<import button, input from="./components.html"><input/>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ] })
 
   source = '<import button , input from="./components.html"><input/><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [] })
 
   source = '<require button from="./foo.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
 
   source = '<require button from="./foo.html"><require input from="./input.html"><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'input component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'input component is unused' }] })
 
   source = '<require button from="./foo.html"><require input from="./input.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(
+  assert.deepEqual(
     await linter.lint(tree, source),
     {
       warnings:
@@ -109,22 +109,22 @@ test('Linter: unused components', async t => {
   source = '<require { button } from="./foo.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
 
   source = '<require {button} from="./foo.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }] })
 
   source = '<require { button } from="./foo.html"><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [] })
 
   source = '<require { button, input } from="./components.html">'
   template = parse(source)
   tree = { template }
-  t.deepEqual(
+  assert.deepEqual(
     await linter.lint(tree, source),
     {
       warnings:
@@ -138,12 +138,12 @@ test('Linter: unused components', async t => {
   source = '<require { button, input } from="./components.html"><input/>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ] })
 
   source = '<require { button, input } from="./components.html"><input/><button></button>'
   template = parse(source)
   tree = { template }
-  t.deepEqual(await linter.lint(tree, source), { warnings: [] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [] })
 })
 
 test('Linter: unclosed tags', async assert => {
@@ -166,7 +166,12 @@ test('Linter: unclosed tags', async assert => {
   source = '<div>'
   template = parse(source)
   tree = { template }
-  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 1' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag </div> in line 1' }] })
+
+  source = '<div><p></div>'
+  template = parse(source)
+  tree = { template }
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag <p> in line 1' }] })
 
   source = `
     <ul>
@@ -178,13 +183,5 @@ test('Linter: unclosed tags', async assert => {
   `
   template = parse(source)
   tree = { template }
-  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 5' }] })
-})
-
-test('Linter: unclosed p tag', async assert => {
-  const linter = new Linter()
-  const source = '<div><p></div>'
-  const template = parse(source)
-  const tree = { template }
-  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 1' }] })
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag <li> in line 5' }] })
 })
