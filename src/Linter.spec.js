@@ -168,11 +168,6 @@ test('Linter: unclosed tags', async assert => {
   tree = { template }
   assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 1' }] })
 
-  source = '<div><p></div>'
-  template = parse(source)
-  tree = { template }
-  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 1' }] })
-
   source = `
     <ul>
       <li>foo</li>
@@ -184,4 +179,12 @@ test('Linter: unclosed tags', async assert => {
   template = parse(source)
   tree = { template }
   assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 5' }] })
+})
+
+test('Linter: unclosed p tag', async assert => {
+  const linter = new Linter()
+  const source = '<div><p></div>'
+  const template = parse(source)
+  const tree = { template }
+  assert.deepEqual(await linter.lint(tree, source), { warnings: [{ type: 'UNCLOSED_TAG', message: 'Unclosed tag in line 1' }] })
 })

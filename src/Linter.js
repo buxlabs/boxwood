@@ -1,6 +1,7 @@
 const walk = require('himalaya-walk')
 const { extractComponentNames } = require('./extract')
-const htmllint = require('htmllint')
+const { HtmlValidate } = require('html-validate')
+const linter = new HtmlValidate()
 
 module.exports = class Linter {
   async lint (tree, source) {
@@ -39,21 +40,17 @@ module.exports = class Linter {
   verifyHTML (source) {
     if (source.includes('import') || source.includes('require')) return []
     return new Promise(resolve => {
-      htmllint(source, {
-        'line-end-style': false
+      const { results } = linter.validateString(source)
+      if (results.length === 0) return resolve([])
+      const warnings = []
+      results.forEach(result => {
+        result.messages.forEach(message => {
+          if (message.ruleId === 'close-order' || message.ruleId === 'no-implicit-close') {
+            warnings.push({ type: 'UNCLOSED_TAG', message: `Unclosed tag in line ${message.line}` })
+          }
+        })
       })
-        .then(warnings => {
-          if (warnings.length === 0) return resolve(warnings)
-          warnings = warnings.map(warning => {
-            if (warning.rule === 'tag-close') {
-              return { type: 'UNCLOSED_TAG', message: `Unclosed tag in line ${warning.line}` }
-            }
-          }).filter(Boolean)
-          resolve(warnings)
-        })
-        .catch(() => {
-          resolve([])
-        })
+      return resolve(warnings)
     })
   }
 }
