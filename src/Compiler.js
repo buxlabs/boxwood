@@ -33,7 +33,7 @@ async function render (htmltree, options) {
   const errors = []
   const plugins = [
     new InlinePlugin(),
-    new BoxModelPlugin(),
+    new BoxModelPlugin(options),
     new CurlyStylesPlugin(),
     new ScopedStylesPlugin(),
     new InternationalizationPlugin({ translations, statistics, filters })

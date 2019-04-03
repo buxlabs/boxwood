@@ -151,3 +151,20 @@ test('div[padding]: works with camelCase attributes', async assert => {
   template = await compile(`<div padding-top="10" paddingBottom="10"></div>`)
   assert.deepEqual(template({}, escape), '<div style="padding-top: 10px; padding-bottom: 10px;"></div>')
 })
+
+test('div[padding]: works with predefined style variables', async assert => {
+  const style = {
+    variables: { small: 10, big: '40px' }
+  }
+  let template = await compile(`<div paddingTop="small"></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="padding-top: 10px;"></div>')
+
+  template = await compile(`<div padding="{{ top: 'small' }}"></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="padding-top: 10px;"></div>')
+
+  template = await compile(`<div padding="{{ bottom: 'small', top: 'big' }}"></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="padding-bottom: 10px; padding-top: 40px;"></div>')
+
+  template = await compile(`<div padding-bottom='big' padding-top='small'></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="padding-top: 10px; padding-bottom: 40px;"></div>')
+})
