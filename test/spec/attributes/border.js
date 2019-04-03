@@ -14,4 +14,13 @@ test('div[border]: works with values', async assert => {
 
   template = await compile(`<div border-top="2px" border-bottom="2px"></div>`)
   assert.deepEqual(template({}, escape), '<div style="border-top: 2px; border-bottom: 2px;"></div>')
+
+  template = await compile(`<div border="coolBorder"></div>`, {
+    style: {
+      variables: {
+        coolBorder: '1px solid black'
+      }
+    }
+  })
+  assert.deepEqual(template({}, escape), '<div style="border: 1px solid black;"></div>')
 })

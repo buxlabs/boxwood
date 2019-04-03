@@ -59,3 +59,20 @@ test('div[margin]: works with camelCase attributes', async assert => {
   template = await compile(`<div margin-left="10" margin-right="20px" margin-bottom="30px"></div>`)
   assert.deepEqual(template({}, escape), '<div style="margin-right: 20px; margin-bottom: 30px; margin-left: 10px;"></div>')
 })
+
+test('div[margin]: works with predefined style variables', async assert => {
+  const style = {
+    variables: { small: 10, big: '40px' }
+  }
+  let template = await compile(`<div marginTop="small"></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="margin-top: 10px;"></div>')
+
+  template = await compile(`<div margin="{{ top: 'small' }}"></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="margin-top: 10px;"></div>')
+
+  template = await compile(`<div margin="{{ bottom: 'small', top: 'big' }}"></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="margin-bottom: 10px; margin-top: 40px;"></div>')
+
+  template = await compile(`<div margin-bottom='big' margin-top='small'></div>`, { style })
+  assert.deepEqual(template({}, escape), '<div style="margin-top: 10px; margin-bottom: 40px;"></div>')
+})

@@ -33,13 +33,19 @@ function convert (value) {
   return value
 }
 
-function getStyles (attributeKey, key, value) {
+function getStyles (attributeKey, key, value, variables = {}) {
+  if (value in variables) {
+    value = variables[value]
+  }
   if (attributeKey === 'border') {
     return `border: ${value};`
   }
   let styles = ''
   if (typeof value === 'object') {
     for (let property in value) {
+      if (variables[value[property]]) {
+        value[property] = variables[value[property]]
+      }
       const suffix = getSuffix(value[property])
       styles += `${key}-${property}: ${value[property]}${suffix} `
     }
@@ -69,16 +75,23 @@ function removeAttribute (attributes, attribute) {
 }
 
 class BoxModelPlugin extends Plugin {
+  constructor (options = {}) {
+    super()
+    if (options.style) {
+      this.variables = options.style.variables
+    }
+  }
+
   beforeprerun () {
     this.components = []
   }
-
   prerun ({ tag, keys, fragment }) {
+    const variables = this.variables
     function transform (key) {
       const attribute = findAttributeByKey(fragment.attributes, key)
       if (attribute) {
         attribute.value = convert(attribute.value)
-        const inlineStyles = getStyles(key, attribute.key, attribute.value)
+        const inlineStyles = getStyles(key, attribute.key, attribute.value, variables)
         appendStyles(fragment.attributes, inlineStyles)
         removeAttribute(fragment.attributes, key)
       }
