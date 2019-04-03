@@ -108,3 +108,46 @@ test('div[padding]: works with object', async assert => {
   template = await compile(`<div style="display: flex; justify-content: center;" padding="{{top: '3em', bottom: '3em', right: 10, left: '5%'}}"></div>`)
   assert.deepEqual(template({}, escape), '<div style="display: flex; justify-content: center; padding-top: 3em; padding-bottom: 3em; padding-right: 10px; padding-left: 5%;"></div>')
 })
+
+test('div[padding]: works with kebab-case attributes', async assert => {
+  let template = await compile(`<div padding-top="10"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-top: 10px;"></div>')
+
+  template = await compile(`<div padding-right="10px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-right: 10px;"></div>')
+
+  template = await compile(`<div padding-bottom="10px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-bottom: 10px;"></div>')
+
+  template = await compile(`<div padding-left="10px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-left: 10px;"></div>')
+
+  template = await compile(`<div padding-left="10" padding-right="20px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-right: 20px; padding-left: 10px;"></div>')
+
+  template = await compile(`<div padding-left="10" padding-right="20px" padding-bottom="30px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-right: 20px; padding-bottom: 30px; padding-left: 10px;"></div>')
+})
+
+test('div[padding]: works with camelCase attributes', async assert => {
+  let template = await compile(`<div paddingTop="10"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-top: 10px;"></div>')
+
+  template = await compile(`<div paddingRight="10"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-right: 10px;"></div>')
+
+  template = await compile(`<div paddingBottom="10px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-bottom: 10px;"></div>')
+
+  template = await compile(`<div paddingLeft="10"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-left: 10px;"></div>')
+
+  template = await compile(`<div paddingLeft="10" paddingRight="20px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-right: 20px; padding-left: 10px;"></div>')
+
+  template = await compile(`<div paddingLeft="10" paddingRight="20px" paddingBottom="30px"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-right: 20px; padding-bottom: 30px; padding-left: 10px;"></div>')
+
+  template = await compile(`<div padding-top="10" paddingBottom="10"></div>`)
+  assert.deepEqual(template({}, escape), '<div style="padding-top: 10px; padding-bottom: 10px;"></div>')
+})

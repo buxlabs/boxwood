@@ -3,6 +3,17 @@ const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Plugin = require('./Plugin')
+const { string: { hyphenate, capitalize } } = require('pure-utilities')
+
+const ATTRIBUTES = ['padding', 'margin', 'border']
+const DIRECTIONS = ['top', 'right', 'bottom', 'left']
+const BOX_MODEL_ATTRIBUTES = Array.from(ATTRIBUTES)
+for (let attribute of ATTRIBUTES) {
+  for (let direction of DIRECTIONS) {
+    const boxModelAttribute = attribute.concat(capitalize(direction))
+    BOX_MODEL_ATTRIBUTES.push(boxModelAttribute, hyphenate(boxModelAttribute))
+  }
+}
 
 function findAttributeByKey (attributes, attribute) {
   if (attributes) return attributes.find(attr => attr.key === attribute)
@@ -35,7 +46,7 @@ function getStyles (attributeKey, key, value) {
     styles = styles.trim()
   } else {
     const suffix = getSuffix(value)
-    styles = `${key}: ${value}${suffix}`
+    styles = `${hyphenate(key)}: ${value}${suffix}`
   }
   return styles
 }
@@ -76,11 +87,8 @@ class BoxModelPlugin extends Plugin {
       const name = keys[0]
       this.components.push(name)
     }
-
     if (!this.components.includes(tag)) {
-      transform('padding')
-      transform('margin')
-      transform('border')
+      BOX_MODEL_ATTRIBUTES.forEach(transform)
     }
   }
 
