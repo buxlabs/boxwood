@@ -10,10 +10,10 @@ const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
-const { isCurlyTag } = require('./string')
+const { isCurlyTag, isImportTag } = require('./string')
 const { findFile } = require('./files')
 const { extractComponentNames } = require('./extract')
-const Component = require('./Component')
+const Component = require('./Component/')
 const foreachTag = require('./tags/foreach')
 const forTag = require('./tags/for')
 const tryTag = require('./tags/try')
@@ -248,7 +248,7 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
   walk(htmlTree, async (current, parent) => {
     const attrs = current.attributes || []
     const keys = attrs.map(attr => attr.key)
-    if (current.tagName === 'import' || current.tagName === 'require') {
+    if (isImportTag(current.tagName)) {
       collectComponentsFromImport(current, statistics, currentComponents, component, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
       collectComponentsFromPartialOrRender(current, statistics, options)
@@ -672,7 +672,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       }
     } else if (tag === 'foreach' || tag === 'each') {
       foreachTag({ fragment, tree, variables, attrs, collectChildren })
-    } else if (tag === 'import' || tag === 'require') {
+    } else if (isImportTag(tag)) {
       collectComponentsFromImport(fragment, statistics, components, null, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
       collectComponentsFromPartialOrRender(fragment, statistics, options)

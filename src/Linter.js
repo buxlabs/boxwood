@@ -3,6 +3,7 @@ const { extractComponentNames } = require('./extract')
 const { HtmlValidate } = require('html-validate')
 const { VOID_TAGS } = require('./enum')
 const linter = new HtmlValidate()
+const { isImportTag } = require('./string')
 
 module.exports = class Linter {
   lint (tree, source) {
@@ -30,7 +31,7 @@ module.exports = class Linter {
   analyze ({ template }) {
     const components = []
     walk(template, node => {
-      if (node.tagName === 'import' || node.tagName === 'require') {
+      if (isImportTag(node.tagName)) {
         const names = extractComponentNames(node.attributes)
         names.forEach(name => components.push(name))
       }

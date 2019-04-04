@@ -1,9 +1,9 @@
-const { isCurlyTag, getTagValue } = require('../string')
+const { isCurlyTag, getTagValue, isImportTag } = require('../string')
 const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Plugin = require('./Plugin')
-const { string: { hyphenate, capitalize } } = require('pure-utilities')
+const { hyphenate, capitalize } = require('pure-utilities/string')
 
 const ATTRIBUTES = ['padding', 'margin', 'border']
 const DIRECTIONS = ['top', 'right', 'bottom', 'left']
@@ -96,7 +96,7 @@ class BoxModelPlugin extends Plugin {
         removeAttribute(fragment.attributes, key)
       }
     }
-    if (tag === 'import' || tag === 'require') {
+    if (isImportTag(tag)) {
       const name = keys[0]
       this.components.push(name)
     }

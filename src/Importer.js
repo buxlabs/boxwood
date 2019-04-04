@@ -3,31 +3,24 @@ const fs = require('fs')
 const { join } = require('path')
 const util = require('util')
 const readFile = util.promisify(fs.readFile)
+const { isImportTag } = require('./string')
 module.exports = class Importer {
-  // TODO: pass source
-  constructor (tree, options = {}) {
+  constructor (tree, source, options = {}) {
     this.tree = tree
+    this.source = source
     this.options = options
   }
   async import () {
     const nodes = find(this.tree)
-    const promises = Promise.all(nodes.map(async node => {
-      // TODO: Move to fetch
-      const { source, path } = await read(getComponentPath(node), this.options.paths)
-      const name = getComponentName(node)
-      const files = ['.']
-      const warnings = []
-      return { name, source, path, files, warnings }
-    }))
+    const promises = Promise.all(nodes.map(fetch.bind(this)))
     return promises
   }
 }
 
 function find (tree) {
   const nodes = []
-  walk(tree, (node) => {
-    // TODO: Create a method
-    if (node.tagName === 'import' || node.tagName === 'require') {
+  walk(tree, node => {
+    if (isImportTag(node.tagName)) {
       nodes.push(node)
     }
   })
@@ -46,6 +39,14 @@ async function read (path, paths = []) {
     } catch (exception) {}
   }
   return result
+}
+
+async function fetch (node) {
+  const { source, path } = await read(getComponentPath(node), this.options.paths)
+  const name = getComponentName(node)
+  const files = ['.']
+  const warnings = []
+  return { name, source, path, files, warnings }
 }
 
 function getComponentName (node) {

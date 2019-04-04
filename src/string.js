@@ -75,4 +75,8 @@ function getName (name) {
   return name
 }
 
-module.exports = {extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag}
+function isImportTag (name) {
+  return name === 'import' || name === 'require'
+}
+
+module.exports = {extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag}
