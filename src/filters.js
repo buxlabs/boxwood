@@ -66,7 +66,7 @@ const builtins = { translate }
 module.exports = {
   getFilterName,
   extractFilterName,
-  getFilter (filter, translations, options) {
+  getFilter (filter, translations, options = {}) {
     let name = extractFilterName(filter)
     name = getFilterName(name)
     const method = utilities.string[name] ||
@@ -76,9 +76,15 @@ module.exports = {
       utilities.object[name] ||
       utilities.collection[name] ||
       utilities.date[name] ||
-      builtins[name]
+      builtins[name] ||
+      options.filters[name]
     if (!method) return null
-    const leaf = new AbstractSyntaxTree(method.toString())
+    let source = method.toString()
+    console.log(source)
+    if (source.startsWith('function (')) {
+      source = source.replace(/^function \(/, `function ${name} (`)
+    }
+    const leaf = new AbstractSyntaxTree(source)
     const fn = leaf.body[0]
     if (name === 'translate') {
       fn.body.body[0].declarations[0].init.properties = serializeProperties(translations)

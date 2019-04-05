@@ -550,3 +550,32 @@ test('filters', async assert => {
   template = await compile('{foo | clone | keys}')
   assert.deepEqual(template({ foo: { a: 1 } }, escape), 'a')
 })
+
+test('filters: custom filters', async assert => {
+  let template = await compile('{foo | myFilter}', {
+    filters: {
+      myFilter: function myFilter (text) {
+        return text.toUpperCase()
+      }
+    }
+  })
+  assert.deepEqual(template({ foo: 'bar' }, escape), 'BAR')
+
+  template = await compile('{foo | myFilter}', {
+    filters: {
+      myFilter: function (text) {
+        return text.toUpperCase()
+      }
+    }
+  })
+  assert.deepEqual(template({ foo: 'bar' }, escape), 'BAR')
+
+  // template = await compile('{foo | myFilter}', {
+  //   filters: {
+  //     myFilter: (text) => {
+  //       return text.toUpperCase()
+  //     }
+  //   }
+  // })
+  // assert.deepEqual(template({ foo: 'bar' }, escape), 'BAR')
+})
