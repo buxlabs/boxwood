@@ -80,7 +80,6 @@ module.exports = {
       options.filters[name]
     if (!method) return null
     let source = method.toString()
-    console.log(source)
     if (source.startsWith('function (')) {
       source = source.replace(/^function \(/, `function ${name} (`)
     }
