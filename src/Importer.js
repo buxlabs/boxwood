@@ -4,16 +4,25 @@ const { join } = require('path')
 const util = require('util')
 const readFile = util.promisify(fs.readFile)
 const { isImportTag } = require('./string')
+const { flatten } = require('pure-utilities/collection')
+const { getComponentNames } = require('./node')
+const parse = require('./html/parse')
 module.exports = class Importer {
-  constructor (tree, source, options = {}) {
-    this.tree = tree
-    this.source = source
+  constructor (source, options = {}) {
+    this.tree = parse(source)
     this.options = options
   }
   async import () {
-    const nodes = find(this.tree)
-    const promises = Promise.all(nodes.map(fetch.bind(this)))
-    return promises
+    const imports = find(this.tree)
+    const components = await Promise.all(imports.map(node => fetch(node, '.', this.options)))
+    const list = flatten(components)
+    let array = []
+    await Promise.all(list.map(async element => {
+      const imports = find(element.tree)
+      const components = await Promise.all(imports.map(node => fetch(node, element.path, this.options)))
+      array = array.concat(flatten(components))
+    }))
+    return list.concat(array)
   }
 }
 
@@ -41,19 +50,22 @@ async function read (path, paths = []) {
   return result
 }
 
-async function fetch (node) {
-  const { source, path } = await read(getComponentPath(node), this.options.paths)
-  const name = getComponentName(node)
-  const files = ['.']
-  const warnings = []
-  return { name, source, path, files, warnings }
+async function fetch (node, context, options) {
+  const names = getComponentNames(node)
+  return await Promise.all(names.map(async name => {
+    const { source, path } = await read(getComponentPath(node, name), options.paths)
+    const tree = parse(source)
+    const files = [context]
+    const warnings = []
+    return { name, source, path, files, warnings, tree }
+  }))
 }
 
-function getComponentName (node) {
-  return node.attributes[0].key
-}
-
-function getComponentPath (node) {
+function getComponentPath (node, name) {
   const length = node.attributes.length
-  return node.attributes[length - 1].value
+  let path = node.attributes[length - 1].value
+  if (path.endsWith('.html')) {
+    return path
+  }
+  return join(path, `${name}.html`)
 }

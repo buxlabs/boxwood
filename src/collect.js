@@ -25,6 +25,7 @@ const caseTag = require('./tags/case')
 const markdownTag = require('./tags/markdown')
 const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
+const { hasShorthandSyntax } = require('./node')
 let asyncCounter = 0
 
 function setDimension (fragment, attrs, keys, statistics, dimension, options) {
@@ -51,8 +52,7 @@ function collectComponentsFromImport (fragment, statistics, components, componen
   const names = extractComponentNames(attrs)
   if (names.length === 1) {
     const name = names[0]
-    const isShorthandSyntax = !!attrs.filter(attr => attr.key.includes('{') || attr.key.includes('}')).length
-    if (!isShorthandSyntax) {
+    if (!hasShorthandSyntax(fragment)) {
       const path = attrs[1].value
       collectComponent(name, path, statistics, components, component, options)
     } else {
