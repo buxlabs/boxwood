@@ -1,7 +1,4 @@
 module.exports = class Component {
-  constructor () {
-
-  }
   serialize () {
     return {
       name: '',

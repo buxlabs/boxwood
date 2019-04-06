@@ -7,6 +7,7 @@ const { isImportTag } = require('./string')
 const { flatten } = require('pure-utilities/collection')
 const { getComponentNames } = require('./node')
 const parse = require('./html/parse')
+
 module.exports = class Importer {
   constructor (source, options = {}) {
     this.tree = parse(source)
@@ -52,7 +53,7 @@ async function read (path, paths = []) {
 
 async function fetch (node, context, options) {
   const names = getComponentNames(node)
-  return await Promise.all(names.map(async name => {
+  return Promise.all(names.map(async name => {
     const { source, path } = await read(getComponentPath(node, name), options.paths)
     const tree = parse(source)
     const files = [context]

@@ -1,7 +1,9 @@
 import test from 'ava'
 import Importer from './Importer'
 import { join } from 'path'
-// TODO: Add fixtures 
+
+// TODO: Add fixtures
+
 const fixtures = join(__dirname, '../test/fixtures/Importer')
 test('Importer: template has no components', async assert => {
   const source = '<div></div>'
@@ -115,15 +117,18 @@ test('Importer: template can have one level of imports', async assert => {
 
 test.skip('Importer: template can have two levels of imports', async assert => {
   const source = `<import bam from="./bam.html"><bam/>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures] })
+  importer.import()
 })
 
 test.skip('Importer: template has unknown component', async assert => {
   const source = `<import unknown from="./unknown.html"><unknown/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  importer.import()
 })
 
 test.skip('Importer: template has nested components with the same name', async assert => {
   const source = `<import pages from="./pages.html"><pages/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  importer.import()
 })
