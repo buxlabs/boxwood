@@ -115,10 +115,31 @@ test('Importer: template can have one level of imports', async assert => {
   assert.deepEqual(component2.warnings, [])
 })
 
-test.skip('Importer: template can have two levels of imports', async assert => {
+test('Importer: template can have two levels of imports', async assert => {
   const source = `<import bam from="./bam.html"><bam/>`
   const importer = new Importer(source, { paths: [fixtures] })
-  importer.import()
+  const components = await importer.import()
+  const component1 = components[0]
+  const component2 = components[1]
+  const component3 = components[2]
+  // assert.deepEqual(components.length, 3)
+  assert.deepEqual(component1.name, 'bam')
+  assert.deepEqual(component1.source, '<import baz from="./baz.html"><baz/>')
+  assert.deepEqual(component1.path, join(fixtures, 'bam.html'))
+  assert.deepEqual(component1.files, ['.'])
+  assert.deepEqual(component1.warnings, [])
+
+  assert.deepEqual(component2.name, 'baz')
+  assert.deepEqual(component2.source, '<import qux from="./qux.html"><qux/>')
+  assert.deepEqual(component2.path, join(fixtures, 'baz.html'))
+  assert.deepEqual(component2.files, [join(fixtures, 'bam.html')])
+  assert.deepEqual(component2.warnings, [])
+
+  assert.deepEqual(component3.name, 'qux')
+  assert.deepEqual(component3.source, '<div>qux</div>')
+  assert.deepEqual(component3.path, join(fixtures, 'qux.html'))
+  assert.deepEqual(component3.files, [join(fixtures, 'baz.html')])
+  assert.deepEqual(component3.warnings, [])
 })
 
 test.skip('Importer: template has unknown component', async assert => {

@@ -5,29 +5,10 @@ const util = require('util')
 const readFile = util.promisify(fs.readFile)
 const { isImportTag } = require('./string')
 const { flatten } = require('pure-utilities/collection')
-const { getComponentNames } = require('./node')
+const { getComponentNames, getComponentPath } = require('./node')
 const parse = require('./html/parse')
 
-module.exports = class Importer {
-  constructor (source, options = {}) {
-    this.tree = parse(source)
-    this.options = options
-  }
-  async import () {
-    const imports = find(this.tree)
-    const components = await Promise.all(imports.map(node => fetch(node, '.', this.options)))
-    const list = flatten(components)
-    let array = []
-    await Promise.all(list.map(async element => {
-      const imports = find(element.tree)
-      const components = await Promise.all(imports.map(node => fetch(node, element.path, this.options)))
-      array = array.concat(flatten(components))
-    }))
-    return list.concat(array)
-  }
-}
-
-function find (tree) {
+function findImportNodes (tree) {
   const nodes = []
   walk(tree, node => {
     if (isImportTag(node.tagName)) {
@@ -37,7 +18,7 @@ function find (tree) {
   return nodes
 }
 
-async function read (path, paths = []) {
+async function loadComponent (path, paths = []) {
   let result
   for (let option of paths) {
     try {
@@ -54,7 +35,7 @@ async function read (path, paths = []) {
 async function fetch (node, context, options) {
   const names = getComponentNames(node)
   return Promise.all(names.map(async name => {
-    const { source, path } = await read(getComponentPath(node, name), options.paths)
+    const { source, path } = await loadComponent(getComponentPath(node, name), options.paths)
     const tree = parse(source)
     const files = [context]
     const warnings = []
@@ -62,11 +43,22 @@ async function fetch (node, context, options) {
   }))
 }
 
-function getComponentPath (node, name) {
-  const length = node.attributes.length
-  let path = node.attributes[length - 1].value
-  if (path.endsWith('.html')) {
-    return path
+async function recursiveImport (tree, path, options) {
+  const imports = findImportNodes(tree)
+  const components = await Promise.all(imports.map(node => fetch(node, path, options)))
+  const current = flatten(components)
+  const nested = await Promise.all(current.map(async element => {
+    return recursiveImport(element.tree, element.path, options)
+  }))
+  return current.concat(flatten(nested))
+}
+
+module.exports = class Importer {
+  constructor (source, options = {}) {
+    this.tree = parse(source)
+    this.options = options
   }
-  return join(path, `${name}.html`)
+  async import () {
+    return recursiveImport(this.tree, '.', this.options)
+  }
 }
