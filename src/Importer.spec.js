@@ -153,3 +153,15 @@ test.skip('Importer: template has nested components with the same name', async a
   const importer = new Importer(source, { paths: [fixtures] })
   importer.import()
 })
+
+test.skip('Importer: templates reuse same components', async assert => {
+  const source = `<import reuse from="./reuse.html"><reuse/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  importer.import()
+})
+
+test.skip('Importer: template has a circular dependency', async assert => {
+  const source = `<import circular from="./circular.html"><circular/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  importer.import()
+})
