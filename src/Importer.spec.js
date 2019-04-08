@@ -8,7 +8,7 @@ const fixtures = join(__dirname, '../test/fixtures/Importer')
 test('Importer: template has no components', async assert => {
   const source = '<div></div>'
   const importer = new Importer(source)
-  const components = await importer.import()
+  const { components } = await importer.import()
   assert.deepEqual(components, [])
 })
 
@@ -17,7 +17,7 @@ test('Importer: template has one component', async assert => {
   const importer = new Importer(source, {
     paths: [fixtures]
   })
-  const components = await importer.import()
+  const { components } = await importer.import()
   const component = components[0]
   assert.deepEqual(components.length, 1)
   assert.deepEqual(component.name, 'foo')
@@ -32,7 +32,7 @@ test('Importer: template has multiple components', async assert => {
   const importer = new Importer(source, {
     paths: [fixtures]
   })
-  const components = await importer.import()
+  const { components } = await importer.import()
   const component1 = components[0]
   const component2 = components[1]
   assert.deepEqual(components.length, 2)
@@ -54,7 +54,7 @@ test('Importer: template has multiple components with shorthand syntax', async a
   const importer = new Importer(source, {
     paths: [fixtures]
   })
-  const components = await importer.import()
+  const { components } = await importer.import()
   const component1 = components[0]
   const component2 = components[1]
   assert.deepEqual(components.length, 2)
@@ -76,7 +76,7 @@ test('Importer: template has multiple components with shorthand syntax and spaci
   const importer = new Importer(source, {
     paths: [fixtures]
   })
-  const components = await importer.import()
+  const { components } = await importer.import()
   const component1 = components[0]
   const component2 = components[1]
   assert.deepEqual(components.length, 2)
@@ -98,7 +98,7 @@ test('Importer: template can have one level of imports', async assert => {
   const importer = new Importer(source, {
     paths: [fixtures]
   })
-  const components = await importer.import()
+  const { components } = await importer.import()
   const component1 = components[0]
   const component2 = components[1]
   assert.deepEqual(components.length, 2)
@@ -118,7 +118,7 @@ test('Importer: template can have one level of imports', async assert => {
 test('Importer: template can have two levels of imports', async assert => {
   const source = `<import bam from="./bam.html"><bam/>`
   const importer = new Importer(source, { paths: [fixtures] })
-  const components = await importer.import()
+  const { components } = await importer.import()
   const component1 = components[0]
   const component2 = components[1]
   const component3 = components[2]
@@ -142,22 +142,37 @@ test('Importer: template can have two levels of imports', async assert => {
   assert.deepEqual(component3.warnings, [])
 })
 
-test.skip('Importer: template has unknown component', async assert => {
+test('Importer: template has unknown component', async assert => {
   const source = `<import unknown from="./unknown.html"><unknown/>`
   const importer = new Importer(source, { paths: [fixtures] })
-  importer.import()
+  const { warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].message, 'Component not found: unknown')
+  assert.deepEqual(warnings[0].type, 'COMPONENT_NOT_FOUND')
 })
 
-test.skip('Importer: template has nested components with the same name', async assert => {
-  const source = `<import pages from="./pages.html"><pages/>`
+test('Importer: templates reuse same components', async assert => {
+  const source = `<import pages1 from="./pages1.html"><pages1/>`
   const importer = new Importer(source, { paths: [fixtures] })
-  importer.import()
+  const { components } = await importer.import()
+  assert.deepEqual(components.length, 4)
+  assert.deepEqual(components[0].path, join(fixtures, 'pages1.html'))
+  assert.deepEqual(components[1].path, join(fixtures, 'page1.html'))
+  assert.deepEqual(components[2].path, join(fixtures, 'page2.html'))
+  assert.deepEqual(components[3].path, join(fixtures, 'button.html'))
+  assert.deepEqual(components[3].files, [join(fixtures, 'page1.html'), join(fixtures, 'page2.html')])
 })
 
-test.skip('Importer: templates reuse same components', async assert => {
-  const source = `<import reuse from="./reuse.html"><reuse/>`
+test('Importer: template has nested components with the same name', async assert => {
+  const source = `<import pages2 from="./pages2.html"><pages2/>`
   const importer = new Importer(source, { paths: [fixtures] })
-  importer.import()
+  const { components } = await importer.import()
+  assert.deepEqual(components.length, 5)
+  assert.deepEqual(components[0].path, join(fixtures, 'pages2.html'))
+  assert.deepEqual(components[1].path, join(fixtures, 'page3/index.html'))
+  assert.deepEqual(components[2].path, join(fixtures, 'page4/index.html'))
+  assert.deepEqual(components[3].path, join(fixtures, 'page3/button.html'))
+  assert.deepEqual(components[4].path, join(fixtures, 'page4/button.html'))
 })
 
 test.skip('Importer: template has a circular dependency', async assert => {
