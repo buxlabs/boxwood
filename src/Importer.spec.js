@@ -175,6 +175,19 @@ test('Importer: template has nested components with the same name', async assert
   assert.deepEqual(components[4].path, join(fixtures, 'page4/button.html'))
 })
 
+test('Importer: template has duplicate components', async assert => {
+  const source = `<import duplicate from="./duplicate.html"><duplicate/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { components, warnings } = await importer.import()
+  assert.deepEqual(components.length, 2)
+  assert.deepEqual(components[0].path, join(fixtures, 'duplicate.html'))
+  assert.deepEqual(components[1].path, join(fixtures, 'foo.html'))
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].message, 'Component duplicate: foo')
+  assert.deepEqual(warnings[0].type, 'COMPONENT_DUPLICATE')  
+})
+
+
 test.skip('Importer: template has a circular dependency', async assert => {
   const source = `<import circular from="./circular.html"><circular/>`
   const importer = new Importer(source, { paths: [fixtures] })

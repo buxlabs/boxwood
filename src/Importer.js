@@ -48,27 +48,50 @@ async function fetch (node, context, options) {
   }))
 }
 
+function validateImports (imports) {
+  const warnings = []
+  const allNames = [] 
+  imports.forEach(node => {
+    const names = getComponentNames(node)
+    names.forEach(name => {
+      if (allNames.includes(name)) {
+        warnings.push({ message: `Component duplicate: ${name}`, type: 'COMPONENT_DUPLICATE' })
+      } else {
+        allNames.push(name)
+      }
+    })
+  })
+  return warnings
+}
+
 async function recursiveImport (tree, path, options) {
   const imports = findImportNodes(tree)
+  const warnings = validateImports(imports)
   const components = await Promise.all(imports.map(node => fetch(node, path, options)))
   const current = flatten(components)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {
     return recursiveImport(element.tree, element.path, options)
   }))
-  let files = current.concat(flatten(nested.map(object => object.components)))
+  let nestedComponents = current.concat(flatten(nested.map(object => object.components)))
+  nestedComponents = mergeComponents(nestedComponents)
+  const nestedWarnings = warnings.concat(flatten(nested.map(object => object.warnings)))
+  return {
+    components: nestedComponents,
+    warnings: nestedWarnings.concat(flatten(nestedComponents.map(file => file.warnings)))
+  }
+}
+
+function mergeComponents(components) {
   const object = {}
-  files.forEach(file => {
-    if (!object[file.path]) {
-      object[file.path] = file
+  components.forEach(component => {
+    const { path, files } = component 
+    if (!object[path]) {
+      object[path] = component
     } else {
-      object[file.path].files = object[file.path].files.concat(file.files)
+      object[path].files = [...object[path].files, ...files] 
     }
   })
-  files = Object.values(object)
-  return {
-    components: files,
-    warnings: flatten(files.map(file => file.warnings))
-  }
+  return Object.values(object)
 }
 
 module.exports = class Importer {
