@@ -5,6 +5,8 @@ const util = require('util')
 const readFile = util.promisify(fs.readFile)
 const { isImportTag } = require('./string')
 const { flatten } = require('pure-utilities/collection')
+const { unique } = require('pure-utilities/array')
+
 const { getComponentNames, getComponentPath } = require('./node')
 const parse = require('./html/parse')
 
@@ -50,17 +52,26 @@ async function fetch (node, context, options) {
 
 function validateImports (imports) {
   const warnings = []
-  const allNames = [] 
+  const allNames = []
+  const allPaths = []
   imports.forEach(node => {
     const names = getComponentNames(node)
     names.forEach(name => {
       if (allNames.includes(name)) {
-        warnings.push({ message: `Component duplicate: ${name}`, type: 'COMPONENT_DUPLICATE' })
+        warnings.push({ message: `Component name duplicate: ${name}`, type: 'COMPONENT_NAME_DUPLICATE' })
       } else {
         allNames.push(name)
       }
     })
   })
+  imports.forEach(node => { allPaths.push(getComponentPath(node)) })
+  const uniquePaths = unique(allPaths)
+  if (uniquePaths.length !== allPaths.length) {
+    const duplicates = uniquePaths.filter(path => allPaths.includes(path))
+    duplicates.forEach(duplicate => {
+      warnings.push({ message: `Component path duplicate: ${duplicate}`, type: 'COMPONENT_PATH_DUPLICATE' })
+    })
+  }
   return warnings
 }
 
@@ -81,14 +92,14 @@ async function recursiveImport (tree, path, options) {
   }
 }
 
-function mergeComponents(components) {
+function mergeComponents (components) {
   const object = {}
   components.forEach(component => {
-    const { path, files } = component 
+    const { path, files } = component
     if (!object[path]) {
       object[path] = component
     } else {
-      object[path].files = [...object[path].files, ...files] 
+      object[path].files = [...object[path].files, ...files]
     }
   })
   return Object.values(object)
