@@ -202,7 +202,7 @@ test('Importer: template has duplicate components with shorthand syntax', async 
 })
 
 test('Importer: template has duplicate components with require tag', async assert => {
-  const source = `<require duplicate3 from="./duplicate3.html"><duplicate/>`
+  const source = `<require duplicate3 from="./duplicate3.html"><duplicate3/>`
   const importer = new Importer(source, { paths: [fixtures] })
   const { components, warnings } = await importer.import()
   assert.deepEqual(components.length, 3)
@@ -241,4 +241,13 @@ test('Importer: template imports itself', async assert => {
   assert.deepEqual(warnings.length, 1)
   assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
   assert.deepEqual(warnings[0].message, 'Maximum import depth exceeded')
+})
+
+test('Importer: template has an unused component', async assert => {
+  const source = `<import foo from="./foo.html">`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].type, 'UNUSED_COMPONENT')
+  assert.deepEqual(warnings[0].message, 'foo component is unused')
 })

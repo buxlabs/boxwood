@@ -6,6 +6,7 @@ const readFile = util.promisify(fs.readFile)
 const { isImportTag } = require('./string')
 const { flatten } = require('pure-utilities/collection')
 const { unique } = require('pure-utilities/array')
+const Linter = require('./Linter')
 
 const { getComponentNames, getComponentPath } = require('./node')
 const parse = require('./html/parse')
@@ -49,8 +50,8 @@ async function fetch (node, context, options) {
     return { name, source, path, files, warnings, tree }
   }))
 }
-
-function validateImports (imports) {
+// TODO: Move to linter 57-78
+function lint (imports, tree, source) {
   const warnings = []
   const allNames = []
   const allPaths = []
@@ -72,10 +73,11 @@ function validateImports (imports) {
       warnings.push({ message: `Component path duplicate: ${duplicate}`, type: 'COMPONENT_PATH_DUPLICATE' })
     })
   }
-  return warnings
+  const linter = new Linter()
+  return [...warnings, ...linter.lint(tree, source).warnings]
 }
 const MAXIMUM_IMPORT_DEPTH = 50
-async function recursiveImport (tree, path, options, depth) {
+async function recursiveImport (tree, source, path, options, depth) {
   if (depth > MAXIMUM_IMPORT_DEPTH) {
     return {
       components: [],
@@ -83,11 +85,11 @@ async function recursiveImport (tree, path, options, depth) {
     }
   }
   const imports = findImportNodes(tree)
-  const warnings = validateImports(imports)
+  const warnings = lint(imports, tree, source)
   const components = await Promise.all(imports.map(node => fetch(node, path, options)))
   const current = flatten(components)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {
-    return recursiveImport(element.tree, element.path, options, depth + 1)
+    return recursiveImport(element.tree, element.source, element.path, options, depth + 1)
   }))
   let nestedComponents = current.concat(flatten(nested.map(object => object.components)))
   nestedComponents = mergeComponents(nestedComponents)
@@ -113,10 +115,11 @@ function mergeComponents (components) {
 
 module.exports = class Importer {
   constructor (source, options = {}) {
+    this.source = source
     this.tree = parse(source)
     this.options = options
   }
   async import () {
-    return recursiveImport(this.tree, '.', this.options, 0)
+    return recursiveImport(this.tree, this.source, '.', this.options, 0)
   }
 }

@@ -4,6 +4,7 @@ const { HtmlValidate } = require('html-validate')
 const { VOID_TAGS } = require('./enum')
 const linter = new HtmlValidate()
 const { isImportTag } = require('./string')
+const { unique } = require('pure-utilities/array')
 
 module.exports = class Linter {
   lint (tree, source) {
@@ -16,27 +17,28 @@ module.exports = class Linter {
   verifyComponents (tree) {
     const warnings = []
     const data = this.analyze(tree)
-    walk(tree.template, node => {
+    walk(tree, node => {
       const index = data.components.indexOf(node.tagName)
       if (index !== -1) {
         data.components.splice(index, 1)
       }
     })
+    // TODO: unify warnings.
     data.components.forEach(component => {
       warnings.push({ type: 'UNUSED_COMPONENT', message: `${component} component is unused` })
     })
     return warnings
   }
 
-  analyze ({ template }) {
+  analyze (tree) {
     const components = []
-    walk(template, node => {
+    walk(tree, node => {
       if (isImportTag(node.tagName)) {
         const names = extractComponentNames(node.attributes)
         names.forEach(name => components.push(name))
       }
     })
-    return { components }
+    return { components: unique(components) }
   }
 
   verifyHTML (source) {
