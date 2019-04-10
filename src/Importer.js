@@ -74,14 +74,20 @@ function validateImports (imports) {
   }
   return warnings
 }
-
-async function recursiveImport (tree, path, options) {
+const MAXIMUM_IMPORT_DEPTH = 50
+async function recursiveImport (tree, path, options, depth) {
+  if (depth > MAXIMUM_IMPORT_DEPTH) {
+    return {
+      components: [],
+      warnings: [{ type: 'MAXIMUM_IMPORT_DEPTH_EXCEEDED', message: 'Maximum import depth exceeded' }]
+    }
+  }
   const imports = findImportNodes(tree)
   const warnings = validateImports(imports)
   const components = await Promise.all(imports.map(node => fetch(node, path, options)))
   const current = flatten(components)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {
-    return recursiveImport(element.tree, element.path, options)
+    return recursiveImport(element.tree, element.path, options, depth + 1)
   }))
   let nestedComponents = current.concat(flatten(nested.map(object => object.components)))
   nestedComponents = mergeComponents(nestedComponents)
@@ -111,6 +117,6 @@ module.exports = class Importer {
     this.options = options
   }
   async import () {
-    return recursiveImport(this.tree, '.', this.options)
+    return recursiveImport(this.tree, '.', this.options, 0)
   }
 }

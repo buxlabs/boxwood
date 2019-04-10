@@ -216,8 +216,29 @@ test('Importer: template has duplicate components with require tag', async asser
   assert.deepEqual(warnings[1].type, 'COMPONENT_PATH_DUPLICATE')
 })
 
-test.skip('Importer: template has a circular dependency', async assert => {
-  const source = `<import circular from="./circular.html"><circular/>`
+test('Importer: template has a flat circular dependency', async assert => {
+  const source = `<import circular-flat-1 from="./circular-flat-1.html"><circular-flat-1/>`
   const importer = new Importer(source, { paths: [fixtures] })
-  importer.import()
+  const { warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
+  assert.deepEqual(warnings[0].message, 'Maximum import depth exceeded')
+})
+
+test('Importer: template has a deep circular dependency', async assert => {
+  const source = `<import circular-deep-1 from="./circular-deep-1.html"><circular-deep-1/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
+  assert.deepEqual(warnings[0].message, 'Maximum import depth exceeded')
+})
+
+test('Importer: template imports itself', async assert => {
+  const source = `<import itself from="./itself.html"><itself/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
+  assert.deepEqual(warnings[0].message, 'Maximum import depth exceeded')
 })
