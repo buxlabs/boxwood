@@ -7,7 +7,7 @@ function hasShorthandSyntax (node) {
 }
 
 function getComponentNames (node) {
-  const omitted = ['{', '}', 'from']
+  const omitted = ['{', '}', 'from', 'partial']
   const keys = node.attributes.map(attribute => attribute.key).filter(key => !omitted.includes(key))
   return keys.join('').replace('{', '').replace('}', '').split(/,/g).map(key => key.trim())
 }
@@ -21,10 +21,22 @@ function getComponentPath (node, name) {
   return join(path, `${name}.html`)
 }
 
+function isPartialTag (name) {
+  return name === 'partial' || name === 'render' || name === 'include'
+}
+
+function hasPartialAttribute (node) {
+  return !!(node.attributes && node.attributes.find(attribute => attribute.key === 'partial'))
+}
+
 function getImportNodes (tree) {
   const nodes = []
   walk(tree, node => {
     if (isImportTag(node.tagName)) {
+      nodes.push(node)
+    } else if (isPartialTag(node.tagName)) {
+      nodes.push(node)
+    } else if (hasPartialAttribute(node)) {
       nodes.push(node)
     }
   })

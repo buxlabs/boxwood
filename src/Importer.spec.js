@@ -251,3 +251,39 @@ test('Importer: template has an unused component', async assert => {
   assert.deepEqual(warnings[0].type, 'UNUSED_COMPONENT')
   assert.deepEqual(warnings[0].message, 'foo component is unused')
 })
+
+test('Importer: template has a partial tag', async assert => {
+  const source = `<partial from="./foo.html"/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { components, warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(components.length, 1)
+  assert.deepEqual(components[0].type, 'PARTIAL')
+})
+
+test('Importer: template has a render tag', async assert => {
+  const source = `<render from="./foo.html"/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { components, warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(components.length, 1)
+  assert.deepEqual(components[0].type, 'PARTIAL')
+})
+
+test('Importer: template has an include tag', async assert => {
+  const source = `<include from="./foo.html"/>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { components, warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(components.length, 1)
+  assert.deepEqual(components[0].type, 'PARTIAL')
+})
+
+test('Importer: template has a partial attribute', async assert => {
+  const source = `<div partial="./foo.html"></div>`
+  const importer = new Importer(source, { paths: [fixtures] })
+  const { components, warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(components.length, 1)
+  assert.deepEqual(components[0].type, 'PARTIAL')
+})

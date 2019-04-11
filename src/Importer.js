@@ -25,6 +25,7 @@ async function loadComponent (path, paths = []) {
 async function fetch (node, context, options) {
   const names = getComponentNames(node)
   return Promise.all(names.map(async name => {
+    const type = name ? 'COMPONENT' : 'PARTIAL'
     const dir = dirname(context)
     const { source, path } = await loadComponent(getComponentPath(node, name), [dir, ...options.paths])
     if (!path) {
@@ -35,7 +36,7 @@ async function fetch (node, context, options) {
     const tree = parse(source)
     const files = [context]
     const warnings = []
-    return { name, source, path, files, warnings, tree }
+    return { name, source, path, files, warnings, tree, type }
   }))
 }
 const MAXIMUM_IMPORT_DEPTH = 50
