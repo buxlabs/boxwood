@@ -4,19 +4,39 @@ const { HtmlValidate } = require('html-validate')
 const { VOID_TAGS } = require('./enum')
 const linter = new HtmlValidate()
 const { isImportTag } = require('./string')
-const { unique } = require('pure-utilities/array')
+const { unique, duplicates } = require('pure-utilities/array')
+const { getComponentNames, getComponentPath } = require('./node')
+
+function analyze (tree) {
+  const components = []
+  walk(tree, node => {
+    if (isImportTag(node.tagName)) {
+      const names = extractComponentNames(node.attributes)
+      names.forEach(name => components.push(name))
+    }
+  })
+  return { components: unique(components) }
+}
+
+function isClosingTagError (message) {
+  for (let tag of VOID_TAGS) {
+    if (message.message.includes(tag)) return false
+  }
+  return message.ruleId === 'close-order' || message.ruleId === 'no-implicit-close'
+}
 
 module.exports = class Linter {
-  lint (tree, source) {
-    const unusedComponentsWarnings = this.verifyComponents(tree)
+  lint (tree, source, imports = []) {
     const invalidHtmlWarnings = this.verifyHTML(source)
-    const warnings = unusedComponentsWarnings.concat(invalidHtmlWarnings)
-    return { warnings }
+    const importsWarnings = this.verifyImports(imports)
+    const unusedComponentsWarnings = this.verifyComponents(tree)
+    const warnings = unusedComponentsWarnings.concat(invalidHtmlWarnings, importsWarnings)
+    return warnings
   }
 
   verifyComponents (tree) {
     const warnings = []
-    const data = this.analyze(tree)
+    const data = analyze(tree)
     walk(tree, node => {
       const index = data.components.indexOf(node.tagName)
       if (index !== -1) {
@@ -30,15 +50,25 @@ module.exports = class Linter {
     return warnings
   }
 
-  analyze (tree) {
-    const components = []
-    walk(tree, node => {
-      if (isImportTag(node.tagName)) {
-        const names = extractComponentNames(node.attributes)
-        names.forEach(name => components.push(name))
-      }
+  verifyImports (imports) {
+    const warnings = []
+    const allNames = []
+    const allPaths = []
+    imports.forEach(node => {
+      const names = getComponentNames(node)
+      names.forEach(name => {
+        if (allNames.includes(name)) {
+          warnings.push({ message: `Component name duplicate: ${name}`, type: 'COMPONENT_NAME_DUPLICATE' })
+        } else {
+          allNames.push(name)
+        }
+      })
     })
-    return { components: unique(components) }
+    imports.forEach(node => { allPaths.push(getComponentPath(node)) })
+    duplicates(allPaths).forEach(duplicate => {
+      warnings.push({ message: `Component path duplicate: ${duplicate}`, type: 'COMPONENT_PATH_DUPLICATE' })
+    })
+    return warnings
   }
 
   verifyHTML (source) {
@@ -46,19 +76,12 @@ module.exports = class Linter {
     const warnings = []
     results.forEach(result => {
       result.messages.forEach(message => {
-        if (this.isClosingTagError(message)) {
+        if (isClosingTagError(message)) {
           const tagName = message.message.match(/'?<\/?\w+'?>/g)[0].replace('\'', '')
           warnings.push({ type: 'UNCLOSED_TAG', message: `Unclosed tag ${tagName} in line ${message.line}` })
         }
       })
     })
     return warnings
-  }
-
-  isClosingTagError (message) {
-    for (let tag of VOID_TAGS) {
-      if (message.message.includes(tag)) return false
-    }
-    return message.ruleId === 'close-order' || message.ruleId === 'no-implicit-close'
   }
 }

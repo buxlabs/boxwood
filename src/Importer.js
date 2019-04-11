@@ -1,25 +1,13 @@
-const walk = require('himalaya-walk')
 const fs = require('fs')
 const { join, dirname } = require('path')
 const util = require('util')
 const readFile = util.promisify(fs.readFile)
-const { isImportTag } = require('./string')
 const { flatten } = require('pure-utilities/collection')
-const { unique } = require('pure-utilities/array')
 const Linter = require('./Linter')
 
-const { getComponentNames, getComponentPath } = require('./node')
+const { getComponentNames, getComponentPath, getImportNodes } = require('./node')
 const parse = require('./html/parse')
-
-function findImportNodes (tree) {
-  const nodes = []
-  walk(tree, node => {
-    if (isImportTag(node.tagName)) {
-      nodes.push(node)
-    }
-  })
-  return nodes
-}
+const linter = new Linter()
 
 async function loadComponent (path, paths = []) {
   for (let option of paths) {
@@ -50,32 +38,6 @@ async function fetch (node, context, options) {
     return { name, source, path, files, warnings, tree }
   }))
 }
-// TODO: Move to linter 57-78
-function lint (imports, tree, source) {
-  const warnings = []
-  const allNames = []
-  const allPaths = []
-  imports.forEach(node => {
-    const names = getComponentNames(node)
-    names.forEach(name => {
-      if (allNames.includes(name)) {
-        warnings.push({ message: `Component name duplicate: ${name}`, type: 'COMPONENT_NAME_DUPLICATE' })
-      } else {
-        allNames.push(name)
-      }
-    })
-  })
-  imports.forEach(node => { allPaths.push(getComponentPath(node)) })
-  const uniquePaths = unique(allPaths)
-  if (uniquePaths.length !== allPaths.length) {
-    const duplicates = uniquePaths.filter(path => allPaths.includes(path))
-    duplicates.forEach(duplicate => {
-      warnings.push({ message: `Component path duplicate: ${duplicate}`, type: 'COMPONENT_PATH_DUPLICATE' })
-    })
-  }
-  const linter = new Linter()
-  return [...warnings, ...linter.lint(tree, source).warnings]
-}
 const MAXIMUM_IMPORT_DEPTH = 50
 async function recursiveImport (tree, source, path, options, depth) {
   if (depth > MAXIMUM_IMPORT_DEPTH) {
@@ -84,8 +46,8 @@ async function recursiveImport (tree, source, path, options, depth) {
       warnings: [{ type: 'MAXIMUM_IMPORT_DEPTH_EXCEEDED', message: 'Maximum import depth exceeded' }]
     }
   }
-  const imports = findImportNodes(tree)
-  const warnings = lint(imports, tree, source)
+  const imports = getImportNodes(tree)
+  const warnings = linter.lint(tree, source, imports)
   const components = await Promise.all(imports.map(node => fetch(node, path, options)))
   const current = flatten(components)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {

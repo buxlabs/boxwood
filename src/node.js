@@ -1,4 +1,6 @@
 const { join } = require('path')
+const walk = require('himalaya-walk')
+const { isImportTag } = require('./string')
 
 function hasShorthandSyntax (node) {
   return !!node.attributes.filter(attribute => attribute.key.includes('{') || attribute.key.includes('}')).length
@@ -19,8 +21,19 @@ function getComponentPath (node, name) {
   return join(path, `${name}.html`)
 }
 
+function getImportNodes (tree) {
+  const nodes = []
+  walk(tree, node => {
+    if (isImportTag(node.tagName)) {
+      nodes.push(node)
+    }
+  })
+  return nodes
+}
+
 module.exports = {
   hasShorthandSyntax,
   getComponentNames,
-  getComponentPath
+  getComponentPath,
+  getImportNodes
 }
