@@ -23,6 +23,7 @@ const elseunlessTag = require('./tags/elseunless')
 const switchTag = require('./tags/switch')
 const caseTag = require('./tags/case')
 const markdownTag = require('./tags/markdown')
+const fontTag = require('./tags/font')
 const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
@@ -678,6 +679,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
       collectComponentsFromPartialOrRender(fragment, statistics, options)
     } else if (tag === 'markdown') {
       markdownTag({ fragment, tree })
+    } else if (tag === 'font') {
+      fontTag({ fragment, tree, options })
     }
     depth -= 1
   } catch (exception) {
