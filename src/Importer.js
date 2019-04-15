@@ -23,11 +23,12 @@ async function loadComponent (path, paths = []) {
 }
 
 async function fetch (node, context, options) {
+  const paths = options.paths || []
   const names = getComponentNames(node)
   return Promise.all(names.map(async name => {
     const type = name ? 'COMPONENT' : 'PARTIAL'
     const dir = dirname(context)
-    const { source, path } = await loadComponent(getComponentPath(node, name), [dir, ...options.paths])
+    const { source, path } = await loadComponent(getComponentPath(node, name), [dir, ...paths])
     if (!path) {
       return {
         warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${name}` }]

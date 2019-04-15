@@ -651,3 +651,24 @@ test('import: importing multiple components within one import tag', async assert
   })
   assert.deepEqual(template({}, escape), 'bazqux')
 })
+
+test('import: should add the component path to the statistics', async assert => {
+  var { statistics } = await compile(`<import bar from='./bar.html'><bar bar="{bar}" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/import/variables/bar.html')])
+})
+
+test('import: should add the partial path to the statistics', async assert => {
+  var { statistics } = await compile(`<partial from='./bar.html'/>`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/import/variables/bar.html')])
+})
+
+test('import: should add the partial attribute path to the statistics', async assert => {
+  var { statistics } = await compile(`<div partial='./bar.html'></div>`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/variables') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/import/variables/bar.html')])
+})

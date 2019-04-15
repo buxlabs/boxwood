@@ -5,7 +5,7 @@ module.exports = {
     var template = compiler.parse(source)
     var warnings = compiler.lint(template, source)
     warnings.forEach(warning => console.warn(warning))
-    var { tree, statistics, errors } = await compiler.transform(template)
+    var { tree, statistics, errors } = await compiler.transform(source, template)
     return compiler.generate({ tree, statistics, errors })
   }
 }

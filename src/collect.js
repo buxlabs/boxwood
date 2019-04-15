@@ -48,31 +48,31 @@ function setDimension (fragment, attrs, keys, statistics, dimension, options) {
   }
 }
 
-function collectComponentsFromImport (fragment, statistics, components, component, options) {
+function collectComponentsFromImport (fragment, components, component, options) {
   const attrs = fragment.attributes
   const names = extractComponentNames(attrs)
   if (names.length === 1) {
     const name = names[0]
     if (!hasShorthandSyntax(fragment)) {
       const path = attrs[1].value
-      collectComponent(name, path, statistics, components, component, options)
+      collectComponent(name, path, components, component, options)
     } else {
       const lastAttribute = attrs[attrs.length - 1]
       const dir = lastAttribute.value
       const path = join(dir, `${name}.html`)
-      collectComponent(name, path, statistics, components, component, options)
+      collectComponent(name, path, components, component, options)
     }
   } else {
     const lastAttribute = attrs[attrs.length - 1]
     const dir = lastAttribute.value
     names.forEach(name => {
       const path = join(dir, `${name}.html`)
-      collectComponent(name, path, statistics, components, component, options)
+      collectComponent(name, path, components, component, options)
     })
   }
 }
 
-function collectComponent (name, path, statistics, components, component, options) {
+function collectComponent (name, path, components, component, options) {
   let paths = []
   if (options.paths) {
     paths = paths.concat(options.paths)
@@ -88,26 +88,23 @@ function collectComponent (name, path, statistics, components, component, option
   findFile(path, { paths }, location => {
     const content = readFileSync(location, 'utf8')
     components.push({ name, content, path: location })
-    statistics.components.push({ name, content, path: location })
   })
 }
 
-function collectComponentsFromPartialOrRender (fragment, statistics, options) {
+function collectComponentsFromPartialOrRender (fragment, options) {
   const path = fragment.attributes[0].value
   findFile(path, options, location => {
     const content = readFileSync(location, 'utf8')
-    statistics.partials.push({ path: location })
     fragment.children = parse(content)
   })
 }
 
-function collectComponentsFromPartialAttribute (fragment, statistics, options) {
+function collectComponentsFromPartialAttribute (fragment, options) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (attr) {
     const path = attr.value
     findFile(path, options, location => {
       const content = readFileSync(location, 'utf8')
-      statistics.partials.push({ path: location })
       fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
       fragment.children = parse(content)
     })
@@ -250,11 +247,11 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
     const attrs = current.attributes || []
     const keys = attrs.map(attr => attr.key)
     if (isImportTag(current.tagName)) {
-      collectComponentsFromImport(current, statistics, currentComponents, component, options)
+      collectComponentsFromImport(current, currentComponents, component, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, statistics, options)
+      collectComponentsFromPartialOrRender(current, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, statistics, options)
+      collectComponentsFromPartialAttribute(current, options)
     } else if (
       (current.tagName === 'template' && keys.length > 0) ||
       (current.tagName === 'script' && keys.includes('component'))
@@ -569,7 +566,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
       }
-      collectComponentsFromPartialAttribute(fragment, statistics, options)
+      collectComponentsFromPartialAttribute(fragment, options)
       const nodes = convertTag(fragment, variables, filters, translations, languages, translationsPaths, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
@@ -674,9 +671,9 @@ async function collect (tree, fragment, variables, filters, components, statisti
     } else if (tag === 'foreach' || tag === 'each') {
       foreachTag({ fragment, tree, variables, attrs, collectChildren })
     } else if (isImportTag(tag)) {
-      collectComponentsFromImport(fragment, statistics, components, null, options)
+      collectComponentsFromImport(fragment, components, null, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
-      collectComponentsFromPartialOrRender(fragment, statistics, options)
+      collectComponentsFromPartialOrRender(fragment, options)
     } else if (tag === 'markdown') {
       markdownTag({ fragment, tree })
     } else if (tag === 'font') {
