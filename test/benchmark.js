@@ -17,7 +17,7 @@ test('benchmark', async assert => {
   const source5 = await readFile(path.join(__dirname, 'fixtures/benchmark/mustache.mst'))
 
   const suite = new Suite()
-  const fn1 = await compile(source1)
+  const { template: fn1 } = await compile(source1)
   const fn2 = underscore.template(source2)
   const fn3 = template(source3)
   const fn4 = handlebars.compile(source4)
