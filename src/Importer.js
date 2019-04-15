@@ -22,11 +22,11 @@ async function loadComponent (path, paths = []) {
   return {}
 }
 
-async function fetch (node, context, options) {
+async function fetch (node, kind, context, options) {
   const paths = options.paths || []
-  const names = getComponentNames(node)
+  const names = kind === 'IMPORT' ? getComponentNames(node) : ['']
   return Promise.all(names.map(async name => {
-    const type = name ? 'COMPONENT' : 'PARTIAL'
+    const type = kind === 'IMPORT' ? 'COMPONENT' : kind
     const dir = dirname(context)
     const { source, path } = await loadComponent(getComponentPath(node, name), [dir, ...paths])
     if (!path) {
@@ -49,8 +49,8 @@ async function recursiveImport (tree, source, path, options, depth) {
     }
   }
   const imports = getImportNodes(tree)
-  const warnings = linter.lint(tree, source, imports)
-  const assets = await Promise.all(imports.map(node => fetch(node, path, options)))
+  const warnings = linter.lint(tree, source, imports.map(({ node }) => node))
+  const assets = await Promise.all(imports.map(({ node, kind }) => fetch(node, kind, path, options)))
   const current = flatten(assets)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {
     return recursiveImport(element.tree, element.source, element.path, options, depth + 1)

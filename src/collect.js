@@ -395,7 +395,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
         findFile(path, options, location => {
           const string = readFileSync(location, 'utf8')
           content += string.trim()
-          statistics.scripts.push({ path: location })
         })
         content += `</script>`
         tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))

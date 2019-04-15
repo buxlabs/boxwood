@@ -12,10 +12,10 @@ function getComponentNames (node) {
   return keys.join('').replace('{', '').replace('}', '').split(/,/g).map(key => key.trim())
 }
 
-function getComponentPath (node, name) {
-  const length = node.attributes.length
-  let path = node.attributes[length - 1].value
-  if (path.endsWith('.html')) {
+function getComponentPath ({ attributes }, name) {
+  const node = attributes.find(({ key }) => key === 'from' || key === 'partial' || key === 'src' || key === 'href')
+  const path = node.value
+  if (path.endsWith('.html') || path.endsWith('.css') || path.endsWith('.js')) {
     return path
   }
   return join(path, `${name}.html`)
@@ -29,15 +29,19 @@ function hasPartialAttribute (node) {
   return !!(node.attributes && node.attributes.find(attribute => attribute.key === 'partial'))
 }
 
+function isScriptWithInlineAttribute (node) {
+  return node.tagName === 'script' && node.attributes.find(attribute => attribute.key === 'inline')
+}
+
 function getImportNodes (tree) {
   const nodes = []
   walk(tree, node => {
     if (isImportTag(node.tagName)) {
-      nodes.push(node)
-    } else if (isPartialTag(node.tagName)) {
-      nodes.push(node)
-    } else if (hasPartialAttribute(node)) {
-      nodes.push(node)
+      nodes.push({ node, kind: 'IMPORT' })
+    } else if (isPartialTag(node.tagName) || hasPartialAttribute(node)) {
+      nodes.push({ node, kind: 'PARTIAL' })
+    } else if (isScriptWithInlineAttribute(node)) {
+      nodes.push({ node, kind: 'SCRIPT' })
     }
   })
   return nodes

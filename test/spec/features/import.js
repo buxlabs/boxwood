@@ -672,3 +672,10 @@ test('import: should add the partial attribute path to the statistics', async as
   })
   assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/import/variables/bar.html')])
 })
+
+test('import: should add the inline script path to the statistics', async assert => {
+  var { statistics } = await compile(`<script src='./foo.js' inline></script>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.js')])
+})

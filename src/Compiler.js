@@ -34,6 +34,8 @@ async function render (source, htmltree, options) {
       statistics.components.push(asset)
     } else if (asset.type === 'PARTIAL') {
       statistics.partials.push(asset)
+    } else if (asset.type === 'SCRIPT') {
+      statistics.scripts.push(asset)
     }
   })
   const store = {}

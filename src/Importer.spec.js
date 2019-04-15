@@ -3,11 +3,27 @@ import Importer from './Importer'
 import { join } from 'path'
 
 const fixtures = join(__dirname, '../test/fixtures/Importer')
+
 test('Importer: template has no assets', async assert => {
   const source = '<div></div>'
   const importer = new Importer(source)
   const { assets } = await importer.import()
   assert.deepEqual(assets, [])
+})
+
+test.only('Importer: template has a script tag', async assert => {
+  const source = `<script inline src="./foo.js"></script>`
+  const importer = new Importer(source, {
+    paths: [fixtures]
+  })
+  const { assets } = await importer.import()
+  const asset = assets[0]
+  assert.deepEqual(assets.length, 1)
+  assert.deepEqual(asset.name, '')
+  assert.deepEqual(asset.source, 'const answer = 42')
+  assert.deepEqual(asset.path, join(fixtures, 'foo.js'))
+  assert.deepEqual(asset.files, ['.'])
+  assert.deepEqual(asset.type, 'SCRIPT')
 })
 
 test('Importer: template has one asset', async assert => {
