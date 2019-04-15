@@ -4,9 +4,8 @@ const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } 
 const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./factory')
 const collect = require('./collect')
 const { getFilter } = require('./filters')
-const { array: { unique } } = require('pure-utilities')
+const { unique } = require('pure-utilities/array')
 const Parser = require('./Parser')
-const Linter = require('./Linter')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Statistics = require('./Statistics')
@@ -29,7 +28,7 @@ async function render (source, htmltree, options) {
   const components = []
   const statistics = new Statistics()
   const importer = new Importer(source, options)
-  const { assets } = await importer.import()
+  const { assets, warnings } = await importer.import()
   assets.forEach(asset => {
     if (asset.type === 'COMPONENT') {
       statistics.components.push(asset)
@@ -83,7 +82,7 @@ async function render (source, htmltree, options) {
     }
   })
   tree.append(getTemplateReturnStatement())
-  return { tree, statistics, errors }
+  return { tree, statistics, warnings, errors }
 }
 
 class Compiler {
@@ -102,12 +101,8 @@ class Compiler {
     const parser = new Parser()
     return parser.parse(source)
   }
-  lint (tree, source) {
-    const linter = new Linter()
-    return linter.lint(tree, source)
-  }
   async generate (source, htmltree) {
-    var { tree, statistics, errors } = await render(source, htmltree, this.options)
+    var { tree, statistics, warnings, errors } = await render(source, htmltree, this.options)
     const analyzer = new Analyzer(tree)
     const params = analyzer.params()
     const optimizer = new Optimizer(tree)
@@ -115,8 +110,13 @@ class Compiler {
     if (process.env.DEBUG) {
       console.log(tree.source)
     }
+    warnings.forEach(warning => console.error(warning))
     const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
     return { template: compiled, statistics: statistics.serialize(), errors }
+  }
+  async compile (source) {
+    const tree = this.parse(source)
+    return this.generate(source, tree)
   }
 }
 
