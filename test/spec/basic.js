@@ -445,12 +445,6 @@ test('basic', async assert => {
   template = await compile('<button>{translate("buttons.search")}&nbsp;<span class="fa fa-search"></span></button>')
   assert.deepEqual(template({ translate () { return 'foo' } }, escape), '<button>foo&nbsp;<span class="fa fa-search"></span></button>')
 
-  template = await compile('{foo.bar}<rescue>baz</rescue>')
-  assert.deepEqual(template({}, escape), 'baz')
-
-  template = await compile('{foo.bar}<rescue>baz</rescue>')
-  assert.deepEqual(template({ foo: { bar: 'qux' } }, escape), 'qux')
-
   template = await compile('<style></style>')
   assert.deepEqual(template({}, escape), '<style></style>')
 

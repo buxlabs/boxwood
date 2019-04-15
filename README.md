@@ -168,14 +168,6 @@ render(
 </script>
 ```
 
-* error handling: rescue tag
-
-```html
-<h1>{person.title}</h1>
-<rescue>:(</rescue>
-```
-
-
 ## Examples
 
 ```

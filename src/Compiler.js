@@ -76,29 +76,6 @@ async function render (htmltree, options) {
   return { tree, statistics, errors }
 }
 
-function wrap (template, rescue) {
-  const tree = new AbstractSyntaxTree('')
-  tree.append({
-    type: 'TryStatement',
-    block: {
-      type: 'BlockStatement',
-      body: template.body
-    },
-    handler: {
-      type: 'CatchClause',
-      param: {
-        type: 'Identifier',
-        name: 'exception'
-      },
-      body: {
-        type: 'BlockStatement',
-        body: rescue.body
-      }
-    }
-  })
-  return tree
-}
-
 class Compiler {
   constructor (options) {
     this.options = Object.assign({
@@ -119,41 +96,19 @@ class Compiler {
     const linter = new Linter()
     return linter.lint(tree, source)
   }
-  async transform ({ template, rescue }) {
-    return Promise.all([
-      render(template, this.options),
-      render(rescue, this.options)
-    ])
+  async transform (template) {
+    return render(template, this.options)
   }
-  generate ({ template, rescue }) {
-    let program, statistics, errors
-    if (rescue) {
-      program = wrap(template.tree, rescue.tree)
-    } else {
-      program = template.tree
-    }
-    if (this.options.statistics) {
-      if (rescue) {
-        statistics = template.statistics.merge(rescue.statistics).serialize()
-      } else {
-        statistics = template.statistics.serialize()
-      }
-    }
-    if (rescue) {
-      errors = template.errors.concat(rescue.errors)
-    } else {
-      errors = template.errors
-    }
-
-    const analyzer = new Analyzer(program)
+  generate ({ tree, errors, statistics }) {
+    const analyzer = new Analyzer(tree)
     const params = analyzer.params()
-    const optimizer = new Optimizer(program)
+    const optimizer = new Optimizer(tree)
     optimizer.optimize()
     if (process.env.DEBUG) {
-      console.log(program.source)
+      console.log(tree.source)
     }
-    const compiled = new Function(`return function render(${params}) {\n${program.source}}`)() // eslint-disable-line
-    return { template: compiled, statistics, errors }
+    const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
+    return { template: compiled, statistics: statistics.serialize(), errors }
   }
 }
 
