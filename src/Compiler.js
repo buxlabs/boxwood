@@ -27,14 +27,14 @@ async function render (source, htmltree, options) {
   ].concat(GLOBAL_VARIABLES)
   const filters = []
   const components = []
-  const importer = new Importer(source, options)
-  const data = await importer.import()
   const statistics = new Statistics()
-  data.components.forEach(component => {
-    if (component.type === 'COMPONENT') {
-      statistics.components.push(component)
-    } else if (component.type === 'PARTIAL') {
-      statistics.partials.push(component)
+  const importer = new Importer(source, options)
+  const { assets } = await importer.import()
+  assets.forEach(asset => {
+    if (asset.type === 'COMPONENT') {
+      statistics.components.push(asset)
+    } else if (asset.type === 'PARTIAL') {
+      statistics.partials.push(asset)
     }
   })
   const store = {}
@@ -106,10 +106,8 @@ class Compiler {
     const linter = new Linter()
     return linter.lint(tree, source)
   }
-  async transform (source, tree) {
-    return render(source, tree, this.options)
-  }
-  generate ({ tree, errors, statistics }) {
+  async generate (source, htmltree) {
+    var { tree, statistics, errors } = await render(source, htmltree, this.options)
     const analyzer = new Analyzer(tree)
     const params = analyzer.params()
     const optimizer = new Optimizer(tree)

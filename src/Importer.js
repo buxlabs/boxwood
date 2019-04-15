@@ -44,29 +44,29 @@ const MAXIMUM_IMPORT_DEPTH = 50
 async function recursiveImport (tree, source, path, options, depth) {
   if (depth > MAXIMUM_IMPORT_DEPTH) {
     return {
-      components: [],
+      assets: [],
       warnings: [{ type: 'MAXIMUM_IMPORT_DEPTH_EXCEEDED', message: 'Maximum import depth exceeded' }]
     }
   }
   const imports = getImportNodes(tree)
   const warnings = linter.lint(tree, source, imports)
-  const components = await Promise.all(imports.map(node => fetch(node, path, options)))
-  const current = flatten(components)
+  const assets = await Promise.all(imports.map(node => fetch(node, path, options)))
+  const current = flatten(assets)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {
     return recursiveImport(element.tree, element.source, element.path, options, depth + 1)
   }))
-  let nestedComponents = current.concat(flatten(nested.map(object => object.components)))
-  nestedComponents = mergeComponents(nestedComponents)
+  let nestedAssets = current.concat(flatten(nested.map(object => object.assets)))
+  nestedAssets = mergeAssets(nestedAssets)
   const nestedWarnings = warnings.concat(flatten(nested.map(object => object.warnings)))
   return {
-    components: nestedComponents,
-    warnings: nestedWarnings.concat(flatten(nestedComponents.map(file => file.warnings)))
+    assets: nestedAssets,
+    warnings: nestedWarnings.concat(flatten(nestedAssets.map(file => file.warnings)))
   }
 }
 
-function mergeComponents (components) {
+function mergeAssets (assets) {
   const object = {}
-  components.forEach(component => {
+  assets.forEach(component => {
     const { path, files } = component
     if (!object[path]) {
       object[path] = component
