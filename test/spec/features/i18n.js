@@ -4,7 +4,7 @@ import path from 'path'
 import escape from 'escape-html'
 
 test('i18n: translate tag', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><translate submit>`,
     { languages: ['pl', 'en'] }
   )
@@ -13,7 +13,7 @@ test('i18n: translate tag', async assert => {
 })
 
 test('i18n: translate tag with translations defined at the end of the file', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<translate submit><script i18n>export default { submit: ['Wyślij', 'Send'] }</script>`,
     { languages: ['pl', 'en'] }
   )
@@ -22,7 +22,7 @@ test('i18n: translate tag with translations defined at the end of the file', asy
 })
 
 test('i18n: translate modifier', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script>{"submit" | translate}`,
     { languages: ['pl', 'en'] }
   )
@@ -31,7 +31,7 @@ test('i18n: translate modifier', async assert => {
 })
 
 test('i18n: translate modifier for a string with dot', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{"button.submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
@@ -40,7 +40,7 @@ test('i18n: translate modifier for a string with dot', async assert => {
 })
 
 test('i18n: translate tag for a string with dot', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div><translate button.submit></div>`,
     { languages: ['pl', 'en'] }
   )
@@ -49,7 +49,7 @@ test('i18n: translate tag for a string with dot', async assert => {
 })
 
 test('i18n: translate modifier with a variable', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
@@ -58,7 +58,7 @@ test('i18n: translate modifier with a variable', async assert => {
 })
 
 test('i18n: translate modifier with a variable with dot notation', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
@@ -67,7 +67,7 @@ test('i18n: translate modifier with a variable with dot notation', async assert 
 })
 
 test('i18n: translations in json and a translate modifier', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div>{"submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
@@ -76,7 +76,7 @@ test('i18n: translations in json and a translate modifier', async assert => {
 })
 
 test('i18n: translations in json and a translate tag', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div><translate submit></div>`,
     { languages: ['pl', 'en'] }
   )
@@ -85,7 +85,7 @@ test('i18n: translations in json and a translate tag', async assert => {
 })
 
 test('i18n: translations in yaml and a translate modifier', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n yaml>
      submit:
      - Wyślij
@@ -98,7 +98,7 @@ test('i18n: translations in yaml and a translate modifier', async assert => {
 })
 
 test('i18n: translations in yaml and a translate tag', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n yaml>
      submit:
      - Wyślij
@@ -111,7 +111,7 @@ test('i18n: translations in yaml and a translate tag', async assert => {
 })
 
 test('i18n: translations in yaml and a translate modifier with dot notation', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n yaml>
      button.submit:
      - Wyślij
@@ -124,7 +124,7 @@ test('i18n: translations in yaml and a translate modifier with dot notation', as
 })
 
 test('i18n: translations in yaml and a translate tag with dot notation', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n yaml>
      button.submit:
      - Wyślij
@@ -137,7 +137,7 @@ test('i18n: translations in yaml and a translate tag with dot notation', async a
 })
 
 test('i18n: loading translations from yaml', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n from="../../fixtures/translations/buttons.yaml"></script>
     <div><translate button.submit></div>`,
     {
@@ -150,7 +150,7 @@ test('i18n: loading translations from yaml', async assert => {
 })
 
 test('i18n: loading translations from json', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n from="../../fixtures/translations/buttons.json"></script>
     <div><translate button.submit></div>`,
     {
@@ -163,7 +163,7 @@ test('i18n: loading translations from json', async assert => {
 })
 
 test('i18n: loading translations from js', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n from="../../fixtures/translations/buttons.js"></script>
     <div><translate button.submit></div>`,
     {
@@ -176,7 +176,7 @@ test('i18n: loading translations from js', async assert => {
 })
 
 test('i18n: loading translations from global yaml files', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<div><translate button.submit></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.yaml')] }
   )
@@ -185,7 +185,7 @@ test('i18n: loading translations from global yaml files', async assert => {
 })
 
 test('i18n: loading translations from global json files', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<div><translate cancel></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
   )
@@ -194,7 +194,7 @@ test('i18n: loading translations from global json files', async assert => {
 })
 
 test('i18n: loading translations from global js files', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<div><translate cancel></div>`,
     { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.js')] }
   )
@@ -337,7 +337,7 @@ test('i18n: throws if the js file is corrupt', async assert => {
 })
 
 test('i18n: self-closing syntax', async assert => {
-  const template = await compile(
+  var { template } = await compile(
     `<script i18n yaml>
      title:
      - Tytuł

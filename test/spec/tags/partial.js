@@ -4,29 +4,27 @@ import path from 'path'
 import escape from 'escape-html'
 
 test('partial', async assert => {
-  let template
-
-  template = await compile(`<partial from="./terms.html" />`, {
+  var { template } = await compile(`<partial from="./terms.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}), '<div>foo bar baz</div>')
 
-  template = await compile(`<partial from="./footer.html" />`, {
+  var { template } = await compile(`<partial from="./footer.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
 
-  template = await compile(`<partial from="./header.html" />`, {
+  var { template } = await compile(`<partial from="./header.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  template = await compile(`<partial from="./header.html">`, {
+  var { template } = await compile(`<partial from="./header.html">`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  template = await compile(`<partial from="./header.html" />`, {
+  var { template } = await compile(`<partial from="./header.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
@@ -43,7 +41,7 @@ test('partial', async assert => {
 })
 
 test('partial: can import components', async assert => {
-  const template = await compile(`<partial from="./newsletter.html" />`, {
+  var { template } = await compile(`<partial from="./newsletter.html" />`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}, escape), '<form class="ui form"><button class="btn primary">foo</button></form>')

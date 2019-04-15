@@ -3,7 +3,7 @@ import compile from '../../helpers/compile'
 import escape from 'escape-html'
 
 test('svg can be imported', async assert => {
-  const template = await compile('<svg from="../../fixtures/svg/rectangle.svg" />', { paths: [__dirname] })
+  var { template } = await compile('<svg from="../../fixtures/svg/rectangle.svg" />', { paths: [__dirname] })
   assert.deepEqual(template({}, escape), '<svg width="400" height="100"><rect width="400" height="100" style="fill:rgb(0,0,255);stroke-width:10;stroke:rgb(0,0,0)"></rect></svg>')
 })
 

@@ -4,17 +4,17 @@ import { join } from 'path'
 import escape from 'escape-html'
 
 test('style[scoped]: first tag', async assert => {
-  const template = await compile('<style scoped>.foo{color:red}</style><a class="foo">bar</a>')
+  var { template } = await compile('<style scoped>.foo{color:red}</style><a class="foo">bar</a>')
   assert.deepEqual(template({}, escape), '<style>.scope-122304991.foo{color:red}</style><a class="scope-122304991 foo">bar</a>')
 })
 
 test('style[scoped]: last tag', async assert => {
-  const template = await compile('<a class="foo">bar</a><style scoped>.foo{color:red}</style>')
+  var { template } = await compile('<a class="foo">bar</a><style scoped>.foo{color:red}</style>')
   assert.deepEqual(template({}, escape), '<a class="scope-122304991 foo">bar</a><style>.scope-122304991.foo{color:red}</style>')
 })
 
 test('style[scoped]: multiple classes', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <a class="foo bar">baz</a>
     <style scoped>.foo.bar{color:red}</style>
   `)
@@ -22,7 +22,7 @@ test('style[scoped]: multiple classes', async assert => {
 })
 
 test('style[scoped]: pseudo classes', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <a class="foo">baz</a>
     <style scoped>.foo:hover{color:red}</style>
   `)
@@ -30,7 +30,7 @@ test('style[scoped]: pseudo classes', async assert => {
 })
 
 test('stype[scoped]: pseudo elements', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <a class="foo">baz</a>
     <style scoped>.foo::after{content:"⤴"}</style>
   `)
@@ -38,7 +38,7 @@ test('stype[scoped]: pseudo elements', async assert => {
 })
 
 test('style[scoped]: type selectors', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <a class="foo">baz</a>
     <style scoped>a.foo::after{content:"⤴"}</style>
   `)
@@ -46,7 +46,7 @@ test('style[scoped]: type selectors', async assert => {
 })
 
 test('style[inline]: inline fonts', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <style inline>
       @font-face {
         font-family: 'Example';

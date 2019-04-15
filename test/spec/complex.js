@@ -50,6 +50,6 @@ async function suite (name, data) {
   const dir = join(__dirname, '../fixtures/complex')
   const file1 = join(dir, name, 'actual.html')
   const content1 = await readFile(file1)
-  const template = await compile(content1)
+  var { template } = await compile(content1)
   return template(data, escape)
 }

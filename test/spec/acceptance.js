@@ -45,7 +45,7 @@ async function suite (name, assert) {
   const content1 = await readFile(path1)
   const content2 = await readFile(path2)
   const content3 = await readFile(path3)
-  const template = await compile(content1, {
+  var { template } = await compile(content1, {
     paths: [dir],
     languages: ['pl', 'en']
   })

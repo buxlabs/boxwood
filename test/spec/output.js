@@ -4,32 +4,32 @@ import { normalize } from '../helpers/string'
 import path from 'path'
 
 test('output: empty string', async assert => {
-  const template = await compile('')
+  var { template } = await compile('')
   assert.deepEqual(normalize(template.toString()), normalize('function render() { return ""; }'))
 })
 
 test('output: string', async assert => {
-  const template = await compile('foo')
+  var { template } = await compile('foo')
   assert.deepEqual(normalize(template.toString()), normalize('function render() { return "foo"; }'))
 })
 
 test('output: html tag and string', async assert => {
-  const template = await compile('<div>foo</div>')
+  var { template } = await compile('<div>foo</div>')
   assert.deepEqual(normalize(template.toString()), normalize('function render() { return "<div>foo</div>"; }'))
 })
 
 test('output: html tag and a curly tag', async assert => {
-  const template = await compile('<div>{foo}</div>')
+  var { template } = await compile('<div>{foo}</div>')
   assert.deepEqual(normalize(template.toString()), normalize('function render(__o, __e) { var __t = "<div>"; __t += __e(__o.foo); __t += "</div>"; return __t; }'))
 })
 
 test('output: html tags and a curly tag', async assert => {
-  const template = await compile('<div>{foo}</div><div>bar</div>')
+  var { template } = await compile('<div>{foo}</div><div>bar</div>')
   assert.deepEqual(normalize(template.toString()), normalize('function render(__o, __e) { var __t = "<div>"; __t += __e(__o.foo); __t += "</div><div>bar</div>"; return __t; }'))
 })
 
 test('output: truthy condition with strict inequality operator', async assert => {
-  const template = await compile('<if foo is present>{foo}</if>')
+  var { template } = await compile('<if foo is present>{foo}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -42,7 +42,7 @@ test('output: truthy condition with strict inequality operator', async assert =>
 })
 
 test('output: falsy condition with strict equality operator', async assert => {
-  const template = await compile('<if foo is not present>{foo}</if>')
+  var { template } = await compile('<if foo is not present>{foo}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -55,7 +55,7 @@ test('output: falsy condition with strict equality operator', async assert => {
 })
 
 test('output: truthy condition with greater than operator (is positive)', async assert => {
-  const template = await compile('<if number is positive>{number}</if>')
+  var { template } = await compile('<if number is positive>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -68,7 +68,7 @@ test('output: truthy condition with greater than operator (is positive)', async 
 })
 
 test('output: falsy condition with the less than or equal operator (is positive)', async assert => {
-  const template = await compile('<if number is not positive>{number}</if>')
+  var { template } = await compile('<if number is not positive>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -81,7 +81,7 @@ test('output: falsy condition with the less than or equal operator (is positive)
 })
 
 test('output: truthy condition with less than operator (is negative)', async assert => {
-  const template = await compile('<if number is negative>{number}</if>')
+  var { template } = await compile('<if number is negative>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -94,7 +94,7 @@ test('output: truthy condition with less than operator (is negative)', async ass
 })
 
 test('output: falsy condition with greater than or equal operator (is negative)', async assert => {
-  const template = await compile('<if number is not negative>{number}</if>')
+  var { template } = await compile('<if number is not negative>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -107,7 +107,7 @@ test('output: falsy condition with greater than or equal operator (is negative)'
 })
 
 test('output: truthy condition with greater than operator', async assert => {
-  const template = await compile('<if number is greater than five>{number}</if>')
+  var { template } = await compile('<if number is greater than five>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -120,7 +120,7 @@ test('output: truthy condition with greater than operator', async assert => {
 })
 
 test('output: falsy condition with less than or equal operator', async assert => {
-  const template = await compile('<if number is not greater than five>{number}</if>')
+  var { template } = await compile('<if number is not greater than five>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -133,7 +133,7 @@ test('output: falsy condition with less than or equal operator', async assert =>
 })
 
 test('output: truthy condition with greater than or equal operator (is greater than or equals)', async assert => {
-  const template = await compile('<if number is greater than or equals five>{number}</if>')
+  var { template } = await compile('<if number is greater than or equals five>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -146,7 +146,7 @@ test('output: truthy condition with greater than or equal operator (is greater t
 })
 
 test('output: falsy condition with greater than operator (is at most)', async assert => {
-  const template = await compile('<if number is not at most five>{number}</if>')
+  var { template } = await compile('<if number is not at most five>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -159,7 +159,7 @@ test('output: falsy condition with greater than operator (is at most)', async as
 })
 
 test('output: falsy condition with greater than operator (is at least)', async assert => {
-  const template = await compile('<if number is not at least five>{number}</if>')
+  var { template } = await compile('<if number is not at least five>{number}</if>')
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
@@ -172,8 +172,7 @@ test('output: falsy condition with greater than operator (is at least)', async a
 })
 
 test('output: useless branches are removed', async assert => {
-  let template
-  template = await compile(`
+  var { template } = await compile(`
     <import foo from='./foo.html'>
     <foo bar />
   `, {
@@ -181,7 +180,7 @@ test('output: useless branches are removed', async assert => {
   })
   assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "baz"; }`))
 
-  template = await compile(`
+  var { template } = await compile(`
     <import foo from='./foo.html'>
     <foo bar={true} />
   `, {
@@ -189,7 +188,7 @@ test('output: useless branches are removed', async assert => {
   })
   assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "baz"; }`))
 
-  template = await compile(`
+  var { template } = await compile(`
     <import foo from='./foo.html'>
     <foo bar={false} />
   `, {
@@ -197,7 +196,7 @@ test('output: useless branches are removed', async assert => {
   })
   assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "qux"; }`))
 
-  template = await compile(`
+  var { template } = await compile(`
     <import foo from='./foo.html'>
     <foo bar={null} />
   `, {
@@ -207,7 +206,7 @@ test('output: useless branches are removed', async assert => {
 })
 
 test('output: useless logical expressions are removed', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <import bar from='./bar.html'>
     <bar foo="foo" />
   `, {
@@ -219,7 +218,7 @@ test('output: useless logical expressions are removed', async assert => {
 })
 
 test('output: useless ternary operators are removed', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <import baz from='./baz.html'>
     <baz foo="foo" />
   `, {
@@ -232,13 +231,13 @@ test('output: useless ternary operators are removed', async assert => {
 })
 
 test('output: binary expressions with literals are precalculated', async assert => {
-  const template = await compile('<if 0 equals 0>foo</if>')
+  var { template } = await compile('<if 0 equals 0>foo</if>')
 
   assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "foo"; }`))
 })
 
 test('output: object inlining', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <template foo>{bar.baz}</template>
     <foo bar="{ { baz: 'qux' } }" />
   `)

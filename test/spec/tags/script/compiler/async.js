@@ -3,7 +3,7 @@ import compile from '../../../../helpers/compile'
 import escape from 'escape-html'
 
 test('script: compiler="async"', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <div>foo</div><script compiler="async">const bar = 42</script><div>baz</div>
   `, {
     compilers: {

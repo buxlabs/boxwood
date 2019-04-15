@@ -4,12 +4,12 @@ import escape from 'escape-html'
 import { join } from 'path'
 
 test('script: component', async assert => {
-  const template = await compile('<script component foo>foo</script><foo/>')
+  var { template } = await compile('<script component foo>foo</script><foo/>')
   assert.deepEqual(template({}, escape), 'foo')
 })
 
 test('script: component inside of a imported component', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <import foo from='./foo.html'>
     <foo />
   `, {

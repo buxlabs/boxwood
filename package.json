@@ -77,7 +77,8 @@
   },
   "standard": {
     "ignore": [
-      "test/fixtures/**/*"
+      "test/fixtures/**/*",
+      "test/spec/**/*"
     ]
   }
 }

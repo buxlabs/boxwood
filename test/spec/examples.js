@@ -53,7 +53,7 @@ async function suite (name, data = {}, assert) {
   const path2 = join(dir, 'expected.html')
   const content1 = await readFile(path1)
   const content2 = await readFile(path2)
-  const template = await compile(content1, {
+  var { template } = await compile(content1, {
     paths: [dir],
     languages: ['pl', 'en']
   })

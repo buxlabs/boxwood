@@ -4,7 +4,7 @@ import path from 'path'
 import escape from 'escape-html'
 
 test('input: can be used as a non self closing tag when imported as component', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <import input from="./input.html" />
     <input name="foo"/>
   `, {
@@ -14,7 +14,7 @@ test('input: can be used as a non self closing tag when imported as component', 
 })
 
 test('input: can be used as a non self closing tag when imported as component (multiple spaces', async assert => {
-  const template = await compile(`
+  var { template } = await compile(`
     <import   input   from="./input.html" />
     <input name="foo"/>
   `, {
