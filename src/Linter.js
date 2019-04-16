@@ -72,16 +72,20 @@ module.exports = class Linter {
   }
 
   verifyHTML (source) {
-    const { results } = linter.validateString(source)
-    const warnings = []
-    results.forEach(result => {
-      result.messages.forEach(message => {
-        if (isClosingTagError(message)) {
-          const tagName = message.message.match(/'?<\/?\w+'?>/g)[0].replace('\'', '')
-          warnings.push({ type: 'UNCLOSED_TAG', message: `Unclosed tag ${tagName} in line ${message.line}` })
-        }
+    try {
+      const { results } = linter.validateString(source)
+      const warnings = []
+      results.forEach(result => {
+        result.messages.forEach(message => {
+          if (isClosingTagError(message)) {
+            const tagName = message.message.match(/'?<\/?\w+'?>/g)[0].replace('\'', '')
+            warnings.push({ type: 'UNCLOSED_TAG', message: `Unclosed tag ${tagName} in line ${message.line}` })
+          }
+        })
       })
-    })
-    return warnings
+      return warnings
+    } catch (exception) {
+      return []
+    }
   }
 }

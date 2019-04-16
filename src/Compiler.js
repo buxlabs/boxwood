@@ -36,6 +36,12 @@ async function render (source, htmltree, options) {
       statistics.partials.push(asset)
     } else if (asset.type === 'SCRIPT') {
       statistics.scripts.push(asset)
+    } else if (asset.type === 'STYLESHEET') {
+      statistics.stylesheets.push(asset)
+    } else if (asset.type === 'SVG') {
+      statistics.svgs.push(asset)
+    } else if (asset.type === 'IMAGE') {
+      statistics.images.push(asset)
     }
   })
   const store = {}

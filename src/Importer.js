@@ -48,7 +48,7 @@ async function recursiveImport (tree, source, path, options, depth) {
       warnings: [{ type: 'MAXIMUM_IMPORT_DEPTH_EXCEEDED', message: 'Maximum import depth exceeded' }]
     }
   }
-  const imports = getImportNodes(tree)
+  const imports = getImportNodes(tree, options)
   const warnings = linter.lint(tree, source, imports.map(({ node }) => node))
   const assets = await Promise.all(imports.map(({ node, kind }) => fetch(node, kind, path, options)))
   const current = flatten(assets)

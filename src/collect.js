@@ -35,14 +35,17 @@ function setDimension (fragment, attrs, keys, statistics, dimension, options) {
     if (attr.value === 'auto') {
       const { value: path } = attrs.find(attr => attr.key === 'src')
       findFile(path, options, location => {
-        const dimensions = size(location)
-        statistics.images.push({ path: location })
-        fragment.attributes = fragment.attributes.map(attr => {
-          if (attr.key === dimension) {
-            attr.value = dimensions[dimension].toString()
-          }
-          return attr
-        })
+        try {
+          const dimensions = size(location)
+          fragment.attributes = fragment.attributes.map(attr => {
+            if (attr.key === dimension) {
+              attr.value = dimensions[dimension].toString()
+            }
+            return attr
+          })
+        } catch (exception) {
+          // TODO: Add a warning. The image cannot be parsed.
+        }
       })
     }
   }
@@ -477,7 +480,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
       findFile(path, options, location => {
         const string = readFileSync(location, 'utf8')
         content += string.trim()
-        statistics.stylesheets.push({ path: location })
       })
       content += '</style>'
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
@@ -508,7 +510,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
         findFile(path, options, location => {
           const string = readFileSync(location, 'utf8')
           const content = parse(normalizeNewline(string).trim())[0]
-          statistics.svgs.push({ path: location })
           fragment.attributes = content.attributes
           fragment.children = content.children
         })
@@ -544,7 +545,6 @@ async function collect (tree, fragment, variables, filters, components, statisti
                 findFile(path, options, location => {
                   const string = readFileSync(location, 'base64')
                   const content = normalizeNewline(string).trim()
-                  statistics.images.push({ path: location })
                   attr.value = `data:image/${extension};base64, ${content}`
                 })
               }

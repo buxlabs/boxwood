@@ -149,12 +149,12 @@ test('import', async assert => {
   })
   assert.deepEqual(template({}, escape), '<span class="glyphicon glyphicon-bar"></span><span class="glyphicon glyphicon-baz"></span>')
 
-  var { template } = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
+  var { template } = await compile(`<import checkbox from='./checkbox.html'/><checkbox/>`, {
     paths: [ path.join(__dirname, '../../fixtures/import'), path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}, escape), '<input type="checkbox">')
 
-  var { template } = await compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {
+  var { template } = await compile(`<import checkbox from='./checkbox.html'/><checkbox/>`, {
     paths: [ path.join(__dirname, '../../fixtures/import'), path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({}, escape), '<input type="checkbox">')
@@ -679,3 +679,63 @@ test('import: should add the inline script path to the statistics', async assert
   })
   assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.js')])
 })
+
+test('import: if compiler inline options includes scripts', async assert => {
+  var { statistics } = await compile(`<script src='./foo.js'></script>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ],
+    inline: ['scripts']
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.js')])
+})
+
+test('import: should add the inline link path to the statistics', async assert => {
+  var { statistics } = await compile(`<link href='./foo.css' inline>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.css')])
+})
+
+test('import: if compiler inline options includes stylesheets', async assert => {
+  var { statistics } = await compile(`<link href='./foo.css'>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ],
+    inline: ['stylesheets']
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.css')])
+})
+
+test('import: should add the inline svg path to the statistics', async assert => {
+  var { statistics } = await compile(`<svg from='./foo.svg'>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.svg')])
+})
+
+test('import: should add the inline image path to the statistics', async assert => {
+  var { statistics } = await compile(`<img src='./foo.jpg' inline>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.jpg')])
+})
+
+test('import: if compiler inline options includes images', async assert => {
+  var { statistics } = await compile(`<img src='./foo.jpg'>`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ],
+    inline: ['images']
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.jpg')])
+})
+
+test('import: should add the auto width image path to the statistics', async assert => {
+  var { statistics } = await compile(`<img src='./foo.jpg' width="auto">`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.jpg')])
+})
+
+test('import: should add the auto height image path to the statistics', async assert => {
+  var { statistics } = await compile(`<img src='./foo.jpg' height="auto">`, {
+    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
+  })
+  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.jpg')])
+})
+
