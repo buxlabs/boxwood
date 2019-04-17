@@ -78,7 +78,7 @@ async function render (source, htmltree, options) {
   plugins.forEach(plugin => { plugin.afterprerun() })
 
   walk(htmltree, async fragment => {
-    await collect(tree, fragment, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors)
+    await collect({ tree, fragment, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
   })
   await Promise.all(promises)
   const used = []

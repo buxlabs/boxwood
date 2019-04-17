@@ -29,7 +29,7 @@ const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 let asyncCounter = 0
 
-function setDimension (fragment, attrs, keys, statistics, dimension, options) {
+function setDimension (fragment, attrs, keys, dimension, options) {
   if (keys.includes(dimension)) {
     const attr = attrs.find(attr => attr.key === dimension)
     if (attr.value === 'auto') {
@@ -123,7 +123,7 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function resolveComponent (tree, component, fragment, components, plugins, statistics, errors, options) {
+function resolveComponent (tree, component, fragment, components, plugins, errors, options) {
   const localVariables = fragment.attributes
   localVariables.forEach(variable => {
     if (variable.value === null) { variable.value = '{true}' }
@@ -263,7 +263,7 @@ function resolveComponent (tree, component, fragment, components, plugins, stati
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
-      resolveComponent(tree, currentComponent, current, components, plugins, statistics, errors, options)
+      resolveComponent(tree, currentComponent, current, components, plugins, errors, options)
       current.used = true
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
@@ -312,10 +312,10 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect (tree, fragment, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors) {
+async function collect ({ tree, fragment, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect(ast, current, variables, filters, components, statistics, translations, plugins, store, depth, options, promises, errors)
+      await collect({ tree: ast, fragment: current, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
     })
   }
 
@@ -342,7 +342,7 @@ async function collect (tree, fragment, variables, filters, components, statisti
       }
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, statistics, errors, options)
+      const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, errors, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
@@ -532,8 +532,8 @@ async function collect (tree, fragment, variables, filters, components, statisti
             attrs[styleAttributeIndex].value += ` ${responsiveImageStyles}`
           }
         }
-        setDimension(fragment, attrs, keys, statistics, 'width', options)
-        setDimension(fragment, attrs, keys, statistics, 'height', options)
+        setDimension(fragment, attrs, keys, 'width', options)
+        setDimension(fragment, attrs, keys, 'height', options)
         if (keys.includes('inline') || options.inline.includes('images')) {
           fragment.attributes = fragment.attributes.map(attr => {
             if (attr.key === 'inline') return null
