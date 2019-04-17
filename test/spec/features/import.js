@@ -1,4 +1,4 @@
-import test from '../../helpers/test'
+import test from 'ava'
 import compile from '../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
@@ -245,18 +245,8 @@ test('import', async assert => {
   assert.deepEqual(template({}, escape), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 
   await assert.throwsAsync(
-    compile(`<div partial='./partial.html'/><div>`, {}),
-    /Compiler option is undefined: paths\./
-  )
-
-  await assert.throwsAsync(
     compile(`<div partial='./partial.html'/><div>`, { paths: [] }),
     /Asset not found: \.\/partial\.html/
-  )
-
-  await assert.throwsAsync(
-    compile(`<import checkbox from='./checkbox.html'/><checkbox>`, {}),
-    /Compiler option is undefined: paths\./
   )
 
   await assert.throwsAsync(

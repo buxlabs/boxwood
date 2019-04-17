@@ -1,4 +1,4 @@
-import test from '../../helpers/test'
+import test from 'ava'
 import compile from '../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
@@ -28,11 +28,6 @@ test('partial', async assert => {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
-
-  await assert.throwsAsync(
-    compile(`<include partial='./partial.html' />`, {}),
-    /Compiler option is undefined: paths\./
-  )
 
   await assert.throwsAsync(
     compile(`<include partial='./partial.html' />`, { paths: [] }),

@@ -1,4 +1,4 @@
-import test from '../../../helpers/test'
+import test from 'ava'
 import compile from '../../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
@@ -28,9 +28,7 @@ test('script: global inline for a js file', async assert => {
   assert.deepEqual(template({}, escape), `<script>console.log('foo')</script>`)
 })
 
-test('script: inline throws if the file does not exist', async assert => {
-  await assert.throwsAsync(
-    compile(`<script src='./foo.js' inline></script>`, { paths: [] }),
-    /Asset not found: \.\/foo\.js/
-  )
+test('script: inline for a js file that does not exist', async assert => {
+  var { template } = await compile(`<script src="./foo.js" inline></script>`, { paths: [] })
+  assert.deepEqual(template({}, escape), ``)
 })

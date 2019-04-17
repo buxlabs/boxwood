@@ -312,10 +312,18 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect ({ tree, fragment, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
+// TODO: Unify with Importer
+function findAsset (path, assets, options) {
+  for (let location of options.paths) {
+    const asset = assets.find(asset => asset.path === join(location, path))
+    if (asset) return asset
+  }
+}
+
+async function collect ({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ tree: ast, fragment: current, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+      await collect({ tree: ast, fragment: current, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
     })
   }
 
@@ -387,6 +395,8 @@ async function collect ({ tree, fragment, variables, filters, components, transl
     } else if ((tag === 'script' && keys.includes('inline')) || options.inline.includes('scripts')) {
       if (keys.includes('src')) {
         const { value: path } = attrs.find(attr => attr.key === 'src')
+        const asset = findAsset(path, assets, options)
+        if (!asset) return
         let content = `<script`
         fragment.attributes.forEach(attribute => {
           const { key, value } = attribute
@@ -395,10 +405,7 @@ async function collect ({ tree, fragment, variables, filters, components, transl
           }
         })
         content += '>'
-        findFile(path, options, location => {
-          const string = readFileSync(location, 'utf8')
-          content += string.trim()
-        })
+        content += asset.source.trim()
         content += `</script>`
         tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
       } else {
@@ -507,12 +514,11 @@ async function collect ({ tree, fragment, variables, filters, components, transl
         const attr = attrs.find(attr => attr.key === 'from')
         const { value: path } = attr
         if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
-        findFile(path, options, location => {
-          const string = readFileSync(location, 'utf8')
-          const content = parse(normalizeNewline(string).trim())[0]
-          fragment.attributes = content.attributes
-          fragment.children = content.children
-        })
+        const asset = findAsset(path, assets, options)
+        if (!asset) return
+        const content = parse(normalizeNewline(asset.source).trim())[0]
+        fragment.attributes = content.attributes
+        fragment.children = content.children
       } else if (tag === 'img') {
         const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
         const sizeAttributeIndex = attrs.findIndex(attr => attr.key === 'size')

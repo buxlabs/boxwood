@@ -78,7 +78,7 @@ async function render (source, htmltree, options) {
   plugins.forEach(plugin => { plugin.afterprerun() })
 
   walk(htmltree, async fragment => {
-    await collect({ tree, fragment, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+    await collect({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
   })
   await Promise.all(promises)
   const used = []
@@ -98,6 +98,7 @@ class Compiler {
     this.options = Object.assign({
       inline: [],
       compilers: {},
+      paths: [],
       variables: {
         template: TEMPLATE_VARIABLE,
         object: OBJECT_VARIABLE,

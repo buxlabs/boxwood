@@ -36,7 +36,8 @@ function hasPartialAttribute (node) {
 }
 
 function isScriptWithInlineAttribute (node) {
-  return node.tagName === 'script' && node.attributes.find(attribute => attribute.key === 'inline')
+  return node.tagName === 'script' && node.attributes.find(attribute => attribute.key === 'inline') &&
+    node.attributes.find(attribute => attribute.key === 'src')
 }
 
 function isLinkWithInlineAttribute (node) {
@@ -48,7 +49,8 @@ function isGlobalInlineLink (node, options) {
 }
 
 function isGlobalInlineScript (node, options) {
-  return node.tagName === 'script' && options.inline.includes('scripts')
+  return node.tagName === 'script' && options.inline.includes('scripts') &&
+    node.attributes.find(attribute => attribute.key === 'src')
 }
 
 function isSvgTagWithFromAttribute (node) {

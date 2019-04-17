@@ -1,4 +1,4 @@
-import test from '../../helpers/test'
+import test from 'ava'
 import compile from '../../helpers/compile'
 import { join } from 'path'
 import escape from 'escape-html'

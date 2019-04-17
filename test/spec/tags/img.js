@@ -1,4 +1,4 @@
-import test from '../../helpers/test'
+import test from 'ava'
 import compile from '../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
@@ -51,13 +51,6 @@ test('img: global inline for jpg', async assert => {
 test.skip('img: global inline for svg', async assert => {
   var { template } = await compile(`<img src='./placeholder.svg'>`, { paths: [ path.join(__dirname, '../../fixtures/images') ], inline: ['images'] })
   assert.deepEqual(template({}, escape), `<img src="data:image/svg+xml;base64, PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
-})
-
-test('img: inline throws if there are not paths', async assert => {
-  await assert.throwsAsync(
-    compile(`<img src='../circle.svg' inline>`),
-    /Compiler option is undefined: paths\./
-  )
 })
 
 test('img: inline throws if asset does not exist', async assert => {

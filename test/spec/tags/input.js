@@ -1,4 +1,4 @@
-import test from '../../helpers/test'
+import test from 'ava'
 import compile from '../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
