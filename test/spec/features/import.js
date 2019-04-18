@@ -217,7 +217,7 @@ test('import', async assert => {
     <layout>foo</layout>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, escape), `foo<footer>bar</footer>`)
+  assert.deepEqual(template({}, escape), `foo<footer><ul class="horizontal"><li>bar</li></ul></footer>`)
 
   var { template } = await compile(`
     <import button from="./components/button1.html">
@@ -243,16 +243,6 @@ test('import', async assert => {
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
   assert.deepEqual(template({}, escape), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
-
-  await assert.throwsAsync(
-    compile(`<div partial='./partial.html'/><div>`, { paths: [] }),
-    /Asset not found: \.\/partial\.html/
-  )
-
-  await assert.throwsAsync(
-    compile(`<import checkbox from='./checkbox.html'/><checkbox>`, { paths: [] }),
-    /Asset not found: \.\/checkbox\.html/
-  )
 })
 
 test('import: removes unnecessary whitespace in attribute values ', async assert => {

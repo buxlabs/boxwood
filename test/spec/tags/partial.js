@@ -28,11 +28,6 @@ test('partial', async assert => {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
-
-  await assert.throwsAsync(
-    compile(`<partial from='./partial.html' />`, { paths: [] }),
-    /Asset not found: \.\/partial\.html/
-  )
 })
 
 test('partial: can import components', async assert => {

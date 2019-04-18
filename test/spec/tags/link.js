@@ -13,6 +13,12 @@ test('link: global inline for css', async assert => {
   assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
 })
 
+test('link: inline for css file that does not exist', async assert => {
+  var { template } = await compile(`<link href="./foo.css" inline>`, { paths: [] })
+  assert.deepEqual(template({}, escape), '')
+})
+
+
 test('link: can be used as a non self closing tag when imported as component', async assert => {
   var { template } = await compile(`
     <import link from="./link.html" />

@@ -3,7 +3,6 @@ const { getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression }
 const { convertText, convertTag, convertToExpression } = require('./convert')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OBJECT_VARIABLE } = require('./enum')
-const { readFileSync } = require('fs')
 const { join, dirname } = require('path')
 const parse = require('./html/parse')
 const size = require('image-size')
@@ -11,7 +10,6 @@ const { normalize } = require('./array')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
 const { isCurlyTag, isImportTag } = require('./string')
-const { findFile } = require('./files')
 const { extractComponentNames } = require('./extract')
 const Component = require('./Component/')
 const foreachTag = require('./tags/foreach')
@@ -29,53 +27,53 @@ const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 let asyncCounter = 0
 
-function setDimension (fragment, attrs, keys, dimension, options) {
+function setDimension (fragment, attrs, keys, dimension, assets, options) {
   if (keys.includes(dimension)) {
     const attr = attrs.find(attr => attr.key === dimension)
     if (attr.value === 'auto') {
       const { value: path } = attrs.find(attr => attr.key === 'src')
-      findFile(path, options, location => {
-        try {
-          const dimensions = size(location)
-          fragment.attributes = fragment.attributes.map(attr => {
-            if (attr.key === dimension) {
-              attr.value = dimensions[dimension].toString()
-            }
-            return attr
-          })
-        } catch (exception) {
-          // TODO: Add a warning. The image cannot be parsed.
-        }
-      })
+      const asset = findAsset(path, assets, options)
+      if (!asset) return
+      try {
+        const dimensions = size(asset.buffer)
+        fragment.attributes = fragment.attributes.map(attr => {
+          if (attr.key === dimension) {
+            attr.value = dimensions[dimension].toString()
+          }
+          return attr
+        })
+      } catch (exception) {
+        // TODO: Add a warning. The image cannot be parsed.
+      }
     }
   }
 }
 
-function collectComponentsFromImport (fragment, components, component, options) {
+function collectComponentsFromImport (fragment, components, component, assets, options) {
   const attrs = fragment.attributes
   const names = extractComponentNames(attrs)
   if (names.length === 1) {
     const name = names[0]
     if (!hasShorthandSyntax(fragment)) {
       const path = attrs[1].value
-      collectComponent(name, path, components, component, options)
+      collectComponent(name, path, components, component, assets, options)
     } else {
       const lastAttribute = attrs[attrs.length - 1]
       const dir = lastAttribute.value
       const path = join(dir, `${name}.html`)
-      collectComponent(name, path, components, component, options)
+      collectComponent(name, path, components, component, assets, options)
     }
   } else {
     const lastAttribute = attrs[attrs.length - 1]
     const dir = lastAttribute.value
     names.forEach(name => {
       const path = join(dir, `${name}.html`)
-      collectComponent(name, path, components, component, options)
+      collectComponent(name, path, components, component, assets, options)
     })
   }
 }
 
-function collectComponent (name, path, components, component, options) {
+function collectComponent (name, path, components, component, assets, options) {
   let paths = []
   if (options.paths) {
     paths = paths.concat(options.paths)
@@ -88,29 +86,27 @@ function collectComponent (name, path, components, component, options) {
   if (components) {
     paths = paths.concat(components.map(component => dirname(component.path)))
   }
-  findFile(path, { paths }, location => {
-    const content = readFileSync(location, 'utf8')
-    components.push({ name, content, path: location })
-  })
+  const asset = findAsset(path, assets, { paths })
+  if (!asset) return
+  const content = asset.source
+  components.push({ name, content, path: asset.path })
 }
 
-function collectComponentsFromPartialOrRender (fragment, options) {
+function collectComponentsFromPartialOrRender (fragment, assets, options) {
   const path = fragment.attributes[0].value
-  findFile(path, options, location => {
-    const content = readFileSync(location, 'utf8')
-    fragment.children = parse(content)
-  })
+  const asset = findAsset(path, assets, options)
+  if (!asset) return
+  fragment.children = parse(asset.source)
 }
 
-function collectComponentsFromPartialAttribute (fragment, options) {
+function collectComponentsFromPartialAttribute (fragment, assets, options) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (attr) {
     const path = attr.value
-    findFile(path, options, location => {
-      const content = readFileSync(location, 'utf8')
-      fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
-      fragment.children = parse(content)
-    })
+    const asset = findAsset(path, assets, options)
+    if (!asset) return
+    fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
+    fragment.children = parse(asset.source)
   }
 }
 
@@ -123,7 +119,7 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function resolveComponent (tree, component, fragment, components, plugins, errors, options) {
+function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
   const localVariables = fragment.attributes
   localVariables.forEach(variable => {
     if (variable.value === null) { variable.value = '{true}' }
@@ -250,11 +246,11 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     const attrs = current.attributes || []
     const keys = attrs.map(attr => attr.key)
     if (isImportTag(current.tagName)) {
-      collectComponentsFromImport(current, currentComponents, component, options)
+      collectComponentsFromImport(current, currentComponents, component, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, options)
+      collectComponentsFromPartialOrRender(current, assets, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, options)
+      collectComponentsFromPartialAttribute(current, assets, options)
     } else if (
       (current.tagName === 'template' && keys.length > 0) ||
       (current.tagName === 'script' && keys.includes('component'))
@@ -263,7 +259,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
-      resolveComponent(tree, currentComponent, current, components, plugins, errors, options)
+      resolveComponent(tree, currentComponent, current, components, plugins, errors, assets, options)
       current.used = true
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
@@ -350,7 +346,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
       }
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, errors, options)
+      const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, errors, assets, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
@@ -483,11 +479,10 @@ async function collect ({ tree, fragment, assets, variables, filters, components
       }
     } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
       const { value: path } = attrs.find(attr => attr.key === 'href')
+      const asset = findAsset(path, assets, options)
+      if (!asset) return
       let content = '<style>'
-      findFile(path, options, location => {
-        const string = readFileSync(location, 'utf8')
-        content += string.trim()
-      })
+      content += asset.source.trim()
       content += '</style>'
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
     } else if (tag === 'style' || tag === 'script' || tag === 'template') {
@@ -538,8 +533,8 @@ async function collect ({ tree, fragment, assets, variables, filters, components
             attrs[styleAttributeIndex].value += ` ${responsiveImageStyles}`
           }
         }
-        setDimension(fragment, attrs, keys, 'width', options)
-        setDimension(fragment, attrs, keys, 'height', options)
+        setDimension(fragment, attrs, keys, 'width', assets, options)
+        setDimension(fragment, attrs, keys, 'height', assets, options)
         if (keys.includes('inline') || options.inline.includes('images')) {
           fragment.attributes = fragment.attributes.map(attr => {
             if (attr.key === 'inline') return null
@@ -548,11 +543,11 @@ async function collect ({ tree, fragment, assets, variables, filters, components
               const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg+xml']
               if (extensions.includes(extension)) {
                 const path = attr.value
-                findFile(path, options, location => {
-                  const string = readFileSync(location, 'base64')
-                  const content = normalizeNewline(string).trim()
-                  attr.value = `data:image/${extension};base64, ${content}`
-                })
+                const asset = findAsset(path, assets, options)
+                if (!asset) return
+                const string = asset.base64
+                const content = normalizeNewline(string).trim()
+                attr.value = `data:image/${extension};base64, ${content}`
               }
             }
             return attr
@@ -571,7 +566,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
       }
-      collectComponentsFromPartialAttribute(fragment, options)
+      collectComponentsFromPartialAttribute(fragment, assets, options)
       const nodes = convertTag(fragment, variables, filters, translations, languages, translationsPaths, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
@@ -676,9 +671,9 @@ async function collect ({ tree, fragment, assets, variables, filters, components
     } else if (tag === 'foreach' || tag === 'each') {
       foreachTag({ fragment, tree, variables, attrs, collectChildren })
     } else if (isImportTag(tag)) {
-      collectComponentsFromImport(fragment, components, null, options)
+      collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
-      collectComponentsFromPartialOrRender(fragment, options)
+      collectComponentsFromPartialOrRender(fragment, assets, options)
     } else if (tag === 'markdown') {
       markdownTag({ fragment, tree })
     } else if (tag === 'font') {

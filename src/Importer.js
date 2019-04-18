@@ -15,6 +15,9 @@ async function loadComponent (path, paths = []) {
       const location = join(option, path)
       const result = {}
       result.path = location
+      result.buffer = await readFile(location)
+      result.base64 = await readFile(location, 'base64')
+      // TODO: Read once convert base64
       result.source = await readFile(location, 'utf8')
       return result
     } catch (exception) {}
@@ -28,7 +31,7 @@ async function fetch (node, kind, context, options) {
   return Promise.all(names.map(async name => {
     const type = kind === 'IMPORT' ? 'COMPONENT' : kind
     const dir = dirname(context)
-    const { source, path } = await loadComponent(getComponentPath(node, name), [dir, ...paths])
+    const { source, path, base64, buffer } = await loadComponent(getComponentPath(node, name), [dir, ...paths])
     if (!path) {
       return {
         warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${name}` }]
@@ -37,7 +40,7 @@ async function fetch (node, kind, context, options) {
     const tree = parse(source)
     const files = [context]
     const warnings = []
-    return { name, source, path, files, warnings, tree, type }
+    return { name, source, base64, buffer, path, files, warnings, tree, type }
   }))
 }
 const MAXIMUM_IMPORT_DEPTH = 50
