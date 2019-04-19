@@ -5,7 +5,7 @@ const readFile = util.promisify(fs.readFile)
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
 
-const { getComponentNames, getComponentPath, getImportNodes } = require('./node')
+const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
 const linter = new Linter()
 
@@ -31,16 +31,19 @@ async function fetch (node, kind, context, options) {
   return Promise.all(names.map(async name => {
     const type = kind === 'IMPORT' ? 'COMPONENT' : kind
     const dir = dirname(context)
-    const { source, path, base64, buffer } = await loadComponent(getComponentPath(node, name), [dir, ...paths])
-    if (!path) {
-      return {
-        warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${name}` }]
+    const assetPaths = getAssetPaths(node, name)
+    return Promise.all(assetPaths.map(async assetPath => {
+      const { source, path, base64, buffer } = await loadComponent(assetPath, [dir, ...paths])
+      if (!path) {
+        return {
+          warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${name}` }]
+        }
       }
-    }
-    const tree = parse(source)
-    const files = [context]
-    const warnings = []
-    return { name, source, base64, buffer, path, files, warnings, tree, type }
+      const tree = parse(source)
+      const files = [context]
+      const warnings = []
+      return { name, source, base64, buffer, path, files, warnings, tree, type }
+    }))
   }))
 }
 const MAXIMUM_IMPORT_DEPTH = 50

@@ -5,7 +5,7 @@ const { VOID_TAGS } = require('./enum')
 const linter = new HtmlValidate()
 const { isImportTag } = require('./string')
 const { unique, duplicates } = require('pure-utilities/array')
-const { getComponentNames, getComponentPath } = require('./node')
+const { getComponentNames, getAssetPaths } = require('./node')
 
 function analyze (tree) {
   const components = []
@@ -53,7 +53,7 @@ module.exports = class Linter {
   verifyImports (imports) {
     const warnings = []
     const allNames = []
-    const allPaths = []
+    let allPaths = []
     imports.forEach(node => {
       const names = getComponentNames(node)
       names.forEach(name => {
@@ -64,7 +64,7 @@ module.exports = class Linter {
         }
       })
     })
-    imports.forEach(node => { allPaths.push(getComponentPath(node)) })
+    imports.forEach(node => { allPaths = allPaths.concat(getAssetPaths(node)) })
     duplicates(allPaths).forEach(duplicate => {
       warnings.push({ message: `Component path duplicate: ${duplicate}`, type: 'COMPONENT_PATH_DUPLICATE' })
     })

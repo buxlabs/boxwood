@@ -1,17 +1,9 @@
 const Plugin = require('./Plugin')
 const { parse, walk, generate } = require('css-tree')
-const { findFile } = require('../files')
-const { readFileSync } = require('fs')
-
-const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
-
-function isFileSupported (path) {
-  return SUPPORTED_EXTENSIONS
-    .map(extension => path.endsWith(extension)).includes(true)
-}
+const { findAsset, isFileSupported } = require('../files')
 
 class InlinePlugin extends Plugin {
-  run ({ fragment, attrs, keys, options }) {
+  run ({ fragment, attrs, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
       const { content } = fragment.children[0]
       const tree = parse(content)
@@ -19,12 +11,12 @@ class InlinePlugin extends Plugin {
         if (node.type === 'Url') {
           const { type, value } = node.value
           if (type === 'Raw' && isFileSupported(value)) {
-            findFile(value, options, path => {
-              const parts = path.split('.')
-              const extension = parts[parts.length - 1]
-              const content = readFileSync(path, 'base64')
-              node.value.value = `data:application/font-${extension};charset=utf-8;base64,${content}`
-            })
+            const asset = findAsset(value, assets, options)
+            if (!asset) return
+            const path = asset.path
+            const parts = path.split('.')
+            const extension = parts[parts.length - 1]
+            node.value.value = `data:application/font-${extension};charset=utf-8;base64,${asset.base64}`
           }
         }
       })

@@ -25,6 +25,7 @@ const fontTag = require('./tags/font')
 const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
+const { findAsset } = require('./files')
 let asyncCounter = 0
 
 function setDimension (fragment, attrs, keys, dimension, assets, options) {
@@ -181,6 +182,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
         keys,
         attrs,
         fragment: leaf,
+        assets,
         options,
         ...leaf
       })
@@ -308,14 +310,6 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-// TODO: Unify with Importer
-function findAsset (path, assets, options) {
-  for (let location of options.paths) {
-    const asset = assets.find(asset => asset.path === join(location, path))
-    if (asset) return asset
-  }
-}
-
 async function collect ({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
@@ -338,6 +332,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
         keys,
         attrs,
         fragment,
+        assets,
         options,
         ...fragment
       })

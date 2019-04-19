@@ -2,6 +2,8 @@ const { join } = require('path')
 const walk = require('himalaya-walk')
 const { isImportTag } = require('./string')
 const { isImage } = require('pure-conditions')
+const { parse, walk: cssWalk } = require('css-tree')
+const { isFileSupported } = require('./files')
 
 function hasShorthandSyntax (node) {
   return !!node.attributes.filter(attribute => attribute.key.includes('{') || attribute.key.includes('}')).length
@@ -18,13 +20,35 @@ function hasExtension (path) {
   return path.endsWith('.html') || path.endsWith('.css') || path.endsWith('.js') || isImage(path)
 }
 
-function getComponentPath ({ attributes }, name) {
+function getAssetPath ({ attributes }, name) {
   const node = attributes.find(({ key }) => key === 'from' || key === 'partial' || key === 'src' || key === 'href')
   const path = node.value
   if (hasExtension(path)) {
     return path
   }
   return join(path, `${name}.html`)
+}
+
+function getAssetPaths (node, name) {
+  if (isStyleWithInlineAttribute(node)) {
+    return getAssetPathsFromStyleTag(node)
+  }
+  return [getAssetPath(node, name)]
+}
+
+function getAssetPathsFromStyleTag (node) {
+  const paths = []
+  const { content } = node.children[0]
+  const tree = parse(content)
+  cssWalk(tree, node => {
+    if (node.type === 'Url') {
+      const { type, value } = node.value
+      if (type === 'Raw' && isFileSupported(value)) {
+        paths.push(value)
+      }
+    }
+  })
+  return paths
 }
 
 function isPartialTag (name) {
@@ -42,6 +66,10 @@ function isScriptWithInlineAttribute (node) {
 
 function isLinkWithInlineAttribute (node) {
   return node.tagName === 'link' && node.attributes.find(attribute => attribute.key === 'inline')
+}
+
+function isStyleWithInlineAttribute (node) {
+  return node.tagName === 'style' && node.attributes.find(attribute => attribute.key === 'inline')
 }
 
 function isGlobalInlineLink (node, options) {
@@ -82,7 +110,7 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'PARTIAL' })
     } else if (isScriptWithInlineAttribute(node) || isGlobalInlineScript(node, options)) {
       nodes.push({ node, kind: 'SCRIPT' })
-    } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options)) {
+    } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options) || isStyleWithInlineAttribute(node)) {
       nodes.push({ node, kind: 'STYLESHEET' })
     } else if (isSvgTagWithFromAttribute(node)) {
       nodes.push({ node, kind: 'SVG' })
@@ -96,6 +124,7 @@ function getImportNodes (tree, options) {
 module.exports = {
   hasShorthandSyntax,
   getComponentNames,
-  getComponentPath,
+  getAssetPath,
+  getAssetPaths,
   getImportNodes
 }
