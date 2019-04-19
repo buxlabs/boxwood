@@ -411,7 +411,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
         ast.each('VariableDeclarator', node => variables.push(node.id.name))
         ast.body.forEach(node => tree.append(node))
       }
-    } else if (tag === 'script' && keys.includes('store')) {
+    } else if (tag === 'script' && keys.includes('scoped')) {
       const leaf = fragment.children[0]
       leaf.used = true
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
