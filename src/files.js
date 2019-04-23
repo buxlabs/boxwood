@@ -8,13 +8,23 @@ function isFileSupported (path) {
 
 // TODO: Unify with Importer
 function findAsset (path, assets, options) {
-  for (let location of options.paths) {
-    const asset = assets.find(asset => asset.path === join(location, path))
+  if (isRemotePath(path)) {
+    const asset = assets.find(asset => asset.path === path)
     if (asset) return asset
+  } else {
+    for (let location of options.paths) {
+      const asset = assets.find(asset => asset.path === join(location, path))
+      if (asset) return asset
+    }
   }
+}
+
+function isRemotePath (path) {
+  return path.startsWith('http://') || path.startsWith('https://')
 }
 
 module.exports = {
   findAsset,
-  isFileSupported
+  isFileSupported,
+  isRemotePath
 }

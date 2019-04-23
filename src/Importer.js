@@ -4,23 +4,41 @@ const util = require('util')
 const readFile = util.promisify(fs.readFile)
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
+const { isRemotePath } = require('./files')
+const request = require('axios')
 
 const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
 const linter = new Linter()
 
 async function loadComponent (path, paths = []) {
-  for (let option of paths) {
+  if (isRemotePath(path)) {
     try {
-      const location = join(option, path)
-      const result = {}
-      result.path = location
-      result.buffer = await readFile(location)
-      result.base64 = await readFile(location, 'base64')
-      // TODO: Read once convert base64
-      result.source = await readFile(location, 'utf8')
-      return result
+      const response = await request.get(path)
+      if (response.status === 200) {
+        let buffer = Buffer.from('') // TODO: parse response to the buffer
+        let base64 = '' // TODO: find a good way to change data to base64, like readFile
+        return {
+          path,
+          source: response.data,
+          buffer,
+          base64
+        }
+      }
     } catch (exception) {}
+  } else {
+    for (let option of paths) {
+      try {
+        const location = join(option, path)
+        const result = {}
+        result.path = location
+        result.buffer = await readFile(location)
+        result.base64 = await readFile(location, 'base64')
+        // TODO: Read once convert base64
+        result.source = await readFile(location, 'utf8')
+        return result
+      } catch (exception) {}
+    }
   }
   return {}
 }

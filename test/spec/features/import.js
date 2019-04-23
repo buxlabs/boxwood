@@ -2,6 +2,8 @@ import test from 'ava'
 import compile from '../../helpers/compile'
 import path from 'path'
 import escape from 'escape-html'
+import Server from '../../helpers/Server'
+import request from "axios"
 
 test('import', async assert => {
   var { template } = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`,
@@ -719,3 +721,17 @@ test('import: should add the auto height image path to the statistics', async as
   assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.jpg')])
 })
 
+test.only('import: should be possible to download components via http', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/foo.html', (req, res) => {
+    res.send('<div>foo</div>')
+  })
+  const response = await request.get(`http://localhost:${port}/foo.html`)
+  assert.deepEqual(response.data, '<div>foo</div>')
+  var { template } = await compile(`<import foo from="http://localhost:${port}/foo.html"><foo/>`, {
+    paths: []
+  })
+  assert.deepEqual(template({}, escape), '<div>foo</div>')
+  await server.stop()
+})
