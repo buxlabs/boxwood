@@ -3,7 +3,7 @@ const { extname } = require('path')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const serialize = require('asttv')
 const { load } = require('yaml-js')
-const { findFile } = require('../files')
+const { findAsset } = require('../files')
 const { getTemplateAssignmentExpression, getTranslateCallExpression } = require('../factory')
 const Plugin = require('./Plugin')
 
@@ -73,24 +73,22 @@ function getTranslationsFormat (keys) {
 }
 
 class InternationalizationPlugin extends Plugin {
-  constructor ({ translations, statistics, filters }) {
+  constructor ({ translations, filters }) {
     super()
     this.translations = translations
-    this.statistics = statistics
     this.filters = filters
   }
-  prerun ({ tag, attrs, keys, fragment, options }) {
+  prerun ({ tag, attrs, keys, fragment, assets, options }) {
     if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
       fragment.used = true
       let leaf = fragment.children[0]
       if (!leaf) {
         if (keys.includes('from')) {
           const { value: path } = attrs.find(attr => attr.key === 'from')
-          findFile(path, options, location => {
-            leaf = { content: readFileSync(location, 'utf8') }
-            leaf.used = true
-            this.statistics.translations.push({ path: location })
-          })
+          const asset = findAsset(path, assets, options)
+          if (!asset) return
+          leaf = { content: asset.source }
+          leaf.used = true
           keys.push(getExtension(path))
         } else {
           throw new Error('The translation script cannot be empty')

@@ -17,7 +17,7 @@ function getComponentNames (node) {
 
 // TODO: fixed this method
 function hasExtension (path) {
-  return path.endsWith('.html') || path.endsWith('.css') || path.endsWith('.js') || isImage(path)
+  return path.endsWith('.html') || path.endsWith('.css') || path.endsWith('.js') || isImage(path) || path.endsWith('.json') || path.endsWith('.yaml')
 }
 
 function getAssetPath ({ attributes }, name) {
@@ -101,6 +101,14 @@ function isImageTagWithAutoHeightAttribute (node) {
   return node.tagName === 'img' && node.attributes.find(attribute => attribute.key === 'height' && attribute.value === 'auto')
 }
 
+function isScriptTagWithI18nAttribute (node) {
+  return node.tagName === 'script' && node.attributes.find(attribute => attribute.key === 'i18n') && node.attributes.find(attribute => attribute.key === 'from')
+}
+
+function isI18nTag (node) {
+  return node.tagName === 'i18n' && node.attributes.find(attribute => attribute.key === 'from')
+}
+
 function getImportNodes (tree, options) {
   const nodes = []
   walk(tree, node => {
@@ -116,6 +124,8 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'SVG' })
     } else if (isImageTagWithInlineAttribute(node) || isGlobalInlineImage(node, options) || isImageTagWithAutoHeightAttribute(node) || isImageTagWithAutoWidthAttribute(node)) {
       nodes.push({ node, kind: 'IMAGE' })
+    } else if (isScriptTagWithI18nAttribute(node) || isI18nTag(node)) {
+      nodes.push({ node, kind: 'TRANSLATION' })
     }
   })
   return nodes

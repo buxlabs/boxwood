@@ -145,6 +145,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
           attrs,
           fragment: leaf,
           options,
+          assets,
           ...leaf
         })
       })

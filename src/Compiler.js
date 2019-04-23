@@ -42,6 +42,8 @@ async function render (source, htmltree, options) {
       statistics.svgs.push(asset)
     } else if (asset.type === 'IMAGE') {
       statistics.images.push(asset)
+    } else if (asset.type === 'TRANSLATION') {
+      statistics.translations.push(asset)
     }
   })
   const store = {}
@@ -53,7 +55,7 @@ async function render (source, htmltree, options) {
     new BoxModelPlugin(options),
     new CurlyStylesPlugin(),
     new ScopedStylesPlugin(),
-    new InternationalizationPlugin({ translations, statistics, filters })
+    new InternationalizationPlugin({ translations, filters })
   ]
   let depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
@@ -68,6 +70,7 @@ async function render (source, htmltree, options) {
           attrs,
           fragment,
           options,
+          assets,
           ...fragment
         })
       })
