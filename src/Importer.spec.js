@@ -11,7 +11,7 @@ test('Importer: template has no assets', async assert => {
   assert.deepEqual(assets, [])
 })
 
-test.only('Importer: template has a script tag', async assert => {
+test('Importer: template has a script tag', async assert => {
   const source = `<script inline src="./foo.js"></script>`
   const importer = new Importer(source, {
     paths: [fixtures]

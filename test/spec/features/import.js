@@ -721,7 +721,7 @@ test('import: should add the auto height image path to the statistics', async as
   assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.jpg')])
 })
 
-test.only('import: should be possible to download components via http', async assert => {
+test('import: should be possible to download components via http', async assert => {
   var server = new Server()
   var { port } = await server.start()
   server.get('/foo.html', (req, res) => {
