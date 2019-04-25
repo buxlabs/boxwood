@@ -36,10 +36,13 @@ class CurlyStylesPlugin extends Plugin {
             const expression = getTagValue(attr.value)
             const tree = new AbstractSyntaxTree(`(${expression})`)
             const object = serialize(tree.first('ObjectExpression'))
+            attr.key = 'style'
             attr.value = stringify(object)
           } catch (exception) {
             // TODO implement
           }
+        } else {
+          attr.key = 'style'
         }
       }
     }
