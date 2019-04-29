@@ -770,3 +770,47 @@ test('import: should be possible to download deep nested components', async asse
   assert.deepEqual(template({}, escape), '<div>ban</div>')
   await server.stop()
 })
+
+test('import: should be possible to download components from many servers', async assert => {
+  var server1 = new Server()
+  var server2 = new Server()
+  var { port: port1 } = await server1.start()
+  var { port: port2 } = await server2.start()
+  server1.get('/baz/foo.html', (req, res) => {
+    res.send(`<import bar from="http://localhost:${port2}/baz/bar.html"><bar/>`)
+  })
+  server2.get('/baz/bar.html', (req, res) => {
+    res.send('<div>bar</div>')
+  }) 
+  var { template } = await compile(`<import foo from="http://localhost:${port1}/baz/foo.html"><foo/>`, {
+    paths: []
+  })
+  assert.deepEqual(template({}, escape), '<div>bar</div>')
+  await server1.stop()
+  await server2.stop()
+})
+
+test('import: should be possible to download components from three servers', async assert => {
+  var server1 = new Server()
+  var server2 = new Server()
+  var server3 = new Server()
+  var { port: port1 } = await server1.start()
+  var { port: port2 } = await server2.start()
+  var { port: port3 } = await server3.start()
+  server1.get('/baz/foo.html', (req, res) => {
+    res.send(`<import bar from="http://localhost:${port2}/baz/bar.html"><bar/>`)
+  })
+  server2.get('/baz/bar.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port3}/baz/baz.html"><baz/>`)
+  })
+  server3.get('/baz/baz.html', (req, res) => {
+    res.send(`<div>baz</div>`)
+  })   
+  var { template } = await compile(`<import foo from="http://localhost:${port1}/baz/foo.html"><foo/>`, {
+    paths: []
+  })
+  assert.deepEqual(template({}, escape), '<div>baz</div>')
+  await server1.stop()
+  await server2.stop()
+  await server3.stop()
+})
