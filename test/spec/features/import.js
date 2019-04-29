@@ -814,3 +814,6 @@ test('import: should be possible to download components from three servers', asy
   await server2.stop()
   await server3.stop()
 })
+
+// TODO: Circular deps, 404, many components loading the same remote component, cache, aliases 
+// TODO: Loading and inlining remote svg, fonts, images, styles
