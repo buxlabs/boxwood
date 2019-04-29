@@ -736,7 +736,7 @@ test('import: should be possible to download components via http', async assert 
   await server.stop()
 })
 
-test.skip('import: should be possible to download nested components', async assert => {
+test('import: should be possible to download nested components', async assert => {
   var server = new Server()
   var { port } = await server.start()
   server.get('/baz/foo.html', (req, res) => {

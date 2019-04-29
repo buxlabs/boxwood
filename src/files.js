@@ -1,4 +1,5 @@
 const { join } = require('path')
+const { getFullRemoteUrl, isRemotePath } = require('./url')
 
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
 function isFileSupported (path) {
@@ -13,18 +14,20 @@ function findAsset (path, assets, options) {
     if (asset) return asset
   } else {
     for (let location of options.paths) {
-      const asset = assets.find(asset => asset.path === join(location, path))
+      let asset = null
+      if (isRemotePath(location)) {
+        const searchPath = getFullRemoteUrl(location, path)
+        asset = assets.find(asset => asset.url === searchPath)
+      } else {
+        const searchPath = join(location, path)
+        asset = assets.find(asset => asset.path === searchPath)
+      }
       if (asset) return asset
     }
   }
 }
 
-function isRemotePath (path) {
-  return path.startsWith('http://') || path.startsWith('https://')
-}
-
 module.exports = {
   findAsset,
-  isFileSupported,
-  isRemotePath
+  isFileSupported
 }

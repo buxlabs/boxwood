@@ -4,9 +4,8 @@ const util = require('util')
 const readFile = util.promisify(fs.readFile)
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
-const { isRemotePath } = require('./files')
 const request = require('axios')
-const URL = require('url')
+const { getFullRemoteUrl, isRemotePath } = require('./url')
 
 const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
@@ -15,7 +14,7 @@ const linter = new Linter()
 async function loadComponent (path, isRemote, remoteUrl, paths = []) {
   if (isRemotePath(path) || isRemote) {
     try {
-      const url = remoteUrl ? URL.parse(remoteUrl).protocol + '//' + join(URL.parse(remoteUrl).host, dirname(URL.parse(remoteUrl).pathname), path) : path
+      const url = getFullRemoteUrl(remoteUrl, path)
       const response = await request.get(url)
       if (response.status === 200) {
         let buffer = Buffer.from('') // TODO: parse response to the buffer
