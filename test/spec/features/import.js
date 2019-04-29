@@ -751,3 +751,22 @@ test('import: should be possible to download nested components', async assert =>
   assert.deepEqual(template({}, escape), '<div>bar</div>')
   await server.stop()
 })
+
+test('import: should be possible to download deep nested components', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.html', (req, res) => {
+    res.send('<import bar from="./bar.html"><bar/>')
+  })
+  server.get('/baz/bar.html', (req, res) => {
+    res.send('<import ban from="./ban.html"><ban/>')
+  }) 
+  server.get('/baz/ban.html', (req, res) => {
+    res.send('<div>ban</div>')
+  })   
+  var { template } = await compile(`<import foo from="http://localhost:${port}/baz/foo.html"><foo/>`, {
+    paths: []
+  })
+  assert.deepEqual(template({}, escape), '<div>ban</div>')
+  await server.stop()
+})
