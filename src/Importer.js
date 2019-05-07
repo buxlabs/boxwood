@@ -15,13 +15,15 @@ async function loadComponent (path, isRemote, remoteUrl, paths = []) {
   if (isRemotePath(path) || isRemote) {
     try {
       const url = getFullRemoteUrl(remoteUrl, path)
-      const response = await request.get(url)
+      const response = await request.get(url, {
+        responseType: 'arraybuffer'
+      })
       if (response.status === 200) {
-        let buffer = Buffer.from('') // TODO: parse response to the buffer
-        let base64 = '' // TODO: find a good way to change data to base64, like readFile
+        let buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
+        let base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
         return {
           path,
-          source: response.data,
+          source: buffer.toString(),
           buffer,
           base64,
           remote: true,
@@ -58,7 +60,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
       const { source, path, base64, remote, url, buffer } = await loadComponent(assetPath, isRemote, remoteUrl, [dir, ...paths])
       if (!path) {
         return {
-          warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${name}` }]
+          warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
         }
       }
       const tree = parse(source)

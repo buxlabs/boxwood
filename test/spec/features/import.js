@@ -815,5 +815,74 @@ test('import: should be possible to download components from three servers', asy
   await server3.stop()
 })
 
-// TODO: Circular deps, 404, many components loading the same remote component, cache, aliases 
-// TODO: Loading and inlining remote svg, fonts, images, styles
+test('import: should be possible to load remote svgs', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.svg', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../fixtures/svg/rectangle.svg'))
+  })
+  var { template } = await compile(`<img src="http://localhost:${port}/baz/foo.svg" inline />`, {
+    paths: []
+  }) 
+  assert.truthy(template({}, escape).includes('base64'))
+  assert.truthy(template({}, escape).includes('DAsMCkiIC8+PC9zdmc+Cg=='))
+  await server.stop()
+})
+
+test('import: should be possible to load remote images', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.png', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../fixtures/images/placeholder.png'))
+  })
+  var { template } = await compile(`<img src="http://localhost:${port}/baz/foo.png" inline />`, {
+    paths: []
+  }) 
+  assert.truthy(template({}, escape).includes('base64'))
+  assert.truthy(template({}, escape).includes('RU5ErkJggg=='))
+  await server.stop()
+})
+
+test('import: should be possible to load remote fonts', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.ttf', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../fixtures/fonts/Example.ttf'))
+  })
+  var { template } = await compile(`
+    <style inline>
+      @font-face {
+        font-family: 'Example';
+        src: local('Example Regular'), local('Example-Regular'), url(http://localhost:${port}/baz/foo.ttf) format('truetype');
+      }
+    </style>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures') ]
+  })
+  const output = template({}, escape)
+  assert.truthy(output.includes('url(data:application/font-ttf;charset=utf-8;base64'))
+  assert.truthy(output.includes('EABQAlACkAMQHiAeM=) format(\'truetype\')'))
+  await server.stop()
+})
+
+test('import: should be possible to load remote styles', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.css', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../fixtures/stylesheets/foo.css'))
+  })
+  var { template } = await compile(`<link href="http://localhost:${port}/baz/foo.css" inline>`)
+  assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
+  await server.stop()
+})
+
+test('import: should render nothing for 404', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  var { template, warnings } = await compile(`<link href="http://localhost:${port}/baz/foo.css" inline>`)
+  assert.deepEqual(template({}, escape), '')
+  assert.deepEqual(warnings[0].type, 'COMPONENT_NOT_FOUND')
+  assert.deepEqual(warnings[0].message, `Component not found: http://localhost:${port}/baz/foo.css`)
+  await server.stop()
+})
+// TODO: Circular deps, many components loading the same remote component, cache, aliases 

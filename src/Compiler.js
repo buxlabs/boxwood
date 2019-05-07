@@ -124,7 +124,7 @@ class Compiler {
     }
     warnings.forEach(warning => console.error(warning))
     const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
-    return { template: compiled, statistics: statistics.serialize(), errors }
+    return { template: compiled, statistics: statistics.serialize(), errors, warnings }
   }
   async compile (source) {
     const tree = this.parse(source)
