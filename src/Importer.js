@@ -75,7 +75,11 @@ async function recursiveImport (tree, source, path, options, depth, remote, url)
   if (depth > MAXIMUM_IMPORT_DEPTH) {
     return {
       assets: [],
-      warnings: [{ type: 'MAXIMUM_IMPORT_DEPTH_EXCEEDED', message: 'Maximum import depth exceeded' }]
+      warnings: [{
+        type: 'MAXIMUM_IMPORT_DEPTH_EXCEEDED',
+        message: 'Maximum import depth exceeded',
+        severity: 'critical'
+      }]
     }
   }
   const imports = getImportNodes(tree, options)
@@ -101,7 +105,8 @@ function mergeAssets (assets) {
     if (!object[path]) {
       object[path] = component
     } else {
-      object[path].files = [...object[path].files, ...files]
+      component.files = [...object[path].files, ...files]
+      object[path] = component
     }
   })
   return Object.values(object)

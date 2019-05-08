@@ -80,18 +80,21 @@ async function render (source, htmltree, options) {
   })
   plugins.forEach(plugin => { plugin.afterprerun() })
 
-  walk(htmltree, async fragment => {
-    await collect({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
-  })
-  await Promise.all(promises)
-  const used = []
-  unique(filters).forEach(name => {
-    const filter = getFilter(name, translations, options)
-    if (filter && !used.includes(filter.id.name)) {
-      tree.prepend(filter)
-      used.push(filter.id.name)
-    }
-  })
+  const severities = warnings.map(warning => warning.severity)
+  if (!severities.includes('critical')) {
+    walk(htmltree, async fragment => {
+      await collect({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+    })
+    await Promise.all(promises)
+    const used = []
+    unique(filters).forEach(name => {
+      const filter = getFilter(name, translations, options)
+      if (filter && !used.includes(filter.id.name)) {
+        tree.prepend(filter)
+        used.push(filter.id.name)
+      }
+    })
+  }
   tree.append(getTemplateReturnStatement())
   return { tree, statistics, warnings, errors }
 }
@@ -102,6 +105,7 @@ class Compiler {
       inline: [],
       compilers: {},
       paths: [],
+      cache: true,
       variables: {
         template: TEMPLATE_VARIABLE,
         object: OBJECT_VARIABLE,

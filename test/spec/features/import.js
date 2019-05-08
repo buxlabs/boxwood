@@ -885,4 +885,92 @@ test('import: should render nothing for 404', async assert => {
   assert.deepEqual(warnings[0].message, `Component not found: http://localhost:${port}/baz/foo.css`)
   await server.stop()
 })
-// TODO: Circular deps, many components loading the same remote component, cache, aliases 
+
+test('import: should handle circular deps', async assert => {
+  var server1 = new Server()
+  var server2 = new Server()
+  var { port: port1 } = await server1.start()
+  var { port: port2 } = await server2.start()
+  server1.get('/baz/foo.html', (req, res) => {
+    res.send(`<import bar from="http://localhost:${port2}/baz/bar.html"><bar/>`)
+  })
+  server2.get('/baz/bar.html', (req, res) => {
+    res.send(`<import foo from="http://localhost:${port1}/baz/foo.html"><foo/>`)
+  })
+  var { template, warnings } = await compile(`<import foo from="http://localhost:${port1}/baz/foo.html"><foo/>`, {
+    paths: []
+  })
+  assert.deepEqual(template({}, escape), '')
+  assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
+  await server1.stop()
+  await server2.stop()
+})
+
+test('import: many components loading the same remote component', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port}/baz/baz.html">foo<baz/>`)
+  })
+  server.get('/baz/bar.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port}/baz/baz.html">bar<baz/>`)
+  })
+  server.get('/baz/baz.html', (req, res) => {
+    res.send(`<div>baz</div>`)
+  })    
+  var { template } = await compile(`
+    <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
+    <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
+    `, { paths: [] }
+  )
+  assert.deepEqual(template({}, escape), 'foo<div>baz</div>bar<div>baz</div>')
+  await server.stop()
+})
+
+test('import: should be possible to disable a cache', async assert => {
+  var count = 0
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port}/baz/baz.html">foo<baz/>`)
+  })
+  server.get('/baz/bar.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port}/baz/baz.html">bar<baz/>`)
+  })
+  server.get('/baz/baz.html', (req, res) => {
+    res.send(`<div>${count === 0 ? 'baz' : 'qux'}</div>`)
+    count += 1
+  })    
+  var { template } = await compile(`
+    <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
+    <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
+    `, { paths: [], cache: false }
+  )
+  assert.deepEqual(template({}, escape), 'foo<div>qux</div>bar<div>qux</div>')
+  await server.stop()
+})
+
+test.skip('import: caches remotes components', async assert => {
+  var count = 0
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port}/baz/baz.html">foo<baz/>`)
+  })
+  server.get('/baz/bar.html', (req, res) => {
+    res.send(`<import baz from="http://localhost:${port}/baz/baz.html">bar<baz/>`)
+  })
+  server.get('/baz/baz.html', (req, res) => {
+    res.send(`<div>${count === 0 ? 'baz' : 'qux'}</div>`)
+    count += 1
+  })    
+  var { template } = await compile(`
+    <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
+    <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
+    `, { paths: [] }
+  )
+  assert.deepEqual(template({}, escape), 'foo<div>baz</div>bar<div>baz</div>')
+  await server.stop()
+})
+
+// TODO: , cache, aliases 
