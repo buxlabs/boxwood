@@ -1,5 +1,8 @@
 const { join } = require('path')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
+const fs = require('fs')
+const util = require('util')
+const readFile = util.promisify(fs.readFile)
 
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
 function isFileSupported (path) {
@@ -29,5 +32,6 @@ function findAsset (path, assets, options) {
 
 module.exports = {
   findAsset,
-  isFileSupported
+  isFileSupported,
+  readFile
 }

@@ -48,6 +48,7 @@
     "abstract-syntax-tree": "^2.0.1",
     "astoptech": "^1.0.6",
     "asttv": "^1.0.1",
+    "axios-extensions": "^3.0.5",
     "css-tree": "^1.0.0-alpha.29",
     "himalaya": "^1.1.0",
     "himalaya-walk": "^1.0.0",

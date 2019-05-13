@@ -1,22 +1,21 @@
-const fs = require('fs')
 const { join, dirname } = require('path')
-const util = require('util')
-const readFile = util.promisify(fs.readFile)
+const { readFile } = require('./files')
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
-const request = require('axios')
+const request = require('./request')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
 
 const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
 const linter = new Linter()
 
-async function loadComponent (path, isRemote, remoteUrl, paths = []) {
+async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
   if (isRemotePath(path) || isRemote) {
     try {
       const url = getFullRemoteUrl(remoteUrl, path)
       const response = await request.get(url, {
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        cache: options.cache
       })
       if (response.status === 200) {
         let buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
@@ -35,14 +34,16 @@ async function loadComponent (path, isRemote, remoteUrl, paths = []) {
     for (let option of paths) {
       try {
         const location = join(option, path)
-        const result = {}
-        result.path = location
-        result.buffer = await readFile(location)
-        result.base64 = await readFile(location, 'base64')
+        options.hooks.onBeforeFile(location)
+        const file = {}
+        file.path = location
+        file.buffer = await readFile(location)
+        file.base64 = await readFile(location, 'base64')
         // TODO: Read once convert base64
-        result.source = await readFile(location, 'utf8')
-        result.remote = false
-        return result
+        file.source = await readFile(location, 'utf8')
+        file.remote = false
+        options.hooks.onFile(file)
+        return file
       } catch (exception) {}
     }
   }
@@ -57,7 +58,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     const dir = dirname(context)
     const assetPaths = getAssetPaths(node, name)
     return Promise.all(assetPaths.map(async assetPath => {
-      const { source, path, base64, remote, url, buffer } = await loadComponent(assetPath, isRemote, remoteUrl, [dir, ...paths])
+      const { source, path, base64, remote, url, buffer } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
         return {
           warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
@@ -102,6 +103,7 @@ function mergeAssets (assets) {
   const object = {}
   assets.forEach(component => {
     const { path, files } = component
+    if (!path) return
     if (!object[path]) {
       object[path] = component
     } else {

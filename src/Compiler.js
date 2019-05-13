@@ -112,6 +112,10 @@ class Compiler {
         escape: ESCAPE_VARIABLE
       }
     }, options)
+    this.options.hooks = Object.assign({
+      onBeforeFile () {},
+      onFile () {}
+    }, options.hooks)
   }
   parse (source) {
     const parser = new Parser()

@@ -4,6 +4,7 @@ import path from 'path'
 import escape from 'escape-html'
 import Server from '../../helpers/Server'
 import request from "axios"
+import fs from "fs"
 
 test('import', async assert => {
   var { template } = await compile(`<import layout from='./blank.html'/><import sidebar from='./sidebar.html'/><layout><sidebar>foo</sidebar>bar</layout>`,
@@ -876,7 +877,7 @@ test('import: should be possible to load remote styles', async assert => {
   await server.stop()
 })
 
-test('import: should render nothing for 404', async assert => {
+test.skip('import: should render nothing for 404', async assert => {
   var server = new Server()
   var { port } = await server.start()
   var { template, warnings } = await compile(`<link href="http://localhost:${port}/baz/foo.css" inline>`)
@@ -950,7 +951,7 @@ test('import: should be possible to disable a cache', async assert => {
   await server.stop()
 })
 
-test.skip('import: caches remotes components', async assert => {
+test('import: caches remotes components', async assert => {
   var count = 0
   var server = new Server()
   var { port } = await server.start()
@@ -971,6 +972,59 @@ test.skip('import: caches remotes components', async assert => {
   )
   assert.deepEqual(template({}, escape), 'foo<div>baz</div>bar<div>baz</div>')
   await server.stop()
+})
+
+test('import: it is possible to disable cache of local components', async assert => {
+  var count = 0
+  var location = path.join(__dirname, '../../fixtures/dynamic/baz.html')
+  var { template } = await compile(`
+    <import foo from="./foo.html"><foo/>
+    <import bar from="./bar.html"><bar/>
+    `, { 
+      paths: [path.join(__dirname, '../../fixtures/dynamic')],
+      cache: false,
+      hooks: {
+        onBeforeFile (filepath) {
+          console.log(filepath)
+          if (filepath === location) {
+            if (count === 0) {
+              fs.writeFileSync(location, 'baz')
+            } else {
+              fs.writeFileSync(location, 'qux')
+            }
+            count += 1
+          }
+        }
+      } 
+    }
+  )
+  assert.deepEqual(template({}, escape), 'quxqux')
+})
+
+test.skip('import: caches local components', async assert => {
+  var count = 0
+  var location = path.join(__dirname, '../../fixtures/dynamic/baz.html')
+  var { template } = await compile(`
+    <import foo from="./foo.html"><foo/>
+    <import bar from="./bar.html"><bar/>
+    `, { 
+      paths: [path.join(__dirname, '../../fixtures/dynamic')],
+      hooks: {
+        onBeforeFile (filepath) {
+          console.log(filepath)
+          if (filepath === location) {
+            if (count === 0) {
+              fs.writeFileSync(location, 'baz')
+            } else {
+              fs.writeFileSync(location, 'qux')
+            }
+            count += 1
+          }
+        }
+      } 
+    }
+  )
+  assert.deepEqual(template({}, escape), 'bazbaz')
 })
 
 // TODO: , cache, aliases 
