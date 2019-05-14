@@ -55,6 +55,7 @@
     "html-validate": "^0.24.2",
     "image-size": "^0.6.3",
     "marked": "^0.6.1",
+    "memoizee": "^0.4.14",
     "negate-sentence": "^0.1.2",
     "normalize-newline": "^3.0.0",
     "pure-conditions": "^0.1.18",

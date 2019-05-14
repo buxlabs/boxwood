@@ -1,9 +1,10 @@
 const { join, dirname } = require('path')
-const { readFile } = require('./files')
+let { readFile } = require('./files')
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
 const request = require('./request')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
+const memoizee = require('memoizee')
 
 const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
@@ -31,6 +32,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
       }
     } catch (exception) {}
   } else {
+    if (options.cache) readFile = memoizee(readFile)
     for (let option of paths) {
       try {
         const location = join(option, path)

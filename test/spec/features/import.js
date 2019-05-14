@@ -974,18 +974,17 @@ test('import: caches remotes components', async assert => {
   await server.stop()
 })
 
-test('import: it is possible to disable cache of local components', async assert => {
+test.serial('import: it is possible to disable cache of local components', async assert => {
   var count = 0
   var location = path.join(__dirname, '../../fixtures/dynamic/baz.html')
   var { template } = await compile(`
     <import foo from="./foo.html"><foo/>
-    <import bar from="./bar.html"><bar/>
+    <import bar from="./nested/bar.html"><bar/>
     `, { 
       paths: [path.join(__dirname, '../../fixtures/dynamic')],
       cache: false,
       hooks: {
         onBeforeFile (filepath) {
-          console.log(filepath)
           if (filepath === location) {
             if (count === 0) {
               fs.writeFileSync(location, 'baz')
@@ -1001,17 +1000,16 @@ test('import: it is possible to disable cache of local components', async assert
   assert.deepEqual(template({}, escape), 'quxqux')
 })
 
-test.skip('import: caches local components', async assert => {
+test.serial('import: caches local components', async assert => {
   var count = 0
   var location = path.join(__dirname, '../../fixtures/dynamic/baz.html')
   var { template } = await compile(`
     <import foo from="./foo.html"><foo/>
-    <import bar from="./bar.html"><bar/>
+    <import bar from="./nested/bar.html"><bar/>
     `, { 
       paths: [path.join(__dirname, '../../fixtures/dynamic')],
       hooks: {
         onBeforeFile (filepath) {
-          console.log(filepath)
           if (filepath === location) {
             if (count === 0) {
               fs.writeFileSync(location, 'baz')
