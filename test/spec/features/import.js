@@ -745,7 +745,7 @@ test('import: should be possible to download nested components', async assert =>
   })
   server.get('/baz/bar.html', (req, res) => {
     res.send('<div>bar</div>')
-  }) 
+  })
   var { template } = await compile(`<import foo from="http://localhost:${port}/baz/foo.html"><foo/>`, {
     paths: []
   })
@@ -761,10 +761,10 @@ test('import: should be possible to download deep nested components', async asse
   })
   server.get('/baz/bar.html', (req, res) => {
     res.send('<import ban from="./ban.html"><ban/>')
-  }) 
+  })
   server.get('/baz/ban.html', (req, res) => {
     res.send('<div>ban</div>')
-  })   
+  })
   var { template } = await compile(`<import foo from="http://localhost:${port}/baz/foo.html"><foo/>`, {
     paths: []
   })
@@ -782,7 +782,7 @@ test('import: should be possible to download components from many servers', asyn
   })
   server2.get('/baz/bar.html', (req, res) => {
     res.send('<div>bar</div>')
-  }) 
+  })
   var { template } = await compile(`<import foo from="http://localhost:${port1}/baz/foo.html"><foo/>`, {
     paths: []
   })
@@ -806,7 +806,7 @@ test('import: should be possible to download components from three servers', asy
   })
   server3.get('/baz/baz.html', (req, res) => {
     res.send(`<div>baz</div>`)
-  })   
+  })
   var { template } = await compile(`<import foo from="http://localhost:${port1}/baz/foo.html"><foo/>`, {
     paths: []
   })
@@ -824,7 +824,7 @@ test('import: should be possible to load remote svgs', async assert => {
   })
   var { template } = await compile(`<img src="http://localhost:${port}/baz/foo.svg" inline />`, {
     paths: []
-  }) 
+  })
   assert.truthy(template({}, escape).includes('base64'))
   assert.truthy(template({}, escape).includes('DAsMCkiIC8+PC9zdmc+Cg=='))
   await server.stop()
@@ -838,7 +838,7 @@ test('import: should be possible to load remote images', async assert => {
   })
   var { template } = await compile(`<img src="http://localhost:${port}/baz/foo.png" inline />`, {
     paths: []
-  }) 
+  })
   assert.truthy(template({}, escape).includes('base64'))
   assert.truthy(template({}, escape).includes('RU5ErkJggg=='))
   await server.stop()
@@ -918,7 +918,7 @@ test('import: many components loading the same remote component', async assert =
   })
   server.get('/baz/baz.html', (req, res) => {
     res.send(`<div>baz</div>`)
-  })    
+  })
   var { template } = await compile(`
     <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
     <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
@@ -941,7 +941,7 @@ test('import: should be possible to disable a cache', async assert => {
   server.get('/baz/baz.html', (req, res) => {
     res.send(`<div>${count === 0 ? 'baz' : 'qux'}</div>`)
     count += 1
-  })    
+  })
   var { template } = await compile(`
     <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
     <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
@@ -964,7 +964,7 @@ test('import: caches remotes components', async assert => {
   server.get('/baz/baz.html', (req, res) => {
     res.send(`<div>${count === 0 ? 'baz' : 'qux'}</div>`)
     count += 1
-  })    
+  })
   var { template } = await compile(`
     <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
     <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
@@ -974,13 +974,13 @@ test('import: caches remotes components', async assert => {
   await server.stop()
 })
 
-test.serial('import: it is possible to disable cache of local components', async assert => {
+test('import: it is possible to disable cache of local components', async assert => {
   var count = 0
   var location = path.join(__dirname, '../../fixtures/dynamic/baz.html')
   var { template } = await compile(`
     <import foo from="./foo.html"><foo/>
     <import bar from="./nested/bar.html"><bar/>
-    `, { 
+    `, {
       paths: [path.join(__dirname, '../../fixtures/dynamic')],
       cache: false,
       hooks: {
@@ -994,19 +994,19 @@ test.serial('import: it is possible to disable cache of local components', async
             count += 1
           }
         }
-      } 
+      }
     }
   )
   assert.deepEqual(template({}, escape), 'quxqux')
 })
 
-test.serial('import: caches local components', async assert => {
+test('import: caches local components', async assert => {
   var count = 0
   var location = path.join(__dirname, '../../fixtures/dynamic/baz.html')
   var { template } = await compile(`
     <import foo from="./foo.html"><foo/>
     <import bar from="./nested/bar.html"><bar/>
-    `, { 
+    `, {
       paths: [path.join(__dirname, '../../fixtures/dynamic')],
       hooks: {
         onBeforeFile (filepath) {
@@ -1019,10 +1019,10 @@ test.serial('import: caches local components', async assert => {
             count += 1
           }
         }
-      } 
+      }
     }
   )
   assert.deepEqual(template({}, escape), 'bazbaz')
 })
 
-// TODO: , cache, aliases 
+// TODO: aliases

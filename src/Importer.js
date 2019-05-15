@@ -1,10 +1,9 @@
 const { join, dirname } = require('path')
-let { readFile } = require('./files')
+let { readFile, readFileWithCache } = require('./files')
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
 const request = require('./request')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
-const memoizee = require('memoizee')
 
 const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
@@ -32,17 +31,17 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
       }
     } catch (exception) {}
   } else {
-    if (options.cache) readFile = memoizee(readFile)
+    const read = options.cache ? readFileWithCache : readFile
     for (let option of paths) {
       try {
         const location = join(option, path)
         options.hooks.onBeforeFile(location)
         const file = {}
         file.path = location
-        file.buffer = await readFile(location)
-        file.base64 = await readFile(location, 'base64')
+        file.buffer = await read(location)
+        file.base64 = await read(location, 'base64')
         // TODO: Read once convert base64
-        file.source = await readFile(location, 'utf8')
+        file.source = await read(location, 'utf8')
         file.remote = false
         options.hooks.onFile(file)
         return file
