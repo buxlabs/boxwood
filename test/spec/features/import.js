@@ -1025,4 +1025,21 @@ test('import: caches local components', async assert => {
   assert.deepEqual(template({}, escape), 'bazbaz')
 })
 
-// TODO: aliases
+test('import: should be possible to load remote styles with aliases', async assert => {
+  var server = new Server()
+  var { port } = await server.start()
+  server.get('/baz/foo.css', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../fixtures/stylesheets/foo.css'))
+  })
+  var { template } = await compile(`<link href="example/baz/foo.css" inline>`, {
+    aliases: 
+    [
+      {
+        from: /^example\//,
+        to: `http://localhost:${port}/`
+      }
+    ]
+  })
+  assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
+  await server.stop()
+})

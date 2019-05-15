@@ -7,6 +7,17 @@ const readFile = util.promisify(fs.readFile)
 const readFileWithCache = memoize(readFile)
 
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
+
+function resolveAlias (path, aliases) {
+  for (let alias of aliases) {
+    const { from, to } = alias
+    if (path.match(from)) {
+      return path.replace(from, to)
+    }
+  }
+  return path
+}
+
 function isFileSupported (path) {
   return SUPPORTED_EXTENSIONS
     .map(extension => path.endsWith(extension)).includes(true)
@@ -14,6 +25,7 @@ function isFileSupported (path) {
 
 // TODO: Unify with Importer
 function findAsset (path, assets, options) {
+  path = resolveAlias(path, options.aliases)
   if (isRemotePath(path)) {
     const asset = assets.find(asset => asset.path === path)
     if (asset) return asset
@@ -36,5 +48,6 @@ module.exports = {
   findAsset,
   isFileSupported,
   readFile,
-  readFileWithCache
+  readFileWithCache,
+  resolveAlias
 }

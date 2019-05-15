@@ -1,5 +1,5 @@
 const { join, dirname } = require('path')
-let { readFile, readFileWithCache } = require('./files')
+let { readFile, readFileWithCache, resolveAlias } = require('./files')
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
 const request = require('./request')
@@ -10,6 +10,7 @@ const parse = require('./html/parse')
 const linter = new Linter()
 
 async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
+  path = resolveAlias(path, options.aliases)
   if (isRemotePath(path) || isRemote) {
     try {
       const url = getFullRemoteUrl(remoteUrl, path)

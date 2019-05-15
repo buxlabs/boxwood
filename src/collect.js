@@ -87,7 +87,7 @@ function collectComponent (name, path, components, component, assets, options) {
   if (components) {
     paths = paths.concat(components.map(component => dirname(component.path)))
   }
-  const asset = findAsset(path, assets, { paths })
+  const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
   const content = asset.source
   components.push({ name, content, path: asset.path })

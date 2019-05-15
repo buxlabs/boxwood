@@ -110,10 +110,12 @@ class Compiler {
         template: TEMPLATE_VARIABLE,
         object: OBJECT_VARIABLE,
         escape: ESCAPE_VARIABLE
-      }
+      },
+      aliases: []
     }, options)
     this.options.hooks = Object.assign({
       onBeforeFile () {},
+      // TODO: Change to onAfterFile
       onFile () {}
     }, options.hooks)
   }
