@@ -13,9 +13,7 @@ test('svg import throws if the asset does not exist', async assert => {
 })
 
 test('svg import throws if the from attribute is empty', async assert => {
-  await assert.throwsAsync(
-    compile(`<svg from=''/>`, { paths: [__dirname] }),
-    /Attribute empty on the svg tag: from\./
-  )
+  var { errors } = await  compile(`<svg from=''/>`, { paths: [__dirname] })
+  assert.regex(errors[0].message, /Attribute empty on the svg tag: from\./)
 })
 
