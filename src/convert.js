@@ -96,6 +96,9 @@ function convertAttribute (name, value, variables, currentFilters, translations,
     tree.replace({ enter: removePlaceholders })
     const expression = prependObjectVariable(tree, variables)
     const array = expression.first('ArrayExpression')
+    if (array.elements.length === 1) {
+      return AbstractSyntaxTree.template('<%= element %> || ""', { element: array.elements[0] })[0]
+    }
     return AbstractSyntaxTree.template('<%= array %>.filter(Boolean).join(" ")', { array })[0]
   } else if (name.endsWith('.bind')) {
     const expression = convertToExpression(value)
