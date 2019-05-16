@@ -50,6 +50,19 @@ function setDimension (fragment, attrs, keys, dimension, assets, options) {
   }
 }
 
+function attributeToStyle (attributeName, styles, attrs) {
+  const index = attrs.findIndex(attr => attr.key === attributeName)
+  const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
+  if (index !== -1) {
+    attrs.splice(index, 1)
+    if (styleAttributeIndex === -1) {
+      attrs.push({ key: 'style', value: styles })
+    } else {
+      attrs[styleAttributeIndex].value += ` ${styles}`
+    }
+  }
+}
+
 function collectComponentsFromImport (fragment, components, component, assets, options) {
   const attrs = fragment.attributes
   const names = extractComponentNames(attrs)
@@ -511,23 +524,15 @@ async function collect ({ tree, fragment, assets, variables, filters, components
         fragment.attributes = content.attributes
         fragment.children = content.children
       } else if (tag === 'img') {
-        const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
         const sizeAttributeIndex = attrs.findIndex(attr => attr.key === 'size')
-        const fluidAttributeIndex = attrs.findIndex(attr => attr.key === 'fluid')
+        attributeToStyle('fluid', 'max-width: 100%; height: auto;', attrs)
+        attributeToStyle('cover', 'object-fit: cover; object-position: right top;', attrs)
+        attributeToStyle('contain', 'object-fit: contain; object-position: center;', attrs)
         if (sizeAttributeIndex !== -1) {
           const [width, height] = attrs[sizeAttributeIndex].value.split('x')
           attrs.push({ key: 'width', value: width })
           attrs.push({ key: 'height', value: height })
           attrs.splice(sizeAttributeIndex, 1)
-        }
-        if (fluidAttributeIndex !== -1) {
-          const responsiveImageStyles = 'max-width: 100%; height: auto;'
-          attrs.splice(fluidAttributeIndex, 1)
-          if (styleAttributeIndex === -1) {
-            attrs.push({ key: 'style', value: responsiveImageStyles })
-          } else {
-            attrs[styleAttributeIndex].value += ` ${responsiveImageStyles}`
-          }
         }
         setDimension(fragment, attrs, keys, 'width', assets, options)
         setDimension(fragment, attrs, keys, 'height', assets, options)
