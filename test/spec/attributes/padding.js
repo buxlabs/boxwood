@@ -43,7 +43,7 @@ test('div[padding]: works with values', async assert => {
   assert.deepEqual(template({}, escape), '<div style="margin: 0 auto; padding:  15px  10px  20px  30px;"></div>')
 })
 
-test.only('div[padding]: works with expressions', async assert => {
+test('div[padding]: works with expressions', async assert => {
   var { template } = await compile(`<div id="qux" class="foo bar ban" padding="{15}"></div>`)
   assert.deepEqual(template({}, escape), '<div id="qux" class="foo bar ban" style="padding: 15px;"></div>')
 

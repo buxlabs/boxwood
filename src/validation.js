@@ -1,12 +1,16 @@
-function validateOptions ({ inline, compilers, paths, languages, cache, variables, aliases }) {
-  return [
-    ...arePathsValid(paths),
-    ...isInlineValid(inline),
-    ...areCompilersValid(compilers),
-    ...areLanguagesValid(languages),
-    ...isCacheValid(cache),
-    ...areAliasesValid(aliases)
-  ]
+const { isPlainObject } = require('pure-conditions')
+
+module.exports = {
+  validateOptions: ({ inline, compilers, paths, languages, cache, variables, aliases }) => {
+    return [
+      ...arePathsValid(paths),
+      ...isInlineValid(inline),
+      ...areCompilersValid(compilers),
+      ...areLanguagesValid(languages),
+      ...isCacheValid(cache),
+      ...areAliasesValid(aliases)
+    ]
+  }
 }
 
 function arePathsValid (paths) {
@@ -30,7 +34,7 @@ function isInlineValid (inline) {
 }
 
 function areCompilersValid (compilers) {
-  if (Object.prototype.toString.call(compilers) !== '[object Object]') return ['Compiler option "compilers" must be an object']
+  if (isPlainObject(compilers)) return ['Compiler option "compilers" must be an object']
   for (let key in compilers) {
     const compiler = compilers[key]
     if (typeof compiler !== 'function') {
@@ -58,7 +62,7 @@ function isCacheValid (cache) {
 
 function areAliasesValid (aliases) {
   if (!Array.isArray(aliases)) return ['Compiler option "aliases" must be an array']
-  if (aliases.some(alias => Object.prototype.toString.call(alias) !== '[object Object]')) {
+  if (aliases.some(alias => isPlainObject(alias))) {
     return ['Compiler option "aliases" must be an array containing objects']
   }
   if (aliases.some(alias => !Object.keys(alias).length)) {
@@ -71,5 +75,3 @@ function areAliasesValid (aliases) {
   }
   return []
 }
-
-module.exports = { validateOptions }
