@@ -203,137 +203,95 @@ test('i18n: loading translations from global js files', async assert => {
 })
 
 test('i18n: throws if the translate tag has no attribute', async assert => {
-  await assert.throwsAsync(
-    compile('<translate>'),
-    /Translate tag must define a key/
-  )
+  const { errors } = await compile('<translate>')
+  assert.deepEqual(errors[0].message, 'Translate tag must define a key')
 })
 
 test('i18n: throws if there is a duplicate translation', async assert => {
-  await assert.throwsAsync(
-    compile('<div><translate cancel></div>', {
-      languages: ['pl', 'en'],
-      translationsPaths: [
-        path.join(__dirname, '../../fixtures/translations/translations.json'),
-        path.join(__dirname, '../../fixtures/translations/locales.json')
-      ]
-    }),
-    /Translation already exists in .*/
-  )
-})
-
-test('i18n: throws if the languages flag is not set', async assert => {
-  await assert.throwsAsync(
-    compile(`<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{"submit" | translate}</div>`),
-    /Compiler option is undefined: languages\./
-  )
-
-  await assert.throwsAsync(
-    compile(`<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div><translate submit></div>`),
-    /Compiler option is undefined: languages\./
-  )
+  const { errors } = await compile('<div><translate cancel></div>', {
+    languages: ['pl', 'en'],
+    translationsPaths: [
+      path.join(__dirname, '../../fixtures/translations/translations.json'),
+      path.join(__dirname, '../../fixtures/translations/locales.json')
+    ]
+  })
+  assert.regex(errors[0].message, /Translation already exists in */)
 })
 
 test('i18n: throws if a translation is missing', async assert => {
-  await assert.throwsAsync(
-    compile(`
+  var { errors } = await compile(`
       <script i18n yaml>
       submit:
       - Wyślij
       - Send
       </script>
       <div><translate copyright></div>
-    `, { languages: ['pl', 'en'] }),
-    /There is no translation for the copyright key/
-  )
-
-  await assert.throwsAsync(
-    compile(`
+    `, { languages: ['pl', 'en'] })
+  assert.regex(errors[0].message, /There is no translation for the copyright key/)
+    
+  var { errors } = await compile(`
       <script i18n yaml>
       copyright:
       - Wszystkie prawa zastrzeżone
       </script>
       <div><translate copyright></div>
-    `, { languages: ['pl', 'en'] }),
-    /There is no translation for the copyright key in en language/
-  )
+    `, { languages: ['pl', 'en'] })
+  assert.regex(errors[0].message, /There is no translation for the copyright key in en language/)  
 
-  await assert.throwsAsync(
-    compile(`
+  var { errors } = await compile(`
       <script i18n yaml>
       copyright:
       - Wszystkie prawa zastrzeżone
       - All rights reserved
       </script>
       <div><translate contact></div>
-    `, { languages: ['pl', 'en'] }),
-    /There is no translation for the contact key/
-  )
+    `, { languages: ['pl', 'en'] })
+  assert.regex(errors[0].message, /There is no translation for the contact key/)  
 })
 
 test('i18n: throws if the translation script is empty', async assert => {
-  await assert.throwsAsync(
-    compile(`
-      <script i18n></script><div>{"foo" | translate}</div>
-    `, { languages: ['pl', 'en'] }),
-    /The translation script cannot be empty/
-  )
-
-  await assert.throwsAsync(
-    compile(`
-      <script i18n yaml></script><div>{"foo" | translate}</div>)
-    `, { languages: ['pl', 'en'] }),
-    /The translation script cannot be empty/
-  )
-
-  await assert.throwsAsync(
-    compile(`
-      <i18n></i18n><div><translate foo></div>
-    `, { languages: ['pl', 'en'] }),
-    /The translation script cannot be empty/
-  )
+  var { errors } = await compile(`<script i18n></script><div>{"foo" | translate}</div>`, { languages: ['pl', 'en'] })
+  assert.regex(errors[0].message, /The translation script cannot be empty/)
+  var { errors } = await compile(`<script i18n yaml></script><div>{"foo" | translate}</div>)`, { languages: ['pl', 'en'] })
+  assert.regex(errors[0].message, /The translation script cannot be empty/)
+  var { errors } = await compile(`<script i18n yaml></script><div><translate foo></div>`, { languages: ['pl', 'en'] })
+  assert.regex(errors[0].message, /The translation script cannot be empty/)
 })
 
 test('i18n: throws if the yaml file is corrupt', async assert => {
-  await assert.throwsAsync(
-    compile(`
-      <script i18n from="../../fixtures/translations/corrupt.yaml"></script>
-      <div><translate button.submit></div>
-    `,
-    {
-      paths: [__dirname],
-      languages: ['pl', 'en']
-    }),
-    /YAML translation is unparseable/
-  )
+  var { errors } = await compile(`
+    <script i18n from="../../fixtures/translations/corrupt.yaml"></script>
+    <div><translate button.submit></div>
+  `,
+  {
+    paths: [__dirname],
+    languages: ['pl', 'en']
+  })
+  assert.regex(errors[0].message, /YAML translation is unparseable/)
 })
 
 test('i18n: throws if the json file is corrupt', async assert => {
-  await assert.throwsAsync(
-    compile(`
+  var { errors } = await compile(`
       <script i18n from="../../fixtures/translations/corrupt.json"></script>
       <div><translate button.submit></div>
     `,
     {
       paths: [__dirname],
       languages: ['pl', 'en']
-    }),
-    /JSON translation is unparseable/
-  )
+    })
+  assert.deepEqual(errors[0].message, 'JSON translation is unparseable')
 })
 
 test('i18n: throws if the js file is corrupt', async assert => {
-  await assert.throwsAsync(
-    compile(`
+  var { errors } = await compile(`
       <script i18n from="../../fixtures/translations/corrupt.js"></script>
       <div><translate button.submit></div>
     `,
     {
       paths: [__dirname],
       languages: ['pl', 'en']
-    }),
-    /JS translation is unparseable/
-  )
+    })
+  assert.deepEqual(errors[0].message, 'JS translation is unparseable')
 })
 
 test('i18n: self-closing syntax', async assert => {

@@ -15,6 +15,7 @@ const InternationalizationPlugin = require('./plugins/InternationalizationPlugin
 const BoxModelPlugin = require('./plugins/BoxModelPlugin')
 const InlinePlugin = require('./plugins/InlinePlugin')
 const Importer = require('./Importer')
+const { validateOptions } = require('./validation')
 
 async function render (source, htmltree, options) {
   if (!htmltree) { return null }
@@ -105,6 +106,7 @@ class Compiler {
       inline: [],
       compilers: {},
       paths: [],
+      languages: [],
       cache: true,
       variables: {
         template: TEMPLATE_VARIABLE,
@@ -113,6 +115,7 @@ class Compiler {
       },
       aliases: []
     }, options)
+    this.errors = validateOptions(this.options)
     this.options.hooks = Object.assign({
       onBeforeFile () {},
       // TODO: Change to onAfterFile
@@ -134,7 +137,8 @@ class Compiler {
     }
     warnings.forEach(warning => console.error(warning))
     const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
-    return { template: compiled, statistics: statistics.serialize(), errors, warnings }
+    const allErrors = [...errors, ...this.errors]
+    return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
   }
   async compile (source) {
     const tree = this.parse(source)
