@@ -42,8 +42,9 @@ function getAssetPathsFromStyleTag (node) {
   const tree = parse(content)
   cssWalk(tree, node => {
     if (node.type === 'Url') {
-      const { type, value } = node.value
-      if (type === 'Raw' && isFileSupported(value)) {
+      let { type, value } = node.value
+      value = value.replace(/'|"/g, '')
+      if ((type === 'Raw' || type === 'String') && isFileSupported(value)) {
         paths.push(value)
       }
     }

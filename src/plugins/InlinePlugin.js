@@ -9,14 +9,16 @@ class InlinePlugin extends Plugin {
       const tree = parse(content)
       walk(tree, node => {
         if (node.type === 'Url') {
-          const { type, value } = node.value
-          if (type === 'Raw' && isFileSupported(value)) {
+          let { type, value } = node.value
+          value = value.replace(/'|"/g, '')
+          if (isFileSupported(value)) {
             const asset = findAsset(value, assets, options)
             if (!asset) return
             const path = asset.path
             const parts = path.split('.')
             const extension = parts[parts.length - 1]
-            node.value.value = `data:application/font-${extension};charset=utf-8;base64,${asset.base64}`
+            const dataType = type === 'Raw' ? 'data:application/font-' : 'data:image/'
+            node.value.value = `${dataType}${extension};charset=utf-8;base64,${asset.base64}`
           }
         }
       })

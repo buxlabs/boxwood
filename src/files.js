@@ -5,6 +5,7 @@ const util = require('util')
 const memoize = require('memoizee')
 const readFile = util.promisify(fs.readFile)
 const readFileWithCache = memoize(readFile)
+const { isImage } = require('pure-conditions')
 
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
 
@@ -19,8 +20,7 @@ function resolveAlias (path, aliases) {
 }
 
 function isFileSupported (path) {
-  return SUPPORTED_EXTENSIONS
-    .map(extension => path.endsWith(extension)).includes(true)
+  return isImage(path) || SUPPORTED_EXTENSIONS.map(extension => path.endsWith(extension)).includes(true)
 }
 
 // TODO: Unify with Importer

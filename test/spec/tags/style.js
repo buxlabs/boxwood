@@ -60,3 +60,18 @@ test('style[inline]: inline fonts', async assert => {
   assert.truthy(output.includes('url(data:application/font-ttf;charset=utf-8;base64'))
   assert.truthy(output.includes('EABQAlACkAMQHiAeM=) format(\'truetype\')'))
 })
+
+test('style[inline]: background image', async assert => {
+  var { template } = await compile(`
+    <style inline>
+      .foo {
+        background: url("./images/placeholder.jpg");
+      }
+    </style>
+  `, {
+    paths: [ join(__dirname, '../../fixtures') ]
+  })
+  const output = template({}, escape)
+  assert.truthy(output.includes('url(data:image/jpg;charset=utf-8;base64'))
+  assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
+})
