@@ -17,7 +17,18 @@ function getFontFaceDeclaration (name, path) {
 }
 
 module.exports = function ({ fragment, tree, options }) {
-  const name = fragment.attributes[0].key
-  const path = fragment.attributes[fragment.attributes.length - 1].value
-  tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`<style>${getFontFaceDeclaration(name, path)}</style>`)))
+  const basePath = fragment.attributes.find(attribute => attribute.key === 'from').value
+  const leftBracketIndex = fragment.attributes.findIndex(attribute => attribute.key === '{')
+  const rightBracketIndex = fragment.attributes.findIndex(attribute => attribute.key === '}')
+  if (leftBracketIndex !== -1 && rightBracketIndex !== -1) {
+    const names = fragment.attributes.slice(leftBracketIndex + 1, rightBracketIndex).map(attribute => attribute.key.replace(',', ''))
+    const extension = fragment.attributes.find(attribute => attribute.key === 'extension').value
+    names.forEach(name => {
+      const path = basePath.concat(`/${name}.${extension}`)
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`<style>${getFontFaceDeclaration(name, path)}</style>`)))
+    })
+  } else {
+    const name = fragment.attributes[0].key
+    tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`<style>${getFontFaceDeclaration(name, basePath)}</style>`)))
+  }
 }
