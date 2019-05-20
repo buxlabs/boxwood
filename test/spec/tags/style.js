@@ -45,6 +45,14 @@ test('style[scoped]: type selectors', async assert => {
   assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>a.scope-504633481.foo::after{content:"⤴"}</style>')
 })
 
+test('style[scoped]: passing additional class to the scoped attribute', async assert => {
+  var { template } = await compile(`
+    <a class="foo">baz</a>
+    <style scoped="bar">a.foo::after{content:"⤴"}</style>
+  `)
+  assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>.bar a.scope-504633481.foo::after{content:"⤴"}</style>')
+})
+
 test('style[inline]: inline fonts', async assert => {
   var { template } = await compile(`
     <style inline>

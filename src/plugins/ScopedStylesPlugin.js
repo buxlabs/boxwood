@@ -6,8 +6,9 @@ const { extractValues } = require('../string')
 const Plugin = require('./Plugin')
 const normalize = require('normalize-newline')
 
-function addScopeToCssSelectors (node, scopes) {
+function addScopeToCssSelectors (node, scopes, attributes) {
   const content = normalize(node.content).trim()
+  const scope = attributes.find(attribute => attribute.key === 'scoped')
   const id = `scope-${hash(content)}`
   const tree = parse(content)
   walk(tree, node => {
@@ -23,6 +24,15 @@ function addScopeToCssSelectors (node, scopes) {
           if (node.type === 'TypeSelector') { child.children.shift() }
           child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
           if (node.type === 'TypeSelector') { child.children.unshift(node) }
+          if (scope && scope.value) {
+            child.children.unshift(
+              {
+                type: 'ClassSelector',
+                loc: null,
+                name: `${scope.value} `
+              }
+            )
+          }
         }
       })
     }
@@ -49,9 +59,9 @@ class ScopedStylesPlugin extends Plugin {
   beforeprerun () {
     this.scopes = []
   }
-  prerun ({ tag, keys, children }) {
+  prerun ({ tag, keys, children, attributes }) {
     if (tag === 'style' && keys.includes('scoped')) {
-      children.forEach(node => addScopeToCssSelectors(node, this.scopes))
+      children.forEach(node => addScopeToCssSelectors(node, this.scopes, attributes))
     }
   }
   run ({ keys, attributes }) {
