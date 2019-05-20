@@ -83,3 +83,20 @@ test('style[inline]: background image', async assert => {
   assert.truthy(output.includes('url(data:image/jpg;charset=utf-8;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
 })
+
+test('style[colors]: custom colors', async assert => {
+  var { template } = await compile(`<style>.button { color: red; }</style>`, { styles: { colors: { red: '#FF6347' } } })
+  assert.deepEqual(template({}, escape), '<style>.button { color: #FF6347; }</style>')
+})
+
+test('style[colors]: mixed colors', async assert => {
+  var { template } = await compile(`<style>.button { color: red; } .blue.button { color: myBeautifulBlue; } .yellow.button { color: yellow }</style>`, { 
+    styles: { 
+      colors: { 
+        red: '#FF6347',
+        myBeautifulBlue: '#6495ED' 
+      }
+    } 
+  })
+  assert.deepEqual(template({}, escape), `<style>.button { color: #FF6347; } .blue.button { color: #6495ED; } .yellow.button { color: yellow }</style>`)
+})
