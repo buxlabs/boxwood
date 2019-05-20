@@ -80,7 +80,7 @@ test('compiler: returns errors for invalid aliases option', async assert => {
 
   var { errors } = await compile('', { aliases: ['foo'] })
   assert.deepEqual(errors.length, 1) 
-  assert.deepEqual(errors[0], 'Compiler option "aliases" must be an array containing objects')  
+  assert.deepEqual(errors[0], 'An "alias" must be an object')  
   
   var { errors } = await compile('', { aliases: [{}] })
   assert.deepEqual(errors.length, 1) 
@@ -97,4 +97,10 @@ test('compiler: returns errors for invalid aliases option', async assert => {
   var { errors } = await compile('', { aliases: [{ from: /baz/, to: null }] })
   assert.deepEqual(errors.length, 1) 
   assert.deepEqual(errors[0], 'An alias "to" option must be an string')  
+})
+
+test('compiler: returns errors for invalid styles option', async assert => {
+  var { errors } = await compile('', { styles: [] })
+  assert.deepEqual(errors.length, 1) 
+  assert.deepEqual(errors[0], 'Compiler option "styles" must be an object')
 })

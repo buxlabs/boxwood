@@ -113,7 +113,8 @@ class Compiler {
         object: OBJECT_VARIABLE,
         escape: ESCAPE_VARIABLE
       },
-      aliases: []
+      aliases: [],
+      styles: {}
     }, options)
     this.errors = validateOptions(this.options)
     this.options.hooks = Object.assign({

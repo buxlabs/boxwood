@@ -1,14 +1,15 @@
 const { isPlainObject } = require('pure-conditions')
 
 module.exports = {
-  validateOptions: ({ inline, compilers, paths, languages, cache, variables, aliases }) => {
+  validateOptions: ({ inline, compilers, paths, languages, cache, variables, aliases, styles }) => {
     return [
       ...arePathsValid(paths),
       ...isInlineValid(inline),
       ...areCompilersValid(compilers),
       ...areLanguagesValid(languages),
       ...isCacheValid(cache),
-      ...areAliasesValid(aliases)
+      ...areAliasesValid(aliases),
+      ...areStylesVAlid(styles)
     ]
   }
 }
@@ -34,7 +35,7 @@ function isInlineValid (inline) {
 }
 
 function areCompilersValid (compilers) {
-  if (isPlainObject(compilers)) return ['Compiler option "compilers" must be an object']
+  if (!isPlainObject(compilers)) return ['Compiler option "compilers" must be an object']
   for (let key in compilers) {
     const compiler = compilers[key]
     if (typeof compiler !== 'function') {
@@ -62,16 +63,23 @@ function isCacheValid (cache) {
 
 function areAliasesValid (aliases) {
   if (!Array.isArray(aliases)) return ['Compiler option "aliases" must be an array']
-  if (aliases.some(alias => isPlainObject(alias))) {
-    return ['Compiler option "aliases" must be an array containing objects']
-  }
   if (aliases.some(alias => !Object.keys(alias).length)) {
     return ['An alias cannot be an empty object']
   }
   for (let alias of aliases) {
+    if (!isPlainObject(alias)) return ['An "alias" must be an object']
     if (!('from' in alias) || !('to' in alias)) return ['An alias must have "from" and "to" property']
     if (!(alias.from instanceof RegExp)) return ['An alias "from" option must be an regexp']
     if (typeof alias.to !== 'string') return ['An alias "to" option must be an string']
+  }
+  return []
+}
+
+function areStylesVAlid (styles) {
+  const { colors } = styles
+  if (!isPlainObject(styles)) return ['Compiler option "styles" must be an object']
+  for (let color in colors) {
+    if (!isPlainObject(color)) return ['An "color" property must be an object']
   }
   return []
 }
