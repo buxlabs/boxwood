@@ -14,6 +14,7 @@ const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
 const InternationalizationPlugin = require('./plugins/InternationalizationPlugin')
 const BoxModelPlugin = require('./plugins/BoxModelPlugin')
 const InlinePlugin = require('./plugins/InlinePlugin')
+const SwappedStylesPlugin = require('./plugins/SwappedStylesPlugin')
 const Importer = require('./Importer')
 const { validateOptions } = require('./validation')
 
@@ -56,6 +57,7 @@ async function render (source, htmltree, options) {
     new BoxModelPlugin(options),
     new CurlyStylesPlugin(),
     new ScopedStylesPlugin(),
+    new SwappedStylesPlugin(),
     new InternationalizationPlugin({ translations, filters })
   ]
   let depth = 0
