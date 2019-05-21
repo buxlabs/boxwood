@@ -1,7 +1,7 @@
 const { isPlainObject } = require('pure-conditions')
 
 module.exports = {
-  validateOptions: ({ inline, compilers, paths, languages, cache, variables, aliases, styles }) => {
+  validateOptions: ({ inline, compilers, paths, languages, cache, aliases, styles }) => {
     return [
       ...arePathsValid(paths),
       ...isInlineValid(inline),
@@ -9,7 +9,7 @@ module.exports = {
       ...areLanguagesValid(languages),
       ...isCacheValid(cache),
       ...areAliasesValid(aliases),
-      ...areStylesVAlid(styles)
+      ...areStylesValid(styles)
     ]
   }
 }
@@ -20,16 +20,16 @@ function arePathsValid (paths) {
     return ['Compiler option "paths" must contain only strings']
   }
   if (paths.some(path => path === '')) {
-    return ['Compiler option "paths" cannot contains empty strings']
+    return ['Compiler option "paths" cannot contain empty strings']
   }
   return []
 }
 
 function isInlineValid (inline) {
   const SUPPORTED_TYPES = ['images', 'scripts', 'stylesheets']
-  if (!Array.isArray(inline)) return ['Compiler option inline must be an array']
+  if (!Array.isArray(inline)) return ['Compiler option "inline" must be an array']
   if (inline.some(option => !SUPPORTED_TYPES.includes(option))) {
-    return [`Inline option must be one of ["images", "scripts", "stylesheets"]`]
+    return [`Compiler option "inline" can contain ["images", "scripts", "stylesheets"]`]
   }
   return []
 }
@@ -48,10 +48,10 @@ function areCompilersValid (compilers) {
 function areLanguagesValid (languages) {
   if (!Array.isArray(languages)) return ['Compiler option "languages" must be an array']
   if (languages.some(language => typeof language !== 'string')) {
-    return ['Compiler option "languages" must contain only strings']
+    return ['Compiler option "languages.language" must be a string']
   }
   if (languages.some(language => language === '')) {
-    return ['Compiler option "languages" cannot contains empty strings']
+    return ['Compiler option "languages.language" cannot contain empty strings']
   }
   return []
 }
@@ -63,23 +63,23 @@ function isCacheValid (cache) {
 
 function areAliasesValid (aliases) {
   if (!Array.isArray(aliases)) return ['Compiler option "aliases" must be an array']
+  if (aliases.some(alias => !isPlainObject(alias))) {
+    return ['Compiler option "aliases.alias" must be an object']
+  }
   if (aliases.some(alias => !Object.keys(alias).length)) {
-    return ['An alias cannot be an empty object']
+    return ['Compiler option "aliases.alias" cannot be an empty object']
   }
   for (let alias of aliases) {
-    if (!isPlainObject(alias)) return ['An "alias" must be an object']
-    if (!('from' in alias) || !('to' in alias)) return ['An alias must have "from" and "to" property']
-    if (!(alias.from instanceof RegExp)) return ['An alias "from" option must be an regexp']
-    if (typeof alias.to !== 'string') return ['An alias "to" option must be an string']
+    if (!('from' in alias) || !('to' in alias)) return ['Compiler option "aliases.alias" must have "from" and "to" property']
+    if (!(alias.from instanceof RegExp)) return ['Compiler option "aliases.alias.from" must be a regexp']
+    if (typeof alias.to !== 'string') return ['Compiler option "aliases.alias.to" must be a string']
   }
   return []
 }
 
-function areStylesVAlid (styles) {
+function areStylesValid (styles) {
   const { colors } = styles
   if (!isPlainObject(styles)) return ['Compiler option "styles" must be an object']
-  for (let color in colors) {
-    if (!isPlainObject(color)) return ['An "color" property must be an object']
-  }
+  if (colors && !isPlainObject(colors)) return ['Compiler option "styles.colors" must be an object']
   return []
 }
