@@ -68,6 +68,7 @@ async function render (source, htmltree, options) {
       const attrs = fragment.attributes || []
       plugins.forEach(plugin => {
         plugin.prerun({
+          source,
           tag: fragment.tagName,
           keys: attrs.map(attribute => attribute.key),
           attrs,
@@ -86,7 +87,7 @@ async function render (source, htmltree, options) {
   const severities = warnings.map(warning => warning.severity)
   if (!severities.includes('critical')) {
     walk(htmltree, async fragment => {
-      await collect({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+      await collect({ source, tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
     })
     await Promise.all(promises)
     const used = []

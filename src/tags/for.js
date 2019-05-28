@@ -21,14 +21,14 @@ function getRange (attribute) {
   return range
 }
 
-module.exports = function ({ fragment, tree, attrs, variables, translations, languages, translationsPaths, collectChildren }) {
+module.exports = function ({ fragment, tree, attrs, variables, translations, languages, collectChildren }) {
   if (attrs.length <= 3) {
     const ast = new AbstractSyntaxTree('')
     const [left, operator, right] = attrs
     const range = getRange(right)
     const variable = left.key
     const parent = operator.value || curlyTag(right.key)
-    const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
+    const name = convertAttribute('html', parent, variables, translations, languages)
     const expression = getTagValue(parent) // TODO: Handle nested properties
     variables.push(variable)
     const index = identifier(variables.concat(expression))
@@ -50,7 +50,7 @@ module.exports = function ({ fragment, tree, attrs, variables, translations, lan
     variables.push(valueIdentifier)
 
     const parent = operator.value || curlyTag(right.key)
-    const name = convertAttribute('html', parent, variables, translations, languages, translationsPaths)
+    const name = convertAttribute('html', parent, variables, translations, languages)
     ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
     collectChildren(fragment, ast)

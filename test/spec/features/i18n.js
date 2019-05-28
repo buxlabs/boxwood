@@ -21,54 +21,9 @@ test('i18n: translate tag with translations defined at the end of the file', asy
   assert.deepEqual(template({ language: 'en' }, escape), 'Send')
 })
 
-test('i18n: translate modifier', async assert => {
-  var { template } = await compile(
-    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script>{"submit" | translate}`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), 'Wyślij')
-  assert.deepEqual(template({ language: 'en' }, escape), 'Send')
-})
-
-test('i18n: translate modifier for a string with dot', async assert => {
-  var { template } = await compile(
-    `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{"button.submit" | translate}</div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
-})
-
 test('i18n: translate tag for a string with dot', async assert => {
   var { template } = await compile(
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div><translate button.submit></div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
-})
-
-test('i18n: translate modifier with a variable', async assert => {
-  var { template } = await compile(
-    `<script i18n>export default { submit: ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl', foo: 'submit' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en', foo: 'submit' }, escape), '<div>Send</div>')
-})
-
-test('i18n: translate modifier with a variable with dot notation', async assert => {
-  var { template } = await compile(
-    `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div>{foo | translate}</div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl', foo: 'button.submit' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en', foo: 'button.submit' }, escape), '<div>Send</div>')
-})
-
-test('i18n: translations in json and a translate modifier', async assert => {
-  var { template } = await compile(
-    `<script i18n json>{"submit": ["Wyślij", "Send"]}</script><div>{"submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -84,19 +39,6 @@ test('i18n: translations in json and a translate tag', async assert => {
   assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
-test('i18n: translations in yaml and a translate modifier', async assert => {
-  var { template } = await compile(
-    `<script i18n yaml>
-     submit:
-     - Wyślij
-     - Send
-    </script><div>{"submit" | translate}</div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
-})
-
 test('i18n: translations in yaml and a translate tag', async assert => {
   var { template } = await compile(
     `<script i18n yaml>
@@ -104,19 +46,6 @@ test('i18n: translations in yaml and a translate tag', async assert => {
      - Wyślij
      - Send
     </script><div><translate submit></div>`,
-    { languages: ['pl', 'en'] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
-})
-
-test('i18n: translations in yaml and a translate modifier with dot notation', async assert => {
-  var { template } = await compile(
-    `<script i18n yaml>
-     button.submit:
-     - Wyślij
-     - Send
-    </script><div>{"button.submit" | translate}</div>`,
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
@@ -175,49 +104,6 @@ test('i18n: loading translations from js', async assert => {
   assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
-test('i18n: loading translations from global yaml files', async assert => {
-  var { template } = await compile(
-    `<div><translate button.submit></div>`,
-    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.yaml')] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>Wyślij</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
-})
-
-test('i18n: loading translations from global json files', async assert => {
-  var { template } = await compile(
-    `<div><translate cancel></div>`,
-    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.json')] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>cancel</div>')
-})
-
-test('i18n: loading translations from global js files', async assert => {
-  var { template } = await compile(
-    `<div><translate cancel></div>`,
-    { languages: ['pl', 'en'], translationsPaths: [path.join(__dirname, '../../fixtures/translations/translations.js')] }
-  )
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div>anuluj</div>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<div>cancel</div>')
-})
-
-test('i18n: throws if the translate tag has no attribute', async assert => {
-  const { errors } = await compile('<translate>')
-  assert.deepEqual(errors[0].message, 'Translate tag must define a key')
-})
-
-test('i18n: throws if there is a duplicate translation', async assert => {
-  const { errors } = await compile('<div><translate cancel></div>', {
-    languages: ['pl', 'en'],
-    translationsPaths: [
-      path.join(__dirname, '../../fixtures/translations/translations.json'),
-      path.join(__dirname, '../../fixtures/translations/locales.json')
-    ]
-  })
-  assert.regex(errors[0].message, /Translation already exists in */)
-})
-
 test('i18n: throws if a translation is missing', async assert => {
   var { errors } = await compile(`
       <script i18n yaml>
@@ -227,8 +113,8 @@ test('i18n: throws if a translation is missing', async assert => {
       </script>
       <div><translate copyright></div>
     `, { languages: ['pl', 'en'] })
-  assert.regex(errors[0].message, /There is no translation for the copyright key/)
-    
+  assert.regex(errors[0].message, /no translation for the copyright/)
+
   var { errors } = await compile(`
       <script i18n yaml>
       copyright:
@@ -236,7 +122,7 @@ test('i18n: throws if a translation is missing', async assert => {
       </script>
       <div><translate copyright></div>
     `, { languages: ['pl', 'en'] })
-  assert.regex(errors[0].message, /There is no translation for the copyright key in en language/)  
+  assert.regex(errors[0].message, /no translation for the copyright/)
 
   var { errors } = await compile(`
       <script i18n yaml>
@@ -246,7 +132,7 @@ test('i18n: throws if a translation is missing', async assert => {
       </script>
       <div><translate contact></div>
     `, { languages: ['pl', 'en'] })
-  assert.regex(errors[0].message, /There is no translation for the contact key/)  
+  assert.regex(errors[0].message, /no translation for the contact/)
 })
 
 test('i18n: throws if the translation script is empty', async assert => {
@@ -311,4 +197,12 @@ test('i18n: self-closing syntax', async assert => {
     { languages: ['pl', 'en'] }
   )
   assert.deepEqual(template({ language: 'pl' }, escape), '<div><h1>Tytuł</h1><p>Wyślij</p></div>')
+})
+
+test('i18n: translations are scoped per file', async assert => {
+  var { template } = await compile(`<import index from="./scoped/index.html"><index/>`, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'foobar')
 })

@@ -177,22 +177,6 @@ test('import', async assert => {
   })
   assert.deepEqual(template({}, escape), '<h1>foo</h1><p>bar</p>')
 
-  var { template } = await compile(`
-    <script i18n>
-    export default {
-      header: ['foo', 'bar'],
-      description: ['baz', 'qux']
-    }
-    </script>
-    <import hero from="./hero.html">
-    <hero header="{'header' | translate}" description="{'description' | translate}" />
-  `, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ],
-    languages: ['pl', 'en']
-  })
-  assert.deepEqual(template({ language: 'pl' }, escape), '<h1>foo</h1><p>baz</p>')
-  assert.deepEqual(template({ language: 'en' }, escape), '<h1>bar</h1><p>qux</p>')
-
   var { template } = await compile(
     `<import section from="./section.html">
      <section background="black" size="big" border="rounded"></section>
@@ -1032,7 +1016,7 @@ test('import: should be possible to load remote styles with aliases', async asse
     res.sendFile(path.join(__dirname, '../../fixtures/stylesheets/foo.css'))
   })
   var { template } = await compile(`<link href="example/baz/foo.css" inline>`, {
-    aliases: 
+    aliases:
     [
       {
         from: /^example\//,

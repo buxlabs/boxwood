@@ -6,6 +6,7 @@ const { load } = require('yaml-js')
 const { findAsset } = require('../files')
 const { getTemplateAssignmentExpression, getTranslateCallExpression } = require('../factory')
 const Plugin = require('./Plugin')
+const hash = require('string-hash')
 
 function parseYAML (content) {
   try {
@@ -78,7 +79,8 @@ class InternationalizationPlugin extends Plugin {
     this.translations = translations
     this.filters = filters
   }
-  prerun ({ tag, attrs, keys, fragment, assets, options }) {
+  prerun ({ source, tag, attrs, keys, fragment, assets, options }) {
+    const id = `__scope_${hash(source)}`
     if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
       fragment.used = true
       let leaf = fragment.children[0]
@@ -99,20 +101,21 @@ class InternationalizationPlugin extends Plugin {
       let data = parse(format, leaf.content)
       for (let key in data) {
         if (this.translations[key]) { throw new Error('Translation already exists') }
-        this.translations[key] = data[key]
+        this.translations[`${key}_${id}`] = data[key]
       }
     }
   }
-  run ({ tag, attrs, options, fragment }) {
+  run ({ source, tag, attrs, options, fragment }) {
+    const id = `__scope_${hash(source)}`
     if (tag === 'translate') {
       fragment.used = true
-      const { languages, translationsPaths } = options
+      const { languages } = options
       const attribute = attrs[0]
       if (attribute) {
         const { key } = attribute
         this.filters.push('translate')
-        this.translations = merge(key, this.translations, languages, translationsPaths)
-        return getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(key))
+        this.translations = merge(`${key}_${id}`, this.translations, languages)
+        return getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(`${key}_${id}`))
       } else {
         throw new Error('Translate tag must define a key')
       }

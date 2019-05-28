@@ -52,7 +52,7 @@ function convertToExpression (string) {
   return expression
 }
 
-function convertAttribute (name, value, variables, currentFilters, translations, languages, translationsPaths) {
+function convertAttribute (name, value, variables, currentFilters, translations, languages) {
   if (containsCurlyTag(value)) {
     let values = extract(value)
     if (values.length === 1) {
@@ -68,7 +68,7 @@ function convertAttribute (name, value, variables, currentFilters, translations,
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages, translationsPaths)
+      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages)
     } else {
       const nodes = values.map(({ value, filters = [] }, index) => {
         filters.forEach(filter => currentFilters.push(filter))
@@ -83,9 +83,9 @@ function convertAttribute (name, value, variables, currentFilters, translations,
               }
             })
           }
-          return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages, translationsPaths)
+          return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages)
         }
-        return modify(getLiteral(value), variables, filters, translations, languages, translationsPaths)
+        return modify(getLiteral(value), variables, filters, translations, languages)
       })
       const expression = convertToBinaryExpression(nodes)
       return { type: 'ExpressionStatement', expression }
@@ -107,14 +107,14 @@ function convertAttribute (name, value, variables, currentFilters, translations,
   return getLiteral(value)
 }
 
-function convertHtmlOrTextAttribute (fragment, variables, currentFilters, translations, languages, translationsPaths) {
+function convertHtmlOrTextAttribute (fragment, variables, currentFilters, translations, languages) {
   let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html.bind')
   if (html) {
-    return convertAttribute(html.key, html.value, variables, currentFilters, translations, languages, translationsPaths)
+    return convertAttribute(html.key, html.value, variables, currentFilters, translations, languages)
   } else {
     let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text.bind')
     if (text) {
-      let argument = convertAttribute(text.key, text.value, variables, currentFilters, translations, languages, translationsPaths)
+      let argument = convertAttribute(text.key, text.value, variables, currentFilters, translations, languages)
       return {
         type: 'CallExpression',
         callee: getIdentifier(ESCAPE_VARIABLE),
@@ -234,7 +234,7 @@ function isBooleanReturnFromExpression (node) {
   return node.type === 'BinaryExpression' && isComparisonOperator(node.operator)
 }
 
-function convertText (text, variables, currentFilters, translations, languages, translationsPaths, unescaped = false) {
+function convertText (text, variables, currentFilters, translations, languages, unescaped = false) {
   const nodes = extract(text).map(({ value, filters = [] }, index) => {
     if (value.includes('{') && value.includes('}')) {
       let property = value.substring(1, value.length - 1)
@@ -249,7 +249,7 @@ function convertText (text, variables, currentFilters, translations, languages, 
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages, translationsPaths)
+      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages)
     }
     return getLiteral(value)
   })
@@ -260,7 +260,7 @@ function convertText (text, variables, currentFilters, translations, languages, 
   return nodes
 }
 
-function modify (node, variables, filters, translations, languages, translationsPaths) {
+function modify (node, variables, filters, translations, languages) {
   if (filters) {
     return filters.reduce((leaf, filter) => {
       const tree = new AbstractSyntaxTree(filter)
@@ -280,21 +280,6 @@ function modify (node, variables, filters, translations, languages, translations
         }
       }
       const args = [leaf]
-      if (filter === 'translate') {
-        if (!languages) throw new Error('Compiler option is undefined: languages.')
-        const expression = {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: OBJECT_VARIABLE
-          },
-          property: {
-            type: 'Identifier',
-            name: 'language'
-          }
-        }
-        args.push(expression)
-      }
       const name = getFilterName(node.name)
       return {
         type: 'CallExpression',
@@ -308,8 +293,8 @@ function modify (node, variables, filters, translations, languages, translations
   }
   return node
 }
-
-function convertTag (fragment, variables, currentFilters, translations, languages, translationsPaths, options) {
+// TODO remove unused languages prop
+function convertTag (fragment, variables, currentFilters, translations, languages, options) {
   let node = fragment.tagName
   let parts = []
   let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
@@ -330,7 +315,7 @@ function convertTag (fragment, variables, currentFilters, translations, language
         } else {
           parts.push({
             type: 'IfStatement',
-            test: convertAttribute(attr.key, attr.value, variables, currentFilters, translations, languages, translationsPaths),
+            test: convertAttribute(attr.key, attr.value, variables, currentFilters, translations, languages),
             consequent: {
               type: 'BlockStatement',
               body: [getTemplateAssignmentExpression(options.variables.template, expression)]
@@ -340,13 +325,13 @@ function convertTag (fragment, variables, currentFilters, translations, language
       } else {
         parts.push(getLiteral(` ${getName(attr.key)}="`))
         let { value } = attr
-        parts.push(convertAttribute(attr.key, value, variables, currentFilters, translations, languages, translationsPaths))
+        parts.push(convertAttribute(attr.key, value, variables, currentFilters, translations, languages))
         parts.push(getLiteral('"'))
       }
     })
   }
   parts.push(getLiteral('>'))
-  const leaf = convertHtmlOrTextAttribute(fragment, variables, currentFilters, translations, languages, translationsPaths)
+  const leaf = convertHtmlOrTextAttribute(fragment, variables, currentFilters, translations, languages)
   if (leaf) {
     parts.push(leaf)
   }

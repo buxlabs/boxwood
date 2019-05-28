@@ -153,6 +153,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
       const keys = attrs.map(attribute => attribute.key)
       plugins.forEach(plugin => {
         plugin.prerun({
+          source: content,
           tag: leaf.tagName,
           keys,
           attrs,
@@ -192,6 +193,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     leaf.imported = true
     plugins.forEach(plugin => {
       const node = plugin.run({
+        source: content,
         tag: leaf.tagName,
         keys,
         attrs,
@@ -324,10 +326,10 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect ({ tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ tree: ast, fragment: current, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
     })
   }
 
@@ -339,9 +341,10 @@ async function collect ({ tree, fragment, assets, variables, filters, components
     const attrs = fragment.attributes
     const keys = attrs ? attrs.map(attr => attr.key) : []
     const component = components.find(component => component.name === tag)
-    const { languages, translationsPaths } = options
+    const { languages } = options
     plugins.forEach(plugin => {
       const node = plugin.run({
+        source,
         tag,
         keys,
         attrs,
@@ -377,7 +380,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
           if (node.type === 'Identifier' && !node.inlined && !node.omit) {
             const variable = localVariables.find(variable => variable.key === node.name)
             if (variable) {
-              const node = convertText(variable.value, [], filters, translations, languages, translationsPaths, true)[0]
+              const node = convertText(variable.value, [], filters, translations, languages, true)[0]
               AbstractSyntaxTree.walk(node, leaf => { leaf.inlined = true })
               return node
             }
@@ -568,7 +571,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
         }
       }
       collectComponentsFromPartialAttribute(fragment, assets, options)
-      const nodes = convertTag(fragment, variables, filters, translations, languages, translationsPaths, options)
+      const nodes = convertTag(fragment, variables, filters, translations, languages, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
           node.depth = depth
@@ -589,7 +592,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
         }
       }
     } else if (fragment.type === 'text') {
-      const nodes = convertText(fragment.content, variables, filters, translations, languages, translationsPaths)
+      const nodes = convertText(fragment.content, variables, filters, translations, languages)
       return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(options.variables.template, node)))
     } else if (tag === 'if') {
       const ast = new AbstractSyntaxTree('')
@@ -637,7 +640,7 @@ async function collect ({ tree, fragment, assets, variables, filters, components
         }
       }
     } else if (tag === 'for') {
-      forTag({ fragment, tree, attrs, variables, translations, languages, translationsPaths, collectChildren })
+      forTag({ fragment, tree, attrs, variables, translations, languages, collectChildren })
     } else if (tag === 'slot' || tag === 'yield') {
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
