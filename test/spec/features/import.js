@@ -204,7 +204,7 @@ test('import', async assert => {
     <layout>foo</layout>
   `, { paths: [ path.join(__dirname, '../../fixtures') ] })
 
-  assert.deepEqual(template({}, escape), `foo<footer><ul class="horizontal"><li>bar</li></ul></footer>`)
+  assert.deepEqual(template({}, escape), `foo<footer><ul class="unstyled horizontal list"><li>bar</li></ul></footer>`)
 
   var { template } = await compile(`
     <import button from="./components/button1.html">
@@ -299,12 +299,32 @@ test('import: conditional slot', async assert => {
 
 test('import: import -> partial -> import', async assert => {
   var { template } = await compile(`
-    <import layout from="./basic.html" />
+    <import layout from="./basic1.html" />
     <layout>baz</layout>
   `, {
     paths: [ path.join(__dirname, '../../fixtures/layouts') ]
   })
-  assert.deepEqual(template({}, escape), 'baz<footer><ul class="horizontal"><li>foo</li><li>bar</li></ul></footer>')
+  assert.deepEqual(template({}, escape), 'baz<footer><ul class="unstyled horizontal list"><li>foo</li><li>bar</li></ul></footer>')
+})
+
+test('import: import -> partial -> import with different path', async assert => {
+  var { template } = await compile(`
+    <import layout from="./layouts/basic1.html" />
+    <layout>baz</layout>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures') ]
+  })
+  assert.deepEqual(template({}, escape), 'baz<footer><ul class="unstyled horizontal list"><li>foo</li><li>bar</li></ul></footer>')
+})
+
+test('import: import -> partial attribute -> import with different path', async assert => {
+  var { template } = await compile(`
+    <import layout from="./layouts/basic2.html" />
+    <layout>baz</layout>
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures') ]
+  })
+  assert.deepEqual(template({}, escape), 'baz<div>baz</div>')
 })
 
 test('import: same component in different files', async assert => {
@@ -315,7 +335,7 @@ test('import: same component in different files', async assert => {
   `, {
     paths: [ path.join(__dirname, '../../fixtures/layouts') ]
   })
-  assert.deepEqual(template({}, escape), '<body><main><ul><li>foo</li></ul></main><footer><ul class="horizontal"><li>bar</li></ul></footer></body>')
+  assert.deepEqual(template({}, escape), '<body><main><ul class="unstyled list"><li>foo</li></ul></main><footer><ul class="unstyled horizontal list"><li>bar</li></ul></footer></body>')
 })
 
 test('import: same component in two components', async assert => {

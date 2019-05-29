@@ -88,12 +88,7 @@ function collectComponentsFromImport (fragment, components, component, assets, o
 }
 
 function collectComponent (name, path, components, component, assets, options) {
-  let paths = []
-  if (options.paths) {
-    paths = paths.concat(options.paths)
-  } else {
-    throw new Error('Compiler option is undefined: paths.')
-  }
+  let paths = [].concat(options.paths)
   if (component) {
     paths = paths.concat(dirname(component.path))
   }
@@ -106,18 +101,26 @@ function collectComponent (name, path, components, component, assets, options) {
   components.push({ name, content, path: asset.path })
 }
 
-function collectComponentsFromPartialOrRender (fragment, assets, options) {
+function collectComponentsFromPartialOrRender (fragment, assets, context, options) {
   const path = fragment.attributes[0].value
-  const asset = findAsset(path, assets, options)
+  let paths = [].concat(options.paths)
+  if (context) {
+    paths = [dirname(context)].concat(paths)
+  }
+  const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
   fragment.children = parse(asset.source)
 }
 
-function collectComponentsFromPartialAttribute (fragment, assets, options) {
+function collectComponentsFromPartialAttribute (fragment, assets, context, options) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (attr) {
     const path = attr.value
-    const asset = findAsset(path, assets, options)
+    let paths = [].concat(options.paths)
+    if (context) {
+      paths = [dirname(context)].concat(paths)
+    }
+    const asset = findAsset(path, assets, { paths, aliases: options.aliases })
     if (!asset) return
     fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
     fragment.children = parse(asset.source)
@@ -266,9 +269,9 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     if (isImportTag(current.tagName)) {
       collectComponentsFromImport(current, currentComponents, component, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, assets, options)
+      collectComponentsFromPartialOrRender(current, assets, component.path, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, assets, options)
+      collectComponentsFromPartialAttribute(current, assets, component.path, options)
     } else if (
       (current.tagName === 'template' && keys.length > 0) ||
       (current.tagName === 'script' && keys.includes('component'))
@@ -570,7 +573,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
       }
-      collectComponentsFromPartialAttribute(fragment, assets, options)
+      collectComponentsFromPartialAttribute(fragment, assets, null, options)
       const nodes = convertTag(fragment, variables, filters, translations, languages, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
@@ -677,7 +680,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (isImportTag(tag)) {
       collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
-      collectComponentsFromPartialOrRender(fragment, assets, options)
+      collectComponentsFromPartialOrRender(fragment, assets, null, options)
     } else if (tag === 'markdown') {
       markdownTag({ fragment, tree })
     } else if (tag === 'font') {
