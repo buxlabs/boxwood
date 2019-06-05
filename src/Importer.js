@@ -44,7 +44,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         // TODO: Read once convert base64
         file.source = await read(location, 'utf8')
         file.remote = false
-        options.hooks.onFile(file)
+        options.hooks.onAfterFile(file)
         return file
       } catch (exception) {}
     }

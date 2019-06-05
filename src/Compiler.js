@@ -122,8 +122,7 @@ class Compiler {
     this.errors = validateOptions(this.options)
     this.options.hooks = Object.assign({
       onBeforeFile () {},
-      // TODO: Change to onAfterFile
-      onFile () {}
+      onAfterFile () {}
     }, options.hooks)
   }
   parse (source) {
@@ -136,7 +135,7 @@ class Compiler {
     const params = analyzer.params()
     const optimizer = new Optimizer(tree)
     optimizer.optimize()
-    if (process.env.DEBUG) {
+    if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
       console.log(tree.source)
     }
     warnings.forEach(warning => console.error(warning))
