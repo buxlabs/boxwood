@@ -206,3 +206,11 @@ test('i18n: translations are scoped per file', async assert => {
   })
   assert.deepEqual(template({ language: 'pl' }, escape), 'foobar')
 })
+
+test.only('i18n: scoped translations works with partials', async assert => {
+  var { template } = await compile(`<import index from="./scoped/partials/index.html"><index/>`, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>indexfoobarbazban</div>')
+})
