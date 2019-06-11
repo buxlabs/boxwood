@@ -4,7 +4,6 @@ const AbstractSyntaxTree = require('abstract-syntax-tree')
 const serialize = require('asttv')
 const { load } = require('yaml-js')
 const { findAsset } = require('../files')
-const { getTemplateAssignmentExpression, getTranslateCallExpression } = require('../factory')
 const Plugin = require('./Plugin')
 const hash = require('string-hash')
 
@@ -107,15 +106,15 @@ class InternationalizationPlugin extends Plugin {
   }
   run ({ source, tag, attrs, options, fragment }) {
     const id = `__scope_${hash(source)}`
-    if (tag === 'translate') {
-      fragment.used = true
+    if (tag === 'translate' && !fragment.scopedTranslations) {
+      fragment.scopedTranslations = true
       const { languages } = options
       const attribute = attrs[0]
       if (attribute) {
         const { key } = attribute
         this.filters.push('translate')
         this.translations = merge(`${key}_${id}`, this.translations, languages)
-        return getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(`${key}_${id}`))
+        attribute.key = `${key}_${id}`
       } else {
         throw new Error('Translate tag must define a key')
       }
