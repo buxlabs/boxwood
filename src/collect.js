@@ -1,5 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
+const { getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression, getTranslateCallExpression } = require('./factory')
 const { convertText, convertTag, convertToExpression } = require('./convert')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OBJECT_VARIABLE } = require('./enum')
@@ -195,7 +195,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     const keys = attrs.map(attribute => attribute.key)
     leaf.imported = true
     plugins.forEach(plugin => {
-      const node = plugin.run({
+      plugin.run({
         source: content,
         tag: leaf.tagName,
         keys,
@@ -205,9 +205,6 @@ function resolveComponent (tree, component, fragment, components, plugins, error
         options,
         ...leaf
       })
-      if (node) {
-        tree.append(node)
-      }
     })
     if (leaf.tagName === component.name) {
       // TODO allow inlined components to have
@@ -346,7 +343,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     const component = components.find(component => component.name === tag)
     const { languages } = options
     plugins.forEach(plugin => {
-      const node = plugin.run({
+      plugin.run({
         source,
         tag,
         keys,
@@ -356,9 +353,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         options,
         ...fragment
       })
-      if (node) {
-        tree.append(node)
-      }
     })
     if (component && !fragment.imported) {
       const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, errors, assets, options)
@@ -392,6 +386,10 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
       ast.body.forEach(node => tree.append(node))
       localVariables.forEach(() => variables.pop())
+    } else if (tag === 'translate') {
+      const attribute = attrs[0]
+      const { key } = attribute
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(key)))
     } else if (tag === 'content') {
       const { key } = attrs[1]
       store[key] = fragment
