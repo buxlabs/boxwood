@@ -69,7 +69,7 @@ function extractValues (attribute) {
 }
 
 function getName (name) {
-  if (name.endsWith('.bind')) {
+  if (name.endsWith('|bind')) {
     return name.substring(0, name.length - 5)
   }
   return name

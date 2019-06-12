@@ -221,7 +221,7 @@ test('basic', async assert => {
   var { template } = await compile('<div class="{foo}"></div>')
   assert.deepEqual(template({ foo: 'bar' }, escape), '<div class="bar"></div>')
 
-  var { template } = await compile('<div class.bind="foo"></div>')
+  var { template } = await compile('<div class|bind="foo"></div>')
   assert.deepEqual(template({ foo: 'bar' }, escape), '<div class="bar"></div>')
 
   var { template } = await compile('<div class={foo}></div>')
@@ -260,7 +260,7 @@ test('basic', async assert => {
   var { template } = await compile('<input type="text" value="{foo.bar}">')
   assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '<input type="text" value="baz">')
 
-  var { template } = await compile('<input type="text" value.bind="foo.bar">')
+  var { template } = await compile('<input type="text" value|bind="foo.bar">')
   assert.deepEqual(template({ foo: { bar: 'baz' } }), '<input type="text" value="baz">')
 
   var { template } = await compile('<input type="checkbox" autofocus>')
@@ -293,46 +293,46 @@ test('basic', async assert => {
   var { template } = await compile('<input type="checkbox" checked="{foo}">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" checked.bind="foo">')
+  var { template } = await compile('<input type="checkbox" checked|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" checked>')
 
-  var { template } = await compile('<input type="checkbox" checked.bind="foo">')
+  var { template } = await compile('<input type="checkbox" checked|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" readonly.bind="foo">')
+  var { template } = await compile('<input type="checkbox" readonly|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" readonly>')
 
-  var { template } = await compile('<input type="checkbox" readonly.bind="foo">')
+  var { template } = await compile('<input type="checkbox" readonly|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" disabled.bind="foo">')
+  var { template } = await compile('<input type="checkbox" disabled|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" disabled>')
 
-  var { template } = await compile('<input type="checkbox" disabled.bind="foo">')
+  var { template } = await compile('<input type="checkbox" disabled|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" autofocus.bind="foo">')
+  var { template } = await compile('<input type="checkbox" autofocus|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" autofocus>')
 
-  var { template } = await compile('<input type="checkbox" autofocus.bind="foo">')
+  var { template } = await compile('<input type="checkbox" autofocus|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" formnovalidate.bind="foo">')
+  var { template } = await compile('<input type="checkbox" formnovalidate|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" formnovalidate>')
 
-  var { template } = await compile('<input type="checkbox" formnovalidate.bind="foo">')
+  var { template } = await compile('<input type="checkbox" formnovalidate|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" multiple.bind="foo">')
+  var { template } = await compile('<input type="checkbox" multiple|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" multiple>')
 
-  var { template } = await compile('<input type="checkbox" multiple.bind="foo">')
+  var { template } = await compile('<input type="checkbox" multiple|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
-  var { template } = await compile('<input type="checkbox" required.bind="foo">')
+  var { template } = await compile('<input type="checkbox" required|bind="foo">')
   assert.deepEqual(template({ foo: true }), '<input type="checkbox" required>')
 
-  var { template } = await compile('<input type="checkbox" required.bind="foo">')
+  var { template } = await compile('<input type="checkbox" required|bind="foo">')
   assert.deepEqual(template({ foo: false }), '<input type="checkbox">')
 
   var { template } = await compile('<span class="icon {name}"></span>')
@@ -371,10 +371,10 @@ test('basic', async assert => {
   var { template } = await compile('<div tag="{tag}"></div>')
   assert.deepEqual(template({ tag: 'a' }), '<a></a>')
 
-  var { template } = await compile('<div tag.bind="tag"></div>')
+  var { template } = await compile('<div tag|bind="tag"></div>')
   assert.deepEqual(template({ tag: 'button' }), '<button></button>')
 
-  var { template } = await compile('<div tag.bind="tag"></div>')
+  var { template } = await compile('<div tag|bind="tag"></div>')
   assert.deepEqual(template({ tag: 'a' }), '<a></a>')
 
   var { template } = await compile('<div>{42}</div>')

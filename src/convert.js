@@ -100,7 +100,7 @@ function convertAttribute (name, value, variables, currentFilters, translations,
       return AbstractSyntaxTree.template('<%= element %> || ""', { element: array.elements[0] })[0]
     }
     return AbstractSyntaxTree.template('<%= array %>.filter(Boolean).join(" ")', { array })[0]
-  } else if (name.endsWith('.bind')) {
+  } else if (name.endsWith('|bind')) {
     const expression = convertToExpression(value)
     return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('.')[0]))
   }
@@ -108,11 +108,11 @@ function convertAttribute (name, value, variables, currentFilters, translations,
 }
 
 function convertHtmlOrTextAttribute (fragment, variables, currentFilters, translations, languages) {
-  let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html.bind')
+  let html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html|bind')
   if (html) {
     return convertAttribute(html.key, html.value, variables, currentFilters, translations, languages)
   } else {
-    let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text.bind')
+    let text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text|bind')
     if (text) {
       let argument = convertAttribute(text.key, text.value, variables, currentFilters, translations, languages)
       return {
@@ -297,7 +297,7 @@ function modify (node, variables, filters, translations, languages) {
 function convertTag (fragment, variables, currentFilters, translations, languages, options) {
   let node = fragment.tagName
   let parts = []
-  let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
+  let tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag|bind')
   if (tag) {
     const property = tag.key === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
     parts.push(getLiteral('<'))
@@ -305,7 +305,7 @@ function convertTag (fragment, variables, currentFilters, translations, language
   } else {
     parts.push(getLiteral(`<${node}`))
   }
-  let allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag' && attr.key !== 'tag.bind')
+  let allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag' && attr.key !== 'tag|bind')
   if (allowed.length) {
     allowed.forEach(attr => {
       if (BOOLEAN_ATTRIBUTES.includes(getName(attr.key))) {

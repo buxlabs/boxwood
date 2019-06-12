@@ -582,7 +582,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
       collectChildren(fragment, tree)
       if (!SELF_CLOSING_TAGS.includes(tag)) {
-        const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag.bind')
+        const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag|bind')
         if (attr) {
           const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
           tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</')))

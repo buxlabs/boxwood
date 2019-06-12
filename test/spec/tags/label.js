@@ -14,7 +14,7 @@ test('label: can use dynamic for attribute', async assert => {
 })
 
 test('label: can use bind syntax to bind a for attribute', async assert => {
-  var { template } = await compile('<label for.bind="foo">bar</label>')
+  var { template } = await compile('<label for|bind="foo">bar</label>')
   assert.deepEqual(template({ foo: 'foo' }, escape), '<label for="foo">bar</label>')
 })
 
