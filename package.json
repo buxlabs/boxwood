@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
-    "ava": "^1.4.1",
+    "ava": "^2.1.0",
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
     "express": "^4.16.4",
