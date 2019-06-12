@@ -135,11 +135,11 @@ class Compiler {
     const params = analyzer.params()
     const optimizer = new Optimizer(tree)
     optimizer.optimize()
-    if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
-      console.log(tree.source)
-    }
     warnings.forEach(warning => console.error(warning))
     const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
+    if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
+      console.log(compiled.toString())
+    }
     const allErrors = [...errors, ...this.errors]
     return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
   }

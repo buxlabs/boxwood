@@ -215,12 +215,12 @@ test('i18n: scoped translations works with partials', async assert => {
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>indexfoobarbazban</div>')
 })
 
-test.skip('i18n: passing scoped translations as a parameter', async assert => {
+test('i18n: passing scoped translations as a parameter', async assert => {
   var { template } = await compile(`
     <import foo from="./attributes/foo.html">
     <foo foo|translate="bar"/>
     <i18n yaml>
-    foo:
+    bar:
     - 'baz'
     - 'baz'
     </i18n>
@@ -228,5 +228,31 @@ test.skip('i18n: passing scoped translations as a parameter', async assert => {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
   })
-  assert.deepEqual(template({ language: 'pl '}, escape), '<div>baz</div>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>baz</div>')
+})
+
+test('i18n: passing scoped translations as a parameter through one layer', async assert => {
+  var { template } = await compile(`
+    <import bar from="./attributes/bar.html">
+    <bar foo|translate="bar"/>
+    <i18n yaml>
+    bar:
+    - 'baz'
+    - 'baz'
+    </i18n>
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>baz</div>')
+})
+
+test('i18n: passing scoped translations as a parameter one layer down', async assert => {
+  var { template } = await compile(`
+    <import baz from="./attributes/baz.html"><baz/>
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>bar</div>')
 })

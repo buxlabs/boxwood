@@ -72,6 +72,14 @@ function getTranslationsFormat (keys) {
   return 'js'
 }
 
+function isI18nTag (tag, keys) {
+  return (tag === 'script' && keys.includes('i18n')) || tag === 'i18n'
+}
+
+function hasTranslateModifier (attribute) {
+  return attribute.key.endsWith('|translate')
+}
+
 class InternationalizationPlugin extends Plugin {
   constructor ({ translations, filters }) {
     super()
@@ -80,7 +88,7 @@ class InternationalizationPlugin extends Plugin {
   }
   prerun ({ source, tag, attrs, keys, fragment, assets, options }) {
     const id = `__scope_${hash(source)}`
-    if ((tag === 'script' && keys.includes('i18n')) || tag === 'i18n') {
+    if (isI18nTag(tag, keys)) {
       fragment.used = true
       let leaf = fragment.children[0]
       if (!leaf) {
@@ -103,6 +111,12 @@ class InternationalizationPlugin extends Plugin {
         this.translations[`${key}_${id}`] = data[key]
       }
     }
+    attrs.forEach(attr => {
+      if (hasTranslateModifier(attr)) {
+        attr.key = attr.key.substring(0, attr.key.indexOf('|translate'))
+        attr.value = `{"${attr.value}_${id}"|translate(language)}`
+      }
+    })
   }
   run ({ source, tag, attrs, options, fragment }) {
     const id = `__scope_${hash(source)}`

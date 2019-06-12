@@ -236,7 +236,7 @@ function isBooleanReturnFromExpression (node) {
 
 function convertText (text, variables, currentFilters, translations, languages, unescaped = false) {
   const nodes = extract(text).map(({ value, filters = [] }, index) => {
-    if (value.includes('{') && value.includes('}')) {
+    if (isCurlyTag(value)) {
       let property = value.substring(1, value.length - 1)
       const expression = convertToExpression(property)
       filters.forEach(filter => currentFilters.push(filter))
