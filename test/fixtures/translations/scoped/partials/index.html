@@ -1,11 +1,12 @@
-<import foo from="./foo.html">
-<import bar from="./bar.html">
-<div>
-  <translate index><foo /><bar />
-</div>
 <i18n yaml>
-index:
-- 'index'
-- 'index'
+foo:
+- 'foo'
+- 'foo'
+bar:
+- 'bar'
+- 'bar'
 </i18n>
-  
+<div>
+  <translate foo /><partial from="./foo.html" />
+  <translate bar /><partial from="./bar.html" />
+</div>
