@@ -1,4 +1,4 @@
-const { parse, replace, first } = require('abstract-syntax-tree')
+const { parse, replace, first, walk } = require('abstract-syntax-tree')
 const conditions = require('pure-conditions')
 const negate = require('negate-sentence')
 const { negationOperatorRemoval } = require('astoptech')
@@ -11,9 +11,12 @@ function getCondition (name) {
     const { body } = method.body
     const params = method.params.map(param => param.name)
 
-    function enter (leaf) {
+    function enter (leaf, parent) {
       const index = params.indexOf(leaf.name)
-      if (leaf.type === 'Identifier' && index >= 0) {
+      if (leaf.type === 'Identifier' && index >= 0 && !leaf.replaced) {
+        walk(args[index], node => {
+          node.replaced = true
+        })
         return args[index]
       }
       return leaf

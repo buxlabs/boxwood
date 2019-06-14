@@ -1,20 +1,23 @@
 import test from 'ava'
 import { Suite } from 'benchmark'
 import compile from './helpers/compile'
-import { readFile } from './helpers/fs'
 import underscore from 'underscore'
 import template from 'lodash.template'
 import handlebars from 'handlebars'
 import mustache from 'mustache'
 import escape from 'escape-html'
 import path from 'path'
+import util from 'util'
+import fs from 'fs'
+
+const readFile = util.promisify(fs.readFile)
 
 test('benchmark', async assert => {
-  const source1 = await readFile(path.join(__dirname, 'fixtures/benchmark/html-engine.html'))
-  const source2 = await readFile(path.join(__dirname, 'fixtures/benchmark/underscore.ejs'))
-  const source3 = await readFile(path.join(__dirname, 'fixtures/benchmark/lodash.ejs'))
-  const source4 = await readFile(path.join(__dirname, 'fixtures/benchmark/handlebars.hbs'))
-  const source5 = await readFile(path.join(__dirname, 'fixtures/benchmark/mustache.mst'))
+  const source1 = await readFile(path.join(__dirname, 'fixtures/benchmark/pure-engine.html'), 'utf8')
+  const source2 = await readFile(path.join(__dirname, 'fixtures/benchmark/underscore.ejs'), 'utf8')
+  const source3 = await readFile(path.join(__dirname, 'fixtures/benchmark/lodash.ejs'), 'utf8')
+  const source4 = await readFile(path.join(__dirname, 'fixtures/benchmark/handlebars.hbs'), 'utf8')
+  const source5 = await readFile(path.join(__dirname, 'fixtures/benchmark/mustache.mst'), 'utf8')
 
   const suite = new Suite()
   const { template: fn1 } = await compile(source1)

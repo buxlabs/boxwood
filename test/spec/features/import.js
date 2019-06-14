@@ -881,7 +881,7 @@ test('import: should be possible to load remote styles', async assert => {
   await server.stop()
 })
 
-test.skip('import: should render nothing for 404', async assert => {
+test('import: should render nothing for 404', async assert => {
   var server = new Server()
   var { port } = await server.start()
   var { template, warnings } = await compile(`<link href="http://localhost:${port}/baz/foo.css" inline>`)

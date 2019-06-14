@@ -7,7 +7,7 @@ test.skip('script: scoped', async assert => {
   assert.deepEqual(template({ foo: 2 }, escape), '<script>const foo = 2;\nconsole.log(foo)</script>')
 })
 
-test.skip('script: scoped', async assert => {
+test.skip('script: scoped with template', async assert => {
   const { template } = await compile(`
     <template foo>
       <input name="{name}">

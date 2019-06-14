@@ -1,9 +1,12 @@
 import test from 'ava'
 import compile from '../helpers/compile'
 import { normalize } from '../helpers/string'
-import { readFile } from '../helpers/fs'
 import { join } from 'path'
 import escape from 'escape-html'
+import util from 'util'
+import fs from 'fs'
+
+const readFile = util.promisify(fs.readFile)
 
 test('acceptance: components-in-a-loop', async assert => {
   await suite('components-in-a-loop', assert)
@@ -42,9 +45,9 @@ async function suite (name, assert) {
   const path1 = join(dir, 'actual.html')
   const path2 = join(dir, 'expected.html')
   const path3 = join(dir, 'data.json')
-  const content1 = await readFile(path1)
-  const content2 = await readFile(path2)
-  const content3 = await readFile(path3)
+  const content1 = await readFile(path1, 'utf8')
+  const content2 = await readFile(path2, 'utf8')
+  const content3 = await readFile(path3, 'utf8')
   var { template } = await compile(content1, {
     paths: [dir],
     languages: ['pl', 'en']
