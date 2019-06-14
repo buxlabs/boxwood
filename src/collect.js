@@ -101,7 +101,54 @@ function collectComponent (name, path, components, component, assets, options) {
   components.push({ name, content, path: asset.path })
 }
 
-function collectComponentsFromPartialOrRender (fragment, assets, context, options) {
+function runPlugins (htmlTree, content, plugins, assets, errors, options) {
+  plugins.forEach(plugin => { plugin.beforeprerun() })
+  walk(htmlTree, leaf => {
+    try {
+      const attrs = leaf.attributes || []
+      const keys = attrs.map(attribute => attribute.key)
+      plugins.forEach(plugin => {
+        plugin.prerun({
+          source: content,
+          tag: leaf.tagName,
+          keys,
+          attrs,
+          fragment: leaf,
+          options,
+          assets,
+          ...leaf
+        })
+      })
+    } catch (exception) {
+      errors.push(exception)
+    }
+  })
+  plugins.forEach(plugin => { plugin.afterprerun() })
+  plugins.forEach(plugin => { plugin.beforerun() })
+  walk(htmlTree, leaf => {
+    try {
+      const attrs = leaf.attributes || []
+      const keys = attrs.map(attribute => attribute.key)
+      plugins.forEach(plugin => {
+        plugin.run({
+          source: content,
+          tag: leaf.tagName,
+          keys,
+          attrs,
+          fragment: leaf,
+          assets,
+          options,
+          ...leaf
+        })
+      })
+    } catch (exception) {
+      errors.push(exception)
+    }
+  })
+  plugins.forEach(plugin => { plugin.afterrun() })
+}
+
+function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, errors, options) {
   const path = fragment.attributes[0].value
   let paths = [].concat(options.paths)
   if (context) {
@@ -109,10 +156,14 @@ function collectComponentsFromPartialOrRender (fragment, assets, context, option
   }
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
-  fragment.children = parse(asset.source)
+
+  const content = asset.source
+  const htmlTree = parse(content)
+  runPlugins(htmlTree, content, plugins, assets, errors, options)
+  fragment.children = htmlTree
 }
 
-function collectComponentsFromPartialAttribute (fragment, assets, context, options) {
+function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, errors, options) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (attr) {
     const path = attr.value
@@ -123,7 +174,10 @@ function collectComponentsFromPartialAttribute (fragment, assets, context, optio
     const asset = findAsset(path, assets, { paths, aliases: options.aliases })
     if (!asset) return
     fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
-    fragment.children = parse(asset.source)
+    const content = asset.source
+    const htmlTree = parse(content)
+    runPlugins(htmlTree, content, plugins, assets, errors, options)
+    fragment.children = htmlTree
   }
 }
 
@@ -190,22 +244,27 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     }
   })
   plugins.forEach(plugin => { plugin.afterprerun() })
+  plugins.forEach(plugin => { plugin.beforerun() })
   walk(htmlTree, leaf => {
-    const attrs = leaf.attributes || []
-    const keys = attrs.map(attribute => attribute.key)
-    leaf.imported = true
-    plugins.forEach(plugin => {
-      plugin.run({
-        source: content,
-        tag: leaf.tagName,
-        keys,
-        attrs,
-        fragment: leaf,
-        assets,
-        options,
-        ...leaf
+    try {
+      const attrs = leaf.attributes || []
+      const keys = attrs.map(attribute => attribute.key)
+      leaf.imported = true
+      plugins.forEach(plugin => {
+        plugin.run({
+          source: content,
+          tag: leaf.tagName,
+          keys,
+          attrs,
+          fragment: leaf,
+          assets,
+          options,
+          ...leaf
+        })
       })
-    })
+    } catch (exception) {
+      errors.push(exception)
+    }
     if (leaf.tagName === component.name) {
       // TODO allow inlined components to have
       // the same name as imported one
@@ -258,6 +317,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
       })
     }
   })
+  plugins.forEach(plugin => { plugin.afterrun() })
   const currentComponents = []
   let slots = 0
   walk(htmlTree, async (current, parent) => {
@@ -266,9 +326,9 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     if (isImportTag(current.tagName)) {
       collectComponentsFromImport(current, currentComponents, component, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, assets, component.path, options)
+      collectComponentsFromPartialOrRender(current, assets, component.path, plugins, errors, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, assets, component.path, options)
+      collectComponentsFromPartialAttribute(current, assets, component.path, plugins, errors, options)
     } else if (
       (current.tagName === 'template' && keys.length > 0) ||
       (current.tagName === 'script' && keys.includes('component'))
@@ -571,7 +631,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
       }
-      collectComponentsFromPartialAttribute(fragment, assets, null, options)
+      collectComponentsFromPartialAttribute(fragment, assets, null, plugins, errors, options)
       const nodes = convertTag(fragment, variables, filters, translations, languages, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
@@ -678,7 +738,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (isImportTag(tag)) {
       collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
-      collectComponentsFromPartialOrRender(fragment, assets, null, options)
+      collectComponentsFromPartialOrRender(fragment, assets, null, plugins, errors, options)
     } else if (tag === 'markdown') {
       markdownTag({ fragment, tree })
     } else if (tag === 'font') {

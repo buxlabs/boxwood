@@ -215,7 +215,7 @@ test('i18n: scoped translations works with nested components', async assert => {
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>indexfoobarbazban</div>')
 })
 
-test.skip('i18n: scoped translations works with partial tag', async assert => {
+test('i18n: scoped translations works with partial tag', async assert => {
   var { template } = await compile(`<import index from="./scoped/partials/index.html"><index/>`, {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
@@ -223,20 +223,28 @@ test.skip('i18n: scoped translations works with partial tag', async assert => {
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>foofoobarbar</div>')
 })
 
-test.skip('i18n: scoped translations works with include tag', async assert => {
-  var { template } = await compile(`<import index from="./scoped/partials/index.html"><index/>`, {
+test('i18n: scoped translations works with include tag', async assert => {
+  var { template } = await compile(`<import index from="./scoped/includes/index.html"><index/>`, {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
   })
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>foofoobarbar</div>')
 })
 
-test.skip('i18n: scoped translations works with render tag', async assert => {
-  var { template } = await compile(`<import index from="./scoped/partials/index.html"><index/>`, {
+test('i18n: scoped translations works with render tag', async assert => {
+  var { template } = await compile(`<import index from="./scoped/renders/index.html"><index/>`, {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
   })
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>foofoobarbar</div>')
+})
+
+test('i18n: scoped translations works with partial attribute', async assert => {
+  var { template } = await compile(`<import index from="./scoped/attributes/index.html"><index/>`, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div>foo<div>foo</div>bar<div>bar</div></div>')
 })
 
 test('i18n: passing scoped translations as a parameter', async assert => {
