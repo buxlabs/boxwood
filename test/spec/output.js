@@ -247,10 +247,10 @@ test('output: object inlining', async assert => {
 
 test('output: square syntax for one identifier', async assert => {
   var { template } = await compile(`<div id="[id]"></div>`)
-  assert.deepEqual(normalize(template.toString()), normalize(`function render(__o) { 
+  assert.deepEqual(normalize(template.toString()), normalize(`function render(__o) {
     var __t = "<div id=\\"";
     __t += __o.id || "";;
     __t+= "\\"></div>";
-    return __t; 
+    return __t;
   }`))
 })

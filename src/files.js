@@ -9,7 +9,7 @@ const { isImage } = require('pure-conditions')
 
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
 
-function resolveAlias (path, aliases) {
+function resolveAlias (path, aliases = []) {
   for (let alias of aliases) {
     const { from, to } = alias
     if (path.match(from)) {

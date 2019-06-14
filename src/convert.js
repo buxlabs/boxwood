@@ -52,7 +52,7 @@ function convertToExpression (string) {
   return expression
 }
 
-function convertAttribute (name, value, variables, currentFilters, translations, languages) {
+function convertAttribute (name, value, variables, currentFilters, translations, languages, disableUnescape = false) {
   if (containsCurlyTag(value)) {
     let values = extract(value)
     if (values.length === 1) {
@@ -102,7 +102,7 @@ function convertAttribute (name, value, variables, currentFilters, translations,
     return AbstractSyntaxTree.template('<%= array %>.filter(Boolean).join(" ")', { array })[0]
   } else if (name.endsWith('|bind')) {
     const expression = convertToExpression(value)
-    return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('.')[0]))
+    return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('|')[0]))
   }
   return getLiteral(value)
 }

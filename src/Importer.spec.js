@@ -1,8 +1,11 @@
 import test from 'ava'
 import Importer from './Importer'
 import { join } from 'path'
-
 const fixtures = join(__dirname, '../test/fixtures/Importer')
+const hooks = {
+  onBeforeFile () {},
+  onAfterFile () {}
+}
 
 test('Importer: template has no assets', async assert => {
   const source = '<div></div>'
@@ -13,9 +16,7 @@ test('Importer: template has no assets', async assert => {
 
 test('Importer: template has a script tag', async assert => {
   const source = `<script inline src="./foo.js"></script>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset = assets[0]
   assert.deepEqual(assets.length, 1)
@@ -28,9 +29,7 @@ test('Importer: template has a script tag', async assert => {
 
 test('Importer: template has one asset', async assert => {
   const source = `<import foo from="./foo.html"><foo/>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset = assets[0]
   assert.deepEqual(assets.length, 1)
@@ -43,9 +42,7 @@ test('Importer: template has one asset', async assert => {
 
 test('Importer: template has multiple assets', async assert => {
   const source = `<import foo from="./foo.html"><import bar from="./bar.html"><foo/><bar/>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset1 = assets[0]
   const asset2 = assets[1]
@@ -65,9 +62,7 @@ test('Importer: template has multiple assets', async assert => {
 
 test('Importer: template has multiple assets with shorthand syntax', async assert => {
   const source = `<import foo,bar from="."><foo/><bar/>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset1 = assets[0]
   const asset2 = assets[1]
@@ -87,9 +82,7 @@ test('Importer: template has multiple assets with shorthand syntax', async asser
 
 test('Importer: template has multiple assets with shorthand syntax and spacing', async assert => {
   const source = `<import {  foo, bar  } from="."><foo/><bar/>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset1 = assets[0]
   const asset2 = assets[1]
@@ -109,9 +102,7 @@ test('Importer: template has multiple assets with shorthand syntax and spacing',
 
 test('Importer: template can have one level of imports', async assert => {
   const source = `<import baz from="./baz.html"><baz/>`
-  const importer = new Importer(source, {
-    paths: [fixtures]
-  })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset1 = assets[0]
   const asset2 = assets[1]
@@ -131,7 +122,7 @@ test('Importer: template can have one level of imports', async assert => {
 
 test('Importer: template can have two levels of imports', async assert => {
   const source = `<import bam from="./bam.html"><bam/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   const asset1 = assets[0]
   const asset2 = assets[1]
@@ -158,7 +149,7 @@ test('Importer: template can have two levels of imports', async assert => {
 
 test('Importer: template has unknown asset', async assert => {
   const source = `<import unknown from="./unknown.html"><unknown/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
   assert.deepEqual(warnings.length, 1)
   assert.deepEqual(warnings[0].message, 'Component not found: unknown')
@@ -167,7 +158,7 @@ test('Importer: template has unknown asset', async assert => {
 
 test('Importer: templates reuse same assets', async assert => {
   const source = `<import pages1 from="./pages1.html"><pages1/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   assert.deepEqual(assets.length, 4)
   assert.deepEqual(assets[0].path, join(fixtures, 'pages1.html'))
@@ -179,7 +170,7 @@ test('Importer: templates reuse same assets', async assert => {
 
 test('Importer: template has nested assets with the same name', async assert => {
   const source = `<import pages2 from="./pages2.html"><pages2/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets } = await importer.import()
   assert.deepEqual(assets.length, 5)
   assert.deepEqual(assets[0].path, join(fixtures, 'pages2.html'))
@@ -191,7 +182,7 @@ test('Importer: template has nested assets with the same name', async assert => 
 
 test('Importer: template has duplicate assets', async assert => {
   const source = `<import duplicate1 from="./duplicate1.html"><duplicate1/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(assets.length, 2)
   assert.deepEqual(assets[0].path, join(fixtures, 'duplicate1.html'))
@@ -205,7 +196,7 @@ test('Importer: template has duplicate assets', async assert => {
 
 test('Importer: template has duplicate assets with shorthand syntax', async assert => {
   const source = `<import duplicate2 from="./duplicate2.html"><duplicate2/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(assets.length, 2)
   assert.deepEqual(assets[0].path, join(fixtures, 'duplicate2.html'))
@@ -217,7 +208,7 @@ test('Importer: template has duplicate assets with shorthand syntax', async asse
 
 test('Importer: template has duplicate assets with require tag', async assert => {
   const source = `<require duplicate3 from="./duplicate3.html"><duplicate3/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(assets.length, 3)
   assert.deepEqual(assets[0].path, join(fixtures, 'duplicate3.html'))
@@ -232,7 +223,7 @@ test('Importer: template has duplicate assets with require tag', async assert =>
 
 test('Importer: template has a flat circular dependency', async assert => {
   const source = `<import circular-flat-1 from="./circular-flat-1.html"><circular-flat-1/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
   assert.deepEqual(warnings.length, 1)
   assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
@@ -241,7 +232,7 @@ test('Importer: template has a flat circular dependency', async assert => {
 
 test('Importer: template has a deep circular dependency', async assert => {
   const source = `<import circular-deep-1 from="./circular-deep-1.html"><circular-deep-1/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
   assert.deepEqual(warnings.length, 1)
   assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
@@ -250,7 +241,7 @@ test('Importer: template has a deep circular dependency', async assert => {
 
 test('Importer: template imports itself', async assert => {
   const source = `<import itself from="./itself.html"><itself/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
   assert.deepEqual(warnings.length, 1)
   assert.deepEqual(warnings[0].type, 'MAXIMUM_IMPORT_DEPTH_EXCEEDED')
@@ -259,7 +250,7 @@ test('Importer: template imports itself', async assert => {
 
 test('Importer: template has an unused asset', async assert => {
   const source = `<import foo from="./foo.html">`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
   assert.deepEqual(warnings.length, 1)
   assert.deepEqual(warnings[0].type, 'UNUSED_COMPONENT')
@@ -268,7 +259,7 @@ test('Importer: template has an unused asset', async assert => {
 
 test('Importer: template has a partial tag', async assert => {
   const source = `<partial from="./foo.html"/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(warnings.length, 0)
   assert.deepEqual(assets.length, 1)
@@ -277,7 +268,7 @@ test('Importer: template has a partial tag', async assert => {
 
 test('Importer: template has a render tag', async assert => {
   const source = `<render from="./foo.html"/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(warnings.length, 0)
   assert.deepEqual(assets.length, 1)
@@ -286,7 +277,7 @@ test('Importer: template has a render tag', async assert => {
 
 test('Importer: template has an include tag', async assert => {
   const source = `<include from="./foo.html"/>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(warnings.length, 0)
   assert.deepEqual(assets.length, 1)
@@ -295,7 +286,7 @@ test('Importer: template has an include tag', async assert => {
 
 test('Importer: template has a partial attribute', async assert => {
   const source = `<div partial="./foo.html"></div>`
-  const importer = new Importer(source, { paths: [fixtures] })
+  const importer = new Importer(source, { paths: [fixtures], hooks })
   const { assets, warnings } = await importer.import()
   assert.deepEqual(warnings.length, 0)
   assert.deepEqual(assets.length, 1)

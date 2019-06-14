@@ -97,7 +97,10 @@ async function recursiveImport (tree, source, path, options, depth, remote, url)
   const nestedWarnings = warnings.concat(flatten(nested.map(object => object.warnings)))
   return {
     assets: nestedAssets,
-    warnings: nestedWarnings.concat(flatten(nestedAssets.map(file => file.warnings)))
+    warnings: nestedWarnings.concat(
+      flatten(nestedAssets.map(file => file.warnings)),
+      flatten(current.map(element => element.warnings))
+    )
   }
 }
 
