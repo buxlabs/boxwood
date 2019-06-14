@@ -5,10 +5,17 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "ava test/spec/**/*.js",
+    "test": "ava --verbose",
     "coverage": "nyc npm test",
     "benchmark": "ava test/benchmark.js",
     "watch": "npm test -- --watch"
+  },
+  "ava": {
+    "files": 
+    [
+      "test/spec/**/*.js",
+      "**/*.spec.js"
+    ]
   },
   "husky": {
     "hooks": {
