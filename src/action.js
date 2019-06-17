@@ -11,7 +11,7 @@ function getCondition (name) {
     const { body } = method.body
     const params = method.params.map(param => param.name)
 
-    function enter (leaf, parent) {
+    function enter (leaf) {
       const index = params.indexOf(leaf.name)
       if (leaf.type === 'Identifier' && index >= 0 && !leaf.replaced) {
         walk(args[index], node => {

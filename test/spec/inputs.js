@@ -61,7 +61,7 @@ test('input[type=checkbox]', async assert => {
   assert.deepEqual(template({ foo: false }, escape), '<input type="checkbox">')
 })
 
-test.only('input[type=checkbox][checked]', async assert => {
+test('input[type=checkbox][checked]', async assert => {
   var { template } = await compile('<input type="checkbox" checked>')
   assert.deepEqual(template(), '<input type="checkbox" checked>')
 

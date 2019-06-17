@@ -639,6 +639,13 @@ test('import: importing multiple components within one import tag', async assert
   assert.deepEqual(template({}, escape), 'bazqux')
 })
 
+test.skip('import: should be possible to pass functions', async assert => {
+  var { template } = await compile(`<import foo from="./components/foo.html"><foo foo="{foo}"/>`, {
+    paths: [ path.join(__dirname, '../../fixtures/import/functions') ]
+  })
+  assert.deepEqual(template({ foo () { return 'bar' } }, escape), '<div>bar</div>')
+})
+
 test('import: should add the component path to the statistics', async assert => {
   var { statistics } = await compile(`<import bar from='./bar.html'><bar bar="{bar}" />`, {
     paths: [ path.join(__dirname, '../../fixtures/import/variables') ]

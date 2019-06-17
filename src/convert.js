@@ -52,7 +52,7 @@ function convertToExpression (string) {
   return expression
 }
 
-function convertAttribute (name, value, variables, currentFilters, translations, languages, disableUnescape = false) {
+function convertAttribute (name, value, variables, currentFilters, translations, languages) {
   if (containsCurlyTag(value)) {
     let values = extract(value)
     if (values.length === 1) {
