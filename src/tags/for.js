@@ -1,7 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { identifier } = require('pure-utilities/array')
 const { convertAttribute } = require('../convert')
-const { curlyTag, getTagValue } = require('../string')
+const { curlyTag, getTagValue, isSquareTag } = require('../string')
 const { getForLoop, getForLoopVariable, getForInLoop, getForInLoopVariable } = require('../factory')
 const THREE_DOTS = '...'
 const TWO_DOTS = '..'
@@ -14,6 +14,9 @@ function getRange (attribute) {
     } else if (attribute.value.includes(TWO_DOTS)) {
       range = attribute.value.split(TWO_DOTS).map(Number)
       range[1] += 1
+    } else if (isSquareTag(attribute.value)) {
+      const tree = new AbstractSyntaxTree(attribute.value)
+      range = tree.first('ArrayExpression').elements
     } else {
       range = [0, Number(attribute.value) + 1]
     }

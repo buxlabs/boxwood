@@ -3,6 +3,7 @@ const {
   OBJECT_VARIABLE,
   ESCAPE_VARIABLE
 } = require('./enum')
+const { replace } = require('abstract-syntax-tree')
 
 function getIdentifier (name) {
   return { type: 'Identifier', name }
@@ -43,6 +44,54 @@ function getEscapeCallExpression (node) {
   }
 }
 
+function replaceIdentifierWithObjectMemberExpression (element) {
+  replace(element, {
+    enter: (node) => {
+      if (node.type === 'Identifier' && !node.replaced) {
+        const leaf = getObjectMemberExpression(node.name)
+        leaf.object.replaced = true
+        leaf.property.replaced = true
+        return leaf
+      }
+      return node
+    }
+  })
+}
+
+function getRangeStartIdentifierOrLiteral (range) {
+  if (range) {
+    const start = range[0]
+    if (typeof start === 'number') {
+      return getLiteral(start)
+    } else if (start.type === 'Identifier') {
+      return getObjectMemberExpression(start.name)
+    } else if (start.type === 'Literal') {
+      return start
+    } else {
+      replaceIdentifierWithObjectMemberExpression(start)
+      return start
+    }
+  }
+  return getLiteral(0)
+}
+
+function getRangeEndIdentifierOrLiteral (range, guard) {
+  if (range) {
+    const end = range[1]
+    if (typeof end === 'number') {
+      return getLiteral(end)
+    } else if (end.type === 'Identifier') {
+      return getObjectMemberExpression(end.name)
+    } else if (end.type === 'Literal') {
+      return end
+    } else {
+      replaceIdentifierWithObjectMemberExpression(end)
+      return end
+    }
+  }
+  return getIdentifier(guard)
+}
+
 module.exports = {
   getTemplateVariableDeclaration (variable) {
     return {
@@ -75,7 +124,7 @@ module.exports = {
           {
             type: 'VariableDeclarator',
             id: getIdentifier(index),
-            init: getLiteral(range ? range[0] : 0)
+            init: getRangeStartIdentifierOrLiteral(range)
           },
           !range && {
             type: 'VariableDeclarator',
@@ -94,7 +143,7 @@ module.exports = {
         type: 'BinaryExpression',
         left: getIdentifier(index),
         operator: '<',
-        right: range ? getLiteral(range[1]) : getIdentifier(guard)
+        right: getRangeEndIdentifierOrLiteral(range, guard)
       },
       update: {
         type: 'AssignmentExpression',
