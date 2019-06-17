@@ -22,6 +22,11 @@ test('i18n: translate tag with translations defined at the end of the file', asy
 })
 
 test.skip('i18n: dynamic tags', async assert => {
+  // TODO
+  // 1) parse month_{index}__scope string to a template literal
+  //    probably as a method like getDynamicTemplateLiteral(string)
+  // 2) walk through expressions and add necessary object member expressions (__o)
+  // 3) pass the template literal to the collect template
   var template = await compile(`
     <i18n>export default { month_0: ["Styczeń", "January"] }</i18n>
     <translate month_{index}>
