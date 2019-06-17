@@ -1,5 +1,3 @@
-const { readFileSync } = require('fs')
-const { extname } = require('path')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const serialize = require('asttv')
 const { load } = require('yaml-js')
@@ -39,21 +37,8 @@ function parse (format, content) {
   return parseJS(content)
 }
 
-function merge (value, translations, languages, paths) {
-  if (!translations[value] && paths) {
-    paths.forEach(path => {
-      const content = readFileSync(path, 'utf8')
-      const extension = extname(path)
-      const data = parse(extension, content)
-      if (data[value]) {
-        if (!translations[value]) {
-          translations[value] = data[value]
-        } else {
-          throw new Error(`Translation already exists in ${path}`)
-        }
-      }
-    })
-  }
+function merge (value, translations, languages) {
+  if (value.includes('{') && value.includes('}')) return translations
   if (!translations[value]) throw new Error(`There is no translation for the ${value} key`)
   languages.forEach((language, index) => {
     if (!translations[value][index]) throw new Error(`There is no translation for the ${value} key in ${language} language.`)

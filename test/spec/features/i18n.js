@@ -21,6 +21,15 @@ test('i18n: translate tag with translations defined at the end of the file', asy
   assert.deepEqual(template({ language: 'en' }, escape), 'Send')
 })
 
+test.skip('i18n: dynamic tags', async assert => {
+  var template = await compile(`
+    <i18n>export default { month_0: ["Styczeń", "January"] }</i18n>
+    <translate month_{index}>
+  `)
+  assert.deepEqual(template({ language: 'pl', index: 0 }, escape), 'Styczeń')
+  assert.deepEqual(template({ language: 'en', index: 0 }, escape), 'January')
+})
+
 test('i18n: translate tag for a string with dot', async assert => {
   var { template } = await compile(
     `<script i18n>export default { 'button.submit': ['Wyślij', 'Send'] }</script><div><translate button.submit></div>`,
