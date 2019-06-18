@@ -1,5 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getLiteral, getTemplateAssignmentExpression, getObjectMemberExpression, getTranslateCallExpression } = require('./factory')
+const { getLiteral } = require('./ast')
+const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
+const { getTranslateCallExpression } = require('./translations')
 const { convertText, convertTag, convertToExpression } = require('./convert')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OBJECT_VARIABLE } = require('./enum')
@@ -449,7 +451,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'translate') {
       const attribute = attrs[0]
       const { key } = attribute
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(key)))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getTranslateCallExpression(key, variables, filters, translations, languages)))
     } else if (tag === 'content') {
       const { key } = attrs[1]
       store[key] = fragment

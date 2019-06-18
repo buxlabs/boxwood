@@ -31,7 +31,6 @@ function getTagValue (value) {
 
 function extract (value) {
   const tokens = lexer(value.trim().replace(/\n/g, ''))
-
   const objects = tokens.map((token, index) => {
     if (token.type === 'expression') {
       // TODO
@@ -51,7 +50,6 @@ function extract (value) {
     }
     return token
   })
-
   return objects.filter(object => !!object.value)
 }
 

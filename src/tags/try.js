@@ -1,5 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getIdentifier, getTemplateVariableDeclaration, getTemplateAssignmentExpression, getTryStatement } = require('../factory')
+const { getIdentifier } = require('../ast')
+const { getTemplateVariableDeclaration, getTemplateAssignmentExpression, getTryStatement } = require('../factory')
 const { TEMPLATE_VARIABLE } = require('../enum')
 
 module.exports = function ({ fragment, tree, options, collectChildren }) {

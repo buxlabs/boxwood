@@ -4,14 +4,7 @@ const {
   ESCAPE_VARIABLE
 } = require('./enum')
 const { replace } = require('abstract-syntax-tree')
-
-function getIdentifier (name) {
-  return { type: 'Identifier', name }
-}
-
-function getLiteral (value) {
-  return { type: 'Literal', value }
-}
+const { getIdentifier, getLiteral } = require('./ast')
 
 function getTemplateAssignmentExpression (variable, node) {
   return {
@@ -202,24 +195,6 @@ module.exports = {
         type: 'BlockStatement',
         body
       }
-    }
-  },
-  getIdentifier,
-  getLiteral,
-  getTranslateCallExpression (key) {
-    return {
-      type: 'CallExpression',
-      callee: {
-        type: 'Identifier',
-        name: 'translate'
-      },
-      arguments: [
-        {
-          type: 'Literal',
-          value: key
-        },
-        getObjectMemberExpression('language')
-      ]
     }
   },
   getTryStatement (body) {

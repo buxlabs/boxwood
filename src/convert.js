@@ -1,8 +1,9 @@
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
 const {
-  getLiteral, getIdentifier, getObjectMemberExpression,
+  getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
+const { getLiteral, getIdentifier } = require('./ast')
 const { extract, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue } = require('./string')
 const { getFilterName, extractFilterName } = require('./filters')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
