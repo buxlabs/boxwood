@@ -232,6 +232,13 @@ test('import', async assert => {
   assert.deepEqual(template({}, escape), `<body><div class="container"><div>foo</div><main>foo</main><footer>bar</footer></div></body>`)
 })
 
+test('import: passing array to the attributes', async assert => {
+  var { template } = await compile(`<import hero from='./hero.html'/><hero title="{[data.metadata.header, data.metadata.subheader]}"/>`, {
+    paths: [ path.join(__dirname, '../../fixtures/import') ]
+  })
+  assert.deepEqual(template({ data: { metadata: { header: 'foo', subheader: 'bar' } }}, escape), '<div><h1>foo</h1><h2>bar</h2></div>')
+})
+
 test('import: removes unnecessary whitespace in attribute values ', async assert => {
   var { template } = await compile(`
     <import list from="./components/list.html">
