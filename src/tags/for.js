@@ -40,6 +40,11 @@ module.exports = function ({ fragment, tree, attrs, variables, translations, lan
     variables.push(guard)
     ast.append(getForLoopVariable(variable, name, variables, index, range))
     collectChildren(fragment, ast)
+    ast.walk(node => {
+      if (node.type === 'Identifier' && node.name === variable) {
+        node.inlined = true
+      }
+    })
     tree.append(getForLoop(name, ast.body, variables, index, guard, range))
     variables.pop()
     variables.pop()

@@ -136,6 +136,9 @@ class Compiler {
     const optimizer = new Optimizer(tree)
     optimizer.optimize()
     warnings.forEach(warning => console.error(warning))
+    if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
+      console.log(tree.source)
+    }
     const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
     if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
       console.log(compiled.toString())

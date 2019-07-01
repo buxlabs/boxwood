@@ -437,9 +437,10 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       ast.replace({
         enter: node => {
           if (node.type === 'Identifier' && !node.inlined && !node.omit) {
-            const variable = localVariables.find(variable => variable.key === node.name)
-            if (variable) {
-              const node = convertText(variable.value, [], filters, translations, languages, true)[0]
+            const localVariable = localVariables.find(variable => variable.key === node.name)
+            if (localVariable) {
+              const variablesExcludingLocalVariable = variables.filter(variable => variable !== localVariable.key)
+              const node = convertText(localVariable.value, variablesExcludingLocalVariable, filters, translations, languages, true)[0]
               AbstractSyntaxTree.walk(node, leaf => { leaf.inlined = true })
               return node
             }
