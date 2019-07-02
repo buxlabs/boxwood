@@ -161,8 +161,99 @@ function collectComponentsFromPartialOrRender (fragment, assets, context, plugin
 
   const content = asset.source
   const htmlTree = parse(content)
+  const localVariables = normalizeLocalVariables(fragment.attributes)
+  walk(htmlTree, leaf => {
+    if (localVariables.length > 0) {
+      inlineLocalVariablesInFragment(leaf, localVariables)
+    }
+    inlineAttributesInIfStatement(leaf)
+  })
+  // walk(htmlTree, leaf => {
+  //   if (localVariables.length > 0) {
+  //     inlineExpressions(leaf, null, localVariables)
+  //   }
+  // })
   runPlugins(htmlTree, content, plugins, assets, errors, options)
   fragment.children = htmlTree
+}
+
+function inlineLocalVariablesInFragment (leaf, localVariables) {
+  if (leaf.type === 'text') {
+    localVariables.forEach(variable => {
+      if (!isCurlyTag(variable.value)) {
+        leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+      }
+    })
+  }
+}
+
+function inlineAttributesInIfStatement (leaf) {
+  if (leaf.tagName === 'if') {
+    const normalizedAttributes = normalize(leaf.attributes)
+
+    leaf.attributes = normalizedAttributes.map(attr => {
+      // TODO handle or remove words to numbers functionality
+      if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
+        attr.key = `{${attr.key}}`
+      }
+      return attr
+    })
+  }
+}
+
+function inlineExpressions (leaf, component, localVariables) {
+  leaf.imported = true
+  if (component && leaf.tagName === component.name) {
+    // TODO allow inlined components to have
+    // the same name as imported one
+    // the limitation can be unexpected
+    leaf.root = true
+  }
+  if (leaf.attributes) {
+    leaf.attributes.forEach(attr => {
+      const { key, value } = attr
+      function inlineExpression (type, attr, string) {
+        if (
+          string &&
+          string.startsWith('{') &&
+          string.endsWith('}') &&
+          // TODO reuse
+          // add occurances method to pure-utilities
+          (string.match(/{/g) || []).length === 1 &&
+          (string.match(/}/g) || []).length === 1
+        ) {
+          let source = string.substr(1, string.length - 2)
+          source = addPlaceholders(source)
+          const ast = new AbstractSyntaxTree(source)
+          let replaced = false
+          ast.replace({
+            enter: node => {
+              // TODO investigate
+              // this is too optimistic
+              // should avoid member expressions etc.
+              if (node.type === 'Identifier') {
+                const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
+                if (variable) {
+                  replaced = true
+                  if (isCurlyTag(variable.value)) {
+                    return convertToExpression(variable.value)
+                  }
+                  return { type: 'Literal', value: variable.value }
+                }
+              }
+              return node
+            }
+          })
+          if (replaced) {
+            attr[type] = '{' + ast.source.replace(/;\n$/, '') + '}'
+          }
+        }
+      }
+
+      inlineExpression('key', attr, key)
+      inlineExpression('value', attr, value)
+    })
+  }
 }
 
 function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, errors, options) {
@@ -175,10 +266,17 @@ function collectComponentsFromPartialAttribute (fragment, assets, context, plugi
     }
     const asset = findAsset(path, assets, { paths, aliases: options.aliases })
     if (!asset) return
-    fragment.attributes = fragment.attributes.filter(attr => attr.key !== 'partial')
     const content = asset.source
     const htmlTree = parse(content)
+    const localVariables = normalizeLocalVariables(fragment.attributes)
+    walk(htmlTree, leaf => {
+      if (localVariables.length > 0) {
+        inlineLocalVariablesInFragment(leaf, localVariables)
+      }
+      inlineAttributesInIfStatement(leaf)
+    })
     runPlugins(htmlTree, content, plugins, assets, errors, options)
+    fragment.attributes = []
     fragment.children = htmlTree
   }
 }
@@ -192,11 +290,15 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
-  const localVariables = fragment.attributes
-  localVariables.forEach(variable => {
-    if (variable.value === null) { variable.value = '{true}' }
+function normalizeLocalVariables (attributes) {
+  return attributes.map(attribute => {
+    if (attribute.value === null) { attribute.value = '{true}' }
+    return attribute
   })
+}
+
+function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
+  const localVariables = normalizeLocalVariables(fragment.attributes)
 
   let content
   const htmlComponent = new Component(component.content, localVariables)
@@ -205,121 +307,17 @@ function resolveComponent (tree, component, fragment, components, plugins, error
 
   const htmlTree = parse(content)
   let children = fragment.children
-  plugins.forEach(plugin => { plugin.beforeprerun() })
+  // const localVariables = normalizeLocalVariables(fragment.attributes)
   walk(htmlTree, leaf => {
-    try {
-      const attrs = leaf.attributes || []
-      const keys = attrs.map(attribute => attribute.key)
-      plugins.forEach(plugin => {
-        plugin.prerun({
-          source: content,
-          tag: leaf.tagName,
-          keys,
-          attrs,
-          fragment: leaf,
-          options,
-          assets,
-          ...leaf
-        })
-      })
-      if (leaf.type === 'text') {
-        localVariables.forEach(variable => {
-          if (!isCurlyTag(variable.value)) {
-            leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-          }
-        })
-      }
-
-      if (leaf.tagName === 'if') {
-        const normalizedAttributes = normalize(leaf.attributes)
-
-        leaf.attributes = normalizedAttributes.map(attr => {
-          // TODO handle or remove words to numbers functionality
-          if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
-            attr.key = `{${attr.key}}`
-          }
-          return attr
-        })
-      }
-    } catch (exception) {
-      errors.push(exception)
+    if (localVariables.length > 0) {
+      inlineLocalVariablesInFragment(leaf, localVariables)
     }
+    inlineAttributesInIfStatement(leaf)
   })
-  plugins.forEach(plugin => { plugin.afterprerun() })
-  plugins.forEach(plugin => { plugin.beforerun() })
   walk(htmlTree, leaf => {
-    try {
-      const attrs = leaf.attributes || []
-      const keys = attrs.map(attribute => attribute.key)
-      leaf.imported = true
-      plugins.forEach(plugin => {
-        plugin.run({
-          source: content,
-          tag: leaf.tagName,
-          keys,
-          attrs,
-          fragment: leaf,
-          assets,
-          options,
-          ...leaf
-        })
-      })
-    } catch (exception) {
-      errors.push(exception)
-    }
-    if (leaf.tagName === component.name) {
-      // TODO allow inlined components to have
-      // the same name as imported one
-      // the limitation can be unexpected
-      leaf.root = true
-    }
-    if (leaf.attributes) {
-      leaf.attributes.forEach(attr => {
-        const { key, value } = attr
-        function inlineExpression (type, attr, string) {
-          if (
-            string &&
-            string.startsWith('{') &&
-            string.endsWith('}') &&
-            // TODO reuse
-            // add occurances method to pure-utilities
-            (string.match(/{/g) || []).length === 1 &&
-            (string.match(/}/g) || []).length === 1
-          ) {
-            let source = string.substr(1, string.length - 2)
-            source = addPlaceholders(source)
-            const ast = new AbstractSyntaxTree(source)
-            let replaced = false
-            ast.replace({
-              enter: node => {
-                // TODO investigate
-                // this is too optimistic
-                // should avoid member expressions etc.
-                if (node.type === 'Identifier') {
-                  const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
-                  if (variable) {
-                    replaced = true
-                    if (isCurlyTag(variable.value)) {
-                      return convertToExpression(variable.value)
-                    }
-                    return { type: 'Literal', value: variable.value }
-                  }
-                }
-                return node
-              }
-            })
-            if (replaced) {
-              attr[type] = '{' + ast.source.replace(/;\n$/, '') + '}'
-            }
-          }
-        }
-
-        inlineExpression('key', attr, key)
-        inlineExpression('value', attr, value)
-      })
-    }
+    inlineExpressions(leaf, component, localVariables)
   })
-  plugins.forEach(plugin => { plugin.afterrun() })
+  runPlugins(htmlTree, content, plugins, assets, errors, options)
   const currentComponents = []
   let slots = 0
   walk(htmlTree, async (current, parent) => {

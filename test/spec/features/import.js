@@ -137,11 +137,6 @@ test('import', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  var { template } = await compile(`<head partial="./head.html"></head>`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({}, escape), '<head><meta charset="utf-8"></head>')
-
   var { template } = await compile(`<import icon from="./icon.html" /><icon foo="bar"></icon>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
