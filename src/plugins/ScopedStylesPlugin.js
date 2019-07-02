@@ -15,9 +15,14 @@ function addScopeToCssSelectors (node, scopes, attributes) {
     if (node.type === 'SelectorList') {
       node.children.forEach(child => {
         if (child.type === 'Selector') {
+          let hasScope = false
           child.children.forEach(leaf => {
-            if (leaf.type === 'ClassSelector') {
-              scopes.push({ class: leaf.name, id })
+            if (leaf.type === 'ClassSelector' && !hasScope) {
+              scopes.push({ type: 'class', name: leaf.name, id })
+              hasScope = true
+            } else if (leaf.type === 'TypeSelector' && !hasScope) {
+              scopes.push({ type: 'tag', name: leaf.name, id })
+              hasScope = true
             }
           })
           const node = child.children.first()
@@ -40,19 +45,39 @@ function addScopeToCssSelectors (node, scopes, attributes) {
   node.content = generate(tree)
 }
 
-function addScopeToHtmlTags (attributes, scopes) {
+function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
   const attribute = attributes.find(attribute => attribute.key === 'class')
   const values = extractValues(attribute)
   const classes = values.reduce((strings, string) => {
     strings.push(string)
     if (!isCurlyTag(string)) {
       scopes.forEach(scope => {
-        if (scope.class === string) { strings.unshift(scope.id) }
+        if (
+          (scope.type === 'class' && scope.name === string) ||
+          (scope.type === 'tag' && scope.name === tag)
+        ) {
+          strings.unshift(scope.id)
+        }
       })
     }
     return strings
   }, [])
   attribute.value = unique(classes).join(' ')
+}
+
+function addClassAttributeWithScopeToHtmlTag (tag, attributes, scopes) {
+  const matchesAnyScope = !!scopes.find(scope => scope.type === 'tag' && scope.name === tag)
+  if (matchesAnyScope) {
+    attributes.push({
+      key: 'class',
+      value: scopes.reduce((array, scope) => {
+        if (tag === scope.name) {
+          array.push(scope.id)
+        }
+        return array
+      }, []).join(' ')
+    })
+  }
 }
 
 class ScopedStylesPlugin extends Plugin {
@@ -64,9 +89,13 @@ class ScopedStylesPlugin extends Plugin {
       children.forEach(node => addScopeToCssSelectors(node, this.scopes, attributes))
     }
   }
-  run ({ keys, attributes }) {
-    if (this.scopes.length > 0 && keys && keys.includes('class')) {
-      addScopeToHtmlTags(attributes, this.scopes)
+  run ({ tag, keys, attributes }) {
+    if (this.scopes.length > 0) {
+      if (keys && keys.includes('class')) {
+        addScopeToHtmlClassAttribute(tag, attributes, this.scopes)
+      } else {
+        addClassAttributeWithScopeToHtmlTag(tag, attributes, this.scopes)
+      }
     }
   }
   afterrun () {

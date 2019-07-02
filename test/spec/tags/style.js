@@ -13,6 +13,36 @@ test('style[scoped]: last tag', async assert => {
   assert.deepEqual(template({}, escape), '<a class="scope-122304991 foo">bar</a><style>.scope-122304991.foo{color:red}</style>')
 })
 
+test('style[scoped]: handles tags', async assert => {
+  const { template } = await compile('<h1>foo</h1><style scoped>h1 { color: red }</style>')
+  assert.deepEqual(template({}, escape), '<h1 class="scope-1911416206">foo</h1><style>h1.scope-1911416206{color:red}</style>')
+})
+
+test('style[scoped]: handles nested tags', async assert => {
+  const { template } = await compile('<main><h1>foo</h1></main><style scoped>main h1 { color: red }</style>')
+  assert.deepEqual(template({}, escape), '<main class="scope-686692165"><h1>foo</h1></main><style>main.scope-686692165 h1{color:red}</style>')
+})
+
+test('style[scoped]: handles classes', async assert => {
+  const { template } = await compile('<h1 class="foo">foo</h1><style scoped>.foo { color: red }</style>')
+  assert.deepEqual(template({}, escape), '<h1 class="scope-2771010719 foo">foo</h1><style>.scope-2771010719.foo{color:red}</style>')
+})
+
+test('style[scoped]: handles nested classes', async assert => {
+  const { template } = await compile('<main class="bar"><h1 class="foo">foo</h1></main><style scoped>.bar .foo { color: red }</style>')
+  assert.deepEqual(template({}, escape), '<main class="scope-2128350464 bar"><h1 class="foo">foo</h1></main><style>.scope-2128350464.bar .foo{color:red}</style>')
+})
+
+test('style[scoped]: handles tag with nested class', async assert => {
+  const { template } = await compile('<main><h1 class="foo">foo</h1></main><style scoped>main .foo { color: red }</style>')
+  assert.deepEqual(template({}, escape), '<main class="scope-2128503028"><h1 class="foo">foo</h1></main><style>main.scope-2128503028 .foo{color:red}</style>')
+})
+
+test('style[scoped]: handles class with nested tag', async assert => {
+  const { template } = await compile('<main class="foo"><h1>foo</h1></main><style scoped>.foo h1 { color: red }</style>')
+  assert.deepEqual(template({}, escape), '<main class="scope-686662534 foo"><h1>foo</h1></main><style>.scope-686662534.foo h1{color:red}</style>')
+})
+
 test('style[scoped]: multiple classes', async assert => {
   var { template } = await compile(`
     <a class="foo bar">baz</a>
@@ -90,13 +120,13 @@ test('style[colors]: custom colors', async assert => {
 })
 
 test('style[colors]: mixed colors', async assert => {
-  var { template } = await compile(`<style>.button { color: red; } .blue.button { color: myBeautifulBlue; } .yellow.button { color: yellow }</style>`, { 
-    styles: { 
-      colors: { 
+  var { template } = await compile(`<style>.button { color: red; } .blue.button { color: myBeautifulBlue; } .yellow.button { color: yellow }</style>`, {
+    styles: {
+      colors: {
         red: '#FF6347',
-        myBeautifulBlue: '#6495ED' 
+        myBeautifulBlue: '#6495ED'
       }
-    } 
+    }
   })
   assert.deepEqual(template({}, escape), `<style>.button { color: #FF6347; } .blue.button { color: #6495ED; } .yellow.button { color: yellow }</style>`)
 })
