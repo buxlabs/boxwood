@@ -44,14 +44,16 @@ module.exports = class Linter {
     const allNames = []
     let allPaths = []
     imports.forEach(node => {
-      const names = getComponentNames(node)
-      names.forEach(name => {
-        if (allNames.includes(name)) {
-          warnings.push({ message: `Component name duplicate: ${name}`, type: 'COMPONENT_NAME_DUPLICATE' })
-        } else {
-          allNames.push(name)
-        }
-      })
+      if (isImportTag(node.tagName)) {
+        const names = getComponentNames(node)
+        names.forEach(name => {
+          if (allNames.includes(name)) {
+            warnings.push({ message: `Component name duplicate: ${name}`, type: 'COMPONENT_NAME_DUPLICATE' })
+          } else {
+            allNames.push(name)
+          }
+        })
+      }
     })
     imports.forEach(node => { allPaths = allPaths.concat(getAssetPaths(node)) })
     duplicates(allPaths).forEach(duplicate => {

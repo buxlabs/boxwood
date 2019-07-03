@@ -130,10 +130,18 @@ test('Linter: unclosed tags', async assert => {
 
 test('Linter: duplicate components', async assert => {
   const linter = new Linter()
-  let source = `
+  var source = `
     <link rel="stylesheet" type="text/css" href="/foo.css" inline>
     <link rel="stylesheet" type="text/css" href="/bar.css" inline>
   `
-  let tree = parse(source)
-  assert.deepEqual(await linter.lint(tree, source), [])
+  var tree = parse(source)
+  assert.deepEqual(await linter.lint(tree, source, [
+    { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] },
+    { tagName: 'link', attributes: [{ key: 'href', value: './bar.css' }] }
+  ]), [])
+
+  assert.deepEqual(await linter.lint(tree, source, [
+    { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] },
+    { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] }
+  ]), [{ message: `Component path duplicate: ./foo.css`, type: 'COMPONENT_PATH_DUPLICATE' }])
 })
