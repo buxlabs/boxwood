@@ -11,7 +11,14 @@ function addScopeToCssSelectors (node, scopes, attributes) {
   const scope = attributes.find(attribute => attribute.key === 'scoped')
   const id = `scope-${hash(content)}`
   const tree = parse(content)
+  const keyframes = {}
   walk(tree, node => {
+    if (node.type === 'Atrule' && node.name === 'keyframes') {
+      const child = node.prelude.children.first()
+      const marker = `${child.name}-${id}`
+      keyframes[child.name] = marker
+      child.name = marker
+    }
     if (node.type === 'SelectorList') {
       node.children.forEach(child => {
         if (child.type === 'Selector') {
@@ -25,21 +32,34 @@ function addScopeToCssSelectors (node, scopes, attributes) {
               hasScope = true
             }
           })
-          const node = child.children.first()
-          if (node.type === 'TypeSelector') { child.children.shift() }
-          child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
-          if (node.type === 'TypeSelector') { child.children.unshift(node) }
-          if (scope && scope.value) {
-            child.children.unshift(
-              {
-                type: 'ClassSelector',
-                loc: null,
-                name: `${scope.value} `
-              }
-            )
+          if (hasScope) {
+            const node = child.children.first()
+            if (node.type === 'TypeSelector') { child.children.shift() }
+            child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
+            if (node.type === 'TypeSelector') { child.children.unshift(node) }
+            if (scope && scope.value) {
+              child.children.unshift(
+                {
+                  type: 'ClassSelector',
+                  loc: null,
+                  name: `${scope.value} `
+                }
+              )
+            }
           }
         }
       })
+    }
+  })
+  function isAnimationProperty (property) {
+    return property === 'animation' || property === 'animation-name'
+  }
+  walk(tree, node => {
+    if (node.type === 'Declaration' && isAnimationProperty(node.property)) {
+      const child = node.value.children.first()
+      if (keyframes[child.name]) {
+        child.name = keyframes[child.name]
+      }
     }
   })
   node.content = generate(tree)

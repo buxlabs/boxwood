@@ -130,3 +130,35 @@ test('style[colors]: mixed colors', async assert => {
   })
   assert.deepEqual(template({}, escape), `<style>.button { color: #FF6347; } .blue.button { color: #6495ED; } .yellow.button { color: yellow }</style>`)
 })
+
+test('style[scoped]: keyframes', async assert => {
+  var { template } = await compile(`
+    <div class="fadein"></div>
+    <style scoped>
+      .fadein {
+        animation: fadein 1s forwards;
+      }
+      @keyframes fadein {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({}, escape), '<div class="scope-1900609070 fadein"></div><style>.scope-1900609070.fadein{animation:fadein-scope-1900609070 1s forwards}@keyframes fadein-scope-1900609070{0%{opacity:0}100%{opacity:1}}</style>')
+
+  var { template } = await compile(`
+    <div class="fadein"></div>
+    <style scoped>
+      .fadein {
+        animation-name: fadein;
+        animation-duration: 1s;
+        animation-timing-function: forwards;
+      }
+      @keyframes fadein {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({}, escape), '<div class="scope-3709603141 fadein"></div><style>.scope-3709603141.fadein{animation-name:fadein-scope-3709603141;animation-duration:1s;animation-timing-function:forwards}@keyframes fadein-scope-3709603141{0%{opacity:0}100%{opacity:1}}</style>')
+})
