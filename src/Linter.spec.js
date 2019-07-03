@@ -127,3 +127,13 @@ test('Linter: unclosed tags', async assert => {
   tree = parse(source)
   assert.deepEqual(await linter.lint(tree, source), [])
 })
+
+test('Linter: duplicate components', async assert => {
+  const linter = new Linter()
+  let source = `
+    <link rel="stylesheet" type="text/css" href="/foo.css" inline>
+    <link rel="stylesheet" type="text/css" href="/bar.css" inline>
+  `
+  let tree = parse(source)
+  assert.deepEqual(await linter.lint(tree, source), [])
+})
