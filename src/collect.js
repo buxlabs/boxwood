@@ -11,7 +11,7 @@ const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
-const { isCurlyTag, isImportTag } = require('./string')
+const { isCurlyTag, isImportTag, getTagValue } = require('./string')
 const { extractComponentNames } = require('./extract')
 const Component = require('./Component/')
 const foreachTag = require('./tags/foreach')
@@ -168,11 +168,11 @@ function collectComponentsFromPartialOrRender (fragment, assets, context, plugin
     }
     inlineAttributesInIfStatement(leaf)
   })
-  // walk(htmlTree, leaf => {
-  //   if (localVariables.length > 0) {
-  //     inlineExpressions(leaf, null, localVariables)
-  //   }
-  // })
+  walk(htmlTree, leaf => {
+    if (localVariables.length > 0) {
+      inlineExpressions(leaf, null, localVariables)
+    }
+  })
   runPlugins(htmlTree, content, plugins, assets, errors, options)
   fragment.children = htmlTree
 }
@@ -202,7 +202,7 @@ function inlineAttributesInIfStatement (leaf) {
 }
 
 function inlineExpressions (leaf, component, localVariables) {
-  leaf.imported = true
+  if (component) { leaf.imported = true }
   if (component && leaf.tagName === component.name) {
     // TODO allow inlined components to have
     // the same name as imported one
@@ -227,16 +227,15 @@ function inlineExpressions (leaf, component, localVariables) {
           const ast = new AbstractSyntaxTree(source)
           let replaced = false
           ast.replace({
-            enter: node => {
+            enter: (node, parent) => {
               // TODO investigate
               // this is too optimistic
-              // should avoid member expressions etc.
-              if (node.type === 'Identifier') {
+              if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
                 const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
                 if (variable) {
                   replaced = true
                   if (isCurlyTag(variable.value)) {
-                    return convertToExpression(variable.value)
+                    return convertToExpression(getTagValue(variable.value))
                   }
                   return { type: 'Literal', value: variable.value }
                 }
@@ -274,6 +273,11 @@ function collectComponentsFromPartialAttribute (fragment, assets, context, plugi
         inlineLocalVariablesInFragment(leaf, localVariables)
       }
       inlineAttributesInIfStatement(leaf)
+    })
+    walk(htmlTree, leaf => {
+      if (localVariables.length > 0) {
+        inlineExpressions(leaf, null, localVariables)
+      }
     })
     runPlugins(htmlTree, content, plugins, assets, errors, options)
     fragment.attributes = []
