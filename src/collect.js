@@ -555,10 +555,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const { value: path } = attrs.find(attr => attr.key === 'href')
       const asset = findAsset(path, assets, options)
       if (!asset) return
-      let content = '<style>'
-      content += asset.source.trim()
-      content += '</style>'
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
+      styles.push(asset.source.trim())
     } else if (tag === 'style') {
       const { content } = fragment.children[0]
       styles.push(content)

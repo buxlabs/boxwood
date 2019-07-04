@@ -414,9 +414,19 @@ test('import: component with scoped styles', async assert => {
 
 test('import: should contain one style tag', async assert => {
   var { template } = await compile(`<import layout from="./layout.html"/><layout/>`, {
-  paths: [ path.join(__dirname, '../../fixtures/import/scoped') ]
-})
+    paths: [ path.join(__dirname, '../../fixtures/import/scoped') ]
+  })
   assert.deepEqual(template({}, escape), '<header><button class="scope-118871642">foo</button></header><footer><button class="scope-118871642">bar</button></footer><style>button.scope-118871642{color:red}</style>')
+})
+
+test('import: should contain one style tag for inlined styles', async assert => {
+  var { template } = await compile(`<link href="./foo.css" inline /><div>foo</div><style scoped>div{color: blue}</style>`, {
+    paths: [ 
+      path.join(__dirname, '../../fixtures/import/scoped'),
+      path.join(__dirname, '../../fixtures/stylesheets')
+    ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="scope-3691705473">foo</div><style>.foo { color: red; } div.scope-3691705473{color:blue}</style>')
 })
 
 test('import: self closing component', async assert => {
