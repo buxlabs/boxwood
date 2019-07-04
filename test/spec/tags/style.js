@@ -5,7 +5,7 @@ import escape from 'escape-html'
 
 test('style[scoped]: first tag', async assert => {
   var { template } = await compile('<style scoped>.foo{color:red}</style><a class="foo">bar</a>')
-  assert.deepEqual(template({}, escape), '<style>.scope-122304991.foo{color:red}</style><a class="scope-122304991 foo">bar</a>')
+  assert.deepEqual(template({}, escape), '<a class="scope-122304991 foo">bar</a><style>.scope-122304991.foo{color:red}</style>')
 })
 
 test('style[scoped]: last tag', async assert => {
@@ -110,6 +110,27 @@ test('style[inline]: background image', async assert => {
     paths: [ join(__dirname, '../../fixtures') ]
   })
   const output = template({}, escape)
+  assert.truthy(output.includes('url(data:image/jpg;charset=utf-8;base64'))
+  assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
+})
+
+test('style[inline]: multiple background images', async assert => {
+  var { template } = await compile(`
+    <style inline>
+      .foo {
+        background: url("./images/placeholder.jpg");
+      }
+    </style>
+    <style inline>
+      .bar {
+        background: url("./images/placeholder.png");
+      }
+    </style>    
+  `, {
+    paths: [ join(__dirname, '../../fixtures') ]
+  })
+  const output = template({}, escape)
+  assert.truthy(output.match(/<style>/g).length === 1)
   assert.truthy(output.includes('url(data:image/jpg;charset=utf-8;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
 })

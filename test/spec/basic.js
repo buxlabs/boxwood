@@ -372,7 +372,7 @@ test('basic', async assert => {
   assert.deepEqual(template({ translate () { return 'foo' } }, escape), '<button>foo&nbsp;<span class="fa fa-search"></span></button>')
 
   var { template } = await compile('<style></style>')
-  assert.deepEqual(template({}, escape), '<style></style>')
+  assert.deepEqual(template({}, escape), '')
 
   var { template } = await compile('<script></script>')
   assert.deepEqual(template({}, escape), '<script></script>')
@@ -402,7 +402,7 @@ test('basic', async assert => {
   assert.deepEqual(template({}, escape), '<script type="text/javascript" src="./main.js"></script>')
 
   var { template } = await compile('<style type="text/css">.foo{color:red}</style></script>')
-  assert.deepEqual(template({}, escape), '<style type="text/css">.foo{color:red}</style>')
+  assert.deepEqual(template({}, escape), '<style>.foo{color:red}</style>')
 
   var { template } = await compile('<content for title>foo</content><title content="title"></title>')
   assert.deepEqual(template({}, escape), '<title>foo</title>')

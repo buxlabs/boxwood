@@ -386,10 +386,10 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect ({ source, tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors })
     })
   }
 
@@ -559,7 +559,10 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       content += asset.source.trim()
       content += '</style>'
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
-    } else if (tag === 'style' || tag === 'script' || tag === 'template') {
+    } else if (tag === 'style') {
+      const { content } = fragment.children[0]
+      styles.push(content)
+    } else if (tag === 'script' || tag === 'template') {
       let content = `<${tag}`
       fragment.attributes.forEach(attribute => {
         if (tag === 'style' && attribute.key === 'scoped') return

@@ -1,7 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const walk = require('himalaya-walk')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('./enum')
-const { getTemplateVariableDeclaration, getTemplateReturnStatement } = require('./factory')
+const { getTemplateVariableDeclaration, getTemplateReturnStatement, getTemplateAssignmentExpression } = require('./factory')
 const collect = require('./collect')
 const { getFilter } = require('./filters')
 const { unique } = require('pure-utilities/array')
@@ -17,6 +17,7 @@ const InlinePlugin = require('./plugins/InlinePlugin')
 const SwappedStylesPlugin = require('./plugins/SwappedStylesPlugin')
 const Importer = require('./Importer')
 const { validateOptions } = require('./validation')
+const { getLiteral } = require('./ast')
 
 async function render (source, htmltree, options) {
   if (!htmltree) { return null }
@@ -48,6 +49,7 @@ async function render (source, htmltree, options) {
       statistics.translations.push(asset)
     }
   })
+  const styles = []
   const store = {}
   const translations = {}
   const promises = []
@@ -87,9 +89,13 @@ async function render (source, htmltree, options) {
   const severities = warnings.map(warning => warning.severity)
   if (!severities.includes('critical')) {
     walk(htmltree, async fragment => {
-      await collect({ source, tree, fragment, assets, variables, filters, components, translations, plugins, store, depth, options, promises, errors })
+      await collect({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors })
     })
     await Promise.all(promises)
+    const style = unique(styles).join(' ')
+    if (style) {
+      tree.append(getTemplateAssignmentExpression(OBJECT_VARIABLE, getLiteral(`<style>${style}</style>`)))
+    }
     const used = []
     unique(filters).forEach(name => {
       const filter = getFilter(name, translations, options)
