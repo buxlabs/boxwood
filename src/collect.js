@@ -489,7 +489,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const leaf = fragment.children[0]
       leaf.used = true
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const STORE = ')))
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const scope = ')))
       tree.append(getTemplateAssignmentExpression(options.variables.template, {
         type: 'ExpressionStatement',
         expression: {
