@@ -12,12 +12,12 @@ import fs from 'fs'
 
 const readFile = util.promisify(fs.readFile)
 
-test('benchmark', async assert => {
-  const source1 = await readFile(path.join(__dirname, 'fixtures/benchmark/pure-engine.html'), 'utf8')
-  const source2 = await readFile(path.join(__dirname, 'fixtures/benchmark/underscore.ejs'), 'utf8')
-  const source3 = await readFile(path.join(__dirname, 'fixtures/benchmark/lodash.ejs'), 'utf8')
-  const source4 = await readFile(path.join(__dirname, 'fixtures/benchmark/handlebars.hbs'), 'utf8')
-  const source5 = await readFile(path.join(__dirname, 'fixtures/benchmark/mustache.mst'), 'utf8')
+async function benchmark (dir, assert) {
+  const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/pure-engine.html`), 'utf8')
+  const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/underscore.ejs`), 'utf8')
+  const source3 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/lodash.ejs`), 'utf8')
+  const source4 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/handlebars.hbs`), 'utf8')
+  const source5 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/mustache.mst`), 'utf8')
 
   const suite = new Suite()
   const { template: fn1 } = await compile(source1)
@@ -26,15 +26,7 @@ test('benchmark', async assert => {
   const fn4 = handlebars.compile(source4)
   mustache.parse(source5)
 
-  const data = {
-    title: 'foo',
-    subtitle: 'baz',
-    todos: [
-      { description: 'lorem ipsum' },
-      { description: 'dolor sit' },
-      { description: 'amet' }
-    ]
-  }
+  const data = require(path.join(__dirname, `fixtures/benchmark/${dir}/data.json`))
 
   function normalize (string) {
     return string.replace(/\s/g, '')
@@ -63,7 +55,7 @@ test('benchmark', async assert => {
         mustache.render(source5, data)
       })
       .on('cycle', function (event) {
-        console.log(String(event.target))
+        console.log(`${dir}: ${String(event.target)}`)
       })
       .on('complete', function () {
         console.log('Fastest is ' + this.filter('fastest').map('name'))
@@ -71,4 +63,12 @@ test('benchmark', async assert => {
       })
       .run({ 'async': true })
   })
+}
+
+test.serial('benchmark: todos', async assert => {
+  await benchmark('todos', assert)
+})
+
+test.serial('benchmark: friends', async assert => {
+  await benchmark('friends', assert)
 })

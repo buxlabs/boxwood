@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Friends</title>
+</head>
+<body>
+  <div class="friends">
+    <for friend in friends>
+      <div class="friend">
+        <ul>
+          <li>Name: {friend.name}</li>
+          <li>Balance: {friend.balance}</li>
+          <li>Age: {friend.age}</li>
+          <li>Address: {friend.address}</li>
+          <li>Image: <img src="{friend.picture}"></li>
+          <li>Company: {friend.company}</li>
+          <li>Email: <a href="mailto:{friend.email}">{friend.email}</a></li>
+          <li>About: {friend.about}</li>
+          <if friend.tags.length>
+            <li>
+              Tags:
+              <ul>
+                <for tag in friend.tags>
+                  <li>{tag}</li>
+                </for>
+              </ul>
+            </li>
+          </if>
+          <if friend.friends.length>
+            <li>
+              Friends:
+              <ul>
+                <for person in friend.friends>
+                  <li>{person.name} ({person.id})</li>
+                </for>
+              </ul>
+            </li>
+          </if>
+        </ul>
+      </div>
+    </for>
+  </div>
+</body>
+</html>

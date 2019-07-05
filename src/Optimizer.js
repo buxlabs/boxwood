@@ -8,13 +8,13 @@ const {
 const { TEMPLATE_VARIABLE } = require('./enum')
 
 function isAssignmentExpressionWithLiteral (node) {
-  return node.type === 'ExpressionStatement' &&
+  return node && node.type === 'ExpressionStatement' &&
     node.expression.type === 'AssignmentExpression' &&
     node.expression.right.type === 'Literal'
 }
 
 function isTemplateVariableDeclaration (node) {
-  return node.type === 'VariableDeclaration' && node.declarations[0].id.name === TEMPLATE_VARIABLE
+  return node && node.type === 'VariableDeclaration' && node.declarations[0].id.name === TEMPLATE_VARIABLE
 }
 
 class Optimizer {
@@ -32,21 +32,25 @@ class Optimizer {
     this.simplifyReturnValue()
   }
   concatenateLiterals () {
-    this.program.body = this.program.body.reduce((result, node) => {
-      const last = result[result.length - 1]
-      if (isAssignmentExpressionWithLiteral(node)) {
-        if (isTemplateVariableDeclaration(last)) {
-          last.declarations[0].init.value += node.expression.right.value
-        } else if (isAssignmentExpressionWithLiteral(last)) {
-          last.expression.right.value += node.expression.right.value
-        } else {
-          result.push(node)
-        }
-      } else {
-        result.push(node)
+    this.program.walk(node => {
+      if (node.body && node.body.reduce) {
+        node.body = node.body.reduce((result, leaf) => {
+          const last = result[result.length - 1]
+          if (isAssignmentExpressionWithLiteral(leaf)) {
+            if (isTemplateVariableDeclaration(last)) {
+              last.declarations[0].init.value += leaf.expression.right.value
+            } else if (isAssignmentExpressionWithLiteral(last)) {
+              last.expression.right.value += leaf.expression.right.value
+            } else {
+              result.push(leaf)
+            }
+          } else {
+            result.push(leaf)
+          }
+          return result
+        }, [])
       }
-      return result
-    }, [])
+    })
   }
   simplifyReturnValue () {
     const { body } = this.program

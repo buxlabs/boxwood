@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Friends</title>
+</head>
+<body>
+  <div class="friends">
+    {{#each friends}}
+      <div class="friend">
+        <ul>
+          <li>Name: {{this.name}}</li>
+          <li>Balance: {{this.balance}}</li>
+          <li>Age: {{this.age}}</li>
+          <li>Address: {{this.address}}</li>
+          <li>Image: <img src="{{this.picture}}"></li>
+          <li>Company: {{this.company}}</li>
+          <li>Email: <a href="mailto:{{this.email}}">{{this.email}}</a></li>
+          <li>About: {{this.about}}</li>
+          {{#if tags.length}}
+            <li>
+              Tags:
+              <ul>
+                {{#each tags}}
+                  <li>{{this}}</li>
+                {{/each}}
+              </ul>
+            </li>
+          {{/if}}
+          {{#if friends.length}}
+            <li>
+              Friends:
+              <ul>
+                {{#each friends}}
+                  <li>{{this.name}} ({{this.id}})</li>
+                {{/each}}
+              </ul>
+            </li>
+          {{/if}}
+        </ul>
+      </div>
+    {{/each}}
+  </div>
+</body>
+</html>

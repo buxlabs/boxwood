@@ -1,0 +1,30 @@
+{
+  "friends": [
+    {
+      "name": "Jan Kowalski",
+      "id": 1,
+      "balance": "100 PLN",
+      "age": 50,
+      "address": "Warszawa",
+      "picture": "jankowalski.png",
+      "email": "jan@kowalski.pl",
+      "about": "I like fishing",
+      "company": "PKO",
+      "tags": ["fisherman"],
+      "friends": [
+        {
+          "name": "Piotr Nowak",
+          "id": 2,
+          "balance": "80 PLN",
+          "age": 40,
+          "address": "Kraków",
+          "picture": "piotrnowak.png",
+          "email": "piotr@nowak.pl",
+          "about": "I like cooking",
+          "company": "ING",
+          "tags": ["chef"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "title": "foo",
+  "subtitle": "baz",
+  "todos": [
+    { "description": "lorem ipsum" },
+    { "description": "dolor sit" },
+    { "description": "amet" }
+  ]
+}

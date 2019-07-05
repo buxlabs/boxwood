@@ -7,7 +7,7 @@
     "lint": "standard",
     "test": "ava",
     "coverage": "nyc npm test",
-    "benchmark": "ava test/benchmark.js",
+    "benchmark": "ava test/benchmark.js --verbose",
     "watch": "npm test -- --watch"
   },
   "ava": {
