@@ -1,0 +1,13 @@
+<for account in accounts>
+  <div>
+    <if account.status eq="closed">
+      Your account has been closed!
+    </if>
+    <elseif account.status eq="suspended">
+      Your account has been temporarily suspended
+    </elseif>
+    <else>
+      Bank balance: <span class="{account.balance >= 0 ? 'positive' : 'negative'}">{account.balance}</span>
+    </else>
+  </div>
+</for>

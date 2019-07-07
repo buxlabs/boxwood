@@ -1,0 +1,12 @@
+{
+  "accounts": [
+    {
+      "closed": true,
+      "suspended": false,
+      "active": false,
+      "status": "closed",
+      "balance": 100,
+      "balanceClass": "positive"
+    }
+  ]
+}

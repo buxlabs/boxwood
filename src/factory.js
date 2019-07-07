@@ -139,10 +139,10 @@ module.exports = {
         right: getRangeEndIdentifierOrLiteral(range, guard)
       },
       update: {
-        type: 'AssignmentExpression',
-        operator: '+=',
-        left: getIdentifier(index),
-        right: getLiteral(1)
+        type: 'UpdateExpression',
+        operator: '++',
+        prefix: false,
+        argument: getIdentifier(index)
       },
       body: {
         type: 'BlockStatement',

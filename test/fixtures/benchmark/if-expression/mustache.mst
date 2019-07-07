@@ -1,0 +1,13 @@
+{{#accounts}}
+  <div>
+    {{#closed}}
+      Your account has been closed!
+    {{/closed}}
+    {{#suspended}}
+      Your account has been temporarily suspended
+    {{/suspended}}
+    {{#active}}
+      Bank balance: <span class="{{balanceClass}}">{{balance}}</span>
+    {{/active}}
+  </div>
+{{/accounts}}

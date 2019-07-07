@@ -1,0 +1,12 @@
+<% for (var i = 0, ilen = accounts.length; i < ilen; i += 1) { %>
+  <% var account = accounts[i]; %>
+  <div>
+    <% if (account.status === "closed") { %>
+      Your account has been closed!
+    <% } else if (account.status === "suspended") { %>
+      Your account has been temporarily suspended
+    <% } else { %>
+      Bank balance: <span class="<%- account.balance >= 0 ? 'positive' : 'negative' %>"><%- account.balance %></span>
+    <% } %>
+  </div>
+<% } %>

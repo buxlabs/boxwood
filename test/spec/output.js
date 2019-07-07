@@ -171,6 +171,20 @@ test('output: falsy condition with greater than operator (is at least)', async a
   `))
 })
 
+test('output: for loop', async assert => {
+  var { template } = await compile('<for foo in bar>{foo}</for>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      for (var a = 0, b = __o.bar.length; a < b; a++) {
+        var foo = __o.bar[a];
+        __t += __e(foo);
+      }
+      return __t;
+    }
+  `))
+})
+
 test('output: useless branches are removed', async assert => {
   var { template } = await compile(`
     <import foo from='./foo.html'>
