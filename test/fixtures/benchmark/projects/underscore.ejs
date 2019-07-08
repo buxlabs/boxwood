@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+<head>
+  <title><%- title %></title>
+</head>
+<body>
+  <p><%- text %></p>
+  <% for (var i = 0, ilen = projects.length; i < ilen; i++) { %>
+    <% var project = projects[i]; %>
+    <a href="<%- project.url %>"><%- project.name %></a>
+    <p><%- project.description %></p>
+  <% } %>
+  <% if (projects.length === 0) { %>
+    No projects
+  <% } %>
+</body>
+</html>

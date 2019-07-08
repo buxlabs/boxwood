@@ -76,3 +76,7 @@ test.serial('benchmark: friends', async assert => {
 test.serial('benchmark: if-expression', async assert => {
   await benchmark('if-expression', assert)
 })
+
+test.serial('benchmark: projects', async assert => {
+  await benchmark('projects', assert)
+})

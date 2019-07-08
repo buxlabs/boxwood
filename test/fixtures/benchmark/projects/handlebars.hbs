@@ -1,0 +1,15 @@
+<!doctype html>
+<html>
+<head>
+  <title>{{title}}</title>
+</head>
+<body>
+  <p>{{text}}</p>
+  {{#each projects}}
+    <a href="{{this.url}}">{{this.name}}</a>
+    <p>{{this.description}}</p>
+  {{else}}
+    No projects
+  {{/each}}
+</body>
+</html>

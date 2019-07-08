@@ -1,0 +1,26 @@
+{
+  "title": "Projects",
+  "text": "Your projects",
+  "projects": [
+    {
+      "name": "foo",
+      "url": "foo.bar",
+      "description": "bar"
+    },
+    {
+      "name": "bar",
+      "url": "foo.bar",
+      "description": "bar"
+    },
+    {
+      "name": "baz",
+      "url": "foo.bar",
+      "description": "bar"
+    },
+    {
+      "name": "qux",
+      "url": "foo.bar",
+      "description": "bar"
+    }
+  ]
+}
