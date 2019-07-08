@@ -1,0 +1,18 @@
+<div class="search">
+  <div class="loader">Loading...</div>
+  <div class="results">
+    <p>{{count}} results</p>
+    {{#results}}
+      <div class="title">{{title}}</div>
+      <div class="description">{{description}}</div>
+      {{#featured}}
+        <div class="highlight">Featured!</div>
+      {{/featured}}
+      <ul>
+      {{#sizes}}
+        <li>{{.}}</li>
+      {{/sizes}}
+      </ul>
+    {{/results}}
+  </div>
+</div>

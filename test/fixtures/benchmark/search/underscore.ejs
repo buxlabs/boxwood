@@ -1,0 +1,22 @@
+<div class="search">
+  <div class="loader">Loading...</div>
+  <div class="results">
+    <p><%- count %> results</p>
+    <% for (var i = 0, ilen = results.length; i < ilen; i++) { %>
+      <% var result = results[i]; %>
+      <div class="title"><%- result.title %></div>
+      <div class="description"><%- result.description %></div>
+      <% if (result.featured) { %>
+        <div class="highlight">Featured!</div>
+      <% } %>
+      <% if (result.sizes.length > 0) { %>
+        <ul>
+          <% for (var j = 0, jlen = result.sizes.length; j < jlen; j++) { %>
+            <% var size = result.sizes[j]; %>
+            <li><%- size %></li>
+          <% } %>
+        </ul>
+      <% } %>
+    <% } %>
+  </div>
+</div>

@@ -8,9 +8,13 @@ const {
 const { TEMPLATE_VARIABLE } = require('./enum')
 
 function isAssignmentExpressionWithLiteral (node) {
-  return node && node.type === 'ExpressionStatement' &&
-    node.expression.type === 'AssignmentExpression' &&
+  return isAssignmentExpression(node) &&
     node.expression.right.type === 'Literal'
+}
+
+function isAssignmentExpression (node) {
+  return node && node.type === 'ExpressionStatement' &&
+    node.expression.type === 'AssignmentExpression'
 }
 
 function isTemplateVariableDeclaration (node) {
@@ -29,6 +33,8 @@ class Optimizer {
     this.program.replace({ enter: ternaryOperatorReduction })
     this.program.replace({ enter: ifStatementRemoval })
     this.concatenateLiterals()
+    this.removeEmptyStatement()
+    this.concatenateAssignmentExpressions()
     this.simplifyReturnValue()
   }
   concatenateLiterals () {
@@ -47,6 +53,35 @@ class Optimizer {
           } else {
             result.push(leaf)
           }
+          return result
+        }, [])
+      }
+    })
+  }
+  removeEmptyStatement () {
+    // remove empty statements
+  }
+  concatenateAssignmentExpressions () {
+    this.program.walk(node => {
+      if (node.body && node.body.reduce) {
+        node.body = node.body.reduce((result, leaf) => {
+          // add below code when empty statements are removed properly
+          // const last = result[result.length - 1]
+          // if (isAssignmentExpression(leaf)) {
+          //   if (isAssignmentExpression(last)) {
+          //     last.expression.right = {
+          //       type: "BinaryExpression",
+          //       left: last.expression.right,
+          //       right: leaf.expression.right,
+          //       operator: "+"
+          //     }
+          //   } else {
+          //     result.push(leaf)
+          //   }
+          // } else {
+          //   result.push(leaf)
+          // }
+          result.push(leaf)
           return result
         }, [])
       }
