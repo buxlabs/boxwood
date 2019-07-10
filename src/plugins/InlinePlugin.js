@@ -45,7 +45,7 @@ class InlinePlugin extends Plugin {
     }
   }
 
-  run ({ fragment, attrs, keys, assets, options }) {
+  run ({ fragment, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
       const { content } = fragment.children[0]
       const tree = parse(content)
@@ -64,15 +64,18 @@ class InlinePlugin extends Plugin {
           }
         }
       })
-      attrs = attrs.filter(attr => attr.key !== 'inline')
       fragment.children[0].content = generate(tree)
     }
-    if (fragment.type === 'element' && this.classes.length) {
+    if (fragment.type === 'element' && fragment.tagName !== 'style' && this.classes.length) {
+      const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
+      const classes = classAttribute.value.split(/\s/).filter(Boolean) || []
+      this.classes = this.classes.filter(({ className }) => classes.includes(className))
       fragment.attributes = fragment.attributes
         .map(attribute => {
           if (attribute.key === 'class') {
             this.classes.forEach(({ className }) => {
               attribute.value = attribute.value.replace(className, '')
+              attribute.value = attribute.value.replace(/\s+/, '')
               return attribute.value ? attribute : null
             })
           }
@@ -82,12 +85,14 @@ class InlinePlugin extends Plugin {
       this.classes.forEach(({ declaration }) => {
         const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
         if (styleAttribute) {
-          fragment.attributes = fragment.attributes.map(attribute => {
-            if (attribute.key === 'style') {
-              attribute.value += ';'.concat(declaration)
-            }
-            return attribute
-          })
+          if (!styleAttribute.value.includes(declaration)) {
+            fragment.attributes = fragment.attributes.map(attribute => {
+              if (attribute.key === 'style') {
+                attribute.value += ';'.concat(declaration)
+              }
+              return attribute
+            })
+          }
         } else {
           fragment.attributes.push({ key: 'style', value: declaration })
         }
