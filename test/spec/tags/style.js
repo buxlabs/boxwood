@@ -183,3 +183,15 @@ test('style[scoped]: keyframes', async assert => {
   `, {})
   assert.deepEqual(template({}, escape), '<div class="scope-3709603141 fadein"></div><style>.scope-3709603141.fadein{animation-name:fadein-scope-3709603141;animation-duration:1s;animation-timing-function:forwards}@keyframes fadein-scope-3709603141{0%{opacity:0}100%{opacity:1}}</style>')
 })
+
+test('style[inline]: inline styles one declaration', async assert => {
+  var { template } = await compile(`
+    <div class="foo"></div>
+    <style inline="classes">
+      .foo {
+        background: #000;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({}, escape), '<div style="background:#000"></div>')
+})

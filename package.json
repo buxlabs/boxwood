@@ -56,7 +56,7 @@
     "asttv": "^1.0.1",
     "axios": "^0.18.1",
     "axios-extensions": "^3.0.6",
-    "css-tree": "^1.0.0-alpha.29",
+    "css-tree": "^1.0.0-alpha.30",
     "himalaya": "^1.1.0",
     "himalaya-walk": "^1.0.0",
     "image-size": "^0.6.3",

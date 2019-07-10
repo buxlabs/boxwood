@@ -1,8 +1,50 @@
 const Plugin = require('./Plugin')
 const { parse, walk, generate } = require('css-tree')
 const { findAsset, isFileSupported } = require('../files')
+const { whitespacestrip } = require('pure-utilities/string')
 
 class InlinePlugin extends Plugin {
+  constructor () {
+    super()
+    this.classes = []
+  }
+
+  prerun ({ fragment, attrs, keys }) {
+    if (fragment.tagName === 'style' && keys.includes('inline')) {
+      let { value } = attrs.find(attr => attr.key === 'inline') || []
+      value = value.split(',').map(whitespacestrip)
+      if (value.includes('classes')) {
+        const { content } = fragment.children[0]
+        const tree = parse(content)
+        walk(tree, {
+          visit: 'Rule',
+          enter: node => {
+            walk(node.prelude, {
+              visit: 'ClassSelector',
+              enter: leaf => {
+                const { name } = leaf
+                const block = generate(node.block)
+                if (name && block) {
+                  const declaration = block.replace(/{|}/g, '')
+                  this.classes.push({ className: leaf.name, declaration })
+                  node.used = true
+                }
+              }
+            })
+          }
+        })
+        walk(tree, {
+          enter: (node, item, list) => {
+            if (item && item.data && item.data.used) {
+              list.remove(item)
+            }
+          }
+        })
+        fragment.children[0].content = generate(tree)
+      }
+    }
+  }
+
   run ({ fragment, attrs, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
       const { content } = fragment.children[0]
@@ -24,6 +66,32 @@ class InlinePlugin extends Plugin {
       })
       attrs = attrs.filter(attr => attr.key !== 'inline')
       fragment.children[0].content = generate(tree)
+    }
+    if (fragment.type === 'element' && this.classes.length) {
+      fragment.attributes = fragment.attributes
+        .map(attribute => {
+          if (attribute.key === 'class') {
+            this.classes.forEach(({ className }) => {
+              attribute.value = attribute.value.replace(className, '')
+              return attribute.value ? attribute : null
+            })
+          }
+          return attribute
+        })
+        .filter(attribute => attribute.value)
+      this.classes.forEach(({ declaration }) => {
+        const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
+        if (styleAttribute) {
+          fragment.attributes = fragment.attributes.map(attribute => {
+            if (attribute.key === 'style') {
+              attribute.value += ';'.concat(declaration)
+            }
+            return attribute
+          })
+        } else {
+          fragment.attributes.push({ key: 'style', value: declaration })
+        }
+      })
     }
   }
 }
