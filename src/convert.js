@@ -89,7 +89,7 @@ function convertAttribute (name, value, variables, currentFilters, translations,
         return modify(getLiteral(value), variables, filters, translations, languages)
       })
       const expression = convertToBinaryExpression(nodes)
-      return { type: 'ExpressionStatement', expression }
+      return expression
     }
   } else if (isSquareTag(value)) {
     value = addPlaceholders(value)
@@ -256,7 +256,7 @@ function convertText (text, variables, currentFilters, translations, languages, 
   })
   if (nodes.length > 1) {
     const expression = convertToBinaryExpression(nodes)
-    return [{ type: 'ExpressionStatement', expression }]
+    return [expression]
   }
   return nodes
 }

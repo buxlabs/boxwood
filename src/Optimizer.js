@@ -33,7 +33,6 @@ class Optimizer {
     this.program.replace({ enter: ternaryOperatorReduction })
     this.program.replace({ enter: ifStatementRemoval })
     this.concatenateLiterals()
-    this.removeEmptyStatement()
     this.concatenateAssignmentExpressions()
     this.simplifyReturnValue()
   }
@@ -57,9 +56,6 @@ class Optimizer {
         }, [])
       }
     })
-  }
-  removeEmptyStatement () {
-    // remove empty statements
   }
   concatenateAssignmentExpressions () {
     this.program.walk(node => {

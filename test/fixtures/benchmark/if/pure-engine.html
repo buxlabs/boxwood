@@ -1,9 +1,9 @@
 <for account in accounts>
   <div>
-    <if account.status eq="closed">
+    <if account.status equals="closed">
       Your account has been closed!
     </if>
-    <elseif account.status eq="suspended">
+    <elseif account.status equals="suspended">
       Your account has been temporarily suspended
     </elseif>
     <else>
