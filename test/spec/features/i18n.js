@@ -296,3 +296,24 @@ test('i18n: passing scoped translations as a parameter one layer down', async as
   })
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>bar</div>')
 })
+
+test('i18n: scoped translations in if statement', async assert => {
+  var { template } = await compile(`
+    <i18n yaml>
+    foo:
+    - 'foo'
+    - 'foo'
+    bar:
+    - 'bar'
+    - 'bar'
+    </i18n>
+    <import ban from="./attributes/ban.html">
+    <ban 
+      foo|translate="foo" 
+      bar|translate="bar" 
+    />`, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div><h1>foo</h1><h2>bar</h2></div>')
+})
