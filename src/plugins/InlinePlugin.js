@@ -70,36 +70,38 @@ class InlinePlugin extends Plugin {
     }
     if (fragment.type === 'element' && fragment.tagName !== 'style' && this.classes.length) {
       const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
-      const classes = classAttribute.value.split(/\s/).filter(Boolean) || []
-      fragment.attributes = fragment.attributes
-        .map(attribute => {
-          if (attribute.key === 'class') {
-            this.classes.forEach(({ className }) => {
-              attribute.value = attribute.value.replace(className, '')
-              attribute.value = attribute.value.replace(/\s+/, '')
-              return attribute.value ? attribute : null
-            })
-          }
-          return attribute
-        })
-        .filter(attribute => attribute.value)
-      this.classes
-        .filter(({ className }) => classes.includes(className))
-        .forEach(({ declaration }) => {
-          const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
-          if (styleAttribute) {
-            if (!styleAttribute.value.includes(declaration)) {
-              fragment.attributes = fragment.attributes.map(attribute => {
-                if (attribute.key === 'style') {
-                  attribute.value += ';'.concat(declaration)
-                }
-                return attribute
+      if (classAttribute) {
+        const classes = classAttribute.value.split(/\s/).filter(Boolean) || []
+        fragment.attributes = fragment.attributes
+          .map(attribute => {
+            if (attribute.key === 'class') {
+              this.classes.forEach(({ className }) => {
+                attribute.value = attribute.value.replace(className, '')
+                attribute.value = attribute.value.replace(/\s+/, '')
+                return attribute.value ? attribute : null
               })
             }
-          } else {
-            fragment.attributes.push({ key: 'style', value: declaration })
-          }
-        })
+            return attribute
+          })
+          .filter(attribute => attribute.value)
+        this.classes
+          .filter(({ className }) => classes.includes(className))
+          .forEach(({ declaration }) => {
+            const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
+            if (styleAttribute) {
+              if (!styleAttribute.value.includes(declaration)) {
+                fragment.attributes = fragment.attributes.map(attribute => {
+                  if (attribute.key === 'style') {
+                    attribute.value += ';'.concat(declaration)
+                  }
+                  return attribute
+                })
+              }
+            } else {
+              fragment.attributes.push({ key: 'style', value: declaration })
+            }
+          })
+      }
     }
   }
 }
