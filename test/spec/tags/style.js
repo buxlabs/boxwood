@@ -263,6 +263,40 @@ test('style[inline-classes]: rule with many ClassSelector', async assert => {
   assert.deepEqual(template({}, escape), '<h1 style="color:white"></h1>')
 })
 
+test('style[inline-classes]: rule with font-family declaration', async assert => {
+  var { template } = await compile(`
+    <h1 class="foo"></h1>
+    <style inline="classes">
+      .foo {
+        font-family: "Nunito"
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({}, escape), '<h1 style="font-family:\'Nunito\'"></h1>')
+})
+
+test('style[inline-classes]: parent and child should be inlined', async assert => {
+  var { template } = await compile(`
+    <p class="m-0">
+      <span class="bold">
+        <i class="italic"></i>
+      </span>
+    </p>
+    <style inline="classes">
+      .m-0 {
+        margin: 0;
+      }
+      .bold {
+        font-weight: bold;
+      }
+      .italic {
+        font-style: italic;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({}, escape), '<p style="margin:0"><span style="font-weight:bold"><i style="font-style:italic"></i></span></p>')
+})
+
 test.skip('style[inline-classes]: nested classes', async assert => {
   var { template } = await compile(`
     <div class="foo">

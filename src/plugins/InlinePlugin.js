@@ -25,7 +25,9 @@ class InlinePlugin extends Plugin {
                 const { name } = leaf
                 const block = generate(node.block)
                 if (name && block) {
-                  const declaration = block.replace(/{|}/g, '')
+                  const declaration = block
+                    .replace(/{|}/g, '')
+                    .replace(/"/g, "'")
                   this.classes.push({ className: leaf.name, declaration })
                   node.used = true
                 }
@@ -69,7 +71,6 @@ class InlinePlugin extends Plugin {
     if (fragment.type === 'element' && fragment.tagName !== 'style' && this.classes.length) {
       const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
       const classes = classAttribute.value.split(/\s/).filter(Boolean) || []
-      this.classes = this.classes.filter(({ className }) => classes.includes(className))
       fragment.attributes = fragment.attributes
         .map(attribute => {
           if (attribute.key === 'class') {
@@ -82,21 +83,23 @@ class InlinePlugin extends Plugin {
           return attribute
         })
         .filter(attribute => attribute.value)
-      this.classes.forEach(({ declaration }) => {
-        const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
-        if (styleAttribute) {
-          if (!styleAttribute.value.includes(declaration)) {
-            fragment.attributes = fragment.attributes.map(attribute => {
-              if (attribute.key === 'style') {
-                attribute.value += ';'.concat(declaration)
-              }
-              return attribute
-            })
+      this.classes
+        .filter(({ className }) => classes.includes(className))
+        .forEach(({ declaration }) => {
+          const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
+          if (styleAttribute) {
+            if (!styleAttribute.value.includes(declaration)) {
+              fragment.attributes = fragment.attributes.map(attribute => {
+                if (attribute.key === 'style') {
+                  attribute.value += ';'.concat(declaration)
+                }
+                return attribute
+              })
+            }
+          } else {
+            fragment.attributes.push({ key: 'style', value: declaration })
           }
-        } else {
-          fragment.attributes.push({ key: 'style', value: declaration })
-        }
-      })
+        })
     }
   }
 }

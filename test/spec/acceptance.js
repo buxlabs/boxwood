@@ -40,6 +40,10 @@ test('acceptance: markdown', async assert => {
   await suite('markdown', assert)
 })
 
+test('acceptance: inline-classes', async assert => {
+  await suite('inline-classes', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
