@@ -663,7 +663,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'if') {
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
-      const condition = getCondition(attrs, variables)
+      const condition = getCondition(attrs, variables, filters, translations, languages)
       tree.append({
         type: 'IfStatement',
         test: condition,
@@ -681,7 +681,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
           leaf = leaf.alternate
         }
-        const condition = getCondition(attrs, variables)
+        const condition = getCondition(attrs, variables, filters, translations, languages)
         leaf.alternate = {
           type: 'IfStatement',
           test: condition,

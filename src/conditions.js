@@ -81,14 +81,14 @@ function getTest (action, keys, values, variables) {
   }
 }
 
-function getCondition (attrs, variables) {
+function getCondition (attrs, variables, filters, translations, languages) {
   let attributes = normalize(attrs)
   let keys = attributes.map(attr => attr.key)
   const values = attributes.map(attr => attr.value)
   const actions = findActions(attributes)
   if (actions.length === 0) {
     const key = keys[0]
-    return convertKey(key, variables)
+    return convertKey(key, variables, filters, translations, languages)
   } else if (actions.length === 1) {
     return getTest(actions[0], keys, values, variables)
   } else {
