@@ -297,7 +297,7 @@ test('i18n: passing scoped translations as a parameter one layer down', async as
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>bar</div>')
 })
 
-test('i18n: scoped translations in if statement', async assert => {
+test('i18n: dynamic scoped translations in conditions', async assert => {
   var { template } = await compile(`
     <i18n yaml>
     foo:

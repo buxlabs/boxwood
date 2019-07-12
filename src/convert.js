@@ -339,8 +339,11 @@ function convertTag (fragment, variables, currentFilters, translations, language
   return parts
 }
 
-function convertKey (key, variables) {
+function convertKey (key, variables, filters, translations, langauges) {
   if (isCurlyTag(key)) {
+    if (key.includes('translate(language)')) {
+      return convertText(key, variables, filters, translations, langauges)[0]
+    }
     key = getTagValue(key)
   }
   const tree = convertToExpression(key)
