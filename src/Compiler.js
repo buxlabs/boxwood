@@ -152,11 +152,13 @@ class Compiler {
       ...errors,
       ...this.errors
     ].map(error => {
-      const firstLine = error.stack.split('\n')[0]
-      const type = firstLine.split(':')[0]
+      const lines = error.stack.split('\n')
+      const type = lines.shift().split(':')[0]
+      const stack = lines.join('\n').trim()
       return {
         type,
-        message: error.message
+        message: error.message,
+        stack
       }
     })
     return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
