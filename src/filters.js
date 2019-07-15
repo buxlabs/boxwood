@@ -1,5 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const utilities = require('pure-utilities')
+const { CompilerError } = require('./errors')
 
 const aliases = {
   json: 'prettify',
@@ -51,7 +52,7 @@ function serializeProperties (translations) {
 }
 
 function serializeLanguages (languages) {
-  if (!languages) throw new Error('Compiler option is undefined: languages.')
+  if (!languages) throw new CompilerError('languages', 'is undefined')
   return languages.map(language => { return { type: 'Literal', value: language } })
 }
 

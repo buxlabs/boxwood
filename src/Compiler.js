@@ -141,7 +141,6 @@ class Compiler {
     const params = analyzer.params()
     const optimizer = new Optimizer(tree)
     optimizer.optimize()
-    warnings.forEach(warning => console.error(warning))
     if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
       console.log(tree.source)
     }
@@ -149,7 +148,17 @@ class Compiler {
     if (process.env.DEBUG && process.env.DEBUG.includes('pure-engine')) {
       console.log(compiled.toString())
     }
-    const allErrors = [...errors, ...this.errors]
+    const allErrors = [
+      ...errors,
+      ...this.errors
+    ].map(error => {
+      const firstLine = error.stack.split('\n')[0]
+      const type = firstLine.split(':')[0]
+      return {
+        type,
+        message: error.message
+      }
+    })
     return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
   }
   async compile (source) {

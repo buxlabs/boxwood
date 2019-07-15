@@ -4,12 +4,13 @@ const { load } = require('yaml-js')
 const { findAsset } = require('../files')
 const Plugin = require('./Plugin')
 const hash = require('string-hash')
+const { TranslationError } = require('../errors')
 
 function parseYAML (content) {
   try {
     return load(content)
   } catch (exception) {
-    throw new Error('YAML translation is unparseable')
+    throw new TranslationError('YAML translation is unparseable')
   }
 }
 
@@ -17,7 +18,7 @@ function parseJSON (content) {
   try {
     return JSON.parse(content)
   } catch (exception) {
-    throw new Error('JSON translation is unparseable')
+    throw new TranslationError('JSON translation is unparseable')
   }
 }
 
@@ -27,7 +28,7 @@ function parseJS (content) {
     const node = tree.first('ExportDefaultDeclaration')
     return serialize(node.declaration)
   } catch (exception) {
-    throw new Error('JS translation is unparseable')
+    throw new TranslationError('JS translation is unparseable')
   }
 }
 
@@ -39,9 +40,9 @@ function parse (format, content) {
 
 function merge (value, translations, languages) {
   if (value.includes('{') && value.includes('}')) return translations
-  if (!translations[value]) throw new Error(`There is no translation for the ${value} key`)
+  if (!translations[value]) throw new TranslationError(`There is no translation for the ${value} key`)
   languages.forEach((language, index) => {
-    if (!translations[value][index]) throw new Error(`There is no translation for the ${value} key in ${language} language.`)
+    if (!translations[value][index]) throw new TranslationError(`There is no translation for the ${value} key in ${language} language.`)
   })
   return translations
 }
@@ -85,14 +86,14 @@ class InternationalizationPlugin extends Plugin {
           leaf.used = true
           keys.push(getExtension(path))
         } else {
-          throw new Error('The translation script cannot be empty')
+          throw new TranslationError('The translation script cannot be empty')
         }
       }
       leaf.used = true
       const format = getTranslationsFormat(keys)
       let data = parse(format, leaf.content)
       for (let key in data) {
-        if (this.translations[key]) { throw new Error('Translation already exists') }
+        if (this.translations[key]) { throw new TranslationError('Translation already exists') }
         this.translations[`${key}_${id}`] = data[key]
       }
     }
@@ -115,7 +116,7 @@ class InternationalizationPlugin extends Plugin {
         this.translations = merge(`${key}_${id}`, this.translations, languages)
         attribute.key = `${key}_${id}`
       } else {
-        throw new Error('Translate tag must define a key')
+        throw new TranslationError('Translate tag must define a key')
       }
     }
   }
