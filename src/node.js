@@ -110,6 +110,15 @@ function isI18nTag (node) {
   return node.tagName === 'i18n' && node.attributes.find(attribute => attribute.key === 'from')
 }
 
+function isImageNode (node, options) {
+  return !!(
+    isImageTagWithInlineAttribute(node) ||
+    isGlobalInlineImage(node, options) ||
+    isImageTagWithAutoHeightAttribute(node) ||
+    isImageTagWithAutoWidthAttribute(node)
+  )
+}
+
 function getImportNodes (tree, options) {
   const nodes = []
   walk(tree, node => {
@@ -123,7 +132,7 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'STYLESHEET' })
     } else if (isSvgTagWithFromAttribute(node)) {
       nodes.push({ node, kind: 'SVG' })
-    } else if (isImageTagWithInlineAttribute(node) || isGlobalInlineImage(node, options) || isImageTagWithAutoHeightAttribute(node) || isImageTagWithAutoWidthAttribute(node)) {
+    } else if (isImageNode(node, options)) {
       nodes.push({ node, kind: 'IMAGE' })
     } else if (isScriptTagWithI18nAttribute(node) || isI18nTag(node)) {
       nodes.push({ node, kind: 'TRANSLATION' })
@@ -137,5 +146,7 @@ module.exports = {
   getComponentNames,
   getAssetPath,
   getAssetPaths,
-  getImportNodes
+  getImportNodes,
+  isImageNode,
+  isSVGNode: isSvgTagWithFromAttribute
 }

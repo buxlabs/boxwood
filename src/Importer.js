@@ -86,7 +86,7 @@ async function recursiveImport (tree, source, path, options, depth, remote, url)
     }
   }
   const imports = getImportNodes(tree, options)
-  const warnings = linter.lint(tree, source, imports.map(({ node }) => node))
+  const warnings = linter.lint(tree, source, imports.map(({ node }) => node), options)
   const assets = await Promise.all(imports.map(({ node, kind }) => fetch(node, kind, path, remote, url, options)))
   const current = flatten(assets)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {

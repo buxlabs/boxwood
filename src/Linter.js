@@ -2,7 +2,7 @@ const walk = require('himalaya-walk')
 const { extractComponentNames } = require('./extract')
 const { isImportTag } = require('./string')
 const { unique, duplicates } = require('pure-utilities/array')
-const { getComponentNames, getAssetPaths } = require('./node')
+const { getComponentNames, getAssetPaths, isImageNode, isSVGNode } = require('./node')
 
 function analyze (tree) {
   const components = []
@@ -16,8 +16,8 @@ function analyze (tree) {
 }
 
 module.exports = class Linter {
-  lint (tree, source, imports = []) {
-    const importsWarnings = this.verifyImports(imports)
+  lint (tree, source, imports = [], options = {}) {
+    const importsWarnings = this.verifyImports(imports, options)
     const unusedComponentsWarnings = this.verifyComponents(tree)
     const warnings = unusedComponentsWarnings.concat(importsWarnings)
     return warnings
@@ -39,7 +39,7 @@ module.exports = class Linter {
     return warnings
   }
 
-  verifyImports (imports) {
+  verifyImports (imports, options) {
     const warnings = []
     const allNames = []
     let allPaths = []
@@ -55,7 +55,13 @@ module.exports = class Linter {
         })
       }
     })
-    imports.forEach(node => { allPaths = allPaths.concat(getAssetPaths(node)) })
+    imports.forEach(node => {
+      let assetPaths = getAssetPaths(node)
+      if (isImageNode(node, options) || isSVGNode(node)) {
+        assetPaths = assetPaths.filter(item => !assetPaths.includes(item))
+      }
+      allPaths = allPaths.concat(assetPaths)
+    })
     duplicates(allPaths).forEach(duplicate => {
       warnings.push({ message: `Component path duplicate: ${duplicate}`, type: 'COMPONENT_PATH_DUPLICATE' })
     })
