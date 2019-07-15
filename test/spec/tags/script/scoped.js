@@ -7,14 +7,23 @@ test('script: returns empty string when script does not have a body', async asse
   assert.deepEqual(template({ foo: 2 }, escape), '')
 })
 
-test('script: access to passed variables in script tag through destructuring assignment', async assert => {
+test('script: access to passed variables in script tag through object destructuring assignment', async assert => {
   const { template } = await compile('<script scoped>const { foo } = scope;\nconsole.log(foo);</script>')
   assert.deepEqual(template({ foo: 2 }, escape), '<script>const scope = {"foo":2}\nconst { foo } = scope;\nconsole.log(foo);</script>')
 })
 
 test('script: access to passed variables through scope variable', async assert => {
   const { template } = await compile('<script scoped>console.log(scope.foo);</script>')
-  assert.deepEqual(template({ foo: 2, bar: 'bar' }, escape), '<script>const scope = {"foo":2,"bar":"bar"}\nconsole.log(scope.foo);</script>')
+  assert.deepEqual(template({ foo: 2, bar: 'bar' }, escape), '<script>const scope = {"foo":2}\nconsole.log(scope.foo);</script>')
+})
+
+test('script: only used properties from scope variable should be inlined', async assert => {
+  const { template } = await compile('<script scoped>{scope.ban}</script>')
+  assert.deepEqual(template({ 
+    foo: 2, 
+    bar: 'bar',
+    ban: [{ one: 1, two: 2, three: 3, four: 4 }] 
+  }, escape), '<script>const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}\n{scope.ban}</script>')
 })
 
 test.skip('script: scoped', async assert => {
