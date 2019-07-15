@@ -15,6 +15,7 @@ const OBJECT_UTILITIES = Object.keys(object)
 const JSON_UTILITIES = Object.keys(json)
 const DATE_UTILITIES = Object.keys(date)
 const { addPlaceholders, removePlaceholders } = require('./keywords')
+const { ExpressionError } = require('./errors')
 
 function isUnescapedFilter (filter) {
   const name = getFilterName(extractFilterName(filter))
@@ -223,7 +224,7 @@ function getTemplateNode (expression, variables, unescape) {
     }
     return getEscapeCallExpression(expression)
   } else {
-    throw new Error(`Expression type: ${expression.type} isn't supported yet.`)
+    throw new ExpressionError(expression.type)
   }
 }
 

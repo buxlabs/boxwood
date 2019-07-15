@@ -28,6 +28,7 @@ const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
+const { SVGError } = require('./errors')
 let asyncCounter = 0
 
 function setDimension (fragment, attrs, keys, dimension, assets, options) {
@@ -586,7 +587,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       if (tag === 'svg' && keys.includes('from')) {
         const attr = attrs.find(attr => attr.key === 'from')
         const { value: path } = attr
-        if (!path) { throw new Error('Attribute empty on the svg tag: from.') }
+        if (!path) { throw new SVGError('Attribute empty on the svg tag: from.') }
         const asset = findAsset(path, assets, options)
         if (!asset) return
         const content = parse(normalizeNewline(asset.source).trim())[0]
