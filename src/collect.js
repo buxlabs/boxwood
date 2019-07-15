@@ -492,33 +492,63 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       }
     } else if (tag === 'script' && keys.includes('scoped')) {
       const leaf = fragment.children[0]
+      const scope = new AbstractSyntaxTree(leaf.content)
+      const properties = []
+      const getPropertyNode = node => {
+        return {
+          type: 'Property',
+          method: false,
+          shorthand: false,
+          computed: false,
+          key: node.property || node.key,
+          value: {
+            type: 'MemberExpression',
+            object: {
+              type: 'Identifier',
+              name: OBJECT_VARIABLE
+            },
+            property: node.property || node.key,
+            computed: false
+          },
+          kind: 'init'
+        }
+      }
+      scope.walk(node => {
+        if (node.type === 'MemberExpression' && node.object && node.object.type === 'Identifier' && node.object.name === 'scope') {
+          const property = getPropertyNode(node)
+          properties.push(property)
+        } else if (node.type === 'VariableDeclarator' && node.init && node.init.name === 'scope') {
+          node.id.properties.forEach(node => {
+            const property = getPropertyNode(node)
+            properties.push(property)
+          })
+        }
+      })
       leaf.used = true
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const scope = ')))
       tree.append(getTemplateAssignmentExpression(options.variables.template, {
-        type: 'ExpressionStatement',
-        expression: {
-          type: 'CallExpression',
-          callee: {
-            type: 'MemberExpression',
-            object: {
-              type: 'Identifier',
-              name: 'JSON'
-            },
-            property: {
-              type: 'Identifier',
-              name: 'stringify'
-            },
-            computed: false
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: {
+            type: 'Identifier',
+            name: 'JSON'
           },
-          arguments: [
-            {
-              type: 'Identifier',
-              name: OBJECT_VARIABLE
-            }
-          ]
-        }
-      }))
+          property: {
+            type: 'Identifier',
+            name: 'stringify'
+          },
+          computed: false
+        },
+        arguments: [
+          {
+            type: 'ObjectExpression',
+            properties
+          }
+        ]
+      })
+      )
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${leaf.content}`)))
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
     } else if (tag === 'script' && keys.includes('compiler')) {
