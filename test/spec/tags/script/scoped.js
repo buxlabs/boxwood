@@ -18,12 +18,12 @@ test('script: access to passed variables through scope variable', async assert =
 })
 
 test('script: only used properties from scope variable should be inlined', async assert => {
-  const { template } = await compile('<script scoped>{scope.ban}</script>')
+  const { template } = await compile('<script scoped>scope.ban.forEach(element => console.log(element))</script>')  
   assert.deepEqual(template({ 
     foo: 2, 
     bar: 'bar',
     ban: [{ one: 1, two: 2, three: 3, four: 4 }] 
-  }, escape), '<script>const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}\n{scope.ban}</script>')
+  }, escape), '<script>const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}\nscope.ban.forEach(element => console.log(element))</script>')
 })
 
 test.skip('script: scoped', async assert => {

@@ -4,7 +4,7 @@ const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('
 const { getTranslateCallExpression } = require('./translations')
 const { convertText, convertTag, convertToExpression } = require('./convert')
 const walk = require('himalaya-walk')
-const { SPECIAL_TAGS, SELF_CLOSING_TAGS, OBJECT_VARIABLE } = require('./enum')
+const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 const { join, dirname } = require('path')
 const parse = require('./html/parse')
 const size = require('image-size')
@@ -29,6 +29,7 @@ const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
 const { SVGError } = require('./errors')
+const { getScopeProperties } = require('./scope')
 let asyncCounter = 0
 
 function setDimension (fragment, attrs, keys, dimension, assets, options) {
@@ -493,37 +494,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'script' && keys.includes('scoped')) {
       const leaf = fragment.children[0]
       const scope = new AbstractSyntaxTree(leaf.content)
-      const properties = []
-      const getPropertyNode = node => {
-        return {
-          type: 'Property',
-          method: false,
-          shorthand: false,
-          computed: false,
-          key: node.property || node.key,
-          value: {
-            type: 'MemberExpression',
-            object: {
-              type: 'Identifier',
-              name: OBJECT_VARIABLE
-            },
-            property: node.property || node.key,
-            computed: false
-          },
-          kind: 'init'
-        }
-      }
-      scope.walk(node => {
-        if (node.type === 'MemberExpression' && node.object && node.object.type === 'Identifier' && node.object.name === 'scope') {
-          const property = getPropertyNode(node)
-          properties.push(property)
-        } else if (node.type === 'VariableDeclarator' && node.init && node.init.name === 'scope') {
-          node.id.properties.forEach(node => {
-            const property = getPropertyNode(node)
-            properties.push(property)
-          })
-        }
-      })
+      const properties = getScopeProperties(scope)
       leaf.used = true
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const scope = ')))
