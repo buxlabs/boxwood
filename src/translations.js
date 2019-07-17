@@ -21,16 +21,15 @@ function getTranslationNode (key, variables, filters, translations, languages) {
 }
 function getTranslateCallExpression (key, variables, filters, translations, languages) {
   const node = getTranslationNode(key, variables, filters, translations, languages)
+  const objectMemberExpression = getObjectMemberExpression('language')
+  objectMemberExpression.property.inlined = true
   return {
     type: 'CallExpression',
     callee: {
       type: 'Identifier',
       name: 'translate'
     },
-    arguments: [
-      node,
-      getObjectMemberExpression('language')
-    ]
+    arguments: [node, objectMemberExpression]
   }
 }
 module.exports = { getTranslateCallExpression }

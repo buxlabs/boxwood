@@ -297,6 +297,16 @@ test('i18n: passing scoped translations as a parameter one layer down', async as
   assert.deepEqual(template({ language: 'pl' }, escape), '<div>bar</div>')
 })
 
+test('i18n: passing language attribute to the partial', async assert => {
+  var { template } = await compile(`
+    <import qux from="./attributes/qux.html"><qux language="{language}"/>
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<!doctype html><html lang="pl"><body>foo</body></html>')
+})
+
 test('i18n: dynamic scoped translations in conditions', async assert => {
   var { template } = await compile(`
     <i18n yaml>
