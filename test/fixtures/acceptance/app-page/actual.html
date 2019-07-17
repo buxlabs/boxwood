@@ -11,10 +11,7 @@ slogan:
 - 'An interesting slogan'
 </script>
 <layout language="{language}">
-    <a class="black" href="{root + '/blog'}">
-      <translate read_more />
-    </a>          
-  <!-- <header 
+  <header 
     root="{root}"
     title="BLOG"
     subtitle|translate="slogan"
@@ -27,10 +24,10 @@ slogan:
           <a class="black" href="{root + '/blog'}">{article.metadata.header}</a>
           <br>
           <small>{article.metadata.published | prettydate(locale)}</small>
-        </h2>  
+        </h2>
         <p style="font-size: 1.5rem;">{article.metadata.description}</p>
         <a class="black" href="{root + '/blog'}"><translate read_more /></a>          
       </article>
     </for>
-  </content> -->
+  </content>
 </layout>

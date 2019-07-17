@@ -8,7 +8,91 @@
   <link rel="stylesheet" type="text/css" href="/assets/css/design-0.0.2.min.css">
 </head> 
 <body class="background">
-  <main class="black color"></main>
+  <main class="black color">
+    <div class="scope-4159814919 ui fluid container center aligned">
+      <div class="scope-4159814919 navbar">
+        <a class="logo" href="https://foo-bar.com">
+          <img src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjIxMCIgd2lkdGg9Int3aWR0aH0iPgogIDxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjIwMCIgeTI9IjIwMCIgc3R5bGU9InN0cm9rZTpyZ2IoMjU1LDAsMCk7c3Ryb2tlLXdpZHRoOjIiIC8+Cjwvc3ZnPg==" width="125">
+        </a>
+        <a class="back">Powrót</a>
+      </div>
+      <div class="scope-4159814919 blog-background" style="background-image: url(/assets/images/blog.jpg)"></div>
+      <div style="padding-right: 20px; padding-left:20px;">
+        <h1>BLOG</h1>
+        <h3>Interesujący slogan</h3>
+      </div> 
+    </div>
+    <script>
+      const root = document.querySelector('.logo')
+      document.querySelector('.back').addEventListener('click', () => {
+        const { referrer } = document
+        if (referrer && referrer.startsWith(window.location.origin)) return this.history.back()
+        window.location.href = root.href
+      })
+    </script>
+    <div class="ui container black">
+      <div class="ui stackable grid">
+        <div class="row">
+          <div class="column centered aligned">
+            <div class="scope-2440352839 article row">
+              <div class="column">
+                <h2>
+                  <a class="black"href="https://foo-bar.com/blog">Drugi artykuł.</a>
+                  <br>
+                  <small>piątek, 31maja 2019</small>
+                </h2>
+                <p style="font-size: 1.5rem;">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing&#39; elit. 
+                  Laboriosam cumque recusandae doloribus inventoreplaceat, 
+                  vitae quod deleniti perferendis aliquam voluptate quam enim nesciunt quas ad labore, in rem neque porro.
+                </p>
+                <a class="black" href="https://foo-bar.com/blog">
+                  Czytaj więcej
+                </a>
+              </div>
+            </div>
+            <div class="scope-2440352839 article row">
+              <div class="column">
+                <h2>
+                  <a class="black"href="https://foo-bar.com/blog">Pierwszy artykuł.</a>
+                  <br>
+                  <small>piątek, 31maja 2019</small>
+                </h2>
+                <p style="font-size: 1.5rem;">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing&#39; elit. 
+                  Laboriosam cumque recusandae doloribus inventoreplaceat, 
+                  vitae quod deleniti perferendis aliquam voluptate quam enim nesciunt quas ad labore, in rem neque porro.
+                </p>                                
+                <a class="black" href="https://foo-bar.com/blog">
+                  Czytaj więcej
+                </a>
+              </div>
+            </div>            
+          </div>
+        </div>
+      </div>  
+    </div>            
+  </main>
+  <footer class="gray background">
+    <div class="ui container">
+      <a class="bold headline link" href="/contact">Skontaktuj się z nami</a>
+      <img src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjIxMCIgd2lkdGg9Int3aWR0aH0iPgogIDxsaW5lIHgxPSIwIiB5MT0iMCIgeDI9IjIwMCIgeTI9IjIwMCIgc3R5bGU9InN0cm9rZTpyZ2IoMjU1LDAsMCk7c3Ryb2tlLXdpZHRoOjIiIC8+Cjwvc3ZnPg== "width="125">
+      <div class="ui stackable grid">
+        <div class="four wide unpadded on mobile column">
+          <ul class="unstyled list">
+            <li><p>ul. Zamkowa 13, 00-000 Sosnowiec</p></li>
+            <li><p>woj. śląskie</p></li>
+          </ul>
+        </div>
+        <div class="right aligned and on left on mobile">
+          <ul class="unstyled list">
+            <li><p><a href="https://www.facebook.com/foo-bar/">Polub nas na Facebooku</a></p></li>
+            <li><p><a href="https://www.linkedin.com/company/foo-bar/">Dołącz do nas na LinkedIn</a></p></li>
+          </ul>          
+        </div>        
+      </div>
+    </div>
+  </footer>
 </body>
 </html>
 <style>
@@ -19,5 +103,65 @@
     display: flex;
     min-height: 100vh;
     flex-direction: column;
+  }
+  .scope-4159814919.blog-background {
+    background-position:center;
+    background-repeat:no-repeat;
+    background-size:cover;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    position: absolute;
+    opacity: .3;
+    animation: fadein-scope-4159814919 1s ease-in-out
+  }
+  .scope-4159814919.ui.fluid.container {
+    position: relative;
+    height: 40vh;
+    background: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 80px 0!important
+  }
+  .scope-4159814919.navbar {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 1
+  }
+  .scope-4159814919.navbar.logo {
+    position: absolute;
+    left: 30px;
+    top: 2rem
+  }
+  .scope-4159814919.navbar.back {
+    position: absolute;
+    right: 30px;
+    top: 1rem;
+    font-size: 1.6rem;
+    color: #fff;
+    margin-top: 1.5rem;
+    text-decoration: underline
+  }
+  @keyframes fadein-scope-4159814919 {
+    0% { opacity: 0 }
+    100%{ opacity: .3 }
+  }
+  .scope-2440352839.article {
+    margin-bottom: 100px
+  }
+  .scope-2440352839.article h2 a {
+    color: black;font-size: 2.3rem;
+    text-decoration: none
+  }
+  .scope-2440352839.article h2 small {
+    font-size: 1rem;
+    font-weight: normal
+  }
+  .scope-2440352839.article p {
+    text-align: justify
   }
 </style>
