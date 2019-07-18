@@ -1,0 +1,23 @@
+<script i18n yaml>
+tools:
+- 'Narzędzia'
+- 'Tools'
+</script>
+<div class="ui vertical segment">
+  <div class="ui white breadcrumb">
+    <a class="white section" href="#">Start</a>
+    <div class="white divider">&nbsp;/&nbsp;</div>
+    <a class="white section" href="/tools"><translate tools /></a>
+    <div class="white divider">&nbsp;/&nbsp;</div>
+    <a class="white section {toolName ? '' : 'active'}" href="{'/tools/' + category}">
+      {category | uppercase}
+    </a>
+    <if toolName>
+      <div class="white divider">&nbsp;/&nbsp;</div>
+      <a class="white active section" href="#">{toolName}</a>
+    </if>
+  </div>
+</div>
+<style scoped>
+  .ui.white.breadcrumb .white.divider { color: #fff; }
+</style>

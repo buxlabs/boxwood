@@ -1,0 +1,102 @@
+<script i18n yaml>
+description:
+- 'Biblioteka zawierająca metody pomocnicze.'
+- 'Library with helper methods.'
+search:
+- 'Szukaj...'
+- 'Search...'
+installation:
+- 'Instalacja'
+- 'Installation'
+</script>
+<import layout from="./components/blank.html"/>
+<import sidebar from="./components/sidebar.html"/>
+<import breadcrumb from="./components/breadcrumb.html"/>
+<layout color="white" language="{language}">
+  <sidebar>
+    <h1 class="ui white tiny header">pure-utilities ({version})</h1>
+    <ul class="unstyled list">
+      <li class="item"><a href="http://github.com/buxlabs/pure-utilities">GitHub Repository</a></li>
+    </ul>
+    <div class="nano whitespace"></div>
+    <div class="ui input">
+      <input 
+        type="search" 
+        id="filter" 
+        placeholder|translate="search"
+      >
+    </div>
+    <for doc of keys | docs>
+      <div data-searchable="searchable">
+        <h2 class="white ui tiny header">{doc | titleize}</h2>
+        <ul class="unstyled list">
+          <for item in keys | docs[doc]>
+            <li class="item">
+              <a href="#{item}">{item}</a>
+            </li>
+          </for>
+        </ul>
+      </div>
+    </for>
+  </sidebar>
+  <div class="content">
+    <breadcrumb category="js" toolName="Pure Utilities"/>
+    <h1 class="white ui header">Pure Utilities</h1>
+    <p class="white"><translate description /></p>
+    <h2 class="white ui header"><translate installation /></h2>
+    <div class="ui segment">
+      <code>npm install pure-utilities</code>
+    </div>
+    <for fixture of keys | fixtures>
+      <h3 class="white ui tiny header">{fixture | titleize }</h3>
+      <for method of keys | fixtures[fixture]>
+        <h4 class="white ui header" id="{method}">{method}&nbsp;
+          <small>({docs[fixture][method].parameters.join(", ")})</small>
+        </h4>
+        <p class="white">{docs[fixture][method].description[language]}</p>
+        <for example in fixtures[fixture][method].examples>
+          <div class="ui inverted segment">
+            <code>
+              <span>{example.code}</span><br>
+              <span class="light green"><=&nbsp;{JSON.stringify(example.output)}</span>
+            </code>
+          </div>
+        </for>
+      </for>
+    </for>
+  </div>
+</layout>
+<style>
+  .content {
+    width: 550px;
+    margin: 40px 0 50px 260px;
+  }
+  .ui input[type="search"] {
+    padding: 3px 5px;
+    max-width: 80%;
+  }
+  .light.green {
+    color: #00ffa5;
+  }
+</style>
+<script>
+  const filter = document.getElementById('filter')
+  const searchables = document.querySelectorAll('[data-searchable="searchable"]')
+  filter.addEventListener('keyup', event => {
+    let { value } = event.target
+    value = value.trim().toLowerCase()
+    for (let i = 0; i < searchables.length; i++) {
+      const searchable = searchables[i]
+      const header = searchable.querySelector('h2')
+      const list = searchable.querySelector('ul')
+      const { children } = list
+      for (let j = 0; j < children.length; j++) {
+        const child = children[j]
+        const text = child.innerText.toLowerCase()
+        child.classList.toggle('undisplayed', !text.includes(value))
+      }
+      const hiddenLength = list.querySelectorAll('li.undisplayed').length
+      header.classList.toggle('undisplayed', hiddenLength === children.length)
+    }
+  })
+</script>
