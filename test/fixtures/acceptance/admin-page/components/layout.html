@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang='{language}'>
+<head partial='./head.html'></head>
+<body class="{color || 'snow'} background">
+  <div class="ui container">
+    <partial from="./header.html"/>
+  </div>
+  <main>
+    <div class="ui container with white background and extra padding">
+      <div class="ui grid stackable on mobile">
+        <div class="row">
+          <partial from="./sidebar.html"/>
+          <div class="nine wide column" style="flex: 1;"><slot></slot></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div class="ui container">
+    <partial from="./footer.html"/>
+  </div>
+</body>
+</html>

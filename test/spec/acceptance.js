@@ -52,6 +52,10 @@ test('acceptance: tool-page', async assert => {
   await suite('tool-page', assert)
 })
 
+test('acceptance: admin-page', async assert => {
+  await suite('admin-page', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
