@@ -11,7 +11,7 @@
             <a class="purple" href="{issue.html_url}">{issue.title}</a>
           </div>
           <div class="six wide column">
-            <p class="purple">Data utworzenia: {issue.created_at | timestamp('YYYY-MM-DD')}</p>
+            <p class="purple">Data utworzenia: {new Date(issue.created_at) | timestamp('YYYY-MM-DD')}</p>
           </div>          
         </div>
       </for>
