@@ -48,7 +48,7 @@ test('acceptance: app-page', async assert => {
   await suite('app-page', assert)
 })
 
-test.skip('acceptance: tool-page', async assert => {
+test('acceptance: tool-page', async assert => {
   await suite('tool-page', assert)
 })
 
