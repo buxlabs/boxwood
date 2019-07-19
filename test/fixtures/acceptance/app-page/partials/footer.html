@@ -1,0 +1,22 @@
+<script i18n yaml>
+site_map:
+- 'Mapa strony'
+- 'Site map'
+contact_with_us:
+- 'Skontaktuj się z nami'
+- 'Contact us'
+</script>
+<footer class="gray background">
+  <div class="ui container">
+    <a class="bold headline link" href="/contact"><translate contact_with_us /></a>
+    <img src="./assets/images/logo.svg" width="125" inline>
+    <div class="ui stackable grid">
+      <div class="four wide unpadded on mobile column">
+        <partial from="./partials/address.html" />
+      </div>
+      <div class="right aligned and on left on mobile">
+        <partial from='./partials/social-networks.html' />
+      </div>
+    </div>
+  </div>
+</footer>

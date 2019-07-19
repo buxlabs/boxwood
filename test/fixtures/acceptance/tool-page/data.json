@@ -1,0 +1,68 @@
+{
+  "language": "en",
+  "version": "1.0.0",
+  "docs":
+  {
+    "string": {
+      "uppercase": { 
+        "parameters": ["string"], 
+        "description": {
+          "en": "Removes characters from the start and end of the string based on the passed values.",
+          "pl": "Usuwa znaki z początku i końca łańcucha znaków na podstawie przekazanych parametrów."
+        } 
+      },
+      "whitespacestrip": { 
+        "parameters": ["string"], 
+        "description": {
+          "en": "Removes whitespaces from the string.",
+          "pl": "Usuwa spacje z łańcucha znaków."
+        } 
+      }
+    },
+    "array": {
+      "average": { 
+        "parameters": ["array"], 
+        "description": {
+          "en": "Returns the average of the array elements.",
+          "pl": "Zwraca średnią z elementów tablicy."
+        } 
+      }
+    }
+  },
+  "fixtures":
+  {
+    "string": {
+      "uppercase": { 
+        "examples": 
+        [
+          {
+            "input": ["foo"],
+            "code": "uppercase(\"foo\")",
+            "output": "FOO"
+          }
+        ]
+      },
+      "whitespacestrip": { 
+        "examples": 
+        [
+          {
+            "input": [" f o  o"],
+            "code": "whitespacestrip(\" f o  o\")",
+            "output": "foo"
+          }
+        ]
+      }
+    },
+    "array": {
+      "average": {
+        "examples": [
+          {
+            "input": [[100, 200]],
+            "code": "average(100, 200)",
+            "output": 150
+          }
+        ]
+      }
+    }
+  }  
+}

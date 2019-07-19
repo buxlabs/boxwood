@@ -1,0 +1,53 @@
+<div class="two wide column"><img id="sidebar-toggle" class="pointer" src="/assets/icons/menu_blue.svg" width="35"></div>
+<div id="sidebar" class="five wide {sidebarState} column">
+  <div class="ui grid stackable on mobile">
+    <div class="twelve wide column" padding="{{ top: 0, bottom: 0 }}">
+      <ul class="unstyled dropdown list">
+        <for dropdown in adminLinks>
+          <if dropdown.list is an object>
+            <li>
+              <div class="dropdown container {dropdown.id === currentDropdown ? 'open' : ''}">
+                <a id="{dropdown.id}" class="medium purple label" href="#">{dropdown.name}</a>
+                <img src="/assets/icons/chevron.svg" width="20">
+              </div>
+              <ul id="{dropdown.list.id}" class="unstyled list {dropdown.id === currentDropdown ? 'block' : 'undisplayed'}">
+                <for item in dropdown.list.items>
+                  <li><a class="purple {item.href === currentItem ? 'active' : ''}" href="{item.href}">{item.name}</a></li>
+                </for>
+              </ul>
+            </li>
+          </if>
+          <else>
+            <li>
+              <a 
+                id="{dropdown.id}" 
+                class="medium purple label {dropdown.id === currentDropdown ? 'active': ''}" 
+                href="{dropdown.href}">
+                {dropdown.name}
+              </a>
+            </li>
+          </else>
+        </for>
+        <style scoped>
+          .unstyled.dropdown.list li a.active { color: #4183c4; }
+        </style>
+      </ul>
+    </div>
+  </div>
+</div>
+<script>
+  Array.from(document.querySelector('.dropdown.list').childNodes).filter(node => node.localName === 'li')
+    .forEach(dropdownItem => {
+      dropdownItem.addEventListener('click', ({ target }) => {
+        const dropdownContainer = target.closest('.dropdown.container')
+        if (dropdownContainer) {
+          dropdownContainer.classList.toggle('open')
+          const dropdownList = dropdownContainer.parentElement.querySelector('ul')
+          if (dropdownList) dropdownList.classList.toggle('undisplayed')
+        }
+      })
+    })
+  document.querySelector('#sidebar-toggle').addEventListener('click', event => {
+    document.querySelector('#sidebar').classList.toggle('undisplayed')
+  })
+</script>

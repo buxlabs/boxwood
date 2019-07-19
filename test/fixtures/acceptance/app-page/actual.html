@@ -1,0 +1,33 @@
+<import layout from="./layouts/layout.html"/>
+<import header from="./partials/header.html"/>
+<import content from="./partials/content.html"/>
+<import article from="./partials/article.html"/>
+<script i18n yaml>
+read_more:
+- 'Czytaj więcej'
+- 'Read more'
+slogan:
+- 'Interesujący slogan'
+- 'An interesting slogan'
+</script>
+<layout language="{language}">
+  <header 
+    root="{root}"
+    title="BLOG"
+    subtitle|translate="slogan"
+    image="/assets/images/blog.jpg"  
+  />
+  <content>
+    <for article in articles>
+      <article>
+        <h2>
+          <a class="black" href="{root + '/blog'}">{article.metadata.header}</a>
+          <br>
+          <small>{article.metadata.published | prettydate(locale)}</small>
+        </h2>
+        <p style="font-size: 1.5rem;">{article.metadata.description}</p>
+        <a class="black" href="{root + '/blog'}"><translate read_more /></a>          
+      </article>
+    </for>
+  </content>
+</layout>
