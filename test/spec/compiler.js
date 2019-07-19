@@ -107,4 +107,22 @@ test('compiler: returns errors for invalid styles option', async assert => {
   var { errors } = await compile('', { styles: { colors: [] } } )
   assert.deepEqual(errors.length, 1) 
   assert.deepEqual(errors[0].message, 'Compiler option "styles.colors" must be an object')
+
+  var { errors } = await compile('', { styles: {} } )
+  assert.deepEqual(errors.length, 1) 
+  assert.deepEqual(errors[0].message, 'Compiler option "styles.spacing" must be an object')
+  
+  var { errors } = await compile('', { styles: { spacing: [] } } )
+  assert.deepEqual(errors.length, 1) 
+  assert.deepEqual(errors[0].message, 'Compiler option "styles.spacing" must be an object')
+  
+  var { errors } = await compile('', { 
+    styles: { 
+      spacing: {
+        nano: '0.1px'
+      }  
+    } 
+  })
+  assert.deepEqual(errors.length, 1) 
+  assert.deepEqual(errors[0].message, `Compiler option "styles.spacing.nano" allowed options: small, medium, large`)      
 })
