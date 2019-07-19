@@ -123,7 +123,13 @@ class Compiler {
         escape: ESCAPE_VARIABLE
       },
       aliases: [],
-      styles: {}
+      styles: {
+        spacing: {
+          small: '5px',
+          medium: '15px',
+          large: '60px'
+        }
+      }
     }, options)
     this.errors = validateOptions(this.options)
     this.options.hooks = Object.assign({

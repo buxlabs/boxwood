@@ -70,7 +70,8 @@ module.exports = {
     'content',
     'translate',
     'markdown',
-    'font'
+    'font',
+    'spacing'
   ],
   UNESCAPED_NAMES: [
     'value',
