@@ -37,6 +37,7 @@ function inlineVariables (node, parent, variables) {
         return { type: 'Literal', value: variable.value }
       }
     } else {
+      if (parent.type === 'BinaryExpression') return
       node.name = 'undefined'
     }
   }
