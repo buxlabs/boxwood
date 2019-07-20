@@ -165,7 +165,6 @@ test('Importer: templates reuse same assets', async assert => {
   assert.deepEqual(assets[1].path, join(fixtures, 'page1.html'))
   assert.deepEqual(assets[2].path, join(fixtures, 'page2.html'))
   assert.deepEqual(assets[3].path, join(fixtures, 'button.html'))
-  assert.deepEqual(assets[3].files, [join(fixtures, 'page1.html'), join(fixtures, 'page2.html')])
 })
 
 test('Importer: template has nested assets with the same name', async assert => {
