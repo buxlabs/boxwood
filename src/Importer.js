@@ -9,6 +9,8 @@ const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
 const linter = new Linter()
 
+let id = 1
+
 async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
   path = resolveAlias(path, options.aliases)
   if (isRemotePath(path) || isRemote) {
@@ -21,13 +23,15 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
       if (response.status === 200) {
         let buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
         let base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
+        id += 1
         return {
           path,
           source: buffer.toString(),
           buffer,
           base64,
           remote: true,
-          url
+          url,
+          id
         }
       }
     } catch (exception) {}
@@ -44,6 +48,8 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         // TODO: Read once convert base64
         file.source = await read(location, 'utf8')
         file.remote = false
+        id += 1
+        file.id = id
         options.hooks.onAfterFile(file)
         return file
       } catch (exception) {}
@@ -60,7 +66,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     const dir = dirname(context)
     const assetPaths = getAssetPaths(node, name)
     return Promise.all(assetPaths.map(async assetPath => {
-      const { source, path, base64, remote, url, buffer } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
+      const { source, path, base64, remote, url, buffer, id } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
         return {
           warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
@@ -69,7 +75,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
       const tree = parse(source)
       const files = [context]
       const warnings = []
-      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type }
+      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type, id }
     }))
   }))
 }
@@ -111,7 +117,7 @@ function mergeAssets (assets) {
     if (!path) return
     if (!object[path]) {
       object[path] = component
-    } else {
+    } else if (object[path].id < component.id) {
       component.files = [...object[path].files, ...files]
       object[path] = component
     }
