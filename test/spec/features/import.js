@@ -958,7 +958,7 @@ test('import: many components loading the same remote component', async assert =
   await server.stop()
 })
 
-test.only('import: should be possible to disable cache', async assert => {
+test('import: should be possible to disable cache', async assert => {
   var count = 0
   var server = new Server()
   var { port } = await server.start()
