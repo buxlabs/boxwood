@@ -27,8 +27,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
           buffer,
           base64,
           remote: true,
-          url,
-          timestamp: new Date().getTime()
+          url
         }
       }
     } catch (exception) {}
@@ -45,7 +44,6 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         // TODO: Read once convert base64
         file.source = await read(location, 'utf8')
         file.remote = false
-        file.timestamp = new Date().getTime()
         options.hooks.onAfterFile(file)
         return file
       } catch (exception) {}
@@ -62,7 +60,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     const dir = dirname(context)
     const assetPaths = getAssetPaths(node, name)
     return Promise.all(assetPaths.map(async assetPath => {
-      const { source, path, base64, remote, url, buffer, timestamp } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
+      const { source, path, base64, remote, url, buffer } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
         return {
           warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
@@ -71,7 +69,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
       const tree = parse(source)
       const files = [context]
       const warnings = []
-      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type, timestamp }
+      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type }
     }))
   }))
 }
@@ -113,7 +111,7 @@ function mergeAssets (assets) {
     if (!path) return
     if (!object[path]) {
       object[path] = component
-    } else if (object[path].timestamp < component.timestamp) {
+    } else {
       component.files = [...object[path].files, ...files]
       object[path] = component
     }

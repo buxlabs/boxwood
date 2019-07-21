@@ -958,7 +958,7 @@ test('import: many components loading the same remote component', async assert =
   await server.stop()
 })
 
-test('import: should be possible to disable cache', async assert => {
+test.only('import: should be possible to disable cache', async assert => {
   var count = 0
   var server = new Server()
   var { port } = await server.start()
@@ -969,7 +969,7 @@ test('import: should be possible to disable cache', async assert => {
     res.send(`<import baz from="http://localhost:${port}/baz/baz.html">bar<baz/>`)
   })
   server.get('/baz/baz.html', (req, res) => {
-    res.send(`<div>${count === 0 ? 'baz' : 'qux'}</div>`)
+    res.send(`${count === 0 ? 'baz' : 'qux'}`)
     count += 1
   })
   var { template } = await compile(`
@@ -977,7 +977,7 @@ test('import: should be possible to disable cache', async assert => {
     <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
     `, { paths: [], cache: false }
   )
-  assert.deepEqual(template({}, escape), 'foo<div>qux</div>bar<div>qux</div>')
+  assert.deepEqual(template({}, escape), 'fooquxbarqux')
   await server.stop()
 })
 
