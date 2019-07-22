@@ -60,6 +60,63 @@ test('i18n: translations in yaml and a translate tag', async assert => {
   assert.deepEqual(template({ language: 'en' }, escape), '<div>Send</div>')
 })
 
+test('i18n: translations in yaml - format validation', async assert => {
+  var { template, errors } = await compile(`
+    <script i18n yaml>
+    foo:
+    -'bar'
+    -'bar'
+    </script>
+    <div><translate foo/></div>
+  `, { languages: ['pl', 'en'] })
+  
+  assert.truthy(errors.length)
+  var [error1, error2] = errors
+  assert.deepEqual(error1.type, 'TranslationError')
+  assert.deepEqual(error1.message, 'YAML translation is unparseable')
+  assert.deepEqual(error2.type, 'TranslationError')
+  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_746128617 key')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
+
+  var { template, errors } = await compile(`
+    <template foo>
+      <script i18n yaml>
+      foo:
+      -'bar'
+      -'bar'
+      </script>
+      <div><translate foo/></div>
+    </template>
+    <foo/>
+  `, { languages: ['pl', 'en'] })
+  
+  assert.truthy(errors.length)
+  var [error1, error2] = errors
+  assert.deepEqual(error1.type, 'TranslationError')
+  assert.deepEqual(error1.message, 'YAML translation is unparseable')
+  assert.deepEqual(error2.type, 'TranslationError')
+  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_1740225612 key')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
+
+  var { template, errors } = await compile(`
+    <template foo>
+      <script i18n yaml>
+      foo_bar:
+      -'foo_bar'
+      -'foo_bar'
+      </script>
+      <div><translate foo_{bar}/></div>
+    </template>
+    <foo/>
+  `, { languages: ['pl', 'en'] })
+  
+  assert.truthy(errors.length)
+  var [error1] = errors
+  assert.deepEqual(error1.type, 'TranslationError')
+  assert.deepEqual(error1.message, 'YAML translation is unparseable')
+  assert.deepEqual(template({ language: 'pl', bar: 'bar' }, escape), '<div></div>')  
+})
+
 test('i18n: translations in yaml and a translate tag with dot notation', async assert => {
   var { template } = await compile(
     `<script i18n yaml>

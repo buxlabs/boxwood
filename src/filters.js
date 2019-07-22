@@ -25,6 +25,7 @@ function translate (key, language) {
   const translations = {}
   const languages = []
   const index = languages.indexOf(language)
+  if (!translations[key] || !translations[key][index]) return ''
   return translations[key][index]
 }
 
