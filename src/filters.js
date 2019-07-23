@@ -1,6 +1,8 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const utilities = require('pure-utilities')
 const { CompilerError } = require('./errors')
+const { getObjectMemberExpression } = require('./factory')
+const { wrap } = require('pure-utilities/string')
 
 const aliases = {
   json: 'prettify',
@@ -44,7 +46,16 @@ function serializeProperties (translations) {
       key: getPropertyKey(key),
       value: {
         type: 'ArrayExpression',
-        elements: translations[key].map(text => { return { type: 'Literal', value: text } })
+        elements: translations[key].map(text => {
+          text = wrap(text.replace(/{{1}[^}]+}{1}/g, match => `$${match}`), '`')
+          const tree = new AbstractSyntaxTree(text)
+          tree.replace({ leave: node => {
+            if (node.type === 'Identifier') {
+              return getObjectMemberExpression(node.name)
+            }
+          }})
+          return tree.first('TemplateLiteral')
+        })
       },
       kind: 'init'
     })
