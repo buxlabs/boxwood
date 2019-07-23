@@ -250,6 +250,9 @@ test('for: dynamic range', async assert => {
 
   var { template } = await compile(`<for number in range="[start + 1, start + 3]">{number}</for>`)
   assert.deepEqual(template({ start: 0 }, escape), '12')
+
+  var { template } = await compile(`<for number in range="[foo.bar, foo.baz]">{number}</for>`)
+  assert.deepEqual(template({ foo: { bar: 0, baz: 3 } }, escape), '012')  
 })
 
 test('for: dynamic range with passed attribute', async assert => {
