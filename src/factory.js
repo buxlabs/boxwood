@@ -3,7 +3,8 @@ const {
   OBJECT_VARIABLE,
   ESCAPE_VARIABLE
 } = require('./enum')
-const { replace } = require('abstract-syntax-tree')
+const { replace, generate } = require('abstract-syntax-tree')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getIdentifier, getLiteral } = require('./ast')
 
 function getTemplateAssignmentExpression (variable, node) {
@@ -27,6 +28,12 @@ function getObjectMemberExpression (name) {
     object: getIdentifier(OBJECT_VARIABLE),
     property: getIdentifier(name)
   }
+}
+
+function getNestedObjectMemberExpression (node) {
+  const code = `${OBJECT_VARIABLE}.${generate(node)}`
+  const tree = new AbstractSyntaxTree(code)
+  return tree.first('MemberExpression')
 }
 
 function getEscapeCallExpression (node) {
@@ -54,12 +61,15 @@ function replaceIdentifierWithObjectMemberExpression (element) {
 function getRangeStartIdentifierOrLiteral (range) {
   if (range) {
     const start = range[0]
+    console.log(start.type)
     if (typeof start === 'number') {
       return getLiteral(start)
     } else if (start.type === 'Identifier') {
       return getObjectMemberExpression(start.name)
     } else if (start.type === 'Literal') {
       return start
+    } else if (start.type === 'MemberExpression') {
+      return getNestedObjectMemberExpression(start)
     } else {
       replaceIdentifierWithObjectMemberExpression(start)
       return start
@@ -77,6 +87,8 @@ function getRangeEndIdentifierOrLiteral (range, guard) {
       return getObjectMemberExpression(end.name)
     } else if (end.type === 'Literal') {
       return end
+    } else if (end.type === 'MemberExpression') {
+      return getNestedObjectMemberExpression(end)
     } else {
       replaceIdentifierWithObjectMemberExpression(end)
       return end
