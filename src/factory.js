@@ -33,7 +33,20 @@ function getObjectMemberExpression (name) {
 function getNestedObjectMemberExpression (node) {
   const code = `${OBJECT_VARIABLE}.${generate(node)}`
   const tree = new AbstractSyntaxTree(code)
-  return tree.first('MemberExpression')
+  const memberExpression = tree.first('MemberExpression')
+  replace(memberExpression, {
+    enter: node => {
+      if (node.computed && node.type === 'MemberExpression') {
+        if (node.property.type === 'Identifier') {
+          node.property = getObjectMemberExpression(node.property.name)
+        } else if (node.property.type === 'MemberExpression') {
+          node.property = getNestedObjectMemberExpression(node.property)
+        }
+      }
+      return node
+    }
+  })
+  return memberExpression
 }
 
 function getEscapeCallExpression (node) {
@@ -61,7 +74,6 @@ function replaceIdentifierWithObjectMemberExpression (element) {
 function getRangeStartIdentifierOrLiteral (range) {
   if (range) {
     const start = range[0]
-    console.log(start.type)
     if (typeof start === 'number') {
       return getLiteral(start)
     } else if (start.type === 'Identifier') {
