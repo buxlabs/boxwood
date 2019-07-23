@@ -384,3 +384,83 @@ test('i18n: dynamic scoped translations in conditions', async assert => {
   })
   assert.deepEqual(template({ language: 'pl' }, escape), '<div><h1>foo</h1><h2>bar</h2></div>')
 })
+
+test('i18n: dynamic translations', async assert => {
+  var { template } = await compile(`
+    <i18n yaml>
+    read_more:
+    - 'Czytaj więcej {foo}'
+    - 'Read more {foo}'
+    </i18n>
+    <div><translate read_more foo="foo"/></div>
+    `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl', foo: 'foo' }, escape), '<div>Czytaj więcej foo</div>')  
+  
+  var { template } = await compile(`
+    <i18n yaml>
+    read_more:
+    - 'Czytaj więcej {foo}'
+    - 'Read more {foo}'
+    </i18n>
+    <div><translate read_more foo="{foo}"/></div>
+    `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl', foo: 'foo' }, escape), '<div>Czytaj więcej foo</div>')
+
+  var { template } = await compile(`
+    <i18n yaml>
+    budget:
+    - 'Planowany budżet mojego projektu {price}{currency}'
+    - 'Estimated budget of my project {price}{currency}'
+    </i18n>
+    <div><translate budget foo="{foo}"/></div>
+    `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'en', price: '10000', currency: '$' }, escape), '<div>Estimated budget of my project 10000$</div>')
+  
+  var { template } = await compile(`
+    <i18n yaml>
+    total_price:
+    - 'Cena po uwzględnieniu podatku: {price * tax}'
+    - 'Price after tax: {price * tax}'
+    </i18n>
+    <div><translate total_price price="{price}" tax="{tax"}/></div>
+    `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl', price: '10000', tax: 1.23 }, escape), '<div>Cena po uwzględnieniu podatku: 12300</div>')
+
+  var { template } = await compile(`
+    <template footer>
+      <script i18n yaml>
+        contact:
+        - 'Skontaktuj się z nami. BUXLABS. Na rynku od {year}. Wszelkie prawa zastrzeżone.'
+        - 'Contact us. BUXLABS. Since {year}. All rights reserved.'     
+      </script>
+      <footer>
+        <translate contact year={"year"}/>
+      </footer>
+    </template>
+    <script i18n yaml>
+      hello:
+      - 'Witaj {name}!'
+      - 'Hello {name}!'
+    </script>
+    <main>
+      <p><translate hello name="{name}"/></p>
+      <footer year="{year}"/>
+    </main>
+    `, { 
+      paths: [path.join(__dirname, '../../fixtures/translations')], 
+      languages: ['pl', 'en']
+    })
+  assert.deepEqual(template({ language: 'en', year: 2019, name: 'World' }, escape), '<main><p>Hello World!</p><footer>Contact us. BUXLABS. Since 2019. All rights reserved.</footer></main>')   
+})
