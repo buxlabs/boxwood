@@ -573,6 +573,37 @@ test('filters: usage in partials', async assert => {
   assert.deepEqual(template({category: 'css'}, escape), '<div class="fluid-container">cSS</div>')  
 })
 
+test('filters: iterating over object keys', async assert => {
+  var { template } = await compile(`
+    <for key of keys | foo>
+      {key}
+    </for>
+  `)
+  assert.deepEqual(template({ foo: { a: 1, b: 2, c: 3 } }, escape), 'abc')
+
+  var { template } = await compile(`
+    <for key of keys | foo>
+      {foo[key]}
+    </for>
+  `)
+  assert.deepEqual(template({ foo: { a: 1, b: 2, c: 3 } }, escape), '123')
+  
+  var { template } = await compile(`
+    <for key of keys | objects>
+      <for value of keys | objects[key]>
+        {value}
+      </for>
+    </for>
+  `)
+  assert.deepEqual(template({ 
+    objects: { 
+      a: { foo: 'foo' },
+      b: { bar: 'bar' }, 
+      c: { baz: 'baz' }
+    } 
+  }, escape), 'foobarbaz')    
+})
+
 test('filters: custom filters', async assert => {
   var { template } = await compile('{foo | myFilter}', {
     filters: {
