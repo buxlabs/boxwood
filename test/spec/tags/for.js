@@ -230,6 +230,27 @@ test('for', async assert => {
 
   var { template } = await compile(`<for key and value in="{foo}">{key}{value}</for>`)
   assert.deepEqual(template({ foo: { bar: 'baz', ban: 'qux' } }, escape), 'barbazbanqux')
+  
+  var { template } = await compile(`<for key and value in foo>{key}</for>`)
+  assert.deepEqual(template({ foo: { a: 1, b: 2, c: 3 } }, escape), 'abc')
+
+  var { template } = await compile(`<for key and value in foo>{foo[key]}</for>`)
+  assert.deepEqual(template({ foo: { a: 1, b: 2, c: 3 } }, escape), '123')
+  
+  var { template } = await compile(`
+    <for key and value in objects>
+      <for key and value in value>
+        {value}
+      </for>
+    </for>
+  `)
+  assert.deepEqual(template({ 
+    objects: { 
+      a: { foo: 'foo' },
+      b: { bar: 'bar' }, 
+      c: { baz: 'baz' }
+    } 
+  }, escape), 'foobarbaz')   
 })
 
 test('for: dynamic range', async assert => {
