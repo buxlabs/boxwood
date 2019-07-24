@@ -118,6 +118,10 @@ It's possible to import multiple components from a given directory. Curly bracke
 <for car in cars>
   {car.brand}
 </for>
+
+<for key and value in car>
+  {key}{value}
+</for>
 ```
 
 * filters
