@@ -83,6 +83,43 @@ test('style[scoped]: passing additional class to the scoped attribute', async as
   assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>.bar a.scope-504633481.foo::after{content:"⤴"}</style>')
 })
 
+test('style[scoped]: attribute selector', async assert => {
+  var { template } = await compile(`
+    <input type="checkbox">
+    <style scoped>
+      input[type="checkbox"] { display: none; }
+    </style>
+  `)
+  assert.deepEqual(template({}, escape), '<input type="checkbox" class="scope-3717123380"><style>input.scope-3717123380[type="checkbox"]{display:none}</style>')
+
+  var { template } = await compile(`
+    <input type="checkbox" checked>
+    <style scoped>
+      input[type="checkbox"]:checked { display: block; }
+    </style>
+  `)
+  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-2503504746"><style>input.scope-2503504746[type="checkbox"]:checked{display:block}</style>')  
+
+  var { template } = await compile(`
+    <input type="checkbox" checked>
+    <label></label>
+    <style scoped>
+      input[type="checkbox"]:checked + label { display: block; }
+    </style>
+  `)
+  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-927980167"><label></label><style>input.scope-927980167[type="checkbox"]:checked+label{display:block}</style>')  
+
+  var { template } = await compile(`
+    <input type="checkbox" checked>
+    <label></label>
+    <p></p>
+    <style scoped>
+      input[type="checkbox"]:checked + label ~ p { display: block; }
+    </style>
+  `)
+  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-1434104905"><label></label><p></p><style>input.scope-1434104905[type="checkbox"]:checked+label~p{display:block}</style>')  
+})
+
 test('style[inline]: inline fonts', async assert => {
   var { template } = await compile(`
     <style inline>
