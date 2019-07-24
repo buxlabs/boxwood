@@ -1,3 +1,5 @@
+const { flatten } = require('pure-utilities/collection')
+const { unique } = require('pure-utilities/array')
 const negate = require('negate-sentence')
 let { STANDARD_ACTIONS } = require('./action')
 
@@ -7,8 +9,9 @@ STANDARD_ACTIONS = STANDARD_ACTIONS.map(action => {
 
 const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => negate(action.join(' ')).split(' '))
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
+const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTIONS]))
 
-function normalize (array) {
+function normalize (array, warnings) {
   const result = []
   let index
   for (let i = 0, ilen = array.length; i < ilen; i++) {
@@ -48,7 +51,20 @@ function normalize (array) {
       result.push(attribute)
     }
   }
+  if (isInvalidAction(result)) {
+    const action = result.reduce((accumulator, currentValue, index) => {
+      accumulator += index === result.length - 1 ? currentValue.key : currentValue.key.concat(' ')
+      return accumulator
+    }, '')
+    warnings.push({ message: `Invalid action name: ${action}`, type: 'INVALID Action' })
+  }
   return result
+}
+
+function isInvalidAction (attributes) {
+  const keys = attributes.map(attribute => attribute.key)
+  return !attributes.find(attribute => attribute.type === 'Action') &&
+    ACTIONS_KEYWORDS_DICTIONARY.find(keyword => keys.includes(keyword))
 }
 
 module.exports = { normalize }

@@ -81,8 +81,8 @@ function getTest (action, keys, values, variables) {
   }
 }
 
-function getCondition (attrs, variables, filters, translations, languages) {
-  let attributes = normalize(attrs)
+function getCondition (attrs, variables, filters, translations, languages, warnings) {
+  let attributes = normalize(attrs, warnings)
   let keys = attributes.map(attr => attr.key)
   const values = attributes.map(attr => attr.value)
   const actions = findActions(attributes)
