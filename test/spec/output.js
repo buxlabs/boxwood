@@ -171,6 +171,34 @@ test('output: falsy condition with greater than operator (is at least)', async a
   `))
 })
 
+test(`output: variables inside conditions shouldn't be escaped`, async assert => {
+  var { template } = await compile('<if foo>{foo}</if>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.foo) {
+        __t += __e(__o.foo);
+      }
+      return __t;
+    }
+  `))
+
+  var { template } = await compile('<if foo>{foo}</if><elseif bar>{bar}</elseif><else>{baz}</else>')
+  assert.deepEqual(normalize(template.toString()), normalize(`
+    function render(__o, __e) {
+      var __t = "";
+      if (__o.foo) {
+        __t += __e(__o.foo);
+      } else if (__o.bar) {
+        __t += __e(__o.bar);
+      } else {
+        __t += __e(__o.baz);
+      }
+      return __t;
+    }
+  `))  
+})
+
 test('output: for loop', async assert => {
   var { template } = await compile('<for foo in bar>{foo}</for>')
   assert.deepEqual(normalize(template.toString()), normalize(`
