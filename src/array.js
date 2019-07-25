@@ -56,7 +56,7 @@ function normalize (array, warnings) {
       accumulator += index === result.length - 1 ? currentValue.key : currentValue.key.concat(' ')
       return accumulator
     }, '')
-    warnings.push({ message: `Invalid action name: ${action}`, type: 'INVALID Action' })
+    warnings.push({ message: `Invalid action name: ${action}`, type: 'INVALID_ACTION' })
   }
   return result
 }
