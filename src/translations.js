@@ -1,5 +1,5 @@
 const { getObjectMemberExpression } = require('./factory')
-const { convertText } = require('./convert')
+const { convertText, modify } = require('./convert')
 
 function isStaticTranslationKey (key) {
   return !isDynamicTranslationKey(key)
@@ -20,16 +20,23 @@ function getTranslationNode (key, variables, filters, translations, languages) {
   return node
 }
 function getTranslateCallExpression (key, variables, filters, translations, languages) {
+  const usedFilters = []
+  key = key.replace(/\|[a-z]+/g, match => {
+    const filter = match.replace('|', '')
+    usedFilters.push(filter)
+    filters.push(filter)
+    return ''
+  })
   const node = getTranslationNode(key, variables, filters, translations, languages)
   const objectMemberExpression = getObjectMemberExpression('language')
   objectMemberExpression.property.inlined = true
-  return {
+  return modify({
     type: 'CallExpression',
     callee: {
       type: 'Identifier',
       name: 'translate'
     },
     arguments: [node, objectMemberExpression]
-  }
+  }, variables, usedFilters)
 }
 module.exports = { getTranslateCallExpression }
