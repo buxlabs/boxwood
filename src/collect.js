@@ -394,10 +394,10 @@ function getExtension (value) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-async function collect ({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings })
     })
   }
   try {
@@ -666,7 +666,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'if') {
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
-      const condition = getCondition(attrs, variables, filters, translations, languages)
+      const condition = getCondition(attrs, variables, filters, translations, languages, warnings)
       tree.append({
         type: 'IfStatement',
         test: condition,
@@ -684,7 +684,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
           leaf = leaf.alternate
         }
-        const condition = getCondition(attrs, variables, filters, translations, languages)
+        const condition = getCondition(attrs, variables, filters, translations, languages, warnings)
         leaf.alternate = {
           type: 'IfStatement',
           test: condition,
