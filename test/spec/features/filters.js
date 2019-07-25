@@ -573,6 +573,38 @@ test('filters: usage in partials', async assert => {
   assert.deepEqual(template({category: 'css'}, escape), '<div class="fluid-container">cSS</div>')  
 })
 
+test('filters: usage in translations', async assert => {
+  var { template } = await compile(`
+    <script i18n yaml>
+      foo:
+      - 'foo'
+      - 'foo'
+    </script>
+    <translate foo|uppercase/>
+  `, { languages: ['pl', 'en'] })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'FOO')
+  
+  var { template } = await compile(`
+    <script i18n yaml>
+      foo:
+      - 'foo'
+      - 'foo'
+    </script>
+    <translate foo|uppercase|lowerfirst|reverse/>
+  `, { languages: ['pl', 'en'] })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'OOf')
+  
+  var { template } = await compile(`
+    <script i18n yaml>
+      foo:
+      - 'foo {bar}'
+      - 'foo {bar}'
+    </script>
+    <translate foo|uppercase|lowerfirst|reverse bar="{bar}" />
+  `, { languages: ['pl', 'en'] })
+  assert.deepEqual(template({ language: 'pl', bar: 'bar' }, escape), 'RAB OOf')  
+})
+
 test('filters: custom filters', async assert => {
   var { template } = await compile('{foo | myFilter}', {
     filters: {

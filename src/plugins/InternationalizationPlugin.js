@@ -113,7 +113,7 @@ class InternationalizationPlugin extends Plugin {
       if (attribute) {
         const { key } = attribute
         this.filters.push('translate')
-        this.translations = merge(`${key}_${id}`, this.translations, languages)
+        this.translations = merge(`${key.split('|')[0]}_${id}`, this.translations, languages)
         attribute.key = `${key}_${id}`
       } else {
         throw new TranslationError('Translate tag must define a key')

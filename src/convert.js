@@ -262,7 +262,7 @@ function convertText (text, variables, currentFilters, translations, languages, 
   return nodes
 }
 
-function modify (node, variables, filters, translations, languages) {
+function modify (node, variables, filters) {
   if (filters) {
     return filters.reduce((leaf, filter) => {
       const tree = new AbstractSyntaxTree(filter)
@@ -358,5 +358,6 @@ module.exports = {
   convertTag,
   convertToExpression,
   convertToBinaryExpression,
-  convertKey
+  convertKey,
+  modify
 }

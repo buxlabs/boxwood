@@ -446,7 +446,7 @@ test('i18n: dynamic translations', async assert => {
         - 'Contact us. BUXLABS. Since {year}. All rights reserved.'     
       </script>
       <footer>
-        <translate contact year={"year"}/>
+        <translate contact year="{year}"/>
       </footer>
     </template>
     <script i18n yaml>
