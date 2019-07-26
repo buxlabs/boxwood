@@ -65,6 +65,18 @@ test('img: makes image responsive when fluid attribute has been set', async asse
 
   var { template } = await compile(`<img fluid src="./placeholder.png" style="border-radius: 10px;">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
   assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')  
+
+  var { template } = await compile(`<img src="./placeholder.png" responsive>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
+
+  var { template } = await compile(`<img responsive src="./placeholder.png">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
+
+  var { template } = await compile(`<img src="./placeholder.png" style="border-radius: 10px;" responsive>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')
+
+  var { template } = await compile(`<img responsive src="./placeholder.png" style="border-radius: 10px;">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')   
 })
 
 test('img: images can have a cover attribute', async assert => {

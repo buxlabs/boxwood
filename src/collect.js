@@ -56,8 +56,8 @@ function setDimension (fragment, attrs, keys, dimension, assets, options) {
   }
 }
 
-function attributeToStyle (attributeName, styles, attrs) {
-  const index = attrs.findIndex(attr => attr.key === attributeName)
+function attributeToStyle (attributeNames, styles, attrs) {
+  const index = attrs.findIndex(attr => attributeNames.includes(attr.key))
   if (index !== -1) {
     attrs.splice(index, 1)
     const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
@@ -598,9 +598,9 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         fragment.children = content.children
       } else if (tag === 'img') {
         const sizeAttributeIndex = attrs.findIndex(attr => attr.key === 'size')
-        attributeToStyle('fluid', 'max-width: 100%; height: auto;', attrs)
-        attributeToStyle('cover', 'object-fit: cover; object-position: right top;', attrs)
-        attributeToStyle('contain', 'object-fit: contain; object-position: center;', attrs)
+        attributeToStyle(['fluid', 'responsive'], 'max-width: 100%; height: auto;', attrs)
+        attributeToStyle(['cover'], 'object-fit: cover; object-position: right top;', attrs)
+        attributeToStyle(['contain'], 'object-fit: contain; object-position: center;', attrs)
         if (sizeAttributeIndex !== -1) {
           const [width, height] = attrs[sizeAttributeIndex].value.split('x')
           attrs.push({ key: 'width', value: width })
