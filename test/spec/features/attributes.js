@@ -1,6 +1,7 @@
 import test from 'ava'
 import compile from '../../helpers/compile'
 import escape from 'escape-html'
+import { join } from 'path'
 
 test('attributes: shorthand syntax with one item', async assert => {
   var { template } = await compile('<div class="[foo]"></div>')
@@ -71,4 +72,24 @@ test('attributes: shorthand syntax with components', async assert => {
     <foo fluid><p>foo bar baz</p></foo>`
   )
   assert.deepEqual(template({}, escape), '<div class="container fluid"><p>foo bar baz</p></div>')
+})
+
+test('attributes: shorthand syntax for passing data', async assert => {
+  var { template } = await compile(`
+    <template foo>{bar}</template>
+    <foo {bar}>`
+  )
+  assert.deepEqual(template({ bar: 'bar' }, escape), 'bar')
+
+  var { template } = await compile(`
+    <template foo>{foo}{bar}{baz}{ban}</template>
+    <foo {foo} {bar} {baz} {ban}>`
+  )
+  assert.deepEqual(template({ foo: 'foo', bar: 'bar', baz: 'baz', ban: 'ban' }, escape), 'foobarbazban')
+  
+  var { template } = await compile(`
+    <import foo from="./foo.html">
+    <foo {foo}><div>{foo}</div></foo>`
+  , { paths: [join(__dirname, '../../fixtures/attributes')] })
+  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>')
 })

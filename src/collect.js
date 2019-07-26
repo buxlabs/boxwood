@@ -1,4 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { unwrap } = require('pure-utilities/string')
 const { getLiteral } = require('./ast')
 const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
 const { getTranslateCallExpression } = require('./translations')
@@ -300,7 +301,10 @@ function collectInlineComponents (fragment, attributes, components) {
 
 function normalizeLocalVariables (attributes) {
   return attributes.map(attribute => {
-    if (attribute.value === null) { attribute.value = '{true}' }
+    if (attribute.key.startsWith('{') && attribute.key.endsWith('}') && attribute.value === null) {
+      attribute.value = attribute.key
+      attribute.key = unwrap(attribute.key, '{', '}')
+    } else if (attribute.value === null) { attribute.value = '{true}' }
     return attribute
   })
 }
