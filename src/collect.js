@@ -58,13 +58,14 @@ function setDimension (fragment, attrs, keys, dimension, assets, options) {
 
 function attributeToStyle (attributeName, styles, attrs) {
   const index = attrs.findIndex(attr => attr.key === attributeName)
-  const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
   if (index !== -1) {
     attrs.splice(index, 1)
+    const styleAttributeIndex = attrs.findIndex(attr => attr.key === 'style')
     if (styleAttributeIndex === -1) {
       attrs.push({ key: 'style', value: styles })
     } else {
-      attrs[styleAttributeIndex].value += ` ${styles}`
+      const { value } = attrs[styleAttributeIndex]
+      attrs[styleAttributeIndex].value = `${styles} ${value}`
     }
   }
 }
