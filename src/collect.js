@@ -27,6 +27,7 @@ const markdownTag = require('./tags/markdown')
 const fontTag = require('./tags/font')
 const spacingTag = require('./tags/spacing')
 const spaceTag = require('./tags/space')
+const entityTag = require('./tags/entity')
 const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
@@ -760,6 +761,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       spacingTag({ fragment, tree, options })
     } else if (tag === 'space') {
       spaceTag({ tree, attrs })
+    } else if (tag === 'entity') {
+      entityTag({ tree, options, attrs })
     }
     depth -= 1
   } catch (exception) {
