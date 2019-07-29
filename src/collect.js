@@ -111,7 +111,10 @@ function collectComponent (name, path, components, component, assets, options) {
 }
 
 function runPlugins (htmlTree, content, plugins, assets, errors, options) {
-  plugins.forEach(plugin => { plugin.beforeprerun() })
+  plugins.forEach(plugin => {
+    plugin.depth += 1
+    plugin.beforeprerun()
+  })
   walk(htmlTree, leaf => {
     try {
       const attrs = leaf.attributes || []
@@ -154,7 +157,10 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options) {
       errors.push(exception)
     }
   })
-  plugins.forEach(plugin => { plugin.afterrun() })
+  plugins.forEach(plugin => {
+    plugin.afterrun()
+    plugin.depth -= 1
+  })
 }
 
 function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, errors, options) {

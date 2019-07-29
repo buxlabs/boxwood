@@ -64,7 +64,10 @@ async function render (source, htmltree, options) {
   ]
   let depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
-  plugins.forEach(plugin => { plugin.beforeprerun() })
+  plugins.forEach(plugin => {
+    plugin.depth = 0
+    plugin.beforeprerun()
+  })
   walk(htmltree, async fragment => {
     try {
       const attrs = fragment.attributes || []

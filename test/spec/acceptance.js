@@ -24,10 +24,6 @@ test('acceptance: components-with-box-model-attributes', async assert => {
   await suite('components-with-box-model-attributes', assert)
 })
 
-test('acceptance: scoped-styles-are-not-shared', async assert => {
-  await suite('scoped-styles-are-not-shared', assert)
-})
-
 test('acceptance: import-multiple-components', async assert => {
   await suite('import-multiple-components', assert)
 })
@@ -56,7 +52,11 @@ test('acceptance: admin-page', async assert => {
   await suite('admin-page', assert)
 })
 
-test.skip('acceptance: scoped-styles-within-slots', async assert => {
+test('acceptance: scoped-styles-are-not-shared', async assert => {
+  await suite('scoped-styles-are-not-shared', assert)
+})
+
+test('acceptance: scoped-styles-within-slots', async assert => {
   await suite('scoped-styles-within-slots', assert)
 })
 
