@@ -56,6 +56,10 @@ test('acceptance: admin-page', async assert => {
   await suite('admin-page', assert)
 })
 
+test.skip('acceptance: scoped-styles-within-slots', async assert => {
+  await suite('scoped-styles-within-slots', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
