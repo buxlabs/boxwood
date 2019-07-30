@@ -1,11 +1,11 @@
 # Components
 
-Components are standalone `.html` files which can be imported and usage in another files.
-Each component can contain own styles and scripts. Component can take some attributes and can have default values.
+Components are standalone `.html` files which can be imported in other files.
+Every component can contain own styles and scripts. Component can receive attributes and have default values for them.
 
-## Basic component
+## Usage
 
-The simplest component can be composed without any extra functionality like slots, attributes or custom styles.
+The simplest component contains standard html tags.
 
 ```html
 <!-- hello-world.html -->
@@ -18,8 +18,7 @@ The simplest component can be composed without any extra functionality like slot
 
 ## Passing attributes
 
-Rather than static component you will probably want to make components more dynamic and reusable. 
-We can pass to the component values through attributes.
+You can make the component dynamic by passing values as attributes.
 
 ```html
 <!-- hello-world.html -->
