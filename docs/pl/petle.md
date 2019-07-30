@@ -1,8 +1,8 @@
-# Loops
+# Pętle
 
 ## for, each, foreach
 
-To iterate over arrays or objects use following tags: `for`, `each`, `foreach`
+Do iterowania po tablicach oraz obiektach służą tagi: `for`, `each`, `foreach`
 
 ```html
 <for car in cars>
@@ -16,7 +16,7 @@ To iterate over arrays or objects use following tags: `for`, `each`, `foreach`
 </for>
 ```
 
-It is possible to pass an expression instead of variable.
+Istnieje możliwość przekazania do pętli wyrażenia zamiast zmiennej.
 
 ```html
 <ul>
@@ -28,7 +28,7 @@ It is possible to pass an expression instead of variable.
 
 ## range
 
-If you want iterate over indexes rather than values, you can use `range` attribute.
+W celu iterowania po indeksach zamiast wartościach należy skorzystać z tagu `range`.
 
 ```html
 <for number in range="0...10">
@@ -64,10 +64,10 @@ If you want iterate over indexes rather than values, you can use `range` attribu
 </for>
 ```
 
-## Iterating over objects
+## Iterowanie po obiektach
 
-Pure-engine support also iterating over objects. For this purpose use `for` tag.
-At the moment it is impossible to iterate only for keys or values. You must provide both attributes.
+Pure-engine wspiera iterowanie po kluczach oraz wartościach obiektu. Do tego celu służy tag `for`. 
+Na chwilę obecną nie mam możliwości iterowania tylko po kluczach lub wartościach. Należy podać obydwa atrybuty.
 
 ```html
 <for key and value in foo>

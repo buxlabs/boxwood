@@ -21,7 +21,6 @@ The simplest component can be composed without any extra functionality like slot
 Rather than static component you will probably want to make components more dynamic and reusable. 
 We can pass to the component values through attributes.
 
-### Passing literals
 ```html
 <!-- hello-world.html -->
 <h1>Hello {name}!</h1>
@@ -29,21 +28,10 @@ We can pass to the component values through attributes.
 <!-- index.html -->
 <import hello from="./hello-world.html">
 <hello name="World"/>
-```
-
-### Passing variables
-```html
-<!-- hello-world.html -->
-<h1>Hello {name}!</h1>
-
-<!-- index.html -->
-<import hello from="./hello-world.html">
 <hello name="{name}"/>
-<!-- Or with shorthand syntax -->
-<hello {name} />
+<hello {name}/>
 ```
 
-### Setting values of component attributes
 ```html
 <!-- button.html -->
 <button class="{color} button" type="{type || 'submit'}">{color} button</button>
