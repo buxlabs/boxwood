@@ -1,20 +1,19 @@
 # Expressions
 
 To evaluate JavaScript code inside the HTML use curly brackets `{}`.
-Curly brackets can handle most of any valid JavaScript expression.
+Curly brackets can handle most of any valid JavaScript expressions.
 
 ```html
 <div>{'Hello ' + 'World!'}</div>
 ```
 
-With curly brackets you can also inject variables into the template.
+Curly brackets allow to pass variables to the template.
 
 ```html
 <div>Hello {name}!</div>
 ```
 
 Inside the expression you can use built-in filters. Filters are responsible for easy mapping value to another form.
-More information about filters you can find here [here]()
 
 ```html
 <div>{hello | uppercase}</div>
@@ -24,5 +23,5 @@ More information about filters you can find here [here]()
 <div>{hello | lowercase | }</div>
 ```
 
-The full list of filters with description and examples you can find (here)[https://buxlabs.pl/en/tools/js/pure-utilities]
+The expression can be passed into a filter. Filters are responsible for transforming the value. They're simply a predefined functions that you can use. For more information, visit [pure-utilities](https://github.com/buxlabs/pure-utilities).
 
