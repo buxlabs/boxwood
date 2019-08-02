@@ -91,7 +91,15 @@ test('attributes: shorthand syntax for passing data', async assert => {
     <import foo from="./foo.html">
     <foo {foo}><div>{foo}</div></foo>`
   , { paths: [join(__dirname, '../../fixtures/attributes')] })
-  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>')
+  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>') 
+})
+
+test.skip('attributes: shorthand syntax for passing data to the nested components', async assert => {
+  var { template } = await compile(`
+    <import layout from="./layout.html"/>
+    <layout picture="/foo.jpg"/>
+  `, { paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
+  assert.deepEqual(template({}, escape), '<img src="/foo.jpg">')  
 })
 
 test.skip('attributes: shorthand syntax with translations', async assert => {
