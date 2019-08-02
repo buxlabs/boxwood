@@ -93,3 +93,16 @@ test('attributes: shorthand syntax for passing data', async assert => {
   , { paths: [join(__dirname, '../../fixtures/attributes')] })
   assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>')
 })
+
+test.skip('attributes: shorthand syntax with translations', async assert => {
+  var { template } = await compile(`
+    <import foo from="./foo.html"/>
+    <i18n yaml>
+      foo:
+      - 'foo'
+      - 'foo'
+    </i18n>
+    <foo foo|translate="foo" />
+  `, { languages: ['pl', 'en'], paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'foo')
+})
