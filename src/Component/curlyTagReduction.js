@@ -21,7 +21,7 @@ function canInlineTree ({ body }) {
     typeof statement.expression.value === 'string'
 }
 
-function inlineVariables (node, parent, variables) {
+function inlineVariables (node, parent, variables, newVariables) {
   if (node.inlined) return node
   if (parent.type === 'MemberExpression' && node === parent.property) return node
   if (parent.type === 'Property') return node
@@ -37,8 +37,11 @@ function inlineVariables (node, parent, variables) {
         return { type: 'Literal', value: variable.value }
       }
     } else {
-      if (parent.type === 'BinaryExpression') return
-      node.name = 'undefined'
+      const variable = newVariables.find(variable => variable.key === node.name)
+      if (!variable) {
+        if (parent.type === 'BinaryExpression') return
+        node.name = 'undefined'
+      }
     }
   }
   return node
@@ -79,12 +82,12 @@ function falsyCodeRemoval (node) {
   return node
 }
 
-function optimizeCurlyTag (value, variables) {
+function optimizeCurlyTag (value, variables, newVariables) {
   value = addPlaceholders(value)
   if (isObject(value)) value = `(${value})`
   const tree = new AbstractSyntaxTree(value)
   tree.replace({ enter: removePlaceholders })
-  tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables) })
+  tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables, newVariables) })
   tree.replace({ enter: memberExpressionReduction })
   tree.replace({ enter: logicalExpressionReduction })
   tree.replace({ enter: binaryExpressionReduction })
@@ -100,11 +103,39 @@ function optimizeCurlyTag (value, variables) {
   return curlyTag(tree.source.replace(/;\n$/, ''))
 }
 
+function isNodeAddingNewVariables (node) {
+  return isForTag(node) || isForeachTag(node) || isEachTag(node)
+}
+
+function isForTag (node) {
+  return node.tagName === 'for'
+}
+
+function isForeachTag (node) {
+  return node.tagName === 'foreach'
+}
+
+function isEachTag (node) {
+  return node.tagName === 'each'
+}
+
 const FORBIDDEN_TAGS = ['template', 'script', 'style']
 function curlyTagReduction (string, variables) {
   const tree = parse(string)
+  const newVariables = []
   walk(tree, node => {
     if (node.forbidden) return
+    if (isNodeAddingNewVariables(node)) {
+      if (node.attributes.length === 3) {
+        const attribute = node.attributes[0]
+        newVariables.push({ key: attribute.key, value: attribute.value })
+      } else if (node.attributes.length === 5) {
+        const attribute1 = node.attributes[0]
+        const attribute2 = node.attributes[2]
+        newVariables.push({ key: attribute1.key, value: attribute1.value })
+        newVariables.push({ key: attribute2.key, value: attribute2.value })
+      }
+    }
     const { attributes } = node
     if (FORBIDDEN_TAGS.includes(node.tagName)) {
       node.children.forEach(node => {
@@ -112,10 +143,10 @@ function curlyTagReduction (string, variables) {
       })
     }
     if (node.type === 'text') {
-      node.content = optimizeText(node.content, variables)
+      node.content = optimizeText(node.content, variables, newVariables)
     } else if (attributes && attributes.length > 0) {
       attributes.forEach(attribute => {
-        attribute.value = optimizeText(attribute.value, variables)
+        attribute.value = optimizeText(attribute.value, variables, newVariables)
       })
       node.attributes = attributes.filter(attribute => attribute.value !== '')
     }
@@ -123,12 +154,12 @@ function curlyTagReduction (string, variables) {
   return stringify(tree, string)
 }
 
-function optimizeText (text, variables) {
+function optimizeText (text, variables, newVariables) {
   if (!text) return text
   let tokens = lexer(text)
   tokens = tokens.map(token => {
     if (token.type === 'expression') {
-      token.value = optimizeCurlyTag(token.value, variables)
+      token.value = optimizeCurlyTag(token.value, variables, newVariables)
     }
     return token
   })

@@ -322,3 +322,23 @@ test('for: dynamic range with passed attribute', async assert => {
   `)
   assert.deepEqual(template({ baz: ["a", "b", "c"] }, escape), 'abc')
 })
+
+test('for: inlining', async assert => {
+  const { template } = await compile(`
+    <template foo>
+      <for car in cars>{car}</for>
+    </template>
+    <foo cars="{['BMW', 'Hyundai']}" />
+  `)
+  assert.deepEqual(template({}, escape), 'BMWHyundai')
+})
+
+test.skip('for: inlining with an object', async assert => {
+  const { template } = await compile(`
+    <template foo>
+      <for key and value in baz>{key}{value}</for>
+    </template>
+    <foo baz="{ { qux: 'quux' } }" />
+  `)
+  assert.deepEqual(template({}, escape), 'foobar')
+})
