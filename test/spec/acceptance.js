@@ -60,8 +60,8 @@ test('acceptance: scoped-styles-within-slots', async assert => {
   await suite('scoped-styles-within-slots', assert)
 })
 
-test.skip('acceptance: slider-component', async assert => {
-  await suite('slider-component', assert)
+test.skip('acceptance: slider', async assert => {
+  await suite('slider', assert)
 })
 
 async function suite (name, assert) {
