@@ -3,7 +3,7 @@ import compile from '../../helpers/compile'
 import escape from 'escape-html'
 
 test('each', async assert => {
-  var { template } = await compile(`<each foo in bar>{foo}</each>`)
+  const { template } = await compile(`<each foo in bar>{foo}</each>`)
   assert.deepEqual(template({
     bar: {
       each: function (callback) {
@@ -12,4 +12,19 @@ test('each', async assert => {
       }
     }
   }, escape), '123')
+})
+
+test('each: template usage', async assert => {
+  const { template } = await compile(`
+    <template cars><each car in cars>{car}</each></template>
+    <cars {cars}/>
+  `)
+  assert.deepEqual(template({
+    cars: {
+      each: function (callback) {
+        const elements = ['BMW', 'Hyundai']
+        elements.forEach(callback)
+      }
+    }
+  }, escape), 'BMWHyundai')
 })
