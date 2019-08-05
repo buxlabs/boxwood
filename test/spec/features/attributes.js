@@ -94,7 +94,7 @@ test('attributes: shorthand syntax for passing data', async assert => {
   assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>') 
 })
 
-test.skip('attributes: shorthand syntax for passing data to the nested components', async assert => {
+test('attributes: shorthand syntax for passing data to the nested components', async assert => {
   var { template } = await compile(`
     <import layout from="./layout.html"/>
     <layout picture="/foo.jpg"/>
@@ -102,7 +102,15 @@ test.skip('attributes: shorthand syntax for passing data to the nested component
   assert.deepEqual(template({}, escape), '<img src="/foo.jpg">')  
 })
 
-test.skip('attributes: shorthand syntax with translations', async assert => {
+test('attributes: shorthand syntax for passing data to the nested components with template data', async assert => {
+  var { template } = await compile(`
+    <import layout from="./layout.html"/>
+    <layout {picture}/>
+  `, { paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
+  assert.deepEqual(template({ picture: "/foo.jpg" }, escape), '<img src="/foo.jpg">')  
+})
+
+test('attributes: shorthand syntax with translations', async assert => {
   var { template } = await compile(`
     <import foo from="./foo.html"/>
     <i18n yaml>
