@@ -25,19 +25,3 @@ test('script: only used properties from scope variable should be inlined', async
     ban: [{ one: 1, two: 2, three: 3, four: 4 }] 
   }, escape), '<script>const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}\nscope.ban.forEach(element => console.log(element))</script>')
 })
-
-test.skip('script: scoped', async assert => {
-  const { template } = await compile('<script scoped>console.log(foo)</script>')
-  assert.deepEqual(template({ foo: 2 }, escape), '<script>const foo = 2;\nconsole.log(foo)</script>')
-})
-
-test.skip('script: scoped with template', async assert => {
-  const { template } = await compile(`
-    <template foo>
-      <input name="{name}">
-      <script scoped>console.log(name)</script>
-    </template>
-    <foo name="bar" />
-  `)
-  assert.deepEqual(template({ foo: 2 }, escape), '<input name="bar"><script>const name = "bar";\nconsole.log(name)</script>')
-})
