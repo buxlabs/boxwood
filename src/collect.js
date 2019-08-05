@@ -198,6 +198,20 @@ function inlineLocalVariablesInFragment (leaf, localVariables) {
       }
     })
   }
+  if (leaf.attributes && leaf.attributes.length > 0) {
+    leaf.attributes.forEach(attribute => {
+      if (isCurlyTag(attribute.key)) {
+        const key = getTagValue(attribute.key)
+        const variable = localVariables.find(localVariable => {
+          return localVariable.key === key
+        })
+        if (variable) {
+          attribute.key = variable.key
+          attribute.value = variable.value
+        }
+      }
+    })
+  }
 }
 
 function inlineAttributesInIfStatement (leaf) {
