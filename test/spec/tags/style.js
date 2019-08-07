@@ -348,3 +348,7 @@ test.skip('style[inline-classes]: nested classes', async assert => {
   assert.deepEqual(template({}, escape), '<div><div style="color:white;"></div></div>')
 })
 
+test('style: does not produce errors', async assert => {
+  const { errors } = await compile(`<style>.foo { color: red; }</style>`)
+  assert.deepEqual(errors, [])
+})
