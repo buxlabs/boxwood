@@ -524,31 +524,48 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const properties = getScopeProperties(scope)
       leaf.used = true
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const scope = ')))
-      tree.append(getTemplateAssignmentExpression(options.variables.template, {
-        type: 'CallExpression',
-        callee: {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: 'JSON'
+      if (properties.length > 0) {
+        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const scope = ')))
+        tree.append(getTemplateAssignmentExpression(options.variables.template, {
+          type: 'CallExpression',
+          callee: {
+            type: 'MemberExpression',
+            object: {
+              type: 'Identifier',
+              name: 'JSON'
+            },
+            property: {
+              type: 'Identifier',
+              name: 'stringify'
+            },
+            computed: false
           },
-          property: {
-            type: 'Identifier',
-            name: 'stringify'
-          },
-          computed: false
-        },
-        arguments: [
-          {
-            type: 'ObjectExpression',
-            properties
-          }
-        ]
+          arguments: [
+            {
+              type: 'ObjectExpression',
+              properties
+            }
+          ]
+        }))
+      }
+      asyncCounter += 1
+      const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
+      tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
+      // const { rollup } = require('rollup')
+      // const bundle = await rollup({})
+      // const { output } = await bundle.generate({})
+      const result = new Promise(resolve => resolve())
+      promises.push(result)
+      tree.walk((node, parent) => {
+        if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
+          const index = parent.body.findIndex(element => {
+            return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
+          })
+          parent.body.splice(index, 1)
+          parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${leaf.content}`)))
+          parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
+        }
       })
-      )
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${leaf.content}`)))
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
     } else if (tag === 'script' && keys.includes('compiler')) {
       const { value } = attrs.find(attr => attr.key === 'compiler')
       const compiler = options.compilers[value]

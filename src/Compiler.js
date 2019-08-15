@@ -132,6 +132,9 @@ class Compiler {
           medium: '15px',
           large: '60px'
         }
+      },
+      script: {
+        paths: []
       }
     }, options)
     this.errors = validateOptions(this.options)

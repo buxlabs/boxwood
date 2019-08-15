@@ -1,4 +1,5 @@
 import test from 'ava'
+import { join } from 'path'
 import compile from '../../../helpers/compile'
 import escape from 'escape-html'
 
@@ -24,4 +25,23 @@ test('script: only used properties from scope variable should be inlined', async
     bar: 'bar',
     ban: [{ one: 1, two: 2, three: 3, four: 4 }] 
   }, escape), '<script>const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}\nscope.ban.forEach(element => console.log(element))</script>')
+})
+
+test.skip('script: import', async assert => {
+  const { template } = await compile(`
+    <script scoped>
+      import foo from "./foo"
+      foo()
+    </script>
+  `, {
+    script: {
+      paths: [join(__dirname, '../../fixtures/script/scoped/import')]
+    }
+  })
+  assert.deepEqual(template({}, escape), `
+    <script>
+      function foo { console.log("bar") }
+      foo()
+    </script>
+  `)
 })
