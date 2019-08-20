@@ -1,14 +1,16 @@
 const { rollup } = require('rollup')
+const resolve = require('rollup-plugin-node-resolve')
+const paths = require('rollup-plugin-includepaths')
 const { writeFileSync, unlinkSync } = require('fs')
 const { join } = require('path')
 const { tmpdir } = require('os')
 
-function makeid(length) {
+function makeid (length) {
   let result = ''
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   const charactersLength = characters.length
   for (let i = 0; i < length; i++) {
-     result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
   }
   return result
 }
@@ -25,7 +27,11 @@ class Bundler {
     const filepath = join(tmpdir(), filename)
     writeFileSync(filepath, source)
     const bundle = await rollup({
-      input: filepath
+      input: filepath,
+      plugins: [
+        paths({ paths: options.paths }),
+        resolve()
+      ]
     })
     const { output } = await bundle.generate({
       format: 'iife'

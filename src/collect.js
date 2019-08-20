@@ -15,6 +15,7 @@ const { addPlaceholders, placeholderName } = require('./keywords')
 const { isCurlyTag, isImportTag, getTagValue } = require('./string')
 const { extractComponentNames } = require('./extract')
 const Component = require('./Component/')
+const Bundler = require('./Bundler')
 const foreachTag = require('./tags/foreach')
 const forTag = require('./tags/for')
 const tryTag = require('./tags/try')
@@ -550,18 +551,17 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       asyncCounter += 1
       const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
       tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
-      // const { rollup } = require('rollup')
-      // const bundle = await rollup({})
-      // const { output } = await bundle.generate({})
-      const result = new Promise(resolve => resolve())
-      promises.push(result)
+      const bundler = new Bundler()
+      const promise = bundler.bundle(leaf.content, { paths: options.script.paths })
+      promises.push(promise)
+      const result = await promise
       tree.walk((node, parent) => {
         if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
           const index = parent.body.findIndex(element => {
             return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
           })
           parent.body.splice(index, 1)
-          parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${leaf.content}`)))
+          parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${result}`)))
           parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
         }
       })
