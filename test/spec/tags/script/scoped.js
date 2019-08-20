@@ -27,7 +27,7 @@ test('script: only used properties from scope variable should be inlined', async
   }, escape).includes('const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}'))
 })
 
-test('script: import', async assert => {
+test('script: import local dependencies', async assert => {
   const { template } = await compile(`
     <script scoped>
       import foo from "./foo"
@@ -39,4 +39,23 @@ test('script: import', async assert => {
     }
   })
   assert.truthy(template({}, escape).includes('function foo'))
+})
+
+test('script: import dependencies from node_modules', async assert => {
+  const { template } = await compile(`
+    <script scoped>
+      import { capitalize } from "pure-utilities/string"
+      capitalize("foo")
+    </script>
+  `, {
+    script: {
+      paths: [join(__dirname, '../../../fixtures/script/scoped/import')],
+      resolve: {
+        customResolveOptions: {
+          moduleDirectory: join(__dirname, '../../../../node_modules')
+        }
+      }
+    }
+  })
+  assert.truthy(template({}, escape).includes('function capitalize'))
 })

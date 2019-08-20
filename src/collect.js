@@ -552,7 +552,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
       tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
       const bundler = new Bundler()
-      const promise = bundler.bundle(leaf.content, { paths: options.script.paths })
+      const promise = bundler.bundle(leaf.content, { paths: options.script.paths, resolve: options.script.resolve })
       promises.push(promise)
       const result = await promise
       tree.walk((node, parent) => {
