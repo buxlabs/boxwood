@@ -25,6 +25,7 @@ class Optimizer {
   constructor (program) {
     this.program = program
   }
+
   optimize () {
     // can the below be done in one walk?
     this.program.replace({ enter: memberExpressionReduction })
@@ -36,6 +37,7 @@ class Optimizer {
     this.concatenateAssignmentExpressions()
     this.simplifyReturnValue()
   }
+
   concatenateLiterals () {
     this.program.walk(node => {
       if (node.body && node.body.reduce) {
@@ -57,6 +59,7 @@ class Optimizer {
       }
     })
   }
+
   concatenateAssignmentExpressions () {
     this.program.walk(node => {
       if (node.body && node.body.reduce) {
@@ -83,6 +86,7 @@ class Optimizer {
       }
     })
   }
+
   simplifyReturnValue () {
     const { body } = this.program
     if (body.length === 2) {

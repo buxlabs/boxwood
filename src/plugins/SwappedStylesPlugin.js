@@ -10,7 +10,7 @@ class SwappedStylesPlugin extends Plugin {
 }
 
 function swapStyles (node, colors) {
-  for (let color in colors) {
+  for (const color in colors) {
     if (node.content.includes(color)) node.content = node.content.replace(color, colors[color])
   }
 }

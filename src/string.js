@@ -36,7 +36,7 @@ function extract (value) {
       // TODO
       // what about {(foo || bar) | capitalize} ?
       if (token.value.includes('|') && !token.value.includes('||')) {
-        let parts = token.value.split('|').map(string => string.trim())
+        const parts = token.value.split('|').map(string => string.trim())
         token.value = `{${parts[0]}}`
         token.filters = parts.slice(1)
       } else {
@@ -77,4 +77,4 @@ function isImportTag (name) {
   return name === 'import' || name === 'require'
 }
 
-module.exports = {extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag}
+module.exports = { extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag }

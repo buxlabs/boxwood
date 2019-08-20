@@ -3,7 +3,7 @@ const { OPERATORS } = require('../enum')
 const { getCondition } = require('../conditions')
 
 module.exports = function ({ fragment, tree, attrs, variables, collectChildren }) {
-  let leaf = tree.last('SwitchStatement')
+  const leaf = tree.last('SwitchStatement')
   if (leaf) {
     const attributes = [leaf.attribute]
     attrs.forEach(attr => {

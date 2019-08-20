@@ -1,5 +1,5 @@
 const { join, dirname } = require('path')
-let { readFile, readFileWithCache, resolveAlias } = require('./files')
+const { readFile, readFileWithCache, resolveAlias } = require('./files')
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
 const request = require('./request')
@@ -21,8 +21,8 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         cache: options.cache
       })
       if (response.status === 200) {
-        let buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
-        let base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
+        const buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
+        const base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
         id += 1
         return {
           path,
@@ -37,7 +37,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
     } catch (exception) {}
   } else {
     const read = options.cache ? readFileWithCache : readFile
-    for (let option of paths) {
+    for (const option of paths) {
       try {
         const location = join(option, path)
         options.hooks.onBeforeFile(location)
@@ -131,6 +131,7 @@ module.exports = class Importer {
     this.tree = parse(source)
     this.options = options
   }
+
   async import () {
     return recursiveImport(this.tree, this.source, '.', this.options, 0, false, null)
   }

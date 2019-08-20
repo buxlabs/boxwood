@@ -50,7 +50,7 @@ test('Linter: unused components', async assert => {
 
   source = '<import { button, input } from="./components.html"><input/>'
   tree = parse(source)
-  assert.deepEqual(await linter.lint(tree, source), [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ])
+  assert.deepEqual(await linter.lint(tree, source), [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }])
 
   source = '<import { button, input } from="./components.html"><input/><button></button>'
   tree = parse(source)
@@ -58,7 +58,7 @@ test('Linter: unused components', async assert => {
 
   source = '<import button, input from="./components.html"><input/>'
   tree = parse(source)
-  assert.deepEqual(await linter.lint(tree, source), [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ])
+  assert.deepEqual(await linter.lint(tree, source), [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }])
 
   source = '<import button , input from="./components.html"><input/><button></button>'
   tree = parse(source)
@@ -106,7 +106,7 @@ test('Linter: unused components', async assert => {
 
   source = '<require { button, input } from="./components.html"><input/>'
   tree = parse(source)
-  assert.deepEqual(await linter.lint(tree, source), [ { type: 'UNUSED_COMPONENT', message: 'button component is unused' } ])
+  assert.deepEqual(await linter.lint(tree, source), [{ type: 'UNUSED_COMPONENT', message: 'button component is unused' }])
 
   source = '<require { button, input } from="./components.html"><input/><button></button>'
   tree = parse(source)
@@ -143,5 +143,5 @@ test('Linter: duplicate components', async assert => {
   assert.deepEqual(await linter.lint(tree, source, [
     { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] },
     { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] }
-  ]), [{ message: `Component path duplicate: ./foo.css`, type: 'COMPONENT_PATH_DUPLICATE' }])
+  ]), [{ message: 'Component path duplicate: ./foo.css', type: 'COMPONENT_PATH_DUPLICATE' }])
 })

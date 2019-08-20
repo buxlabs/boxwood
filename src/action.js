@@ -189,7 +189,7 @@ const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
 
 module.exports = {
   getAction (name) {
-    for (let action of ACTIONS) {
+    for (const action of ACTIONS) {
       if (action.name === name) {
         return action
       }

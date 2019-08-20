@@ -13,10 +13,12 @@ class Statistics {
     this.stylesheets = []
     this.translations = []
   }
+
   concat (name, array) {
     this[name] = this[name].concat(array)
     return this
   }
+
   merge (statistics) {
     this
       .concat('components', statistics.components)
@@ -27,6 +29,7 @@ class Statistics {
       .concat('stylesheets', statistics.stylesheets)
       .concat('translations', statistics.translations)
   }
+
   assets () {
     return uniq([].concat(
       this.components.map(item => item.path),
@@ -38,6 +41,7 @@ class Statistics {
       this.translations.map(item => item.path)
     ))
   }
+
   serialize () {
     return {
       components: uniq(this.components),

@@ -61,7 +61,7 @@ async function benchmark (dir, assert) {
         console.log('Fastest is ' + this.filter('fastest').map('name'))
         resolve()
       })
-      .run({ 'async': true })
+      .run({ async: true })
   })
 }
 

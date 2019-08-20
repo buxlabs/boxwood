@@ -4,10 +4,10 @@ const ALIASES = {
   'non-breaking space': ' ',
   'less than': '<',
   'greater than': '>',
-  'ampersand': '&',
+  ampersand: '&',
   'double quotation mark': '"',
   'single quotation mark': '\'',
-  'copyright': '©',
+  copyright: '©',
   'registered trademark': '®'
 }
 

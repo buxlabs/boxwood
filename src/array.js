@@ -19,7 +19,7 @@ function normalize (array, warnings) {
     let found = false
     index = i
     for (let j = 0, jlen = ACTIONS.length; j < jlen; j++) {
-      let action = ACTIONS[j]
+      const action = ACTIONS[j]
       if (action[0] !== attribute.key) continue
       if (action.length === 1) {
         attribute.type = 'Action'
@@ -30,7 +30,7 @@ function normalize (array, warnings) {
       i++
       attribute = array[i]
       for (let k = 1, klen = action.length; k < klen; k++) {
-        let part = action[k]
+        const part = action[k]
         if (part !== attribute.key) {
           i = index
           attribute = array[i]

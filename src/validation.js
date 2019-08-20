@@ -35,7 +35,7 @@ function isInlineValid (inline) {
 
 function areCompilersValid (compilers) {
   if (!isPlainObject(compilers)) return new CompilerError('compilers', 'must be an object')
-  for (let key in compilers) {
+  for (const key in compilers) {
     const compiler = compilers[key]
     if (typeof compiler !== 'function') {
       return new CompilerError('compilers', 'must contain only functions')
@@ -65,7 +65,7 @@ function areAliasesValid (aliases) {
   if (aliases.some(alias => !Object.keys(alias).length)) {
     return new CompilerError('aliases.alias', 'cannot be an empty object')
   }
-  for (let alias of aliases) {
+  for (const alias of aliases) {
     if (!('from' in alias) || !('to' in alias)) return new CompilerError('aliases.alias', 'must have "from" and "to" property')
     if (!(alias.from instanceof RegExp)) return new CompilerError('aliases.alias.from', 'must be a regexp')
     if (typeof alias.to !== 'string') return new CompilerError('aliases.alias.to', 'must be a string')
@@ -79,5 +79,5 @@ function areStylesValid (styles) {
   if (colors && !isPlainObject(colors)) return new CompilerError('styles.colors', 'must be an object')
   if (!spacing || !isPlainObject(spacing)) return new CompilerError('styles.spacing', 'must be an object')
   const invalidKey = Object.keys(spacing).find(key => !SPACING_KEYS.includes(key))
-  if (invalidKey) return new CompilerError(`styles.spacing.${invalidKey}`, `allowed options: small, medium, large`)
+  if (invalidKey) return new CompilerError(`styles.spacing.${invalidKey}`, 'allowed options: small, medium, large')
 }

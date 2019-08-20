@@ -72,6 +72,7 @@ class InternationalizationPlugin extends Plugin {
     this.translations = translations
     this.filters = filters
   }
+
   prerun ({ source, tag, attrs, keys, fragment, assets, options }) {
     const id = `__scope_${hash(source)}`
     if (isI18nTag(tag, keys)) {
@@ -91,8 +92,8 @@ class InternationalizationPlugin extends Plugin {
       }
       leaf.used = true
       const format = getTranslationsFormat(keys)
-      let data = parse(format, leaf.content)
-      for (let key in data) {
+      const data = parse(format, leaf.content)
+      for (const key in data) {
         if (this.translations[key]) { throw new TranslationError('Translation already exists') }
         this.translations[`${key}_${id}`] = data[key]
       }
@@ -104,6 +105,7 @@ class InternationalizationPlugin extends Plugin {
       }
     })
   }
+
   run ({ source, tag, attrs, options, fragment }) {
     const id = `__scope_${hash(source)}`
     if (tag === 'translate' && !fragment.scopedTranslations) {

@@ -27,6 +27,7 @@ class CurlyStylesPlugin extends Plugin {
     super()
     this.scopes = []
   }
+
   prerun ({ keys, fragment, attrs }) {
     function inline (name) {
       if (keys.includes(name)) {
@@ -50,6 +51,7 @@ class CurlyStylesPlugin extends Plugin {
     inline('style')
     inline('css')
   }
+
   run () {
 
   }

@@ -62,7 +62,7 @@ async function render (source, htmltree, options) {
     new SwappedStylesPlugin(),
     new InternationalizationPlugin({ translations, filters })
   ]
-  let depth = 0
+  const depth = 0
   tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
   plugins.forEach(plugin => {
     plugin.depth = 0
@@ -143,10 +143,12 @@ class Compiler {
       onAfterFile () {}
     }, options.hooks)
   }
+
   parse (source) {
     const parser = new Parser()
     return parser.parse(source)
   }
+
   async generate (source, htmltree) {
     var { tree, statistics, warnings, errors } = await render(source, htmltree, this.options)
     const analyzer = new Analyzer(tree)
@@ -175,6 +177,7 @@ class Compiler {
     })
     return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
   }
+
   async compile (source) {
     const tree = this.parse(source)
     return this.generate(source, tree)

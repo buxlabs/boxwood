@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
-    "ava": "^2.2.0",
+    "ava": "^2.3.0",
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
     "express": "^4.16.4",
@@ -82,7 +82,7 @@
     "lodash.template": "^4.4.0",
     "mustache": "^3.0.1",
     "nyc": "^14.1.1",
-    "standard": "^11.0.1",
+    "standard": "^14.0.0",
     "underscore": "^1.9.1"
   },
   "standard": {

@@ -10,7 +10,7 @@ const { isImage } = require('pure-conditions')
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
 
 function resolveAlias (path, aliases = []) {
-  for (let alias of aliases) {
+  for (const alias of aliases) {
     const { from, to } = alias
     if (path.match(from)) {
       return path.replace(from, to)
@@ -30,7 +30,7 @@ function findAsset (path, assets, options) {
     const asset = assets.find(asset => asset.path === path)
     if (asset) return asset
   } else {
-    for (let location of options.paths) {
+    for (const location of options.paths) {
       let asset = null
       if (isRemotePath(location)) {
         const searchPath = getFullRemoteUrl(location, path)

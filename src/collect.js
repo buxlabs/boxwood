@@ -334,10 +334,9 @@ function normalizeLocalVariables (attributes) {
 function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
   const localVariables = normalizeLocalVariables(fragment.attributes)
 
-  let content
   const htmlComponent = new Component(component.content, localVariables)
   htmlComponent.optimize()
-  content = htmlComponent.source
+  const content = htmlComponent.source
 
   const htmlTree = parse(content)
   let children = fragment.children
@@ -500,7 +499,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         const { value: path } = attrs.find(attr => attr.key === 'src')
         const asset = findAsset(path, assets, options)
         if (!asset) return
-        let content = `<script`
+        let content = '<script'
         fragment.attributes.forEach(attribute => {
           const { key, value } = attribute
           if (key !== 'src' && key !== 'inline') {
@@ -509,7 +508,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         })
         content += '>'
         content += asset.source.trim()
-        content += `</script>`
+        content += '</script>'
         tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
       } else {
         const leaf = fragment.children[0]
@@ -771,7 +770,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'case') {
       caseTag({ fragment, tree, attrs, variables, collectChildren })
     } else if (tag === 'default') {
-      let leaf = tree.last('SwitchStatement')
+      const leaf = tree.last('SwitchStatement')
       if (leaf) {
         const ast = new AbstractSyntaxTree('')
         collectChildren(fragment, ast)

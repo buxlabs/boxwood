@@ -70,8 +70,8 @@ function getTest (action, keys, values, variables) {
     const node = getLiteralOrIdentifier(key, variables)
     return action.handler(node)
   } else if (action.args === 2) {
-    let left = getLiteralOrIdentifier(keys[0], variables)
-    let right = values[1] ? convertValueToNode(values[1], variables) : getLiteralOrIdentifier(keys[2], variables)
+    const left = getLiteralOrIdentifier(keys[0], variables)
+    const right = values[1] ? convertValueToNode(values[1], variables) : getLiteralOrIdentifier(keys[2], variables)
     return action.handler(left, right)
   } else if (action.args === 3) {
     const node = getLiteralOrIdentifier(keys[0], variables)
@@ -82,8 +82,8 @@ function getTest (action, keys, values, variables) {
 }
 
 function getCondition (attrs, variables, filters, translations, languages, warnings) {
-  let attributes = normalize(attrs, warnings)
-  let keys = attributes.map(attr => attr.key)
+  const attributes = normalize(attrs, warnings)
+  const keys = attributes.map(attr => attr.key)
   const values = attributes.map(attr => attr.value)
   const actions = findActions(attributes)
   if (actions.length === 0) {

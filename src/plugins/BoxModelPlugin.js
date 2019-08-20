@@ -8,8 +8,8 @@ const { hyphenate, capitalize } = require('pure-utilities/string')
 const ATTRIBUTES = ['padding', 'margin', 'border']
 const DIRECTIONS = ['top', 'right', 'bottom', 'left']
 const BOX_MODEL_ATTRIBUTES = Array.from(ATTRIBUTES)
-for (let attribute of ATTRIBUTES) {
-  for (let direction of DIRECTIONS) {
+for (const attribute of ATTRIBUTES) {
+  for (const direction of DIRECTIONS) {
     const boxModelAttribute = attribute.concat(capitalize(direction))
     BOX_MODEL_ATTRIBUTES.push(boxModelAttribute, hyphenate(boxModelAttribute))
   }
@@ -42,7 +42,7 @@ function getStyles (attributeKey, key, value, variables = {}) {
   }
   let styles = ''
   if (typeof value === 'object') {
-    for (let property in value) {
+    for (const property in value) {
       if (variables[value[property]]) {
         value[property] = variables[value[property]]
       }
@@ -85,6 +85,7 @@ class BoxModelPlugin extends Plugin {
   beforeprerun () {
     this.components = []
   }
+
   prerun ({ tag, keys, fragment }) {
     const variables = this.variables
     function transform (key) {

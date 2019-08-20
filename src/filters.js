@@ -40,7 +40,7 @@ function getPropertyKey (value) {
 
 function serializeProperties (translations) {
   const properties = []
-  for (let key in translations) {
+  for (const key in translations) {
     properties.push({
       type: 'Property',
       key: getPropertyKey(key),
@@ -49,11 +49,13 @@ function serializeProperties (translations) {
         elements: translations[key].map(text => {
           text = wrap(text.replace(/{{1}[^}]+}{1}/g, match => `$${match}`), '`')
           const tree = new AbstractSyntaxTree(text)
-          tree.replace({ leave: node => {
-            if (node.type === 'Identifier') {
-              return getObjectMemberExpression(node.name)
+          tree.replace({
+            leave: node => {
+              if (node.type === 'Identifier') {
+                return getObjectMemberExpression(node.name)
+              }
             }
-          }})
+          })
           return tree.first('TemplateLiteral')
         })
       },
