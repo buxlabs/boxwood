@@ -40,7 +40,7 @@ test('acceptance: inline-classes', async assert => {
   await suite('inline-classes', assert)
 })
 
-test.skip('acceptance: inline in template', async assert => {
+test('acceptance: inline in template', async assert => {
   await suite('inline-in-template', assert)
 })
 

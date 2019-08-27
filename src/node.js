@@ -1,8 +1,9 @@
 const { join } = require('path')
 const walk = require('himalaya-walk')
+const parse = require('./html/parse')
 const { isImportTag } = require('./string')
 const { isImage } = require('pure-conditions')
-const { parse, walk: cssWalk } = require('css-tree')
+const { parse: cssParse, walk: cssWalk } = require('css-tree')
 const { isFileSupported } = require('./files')
 
 function hasShorthandSyntax (node) {
@@ -22,6 +23,7 @@ function hasExtension (path) {
 
 function getAssetPath ({ attributes }, name) {
   const node = attributes.find(({ key }) => key === 'from' || key === 'partial' || key === 'src' || key === 'href')
+  if (!node) return null
   const path = node.value
   if (hasExtension(path)) {
     return path
@@ -32,14 +34,24 @@ function getAssetPath ({ attributes }, name) {
 function getAssetPaths (node, name) {
   if (isStyleWithInlineAttribute(node)) {
     return getAssetPathsFromStyleTag(node)
+  } else if (isTemplateTag(node)) {
+    const { content } = node.children[0]
+    const tree = parse(content)
+    let paths = []
+    walk(tree, leaf => {
+      if (leaf.tagName === 'style') {
+        paths = paths.concat(getAssetPathsFromStyleTag(leaf))
+      }
+    })
+    return paths
   }
-  return [getAssetPath(node, name)]
+  return [getAssetPath(node, name)].filter(Boolean)
 }
 
 function getAssetPathsFromStyleTag (node) {
   const paths = []
   const { content } = node.children[0]
-  const tree = parse(content)
+  const tree = cssParse(content)
   cssWalk(tree, node => {
     if (node.type === 'Url') {
       let { type, value } = node.value
@@ -110,6 +122,10 @@ function isI18nTag (node) {
   return node.tagName === 'i18n' && node.attributes.find(attribute => attribute.key === 'from')
 }
 
+function isTemplateTag (node) {
+  return node.tagName === 'template' && node.attributes.length > 0
+}
+
 function isImageNode (node, options) {
   return !!(
     isImageTagWithInlineAttribute(node) ||
@@ -136,6 +152,8 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'IMAGE' })
     } else if (isScriptTagWithI18nAttribute(node) || isI18nTag(node)) {
       nodes.push({ node, kind: 'TRANSLATION' })
+    } else if (isTemplateTag(node)) {
+      nodes.push({ node, kind: 'TEMPLATE' })
     }
   })
   return nodes
