@@ -334,7 +334,6 @@ function normalizeLocalVariables (attributes) {
 
 function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
   const localVariables = normalizeLocalVariables(fragment.attributes)
-
   const htmlComponent = new Component(component.content, localVariables)
   htmlComponent.optimize()
   const content = htmlComponent.source
