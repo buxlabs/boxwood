@@ -1080,3 +1080,12 @@ test('import: should be possible to load remote styles with aliases', async asse
   assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
   await server.stop()
 })
+
+test('import: template literals', async assert => {
+  const { template } = await compile('<import foo from="./foo.html"><foo bar="{`${baz} quux`}"></foo>', {
+    paths: [
+      path.join(__dirname, '../../fixtures/import/template-literals')
+    ]
+  })
+  assert.deepEqual(template({ baz: 'qux' }, escape), 'qux quux')
+})
