@@ -72,6 +72,10 @@ test('acceptance: calendar', async assert => {
   await suite('calendar', assert)
 })
 
+test.skip('acceptance: template-literals', async assert => {
+  await suite('template-literals', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
