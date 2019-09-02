@@ -91,7 +91,8 @@
   "standard": {
     "ignore": [
       "test/fixtures/**/*",
-      "test/spec/**/*"
+      "test/spec/**/*",
+      "src/**/*.spec.js"
     ]
   }
 }
