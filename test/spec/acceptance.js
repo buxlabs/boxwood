@@ -72,7 +72,7 @@ test('acceptance: calendar', async assert => {
   await suite('calendar', assert)
 })
 
-test.skip('acceptance: template-literals', async assert => {
+test('acceptance: template-literals', async assert => {
   await suite('template-literals', assert)
 })
 

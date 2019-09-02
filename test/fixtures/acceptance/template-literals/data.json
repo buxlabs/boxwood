@@ -1,4 +1,6 @@
 {
-  "firstName": "Jan",
-  "lastName": "Kowalski"
+  "user": {
+    "firstName": "Jan",
+    "lastName": "Kowalski"
+  }
 }

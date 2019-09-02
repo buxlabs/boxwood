@@ -223,6 +223,11 @@ function getTemplateNode (expression, variables, unescape) {
       return expression
     }
     return getEscapeCallExpression(expression)
+  } else if (expression.type === 'TemplateLiteral') {
+    expression.expressions = expression.expressions.map(leaf => {
+      return getTemplateNode(leaf, variables, unescape)
+    })
+    return expression
   } else {
     throw new ExpressionError(expression.type)
   }
