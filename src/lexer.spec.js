@@ -26,3 +26,7 @@ test('lexer: returns tokens', assert => {
   assert.deepEqual(lexer('{foo | bar({baz: 25}) | monetize({ currency: "$", ending: false, space: false })}'), [{ type: 'expression', value: 'foo | bar({baz: 25}) | monetize({ currency: "$", ending: false, space: false })' }])
   assert.deepEqual(lexer('{foo | monetize({ currency: "$", ending: false, space: false })}'), [{ type: 'expression', value: 'foo | monetize({ currency: "$", ending: false, space: false })' }])
 })
+
+test('lexer: handles template literals', assert => {
+  assert.deepEqual(lexer('{`${user.firstName}, ${user.lastName}`}'), [{ type: 'expression', value: '`${user.firstName}, ${user.lastName}`' }])
+})
