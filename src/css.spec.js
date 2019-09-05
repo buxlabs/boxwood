@@ -1,5 +1,5 @@
 import test from 'ava'
-import { attributeToStyle } from './css'
+import { convertAttributeToInlineStyle } from './css'
 
 test('it converts attribute to a new style attribute', assert => {
   const attribute = ['responsive']
@@ -8,7 +8,7 @@ test('it converts attribute to a new style attribute', assert => {
     key: 'responsive',
     value: null
   }]
-  const attrs = attributeToStyle(attributes, attribute, styles)
+  const attrs = convertAttributeToInlineStyle(attributes, attribute, styles)
   assert.deepEqual(attrs.length, 1)
   assert.deepEqual(attrs[0].key, 'style')
   assert.deepEqual(attrs[0].value, 'max-width: 100%; height: auto;')
@@ -24,7 +24,7 @@ test('it converts attribute and appends to existing style attribute', assert => 
     key: 'style',
     value: 'margin-top: 10px;'
   }]
-  const attrs = attributeToStyle(attributes, attribute, styles)
+  const attrs = convertAttributeToInlineStyle(attributes, attribute, styles)
   assert.deepEqual(attrs.length, 1)
   assert.deepEqual(attrs[0].key, 'style')
   assert.deepEqual(attrs[0].value, 'max-width: 100%; height: auto; margin-top: 10px;')
@@ -37,7 +37,7 @@ test('it removes existing attribute', assert => {
     key: 'responsive',
     value: null
   }]
-  const attrs = attributeToStyle(attributes, attribute, styles)
+  const attrs = convertAttributeToInlineStyle(attributes, attribute, styles)
   assert.falsy(attrs.find(attr => attr.key === 'responsive'))
 })
 
@@ -54,7 +54,7 @@ test.skip('it removes existing attributes even if it is specified multiple times
     key: 'responsive',
     value: null
   }]
-  const attrs = attributeToStyle(attributes, attribute, styles)
+  const attrs = convertAttributeToInlineStyle(attributes, attribute, styles)
   assert.deepEqual(attrs.length, 1)
   assert.deepEqual(attrs[0].key, 'style')
   assert.deepEqual(attrs[0].value, 'max-width: 100%; height: auto; margin-top: 10px;')

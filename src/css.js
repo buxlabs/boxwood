@@ -7,7 +7,7 @@ function addAttribute (attrs, key, value) {
   }
 }
 
-function attributeToStyle (attrs, attributeNames, styles) {
+function convertAttributeToInlineStyle (attrs, attributeNames, styles) {
   const index = attrs.findIndex(attr => attributeNames.includes(attr.key))
   if (index !== -1) {
     attrs.splice(index, 1)
@@ -16,4 +16,4 @@ function attributeToStyle (attrs, attributeNames, styles) {
   return attrs
 }
 
-module.exports = { attributeToStyle }
+module.exports = { convertAttributeToInlineStyle }
