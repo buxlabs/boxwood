@@ -1,4 +1,4 @@
-function attributeToStyle (attributeNames, styles, attrs) {
+function attributeToStyle (attrs, attributeNames, styles) {
   const index = attrs.findIndex(attr => attributeNames.includes(attr.key))
   if (index !== -1) {
     attrs.splice(index, 1)
@@ -10,6 +10,7 @@ function attributeToStyle (attributeNames, styles, attrs) {
       attrs[styleAttributeIndex].value = `${styles} ${value}`
     }
   }
+  return attrs
 }
 
 module.exports = { attributeToStyle }

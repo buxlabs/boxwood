@@ -626,9 +626,9 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         fragment.children = content.children
       } else if (tag === 'img') {
         const sizeAttributeIndex = attrs.findIndex(attr => attr.key === 'size')
-        attributeToStyle(['fluid', 'responsive'], 'max-width: 100%; height: auto;', attrs)
-        attributeToStyle(['cover'], 'object-fit: cover; object-position: right top;', attrs)
-        attributeToStyle(['contain'], 'object-fit: contain; object-position: center;', attrs)
+        attributeToStyle(attrs, ['fluid', 'responsive'], 'max-width: 100%; height: auto;')
+        attributeToStyle(attrs, ['cover'], 'object-fit: cover; object-position: right top;')
+        attributeToStyle(attrs, ['contain'], 'object-fit: contain; object-position: center;')
         if (sizeAttributeIndex !== -1) {
           const [width, height] = attrs[sizeAttributeIndex].value.split('x')
           attrs.push({ key: 'width', value: width })
