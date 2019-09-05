@@ -35,7 +35,7 @@ const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
 const { SVGError } = require('./errors')
 const { getScopeProperties } = require('./scope')
-const { convertAttributeToInlineStyle } = require('./css')
+const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight } = require('./css')
 let asyncCounter = 0
 
 function setDimension (fragment, attrs, keys, dimension, assets, options) {
@@ -625,16 +625,10 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         fragment.attributes = content.attributes
         fragment.children = content.children
       } else if (tag === 'img') {
-        const sizeAttributeIndex = attrs.findIndex(attr => attr.key === 'size')
         convertAttributeToInlineStyle(attrs, ['fluid', 'responsive'], 'max-width: 100%; height: auto;')
         convertAttributeToInlineStyle(attrs, ['cover'], 'object-fit: cover; object-position: right top;')
         convertAttributeToInlineStyle(attrs, ['contain'], 'object-fit: contain; object-position: center;')
-        if (sizeAttributeIndex !== -1) {
-          const [width, height] = attrs[sizeAttributeIndex].value.split('x')
-          attrs.push({ key: 'width', value: width })
-          attrs.push({ key: 'height', value: height })
-          attrs.splice(sizeAttributeIndex, 1)
-        }
+        convertSizeToWidthAndHeight(attrs)
         setDimension(fragment, attrs, keys, 'width', assets, options)
         setDimension(fragment, attrs, keys, 'height', assets, options)
         if (keys.includes('inline') || options.inline.includes('images')) {

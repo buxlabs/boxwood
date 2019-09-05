@@ -1,5 +1,5 @@
 import test from 'ava'
-import { convertAttributeToInlineStyle } from './css'
+import { convertAttributeToInlineStyle, convertSizeToWidthAndHeight } from './css'
 
 test('it converts attribute to a new style attribute', assert => {
   const attribute = ['responsive']
@@ -58,4 +58,46 @@ test.skip('it removes existing attributes even if it is specified multiple times
   assert.deepEqual(attrs.length, 1)
   assert.deepEqual(attrs[0].key, 'style')
   assert.deepEqual(attrs[0].value, 'max-width: 100%; height: auto; margin-top: 10px;')
+})
+
+test('it converts size to width and height', assert => {
+  const attributes = [{
+    key: 'size',
+    value: '300x200'
+  }]
+  const attrs = convertSizeToWidthAndHeight(attributes)
+  assert.deepEqual(attrs.length, 2)
+  assert.deepEqual(attrs[0].key, 'width')
+  assert.deepEqual(attrs[0].value, '300')
+  assert.deepEqual(attrs[1].key, 'height')
+  assert.deepEqual(attrs[1].value, '200')
+})
+
+test('it converts size to width and height for a custom separator', assert => {
+  const attributes = [{
+    key: 'size',
+    value: '300X200'
+  }]
+  const attrs = convertSizeToWidthAndHeight(attributes)
+  assert.deepEqual(attrs.length, 2)
+  assert.deepEqual(attrs[0].key, 'width')
+  assert.deepEqual(attrs[0].value, '300')
+  assert.deepEqual(attrs[1].key, 'height')
+  assert.deepEqual(attrs[1].value, '200')
+})
+
+test('it converts size to width and height and overrides existing tags', assert => {
+  const attributes = [{
+    key: 'size',
+    value: '300x200'
+  }, {
+    key: 'width',
+    value: 150
+  }]
+  const attrs = convertSizeToWidthAndHeight(attributes)
+  assert.deepEqual(attrs.length, 2)
+  assert.deepEqual(attrs[0].key, 'width')
+  assert.deepEqual(attrs[0].value, '300')
+  assert.deepEqual(attrs[1].key, 'height')
+  assert.deepEqual(attrs[1].value, '200')
 })
