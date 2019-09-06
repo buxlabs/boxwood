@@ -8,7 +8,6 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 const { join, dirname } = require('path')
 const parse = require('./html/parse')
-const size = require('image-size')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
@@ -35,25 +34,8 @@ const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
 const { SVGError } = require('./errors')
 const { getScopeProperties } = require('./scope')
-const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight } = require('./css')
+const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('./css')
 let asyncCounter = 0
-
-function setAutoDimension (attrs, keys, dimension, assets, options) {
-  if (keys.includes(dimension)) {
-    const attr = attrs.find(attr => attr.key === dimension)
-    if (attr.value === 'auto') {
-      const { value: path } = attrs.find(attr => attr.key === 'src')
-      const asset = findAsset(path, assets, options)
-      if (!asset) return
-      try {
-        const dimensions = size(asset.buffer)
-        attr.value = dimensions[dimension].toString()
-      } catch (exception) {
-        // TODO: Add a warning. The image cannot be parsed.
-      }
-    }
-  }
-}
 
 function collectComponentsFromImport (fragment, components, component, assets, options) {
   const attrs = fragment.attributes

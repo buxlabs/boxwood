@@ -1,3 +1,6 @@
+const { findAsset } = require('./files')
+const size = require('image-size')
+
 function addAttribute (attrs, key, value) {
   const index = attrs.findIndex(attr => attr.key === key)
   if (index === -1) {
@@ -38,4 +41,21 @@ function convertSizeToWidthAndHeight (attrs) {
   return attrs
 }
 
-module.exports = { convertAttributeToInlineStyle, convertSizeToWidthAndHeight }
+function setAutoDimension (attrs, keys, dimension, assets, options) {
+  if (keys.includes(dimension)) {
+    const attr = attrs.find(attr => attr.key === dimension)
+    if (attr.value === 'auto') {
+      const { value: path } = attrs.find(attr => attr.key === 'src')
+      const asset = findAsset(path, assets, options)
+      if (!asset) return
+      try {
+        const dimensions = size(asset.buffer)
+        attr.value = dimensions[dimension].toString()
+      } catch (exception) {
+        // TODO: Add a warning. The image cannot be parsed.
+      }
+    }
+  }
+}
+
+module.exports = { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension }
