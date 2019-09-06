@@ -38,7 +38,7 @@ const { getScopeProperties } = require('./scope')
 const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight } = require('./css')
 let asyncCounter = 0
 
-function setDimension (attrs, keys, dimension, assets, options) {
+function setAutoDimension (attrs, keys, dimension, assets, options) {
   if (keys.includes(dimension)) {
     const attr = attrs.find(attr => attr.key === dimension)
     if (attr.value === 'auto') {
@@ -624,8 +624,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         convertAttributeToInlineStyle(attrs, ['cover'], 'object-fit: cover; object-position: right top;')
         convertAttributeToInlineStyle(attrs, ['contain'], 'object-fit: contain; object-position: center;')
         convertSizeToWidthAndHeight(attrs)
-        setDimension(attrs, keys, 'width', assets, options)
-        setDimension(attrs, keys, 'height', assets, options)
+        setAutoDimension(attrs, keys, 'width', assets, options)
+        setAutoDimension(attrs, keys, 'height', assets, options)
         if (keys.includes('inline') || options.inline.includes('images')) {
           fragment.attributes = fragment.attributes.map(attr => {
             if (attr.key === 'inline') return null
