@@ -38,7 +38,7 @@ const { getScopeProperties } = require('./scope')
 const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight } = require('./css')
 let asyncCounter = 0
 
-function setDimension (fragment, attrs, keys, dimension, assets, options) {
+function setDimension (attrs, keys, dimension, assets, options) {
   if (keys.includes(dimension)) {
     const attr = attrs.find(attr => attr.key === dimension)
     if (attr.value === 'auto') {
@@ -47,12 +47,7 @@ function setDimension (fragment, attrs, keys, dimension, assets, options) {
       if (!asset) return
       try {
         const dimensions = size(asset.buffer)
-        fragment.attributes = fragment.attributes.map(attr => {
-          if (attr.key === dimension) {
-            attr.value = dimensions[dimension].toString()
-          }
-          return attr
-        })
+        attr.value = dimensions[dimension].toString()
       } catch (exception) {
         // TODO: Add a warning. The image cannot be parsed.
       }
@@ -629,8 +624,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         convertAttributeToInlineStyle(attrs, ['cover'], 'object-fit: cover; object-position: right top;')
         convertAttributeToInlineStyle(attrs, ['contain'], 'object-fit: contain; object-position: center;')
         convertSizeToWidthAndHeight(attrs)
-        setDimension(fragment, attrs, keys, 'width', assets, options)
-        setDimension(fragment, attrs, keys, 'height', assets, options)
+        setDimension(attrs, keys, 'width', assets, options)
+        setDimension(attrs, keys, 'height', assets, options)
         if (keys.includes('inline') || options.inline.includes('images')) {
           fragment.attributes = fragment.attributes.map(attr => {
             if (attr.key === 'inline') return null

@@ -1,5 +1,5 @@
 import test from 'ava'
-import { convertAttributeToInlineStyle, convertSizeToWidthAndHeight } from './css'
+import { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } from './css'
 
 test('it converts attribute to a new style attribute', assert => {
   const attribute = ['responsive']
