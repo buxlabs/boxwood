@@ -33,10 +33,9 @@ const elseifTag = require('./tags/elseif')
 const elseTag = require('./tags/else')
 const slotTag = require('./tags/slot')
 const imgTag = require('./tags/img')
-const normalizeNewline = require('normalize-newline')
+const svgTag = require('./tags/svg')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
-const { SVGError } = require('./errors')
 const { getScopeProperties } = require('./scope')
 let asyncCounter = 0
 
@@ -590,14 +589,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<!doctype html>')))
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
       if (tag === 'svg' && keys.includes('from')) {
-        const attr = attrs.find(attr => attr.key === 'from')
-        const { value: path } = attr
-        if (!path) { throw new SVGError('Attribute empty on the svg tag: from.') }
-        const asset = findAsset(path, assets, options)
-        if (!asset) return
-        const content = parse(normalizeNewline(asset.source).trim())[0]
-        fragment.attributes = content.attributes
-        fragment.children = content.children
+        const found = svgTag({ fragment, attrs, assets, options })
+        if (!found) return
       } else if (tag === 'img') {
         imgTag({ fragment, attrs, keys, assets, options })
       }
