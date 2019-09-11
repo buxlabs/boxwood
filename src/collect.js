@@ -32,12 +32,12 @@ const ifTag = require('./tags/if')
 const elseifTag = require('./tags/elseif')
 const elseTag = require('./tags/else')
 const slotTag = require('./tags/slot')
+const imgTag = require('./tags/img')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
 const { SVGError } = require('./errors')
 const { getScopeProperties } = require('./scope')
-const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('./css')
 let asyncCounter = 0
 
 function collectComponentsFromImport (fragment, components, component, assets, options) {
@@ -380,12 +380,6 @@ function resolveComponent (tree, component, fragment, components, plugins, error
   return { fragment, localVariables }
 }
 
-function getExtension (value) {
-  const parts = value.split('.')
-  const extension = parts[parts.length - 1]
-  return extension === 'svg' ? 'svg+xml' : extension
-}
-
 async function collect ({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
@@ -605,30 +599,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         fragment.attributes = content.attributes
         fragment.children = content.children
       } else if (tag === 'img') {
-        convertAttributeToInlineStyle(attrs, ['fluid', 'responsive'], 'max-width: 100%; height: auto;')
-        convertAttributeToInlineStyle(attrs, ['cover'], 'object-fit: cover; object-position: right top;')
-        convertAttributeToInlineStyle(attrs, ['contain'], 'object-fit: contain; object-position: center;')
-        convertSizeToWidthAndHeight(attrs)
-        setAutoDimension(attrs, keys, 'width', assets, options)
-        setAutoDimension(attrs, keys, 'height', assets, options)
-        if (keys.includes('inline') || options.inline.includes('images')) {
-          fragment.attributes = fragment.attributes.map(attr => {
-            if (attr.key === 'inline') return null
-            if (attr.key === 'src') {
-              const extension = getExtension(attr.value)
-              const extensions = ['png', 'jpg', 'jpeg', 'gif', 'svg+xml']
-              if (extensions.includes(extension)) {
-                const path = attr.value
-                const asset = findAsset(path, assets, options)
-                if (!asset) return
-                const string = asset.base64
-                const content = normalizeNewline(string).trim()
-                attr.value = `data:image/${extension};base64, ${content}`
-              }
-            }
-            return attr
-          }).filter(Boolean)
-        }
+        imgTag({ fragment, attrs, keys, assets, options })
       }
       if (keys.includes('content')) {
         const { value } = attrs[0]
