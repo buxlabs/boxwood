@@ -28,6 +28,7 @@ const fontTag = require('./tags/font')
 const spacingTag = require('./tags/spacing')
 const spaceTag = require('./tags/space')
 const entityTag = require('./tags/entity')
+const ifTag = require('./tags/if')
 const { getCondition } = require('./conditions')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
@@ -664,18 +665,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const nodes = convertText(fragment.content, variables, filters, translations, languages)
       return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(options.variables.template, node)))
     } else if (tag === 'if') {
-      const ast = new AbstractSyntaxTree('')
-      collectChildren(fragment, ast)
-      const condition = getCondition(attrs, variables, filters, translations, languages, warnings)
-      tree.append({
-        type: 'IfStatement',
-        test: condition,
-        consequent: {
-          type: 'BlockStatement',
-          body: ast.body
-        },
-        depth
-      })
+      ifTag({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
     } else if (tag === 'elseif') {
       let leaf = tree.last(`IfStatement[depth="${depth}"]`)
       if (leaf) {
