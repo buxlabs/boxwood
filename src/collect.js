@@ -31,6 +31,7 @@ const entityTag = require('./tags/entity')
 const ifTag = require('./tags/if')
 const elseifTag = require('./tags/elseif')
 const elseTag = require('./tags/else')
+const slotTag = require('./tags/slot')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
@@ -674,9 +675,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'for') {
       forTag({ fragment, tree, attrs, variables, translations, languages, collectChildren })
     } else if (tag === 'slot' || tag === 'yield') {
-      const ast = new AbstractSyntaxTree('')
-      collectChildren(fragment, ast)
-      ast.body.forEach(node => tree.append(node))
+      slotTag({ fragment, tree, collectChildren })
     } else if (tag === 'try') {
       tryTag({ fragment, tree, options, collectChildren })
     } else if (tag === 'catch') {
