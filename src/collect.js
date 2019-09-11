@@ -29,7 +29,7 @@ const spacingTag = require('./tags/spacing')
 const spaceTag = require('./tags/space')
 const entityTag = require('./tags/entity')
 const ifTag = require('./tags/if')
-const { getCondition } = require('./conditions')
+const elseifTag = require('./tags/elseif')
 const normalizeNewline = require('normalize-newline')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
@@ -667,24 +667,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'if') {
       ifTag({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
     } else if (tag === 'elseif') {
-      let leaf = tree.last(`IfStatement[depth="${depth}"]`)
-      if (leaf) {
-        const ast = new AbstractSyntaxTree('')
-        collectChildren(fragment, ast)
-        while (leaf.alternate && leaf.alternate.type === 'IfStatement') {
-          leaf = leaf.alternate
-        }
-        const condition = getCondition(attrs, variables, filters, translations, languages, warnings)
-        leaf.alternate = {
-          type: 'IfStatement',
-          test: condition,
-          consequent: {
-            type: 'BlockStatement',
-            body: ast.body
-          },
-          depth
-        }
-      }
+      elseifTag({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
     } else if (tag === 'else') {
       let leaf = tree.last(`IfStatement[depth="${depth}"]`)
       if (leaf) {
