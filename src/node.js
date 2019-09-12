@@ -1,10 +1,11 @@
 const { join } = require('path')
 const walk = require('himalaya-walk')
 const parse = require('./html/parse')
-const { isImportTag } = require('./string')
+const { isCurlyTag, isImportTag } = require('./string')
 const { isImage } = require('pure-conditions')
 const { parse: cssParse, walk: cssWalk } = require('css-tree')
 const { isFileSupported } = require('./files')
+const { unwrap } = require('pure-utilities/string')
 
 function hasShorthandSyntax (node) {
   return !!node.attributes.filter(attribute => attribute.key.includes('{') || attribute.key.includes('}')).length
@@ -159,6 +160,16 @@ function getImportNodes (tree, options) {
   return nodes
 }
 
+function normalizeAttributes (attributes) {
+  return attributes.map(attribute => {
+    if (isCurlyTag(attribute.key) && attribute.value === null) {
+      attribute.value = attribute.key
+      attribute.key = unwrap(attribute.key, '{', '}')
+    } else if (attribute.value === null) { attribute.value = '{true}' }
+    return attribute
+  })
+}
+
 module.exports = {
   hasShorthandSyntax,
   getComponentNames,
@@ -166,5 +177,6 @@ module.exports = {
   getAssetPaths,
   getImportNodes,
   isImageNode,
-  isSVGNode: isSvgTagWithFromAttribute
+  isSVGNode: isSvgTagWithFromAttribute,
+  normalizeAttributes
 }

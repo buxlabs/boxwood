@@ -1,5 +1,4 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { unwrap } = require('pure-utilities/string')
 const { getLiteral } = require('./ast')
 const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
 const { getTranslateCallExpression } = require('./translations')
@@ -16,7 +15,7 @@ const { extractComponentNames } = require('./extract')
 const Component = require('./Component/')
 const Bundler = require('./Bundler')
 const tags = require('./tags')
-const { hasShorthandSyntax } = require('./node')
+const { hasShorthandSyntax, normalizeAttributes } = require('./node')
 const { findAsset } = require('./files')
 const { getScopeProperties } = require('./scope')
 let asyncCounter = 0
@@ -123,7 +122,7 @@ function collectComponentsFromPartialOrRender (fragment, assets, context, plugin
 
   const content = asset.source
   const htmlTree = parse(content)
-  const localVariables = normalizeLocalVariables(fragment.attributes)
+  const localVariables = normalizeAttributes(fragment.attributes)
   walk(htmlTree, leaf => {
     if (localVariables.length > 0) {
       inlineLocalVariablesInFragment(leaf, localVariables)
@@ -243,7 +242,7 @@ function collectComponentsFromPartialAttribute (fragment, assets, context, plugi
     if (!asset) return
     const content = asset.source
     const htmlTree = parse(content)
-    const localVariables = normalizeLocalVariables(fragment.attributes)
+    const localVariables = normalizeAttributes(fragment.attributes)
     walk(htmlTree, leaf => {
       if (localVariables.length > 0) {
         inlineLocalVariablesInFragment(leaf, localVariables)
@@ -270,25 +269,14 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function normalizeLocalVariables (attributes) {
-  return attributes.map(attribute => {
-    if (attribute.key.startsWith('{') && attribute.key.endsWith('}') && attribute.value === null) {
-      attribute.value = attribute.key
-      attribute.key = unwrap(attribute.key, '{', '}')
-    } else if (attribute.value === null) { attribute.value = '{true}' }
-    return attribute
-  })
-}
-
 function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
-  const localVariables = normalizeLocalVariables(fragment.attributes)
+  const localVariables = normalizeAttributes(fragment.attributes)
   const htmlComponent = new Component(component.content, localVariables)
   htmlComponent.optimize()
   const content = htmlComponent.source
 
   const htmlTree = parse(content)
   let children = fragment.children
-  // const localVariables = normalizeLocalVariables(fragment.attributes)
   walk(htmlTree, leaf => {
     if (localVariables.length > 0) {
       inlineLocalVariablesInFragment(leaf, localVariables)
