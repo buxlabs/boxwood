@@ -15,25 +15,7 @@ const { isCurlyTag, isImportTag, getTagValue } = require('./string')
 const { extractComponentNames } = require('./extract')
 const Component = require('./Component/')
 const Bundler = require('./Bundler')
-const foreachTag = require('./tags/foreach')
-const forTag = require('./tags/for')
-const tryTag = require('./tags/try')
-const catchTag = require('./tags/catch')
-const unlessTag = require('./tags/unless')
-const elseunlessTag = require('./tags/elseunless')
-const switchTag = require('./tags/switch')
-const caseTag = require('./tags/case')
-const markdownTag = require('./tags/markdown')
-const fontTag = require('./tags/font')
-const spacingTag = require('./tags/spacing')
-const spaceTag = require('./tags/space')
-const entityTag = require('./tags/entity')
-const ifTag = require('./tags/if')
-const elseifTag = require('./tags/elseif')
-const elseTag = require('./tags/else')
-const slotTag = require('./tags/slot')
-const imgTag = require('./tags/img')
-const svgTag = require('./tags/svg')
+const tags = require('./tags')
 const { hasShorthandSyntax } = require('./node')
 const { findAsset } = require('./files')
 const { getScopeProperties } = require('./scope')
@@ -589,10 +571,10 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<!doctype html>')))
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
       if (tag === 'svg' && keys.includes('from')) {
-        const found = svgTag({ fragment, attrs, assets, options })
+        const found = tags.svg({ fragment, attrs, assets, options })
         if (!found) return
       } else if (tag === 'img') {
-        imgTag({ fragment, attrs, keys, assets, options })
+        tags.img({ fragment, attrs, keys, assets, options })
       }
       if (keys.includes('content')) {
         const { value } = attrs[0]
@@ -631,27 +613,27 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const nodes = convertText(fragment.content, variables, filters, translations, languages)
       return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(options.variables.template, node)))
     } else if (tag === 'if') {
-      ifTag({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
+      tags.if({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
     } else if (tag === 'elseif') {
-      elseifTag({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
+      tags.elseif({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
     } else if (tag === 'else') {
-      elseTag({ fragment, tree, depth, collectChildren })
+      tags.else({ fragment, tree, depth, collectChildren })
     } else if (tag === 'for') {
-      forTag({ fragment, tree, attrs, variables, translations, languages, collectChildren })
+      tags.for({ fragment, tree, attrs, variables, translations, languages, collectChildren })
     } else if (tag === 'slot' || tag === 'yield') {
-      slotTag({ fragment, tree, collectChildren })
+      tags.slot({ fragment, tree, collectChildren })
     } else if (tag === 'try') {
-      tryTag({ fragment, tree, options, collectChildren })
+      tags.try({ fragment, tree, options, collectChildren })
     } else if (tag === 'catch') {
-      catchTag({ fragment, tree, collectChildren })
+      tags.catch({ fragment, tree, collectChildren })
     } else if (tag === 'unless') {
-      unlessTag({ fragment, tree, attrs, variables, depth, collectChildren })
+      tags.unless({ fragment, tree, attrs, variables, depth, collectChildren })
     } else if (tag === 'elseunless') {
-      elseunlessTag({ fragment, tree, attrs, variables, depth, collectChildren })
+      tags.elseunless({ fragment, tree, attrs, variables, depth, collectChildren })
     } else if (tag === 'switch') {
-      switchTag({ tree, attrs })
+      tags.switch({ tree, attrs })
     } else if (tag === 'case') {
-      caseTag({ fragment, tree, attrs, variables, collectChildren })
+      tags.case({ fragment, tree, attrs, variables, collectChildren })
     } else if (tag === 'default') {
       const leaf = tree.last('SwitchStatement')
       if (leaf) {
@@ -668,21 +650,21 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         })
       }
     } else if (tag === 'foreach' || tag === 'each') {
-      foreachTag({ fragment, tree, variables, attrs, collectChildren })
+      tags.foreach({ fragment, tree, variables, attrs, collectChildren })
     } else if (isImportTag(tag)) {
       collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
       collectComponentsFromPartialOrRender(fragment, assets, null, plugins, errors, options)
     } else if (tag === 'markdown') {
-      markdownTag({ fragment, tree })
+      tags.markdown({ fragment, tree })
     } else if (tag === 'font') {
-      fontTag({ fragment, tree, options })
+      tags.font({ fragment, tree, options })
     } else if (tag === 'spacing') {
-      spacingTag({ fragment, tree, options })
+      tags.spacing({ fragment, tree, options })
     } else if (tag === 'space') {
-      spaceTag({ tree, attrs })
+      tags.space({ tree, attrs })
     } else if (tag === 'entity') {
-      entityTag({ tree, options, attrs })
+      tags.entity({ tree, options, attrs })
     }
     depth -= 1
   } catch (exception) {
