@@ -1,13 +1,10 @@
 const { flatten } = require('pure-utilities/collection')
 const { unique } = require('pure-utilities/array')
-const negate = require('negate-sentence')
-let { STANDARD_ACTIONS } = require('./action')
+let { STANDARD_ACTIONS, NEGATED_ACTIONS } = require('./action')
 
-STANDARD_ACTIONS = STANDARD_ACTIONS.map(action => {
-  return action.name.split('_')
-})
+STANDARD_ACTIONS = STANDARD_ACTIONS.map(action => action.name.split('_'))
+NEGATED_ACTIONS = NEGATED_ACTIONS.map(action => action.name.split('_'))
 
-const NEGATED_ACTIONS = STANDARD_ACTIONS.map(action => negate(action.join(' ')).split(' '))
 const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
 const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTIONS]))
 

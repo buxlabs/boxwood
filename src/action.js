@@ -195,5 +195,6 @@ module.exports = {
       }
     }
   },
-  STANDARD_ACTIONS
+  STANDARD_ACTIONS,
+  NEGATED_ACTIONS
 }
