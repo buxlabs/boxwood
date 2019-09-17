@@ -1,12 +1,9 @@
 const { flatten } = require('pure-utilities/collection')
 const { unique } = require('pure-utilities/array')
-let { STANDARD_ACTIONS, NEGATED_ACTIONS } = require('./action')
+const { ACTIONS } = require('./action')
 
-STANDARD_ACTIONS = STANDARD_ACTIONS.map(action => action.name.split('_'))
-NEGATED_ACTIONS = NEGATED_ACTIONS.map(action => action.name.split('_'))
-
-const ACTIONS = STANDARD_ACTIONS.concat(NEGATED_ACTIONS)
-const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTIONS]))
+const ACTION_NAMES = ACTIONS.map(action => action.name.split('_'))
+const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTION_NAMES]))
 
 function normalize (array, warnings) {
   const result = []
@@ -15,8 +12,8 @@ function normalize (array, warnings) {
     let attribute = array[i]
     let found = false
     index = i
-    for (let j = 0, jlen = ACTIONS.length; j < jlen; j++) {
-      const action = ACTIONS[j]
+    for (let j = 0, jlen = ACTION_NAMES.length; j < jlen; j++) {
+      const action = ACTION_NAMES[j]
       if (action[0] !== attribute.key) continue
       if (action.length === 1) {
         attribute.type = 'Action'
