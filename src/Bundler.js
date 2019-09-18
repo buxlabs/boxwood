@@ -9,17 +9,10 @@ const { uid } = require('pure-utilities/string')
 
 class Bundler {
   async bundle (source, options = {}) {
-    const output = await this.transform(source, options)
-    return output
-  }
-
-  async transform (source, options) {
-    const id = uid()
-    const filename = `${id}.js`
-    const filepath = join(tmpdir(), filename)
-    writeFileSync(filepath, source)
+    const input = join(tmpdir(), `${uid()}.js`)
+    writeFileSync(input, source)
     const bundle = await rollup({
-      input: filepath,
+      input,
       plugins: [
         paths({ paths: options.paths }),
         // TODO we could try to find closest node_modules dir here via something like find-node-modules
@@ -27,11 +20,9 @@ class Bundler {
         commonjs()
       ]
     })
-    const { output } = await bundle.generate({
-      format: 'iife'
-    })
+    const { output } = await bundle.generate({ format: 'iife' })
     const { code } = output[0]
-    unlinkSync(filepath)
+    unlinkSync(input)
     return code
   }
 }
