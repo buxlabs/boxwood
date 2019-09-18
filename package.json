@@ -65,7 +65,7 @@
     "negate-sentence": "^0.1.2",
     "normalize-newline": "^3.0.0",
     "pure-conditions": "^0.1.21",
-    "pure-utilities": "^1.1.11",
+    "pure-utilities": "^1.1.13",
     "rollup": "^1.19.4",
     "rollup-plugin-commonjs": "^10.0.2",
     "rollup-plugin-includepaths": "^0.2.3",

@@ -5,17 +5,7 @@ const paths = require('rollup-plugin-includepaths')
 const { writeFileSync, unlinkSync } = require('fs')
 const { join } = require('path')
 const { tmpdir } = require('os')
-
-// TODO move to pure-utilities as makeid or uid
-function makeid (length) {
-  let result = ''
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  const charactersLength = characters.length
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength))
-  }
-  return result
-}
+const { uid } = require('pure-utilities/string')
 
 class Bundler {
   async bundle (source, options = {}) {
@@ -24,7 +14,7 @@ class Bundler {
   }
 
   async transform (source, options) {
-    const id = makeid(32)
+    const id = uid()
     const filename = `${id}.js`
     const filepath = join(tmpdir(), filename)
     writeFileSync(filepath, source)
