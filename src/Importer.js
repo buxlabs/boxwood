@@ -5,7 +5,8 @@ const Linter = require('./Linter')
 const request = require('./request')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
 
-const { getComponentNames, getAssetPaths, getImportNodes } = require('./node')
+const { getComponentNames } = require('./attributes')
+const { getAssetPaths, getImportNodes } = require('./node')
 const parse = require('./html/parse')
 const linter = new Linter()
 
@@ -60,7 +61,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
 
 async function fetch (node, kind, context, isRemote, remoteUrl, options) {
   const paths = options.paths || []
-  const names = kind === 'IMPORT' ? getComponentNames(node) : ['']
+  const names = kind === 'IMPORT' ? getComponentNames(node.attributes) : ['']
   return Promise.all(names.map(async name => {
     const type = kind === 'IMPORT' ? 'COMPONENT' : kind
     const dir = dirname(context)

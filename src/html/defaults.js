@@ -1,6 +1,6 @@
 const { parse, parseDefaults } = require('himalaya')
 const { VOID_TAGS } = require('../enum')
-const { extractComponentNames } = require('../extract')
+const { getComponentNames } = require('../attributes')
 const walk = require('himalaya-walk')
 const { isImportTag } = require('../string')
 
@@ -20,7 +20,7 @@ function deduceVoidTags (source) {
   const tree = parse(imports)
   walk(tree, node => {
     if (isImportTag(node.tagName)) {
-      extractComponentNames(node.attributes).forEach(tag => {
+      getComponentNames(node.attributes).forEach(tag => {
         tags.push(tag)
       })
     }

@@ -11,13 +11,8 @@ function hasShorthandSyntax (node) {
   return !!node.attributes.filter(attribute => attribute.key.includes('{') || attribute.key.includes('}')).length
 }
 
-function getComponentNames (node) {
-  const omitted = ['{', '}', 'from', 'partial']
-  const keys = node.attributes.map(attribute => attribute.key).filter(key => !omitted.includes(key))
-  return keys.join('').replace('{', '').replace('}', '').split(/,/g).map(key => key.trim())
-}
-
-// TODO: fixed this method
+// TODO: fix this method
+// add a method to pure-conditions
 function hasExtension (path) {
   return path.endsWith('.html') || path.endsWith('.css') || path.endsWith('.js') || isImage(path) || path.endsWith('.json') || path.endsWith('.yaml')
 }
@@ -172,7 +167,6 @@ function normalizeAttributes (attributes) {
 
 module.exports = {
   hasShorthandSyntax,
-  getComponentNames,
   getAssetPath,
   getAssetPaths,
   getImportNodes,

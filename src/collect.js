@@ -11,18 +11,18 @@ const { normalize } = require('./array')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
 const { isCurlyTag, isImportTag, getTagValue } = require('./string')
-const { extractComponentNames } = require('./extract')
 const Component = require('./Component/')
 const Bundler = require('./Bundler')
 const tags = require('./tags')
 const { hasShorthandSyntax, normalizeAttributes } = require('./node')
+const { getComponentNames } = require('./attributes')
 const { findAsset } = require('./files')
 const { getScopeProperties } = require('./scope')
 let asyncCounter = 0
 
 function collectComponentsFromImport (fragment, components, component, assets, options) {
   const attrs = fragment.attributes
-  const names = extractComponentNames(attrs)
+  const names = getComponentNames(attrs)
   if (names.length === 1) {
     const name = names[0]
     if (!hasShorthandSyntax(fragment)) {

@@ -1,14 +1,14 @@
 const walk = require('himalaya-walk')
-const { extractComponentNames } = require('./extract')
 const { isImportTag } = require('./string')
 const { unique, duplicates } = require('pure-utilities/array')
-const { getComponentNames, getAssetPaths, isImageNode, isSVGNode } = require('./node')
+const { getComponentNames } = require('./attributes')
+const { getAssetPaths, isImageNode, isSVGNode } = require('./node')
 
 function analyze (tree) {
   const components = []
   walk(tree, node => {
     if (isImportTag(node.tagName)) {
-      const names = extractComponentNames(node.attributes)
+      const names = getComponentNames(node.attributes)
       names.forEach(name => components.push(name))
     }
   })
@@ -45,7 +45,7 @@ module.exports = class Linter {
     let allPaths = []
     imports.forEach(node => {
       if (isImportTag(node.tagName)) {
-        const names = getComponentNames(node)
+        const names = getComponentNames(node.attributes)
         names.forEach(name => {
           if (allNames.includes(name)) {
             warnings.push({ message: `Component name duplicate: ${name}`, type: 'COMPONENT_NAME_DUPLICATE' })
