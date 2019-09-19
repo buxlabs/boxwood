@@ -2,7 +2,6 @@ const { join } = require('path')
 const walk = require('himalaya-walk')
 const parse = require('./html/parse')
 const { isCurlyTag, isImportTag } = require('./string')
-const { isImage } = require('pure-conditions')
 const { parse: cssParse, walk: cssWalk } = require('css-tree')
 const { isFileSupported } = require('./files')
 const { unwrap } = require('pure-utilities/string')
@@ -11,10 +10,9 @@ function hasShorthandSyntax (node) {
   return !!node.attributes.filter(attribute => attribute.key.includes('{') || attribute.key.includes('}')).length
 }
 
-// TODO: fix this method
-// add a method to pure-conditions
+// TODO: extend hasExtension in pure-conditions and use here
 function hasExtension (path) {
-  return path.endsWith('.html') || path.endsWith('.css') || path.endsWith('.js') || isImage(path) || path.endsWith('.json') || path.endsWith('.yaml')
+  return !!path.slice((Math.max(0, path.lastIndexOf('.')) || Infinity) + 1)
 }
 
 function getAssetPath ({ attributes }, name) {
