@@ -64,7 +64,7 @@
     "memoizee": "^0.4.14",
     "negate-sentence": "^0.1.2",
     "normalize-newline": "^3.0.0",
-    "pure-conditions": "^0.1.21",
+    "pure-conditions": "^1.0.1",
     "pure-utilities": "^1.1.13",
     "rollup": "^1.19.4",
     "rollup-plugin-commonjs": "^10.0.2",

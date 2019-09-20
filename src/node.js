@@ -5,23 +5,17 @@ const { isCurlyTag, isImportTag } = require('./string')
 const { parse: cssParse, walk: cssWalk } = require('css-tree')
 const { isFileSupported } = require('./files')
 const { unwrap } = require('pure-utilities/string')
+const { hasExtension } = require('pure-conditions')
 
 function hasShorthandSyntax (node) {
   return !!node.attributes.filter(attribute => attribute.key.includes('{') || attribute.key.includes('}')).length
-}
-
-// TODO: extend hasExtension in pure-conditions and use here
-function hasExtension (path) {
-  return !!path.slice((Math.max(0, path.lastIndexOf('.')) || Infinity) + 1)
 }
 
 function getAssetPath ({ attributes }, name) {
   const node = attributes.find(({ key }) => key === 'from' || key === 'partial' || key === 'src' || key === 'href')
   if (!node) return null
   const path = node.value
-  if (hasExtension(path)) {
-    return path
-  }
+  if (hasExtension(path)) { return path }
   return join(path, `${name}.html`)
 }
 
