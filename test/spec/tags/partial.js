@@ -67,3 +67,10 @@ test('partial: passes attributes for reserved keywords and a curly tag in the be
   })
   assert.deepEqual(template({}, escape), '<footer class="fluid gray background" style="position:absolute; width: 100%;"></footer>')
 })
+
+test('partial: passes attributes and works for multiple curly tags in one value', async assert => {
+  const { template } = await compile(`<partial from="./complex.html" color="black" font="big" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/partial/keywords') ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="color-black font-big">foo</div>')
+})

@@ -37,6 +37,7 @@ function extract (value) {
       // what about {(foo || bar) | capitalize} ?
       if (token.value.includes('|') && !token.value.includes('||')) {
         const parts = token.value.split('|').map(string => string.trim())
+        token.original = `{${token.value}}`
         token.value = `{${parts[0]}}`
         token.filters = parts.slice(1)
       } else {
