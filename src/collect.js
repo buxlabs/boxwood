@@ -188,16 +188,19 @@ function inlineExpressions (leaf, component, localVariables) {
     leaf.attributes.forEach(attr => {
       const { key, value } = attr
       function inlineExpression (type, attr, string) {
+        // TODO what about values like "foo-{bar}-{baz}"
         if (
           string &&
-          string.startsWith('{') &&
-          string.endsWith('}') &&
+          string.indexOf('{') !== -1 &&
+          string.indexOf('}') !== -1 &&
           // TODO reuse
           // add occurances method to pure-utilities
           (string.match(/{/g) || []).length === 1 &&
           (string.match(/}/g) || []).length === 1
         ) {
-          let source = string.substr(1, string.length - 2)
+          const start = string.indexOf('{')
+          const end = string.indexOf('}')
+          let source = string.substring(start + 1, end)
           source = addPlaceholders(source)
           const ast = new AbstractSyntaxTree(source)
           let replaced = false
@@ -219,7 +222,7 @@ function inlineExpressions (leaf, component, localVariables) {
             }
           })
           if (replaced) {
-            attr[type] = '{' + ast.source.replace(/;\n$/, '') + '}'
+            attr[type] = string.substring(0, start) + '{' + ast.source.replace(/;\n$/, '') + '}' + string.substring(end + 1, string.length)
           }
         }
       }
