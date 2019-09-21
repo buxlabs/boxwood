@@ -627,20 +627,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'case') {
       tags.case({ fragment, tree, attrs, variables, collectChildren })
     } else if (tag === 'default') {
-      const leaf = tree.last('SwitchStatement')
-      if (leaf) {
-        const ast = new AbstractSyntaxTree('')
-        collectChildren(fragment, ast)
-        ast.append({
-          type: 'BreakStatement',
-          label: null
-        })
-        leaf.cases.push({
-          type: 'SwitchCase',
-          consequent: ast.body,
-          test: null
-        })
-      }
+      tags.default({ fragment, tree, collectChildren })
     } else if (tag === 'foreach' || tag === 'each') {
       tags.foreach({ fragment, tree, variables, attrs, collectChildren })
     } else if (isImportTag(tag)) {

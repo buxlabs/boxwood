@@ -6,6 +6,7 @@ const unlessTag = require('./unless')
 const elseunlessTag = require('./elseunless')
 const switchTag = require('./switch')
 const caseTag = require('./case')
+const defaultTag = require('./default')
 const markdownTag = require('./markdown')
 const fontTag = require('./font')
 const spacingTag = require('./spacing')
@@ -27,6 +28,7 @@ module.exports = {
   elseunless: elseunlessTag,
   switch: switchTag,
   case: caseTag,
+  default: defaultTag,
   markdown: markdownTag,
   font: fontTag,
   spacing: spacingTag,
