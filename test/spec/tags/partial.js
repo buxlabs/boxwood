@@ -53,3 +53,10 @@ test('partial: passes attributes and handles expressions', async assert => {
     quux: "quux"
   }, escape), '<a class="bar" href="quuxquuux"></a>')
 })
+
+test.skip('partial: passes attributes for reserved keywords', async assert => {
+  const { template } = await compile(`<partial from="./footer.html" type="fluid" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/partial/keywords') ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="container-fluid">foo</div>')
+})
