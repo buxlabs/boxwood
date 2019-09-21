@@ -74,3 +74,10 @@ test('partial: passes attributes and works for multiple curly tags in one value'
   })
   assert.deepEqual(template({}, escape), '<div class="color-black font-big">foo</div>')
 })
+
+test('partial: passes attributes and works for multiple curly tags one after another in one value', async assert => {
+  const { template } = await compile(`<partial from="./bar.html" class="bank" typeof="ster" />`, {
+    paths: [ path.join(__dirname, '../../fixtures/partial/keywords') ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="bankster">foo</div>')
+})

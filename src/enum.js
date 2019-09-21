@@ -92,7 +92,8 @@ module.exports = {
   ],
   RESERVED_KEYWORDS: [
     'class',
-    'for'
+    'for',
+    'typeof'
   ],
   VOID_TAGS: [
     'import',

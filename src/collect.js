@@ -205,7 +205,7 @@ function inlineExpressions (leaf, component, localVariables) {
                 // TODO investigate
                 // this is too optimistic
                 if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
-                  const variable = localVariables.find(variable => variable.key === node.name || variable.key === placeholderName(node.name))
+                  const variable = localVariables.find(variable => variable.key === node.name || placeholderName(variable.key) === node.name)
                   if (variable) {
                     replaced = true
                     if (isCurlyTag(variable.value)) {
