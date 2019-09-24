@@ -221,7 +221,7 @@ test('style[scoped]: keyframes', async assert => {
   assert.deepEqual(template({}, escape), '<div class="scope-3709603141 fadein"></div><style>.scope-3709603141.fadein{animation-name:fadein-scope-3709603141;animation-duration:1s;animation-timing-function:forwards}@keyframes fadein-scope-3709603141{0%{opacity:0}100%{opacity:1}}</style>')
 })
 
-test('style[scoped]: classes in expressions', async assert => {
+test('style[scoped]: class in an expression (start)', async assert => {
   const { template } = await compile(`
     <div class="{'foo ' + bar}"></div>
     <style scoped>
@@ -231,6 +231,42 @@ test('style[scoped]: classes in expressions', async assert => {
     </style>
   `, {})
   assert.deepEqual(template({ bar: 'baz' }, escape), '<div class="scope-2387775620 foo baz"></div><style>.scope-2387775620.foo{color:red}</style>')
+})
+
+test('style[scoped]: class in an expression (end)', async assert => {
+  const { template } = await compile(`
+    <div class="{bar + ' foo'}"></div>
+    <style scoped>
+      .foo {
+        color: red;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({ bar: 'baz' }, escape), '<div class="scope-2387775620 baz foo"></div><style>.scope-2387775620.foo{color:red}</style>')
+})
+
+test('style[scoped]: classes in an expression (start)', async assert => {
+  const { template } = await compile(`
+    <div class="{'foo bar ' + baz}"></div>
+    <style scoped>
+      .foo {
+        color: red;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({ baz: 'baz' }, escape), '<div class="scope-2387775620 foo bar baz"></div><style>.scope-2387775620.foo{color:red}</style>')
+})
+
+test('style[scoped]: classes in an expression (start and end)', async assert => {
+  const { template } = await compile(`
+    <div class="{'foo ' + baz + ' bar'}"></div>
+    <style scoped>
+      .foo {
+        color: red;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({ baz: 'baz' }, escape), '<div class="scope-2387775620 foo baz bar"></div><style>.scope-2387775620.foo{color:red}</style>')
 })
 
 test('style[inline-classes]: one class declaration', async assert => {
