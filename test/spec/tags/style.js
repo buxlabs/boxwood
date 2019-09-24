@@ -221,6 +221,18 @@ test('style[scoped]: keyframes', async assert => {
   assert.deepEqual(template({}, escape), '<div class="scope-3709603141 fadein"></div><style>.scope-3709603141.fadein{animation-name:fadein-scope-3709603141;animation-duration:1s;animation-timing-function:forwards}@keyframes fadein-scope-3709603141{0%{opacity:0}100%{opacity:1}}</style>')
 })
 
+test('style[scoped]: classes in expressions', async assert => {
+  const { template } = await compile(`
+    <div class="{'foo ' + bar}"></div>
+    <style scoped>
+      .foo {
+        color: red;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({ bar: 'baz' }, escape), '<div class="scope-2387775620 foo baz"></div><style>.scope-2387775620.foo{color:red}</style>')
+})
+
 test('style[inline-classes]: one class declaration', async assert => {
   var { template } = await compile(`
     <div class="foo"></div>

@@ -1,8 +1,9 @@
+const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')
 const { isCurlyTag } = require('../string')
 const { unique } = require('pure-utilities/array')
-const { extractValues } = require('../string')
+const { extractValues, getTagValue } = require('../string')
 const Plugin = require('./Plugin')
 const normalize = require('normalize-newline')
 
@@ -70,18 +71,35 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
   const values = extractValues(attribute)
   const classes = values.reduce((strings, string) => {
     strings.push(string)
-    if (!isCurlyTag(string)) {
+    if (isCurlyTag(string)) {
+      const source = getTagValue(string)
+      const tree = new AbstractSyntaxTree(source)
+      tree.walk(node => {
+        if (node.type === 'Literal' && typeof node.value === 'string') {
+          const candidate = node.value.trim()
+          if (candidate) {
+            scopes.forEach(scope => {
+              if (scope.type === 'class' && scope.name === candidate) {
+                strings.unshift(scope.id)
+              }
+            })
+          }
+        }
+      })
+    } else {
       scopes.forEach(scope => {
-        if (
-          (scope.type === 'class' && scope.name === string) ||
-          (scope.type === 'tag' && scope.name === tag)
-        ) {
+        if (scope.type === 'class' && scope.name === string) {
           strings.unshift(scope.id)
         }
       })
     }
     return strings
   }, [])
+  scopes.forEach(scope => {
+    if (scope.type === 'tag' && scope.name === tag) {
+      classes.unshift(scope.id)
+    }
+  })
   attribute.value = unique(classes).join(' ')
 }
 
