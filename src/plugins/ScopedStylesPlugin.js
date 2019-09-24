@@ -78,8 +78,9 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
         if (node.type === 'Literal' && typeof node.value === 'string') {
           const candidate = node.value.trim()
           if (candidate) {
+            const parts = candidate.split(/\s+/g)
             scopes.forEach(scope => {
-              if (scope.type === 'class' && scope.name === candidate) {
+              if (scope.type === 'class' && parts.includes(scope.name)) {
                 strings.unshift(scope.id)
               }
             })
