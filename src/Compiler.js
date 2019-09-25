@@ -97,7 +97,7 @@ async function render (source, htmltree, options) {
     await Promise.all(promises)
     const style = unique(styles).join(' ')
     if (style) {
-      tree.append(getTemplateAssignmentExpression(OBJECT_VARIABLE, getLiteral(`<style>${style}</style>`)))
+      tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
     }
     const used = []
     unique(filters).forEach(name => {

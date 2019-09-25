@@ -269,6 +269,20 @@ test('style[scoped]: classes in an expression (start and end)', async assert => 
   assert.deepEqual(template({ baz: 'baz' }, escape), '<div class="scope-2387775620 foo baz bar"></div><style>.scope-2387775620.foo{color:red}</style>')
 })
 
+test('style[scoped]: condition in a template', async assert => {
+  const { template } = await compile(`
+    <if foo>
+      <div class="foo"></div>
+    </if>
+    <style scoped>
+      .foo {
+        color: red;
+      }
+    </style>
+  `, {})
+  assert.deepEqual(template({ foo: true }, escape), '<div class="scope-2387775620 foo"></div><style>.scope-2387775620.foo{color:red}</style>')
+})
+
 test('style[inline-classes]: one class declaration', async assert => {
   var { template } = await compile(`
     <div class="foo"></div>
