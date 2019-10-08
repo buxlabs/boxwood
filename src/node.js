@@ -1,7 +1,7 @@
 const { join } = require('path')
 const walk = require('himalaya-walk')
 const parse = require('./html/parse')
-const { isCurlyTag, isImportTag } = require('./string')
+const { isCurlyTag, isImportTag, isPartialTag } = require('./string')
 const { parse: cssParse, walk: cssWalk } = require('css-tree')
 const { isFileSupported } = require('./files')
 const { unwrap } = require('pure-utilities/string')
@@ -50,10 +50,6 @@ function getAssetPathsFromStyleTag (node) {
     }
   })
   return paths
-}
-
-function isPartialTag (name) {
-  return name === 'partial' || name === 'render' || name === 'include'
 }
 
 function hasPartialAttribute (node) {

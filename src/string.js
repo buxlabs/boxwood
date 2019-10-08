@@ -78,4 +78,8 @@ function isImportTag (name) {
   return name === 'import' || name === 'require'
 }
 
-module.exports = { extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag }
+function isPartialTag (name) {
+  return name === 'partial' || name === 'include' || name === 'render'
+}
+
+module.exports = { extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag, isPartialTag }

@@ -1,6 +1,7 @@
 import test from 'ava'
 import compile from '../../helpers/compile'
 import escape from 'escape-html'
+import path from 'path'
 
 test('div[border]: border attribute', async assert => {
   const { template } = await compile(`<div border="1px solid red"></div>`)
@@ -31,4 +32,13 @@ test('div[border]: predefined border value', async assert => {
     }
   })
   assert.deepEqual(template({}, escape), '<div style="border: 1px solid black;"></div>')
+})
+
+test('partial[border]: does not convert the attribute', async assert => {
+  const { template } = await compile('<partial from="./baz.html" border="top" />', {
+    paths: [
+      path.join(__dirname, '../../fixtures/partial/attributes')
+    ]
+  })
+  assert.deepEqual(template({}, escape), '<div class="border-top"></div>')
 })

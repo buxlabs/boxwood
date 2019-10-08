@@ -1,4 +1,4 @@
-const { isCurlyTag, getTagValue, isImportTag } = require('../string')
+const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../string')
 const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
@@ -101,7 +101,7 @@ class BoxModelPlugin extends Plugin {
       const name = keys[0]
       this.components.push(name)
     }
-    if (!this.components.includes(tag)) {
+    if (!this.components.includes(tag) && !isPartialTag(tag)) {
       BOX_MODEL_ATTRIBUTES.forEach(transform)
     }
   }
