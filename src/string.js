@@ -59,6 +59,8 @@ function extractValues (attribute) {
     .reduce((values, { value }) => {
       if (isCurlyTag(value)) {
         values.push(value.trim())
+      } else if (isSquareTag(value)) {
+        values.push(value.trim())
       } else {
         const parts = value.split(/\s+/g)
         parts.forEach(part => values.push(part))

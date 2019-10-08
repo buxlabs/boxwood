@@ -1,9 +1,8 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')
-const { isCurlyTag } = require('../string')
 const { unique } = require('pure-utilities/array')
-const { extractValues, getTagValue } = require('../string')
+const { extractValues, getTagValue, isCurlyTag, isSquareTag } = require('../string')
 const Plugin = require('./Plugin')
 const normalize = require('normalize-newline')
 
@@ -70,8 +69,8 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
   const attribute = attributes.find(attribute => attribute.key === 'class')
   const values = extractValues(attribute)
   const classes = values.reduce((strings, string) => {
-    strings.push(string)
     if (isCurlyTag(string)) {
+      strings.push(string)
       const source = getTagValue(string)
       const tree = new AbstractSyntaxTree(source)
       tree.walk(node => {
@@ -87,7 +86,28 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
           }
         }
       })
+    } else if (isSquareTag(string)) {
+      const source = string
+      const tree = new AbstractSyntaxTree(source)
+      tree.body[0].expression.elements.forEach(node => {
+        if (node.type === 'Literal' && typeof node.value === 'string') {
+          const candidate = node.value.trim()
+          if (candidate) {
+            const parts = candidate.split(/\s+/g)
+            scopes.forEach(scope => {
+              if (scope.type === 'class' && parts.includes(scope.name)) {
+                strings.unshift(scope.id)
+              }
+            })
+          }
+          strings.push(node.value)
+        } else {
+          const expression = AbstractSyntaxTree.generate(node)
+          strings.push(`{${expression}}`)
+        }
+      })
     } else {
+      strings.push(string)
       scopes.forEach(scope => {
         if (scope.type === 'class' && scope.name === string) {
           strings.unshift(scope.id)

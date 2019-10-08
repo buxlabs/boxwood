@@ -212,3 +212,24 @@ test('style[scoped]: condition in a template', async assert => {
   `, {})
   assert.deepEqual(template({ foo: true }, escape), '<div class="scope-2387775620 foo"></div><style>.scope-2387775620.foo{color:red}</style>')
 })
+
+test('style[scoped]: square tags', async assert => {
+  const { template } = await compile(`
+    <div class="['foo', baz]"></div>
+    <style scoped>
+    .foo { color: red }
+    </style>
+  `)
+  assert.deepEqual(template({ baz: 'qux' }, escape), '<div class="scope-2771010719 foo qux"></div><style>.scope-2771010719.foo{color:red}</style>')
+})
+
+test('style[scoped]: square tags with multiple matching strings', async assert => {
+  const { template } = await compile(`
+    <div class="['foo', 'bar', baz]"></div>
+    <style scoped>
+    .foo { color: red }
+    .bar { height: 100px }
+    </style>
+  `)
+  assert.deepEqual(template({ baz: 'qux' }, escape), '<div class="scope-3071972208 foo bar qux"></div><style>.scope-3071972208.foo{color:red}.scope-3071972208.bar{height:100px}</style>')
+})
