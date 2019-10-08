@@ -82,11 +82,11 @@ test('partial: passes attributes and works for multiple curly tags one after ano
   assert.deepEqual(template({}, escape), '<div class="bankster">foo</div>')
 })
 
-test.skip('partial: template literals in the imported component', async assert => {
-  const { template } = await compile('<partial from="./bar.html" border="baz"/>', {
+test('partial: template literals in the imported component', async assert => {
+  const { template } = await compile('<partial from="./bar.html" foo="baz"/>', {
     paths: [
       path.join(__dirname, '../../fixtures/import/template-literals')
     ]
   })
-  assert.deepEqual(template({}, escape), '<div class="border-baz"></div><div class="border-baz"></div>')
+  assert.deepEqual(template({}, escape), '<div class="foo-baz"></div><div class="foo-baz"></div>')
 })

@@ -1091,10 +1091,10 @@ test('import: template literals', async assert => {
 })
 
 test('import: template literals in the imported component', async assert => {
-  const { template } = await compile('<import bar from="./bar.html"><bar/><bar border="baz"/>', {
+  const { template } = await compile('<import bar from="./bar.html"><bar/><bar foo="baz"/>', {
     paths: [
       path.join(__dirname, '../../fixtures/import/template-literals')
     ]
   })
-  assert.deepEqual(template({}, escape), '<div></div><div class="undefined"></div><div class="border-baz"></div><div class="border-baz"></div>')
+  assert.deepEqual(template({}, escape), '<div></div><div class="undefined"></div><div class="foo-baz"></div><div class="foo-baz"></div>')
 })
