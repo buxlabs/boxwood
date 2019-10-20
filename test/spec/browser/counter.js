@@ -8,13 +8,13 @@ test('counter', async assert => {
   const { port } = await server.start()
   server.get('/', (request, response) => {
     response.send(`
-      <h1>count: <span id="count">0</span></h1>
+      <button>Clicked 0 times</button>
       <script>
         let count = 0;
-        const element = document.getElementById("count")
+        const element = document.querySelector("button")
         element.addEventListener("click", () => {
           count += 1
-          element.innerHTML = count
+          element.innerHTML = "Clicked " + count + " " + (count === 1 ? "time" : "times")
         })
       </script>
     `)
@@ -23,10 +23,10 @@ test('counter', async assert => {
   const page = await browser.newPage()
   await page.goto(`http://localhost:${port}`)
   var content = await page.content()
-  assert.truthy(content.includes('count: <span id="count">0'))
-  await page.click("#count")
+  assert.truthy(content.includes('Clicked 0 times'))
+  await page.click("button")
   var content = await page.content()
-  assert.truthy(content.includes('count: <span id="count">1'))
+  assert.truthy(content.includes('Clicked 1 time'))
   await browser.close()
   await server.stop()
 })
