@@ -61,8 +61,13 @@ class InlinePlugin extends Plugin {
             const path = asset.path
             const parts = path.split('.')
             const extension = parts[parts.length - 1]
-            const dataType = type === 'Raw' ? 'data:application/font-' : 'data:image/'
-            node.value.value = `${dataType}${extension};charset=utf-8;base64,${asset.base64}`
+            const font = type === 'Raw'
+            const dataType = font ? 'data:application/font-' : 'data:image/'
+            node.value.value = [
+              `${dataType}${extension}`,
+              font && 'charset=utf-8',
+              `base64,${asset.base64}`
+            ].filter(Boolean).join(';')
           }
         }
       })

@@ -30,7 +30,7 @@ test('style[inline]: background image', async assert => {
     paths: [ join(__dirname, '../../fixtures') ]
   })
   const output = template({}, escape)
-  assert.truthy(output.includes('url(data:image/jpg;charset=utf-8;base64'))
+  assert.truthy(output.includes('url(data:image/jpg;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
 })
 
@@ -51,7 +51,7 @@ test('style[inline]: multiple background images', async assert => {
   })
   const output = template({}, escape)
   assert.truthy(output.match(/<style>/g).length === 1)
-  assert.truthy(output.includes('url(data:image/jpg;charset=utf-8;base64'))
+  assert.truthy(output.includes('url(data:image/jpg;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
 })
 
