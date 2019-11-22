@@ -60,7 +60,7 @@ test('div[padding]: works with expressions', async assert => {
   assert.deepEqual(template({}, escape), '<div id="qux" class="foo bar ban" style="padding: 15px;"></div>')
 
   var { errors } = await compile(`<div id="qux" class="foo bar ban" padding="{15px}"></div>`)
-  assert.deepEqual(errors[0].message, `Line 1, column 1: Unexpected token`)
+  assert.deepEqual(errors[0].message, '[1:3]: No identifiers allowed directly after numeric literal')
 
   var { template } = await compile(`<div id="qux" class="foo bar ban" padding={15}></div>`)
   assert.deepEqual(template({}, escape), `<div id="qux" class="foo bar ban" style="padding: 15px;"></div>`)
