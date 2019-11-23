@@ -1,6 +1,7 @@
 const Plugin = require('./Plugin')
 const { parse, walk, generate } = require('css-tree')
 const { findAsset, isFileSupported } = require('../files')
+const { getExtension, getBase64Extension } = require('../string')
 const { whitespacestrip } = require('pure-utilities/string')
 
 class InlinePlugin extends Plugin {
@@ -59,12 +60,11 @@ class InlinePlugin extends Plugin {
             const asset = findAsset(value, assets, options)
             if (!asset) return
             const path = asset.path
-            const parts = path.split('.')
-            const extension = parts[parts.length - 1]
+            const extension = getExtension(path)
             const font = type === 'Raw'
             const dataType = font ? 'data:application/font-' : 'data:image/'
             node.value.value = [
-              `${dataType}${extension}`,
+              `${dataType}${getBase64Extension(extension)}`,
               font && 'charset=utf-8',
               `base64,${asset.base64}`
             ].filter(Boolean).join(';')

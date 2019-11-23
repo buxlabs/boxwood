@@ -84,4 +84,14 @@ function isPartialTag (name) {
   return name === 'partial' || name === 'include' || name === 'render'
 }
 
-module.exports = { extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag, isPartialTag }
+function getExtension (value) {
+  const parts = value.split('.')
+  return parts[parts.length - 1]
+}
+
+function getBase64Extension (extension) {
+  extension = extension && extension.toLowerCase()
+  return extension === 'svg' ? 'svg+xml' : extension
+}
+
+module.exports = { extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag, isPartialTag, getExtension, getBase64Extension }
