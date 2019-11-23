@@ -480,6 +480,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
             }
           ]
         }))
+        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(';')))
       }
       asyncCounter += 1
       const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
