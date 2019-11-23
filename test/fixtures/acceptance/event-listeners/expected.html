@@ -1,0 +1,14 @@
+<main>
+  <a id="submit">Submit</a>
+</main>
+<script>
+const scope = { "language": "en" }
+(function () {
+  'use strict';
+  const { language } = scope;
+  const node = document.getElementById("submit");
+  node.addEventListener("click", () => {
+    console.log(language);
+  });
+}());
+</script>

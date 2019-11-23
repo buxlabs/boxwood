@@ -76,6 +76,10 @@ test('acceptance: template-literals', async assert => {
   await suite('template-literals', assert)
 })
 
+test('acceptance: event listeners', async assert => {
+  await suite('event-listeners', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

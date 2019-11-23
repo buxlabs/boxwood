@@ -3,22 +3,22 @@ import { join } from 'path'
 import compile from '../../../helpers/compile'
 import escape from 'escape-html'
 
-test('script: returns empty string when script does not have a body', async assert => {
+test('script[scoped]: returns empty string when script does not have a body', async assert => {
   const { template } = await compile('<script scoped></script>')
   assert.deepEqual(template({ foo: 2 }, escape), '')
 })
 
-test('script: access to passed variables in script tag through object destructuring assignment', async assert => {
+test('script[scoped]: access to passed variables in script tag through object destructuring assignment', async assert => {
   const { template } = await compile('<script scoped>const { foo } = scope;\nconsole.log(foo);</script>')
   assert.truthy(template({ foo: 2 }, escape).includes('const scope = {"foo":2}'))
 })
 
-test('script: access to passed variables through scope variable', async assert => {
+test('script[scoped]: access to passed variables through scope variable', async assert => {
   const { template } = await compile('<script scoped>console.log(scope.foo);</script>')
   assert.truthy(template({ foo: 2, bar: 'bar' }, escape).includes('const scope = {"foo":2}'))
 })
 
-test('script: only used properties from scope variable should be inlined', async assert => {
+test('script[scoped]: only used properties from scope variable should be inlined', async assert => {
   const { template } = await compile('<script scoped>scope.ban.forEach(element => console.log(element))</script>')  
   assert.truthy(template({ 
     foo: 2, 
@@ -27,7 +27,7 @@ test('script: only used properties from scope variable should be inlined', async
   }, escape).includes('const scope = {"ban":[{"one":1,"two":2,"three":3,"four":4}]}'))
 })
 
-test('script: import local dependencies', async assert => {
+test('script[scoped]: import local dependencies', async assert => {
   const { template } = await compile(`
     <script scoped>
       import foo from "./foo"
@@ -41,7 +41,7 @@ test('script: import local dependencies', async assert => {
   assert.truthy(template({}, escape).includes('function foo'))
 })
 
-test('script: import dependencies from node_modules', async assert => {
+test('script[scoped]: import dependencies from node_modules', async assert => {
   const { template } = await compile(`
     <script scoped>
       import { capitalize } from "pure-utilities/string"
