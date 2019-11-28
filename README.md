@@ -223,7 +223,7 @@ function render(__o, __e) {
 
 ## Maintainers
 
-[@emilos](https://github.com/emilos), [@pkonieczniak](https://github.com/pkonieczniak).
+[@emilos](https://github.com/emilos)
 
 ## Contributing
 
