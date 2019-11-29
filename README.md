@@ -1,7 +1,6 @@
 # pure-engine
 
 ![npm (scoped)](https://img.shields.io/npm/v/pure-engine.svg)
-[![Codeship Status for buxlabs/pure-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
 
 > Compile HTML templates into JS
 
