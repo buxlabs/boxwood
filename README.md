@@ -1,7 +1,7 @@
 # pure-engine
 
-![npm (scoped)](https://img.shields.io/npm/v/pure-engine.svg)
-![build](https://github.com/buxlabs/pure-engine/workflows/build/badge.svg)
+![https://www.npmjs.com/package/pure-engine](https://img.shields.io/npm/v/pure-engine.svg)
+![https://github.com/buxlabs/pure-engine/actions](https://github.com/buxlabs/pure-engine/workflows/build/badge.svg)
 
 > Compile HTML templates into JS
 
