@@ -464,3 +464,17 @@ test('i18n: dynamic translations', async assert => {
     })
   assert.deepEqual(template({ language: 'en', year: 2019, name: 'World' }, escape), '<main><p>Hello World!</p><footer>Contact us. BUXLABS. Since 2019. All rights reserved.</footer></main>')   
 })
+
+test('i18n: loading translations from files', async assert => {
+  const { template, warnings, errors } = await compile(`
+    <translate foo>
+    <i18n from="./bar.json">
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
+  assert.deepEqual(template({ language: 'pl' }, escape), 'foo1')
+  assert.deepEqual(template({ language: 'en' }, escape), 'foo2')
+})

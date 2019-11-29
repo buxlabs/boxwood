@@ -78,17 +78,15 @@ class InternationalizationPlugin extends Plugin {
     if (isI18nTag(tag, keys)) {
       fragment.used = true
       let leaf = fragment.children[0]
-      if (!leaf) {
-        if (keys.includes('from')) {
-          const { value: path } = attrs.find(attr => attr.key === 'from')
-          const asset = findAsset(path, assets, options)
-          if (!asset) return
-          leaf = { content: asset.source }
-          leaf.used = true
-          keys.push(getExtension(path))
-        } else {
-          throw new TranslationError('The translation script cannot be empty')
-        }
+      if (keys.includes('from')) {
+        const { value: path } = attrs.find(attr => attr.key === 'from')
+        const asset = findAsset(path, assets, options)
+        if (!asset) return
+        leaf = { content: asset.source }
+        leaf.used = true
+        keys.push(getExtension(path))
+      } else if (!leaf || !leaf.content || !leaf.content.trim()) {
+        throw new TranslationError('The translation script cannot be empty')
       }
       leaf.used = true
       const format = getTranslationsFormat(keys)
