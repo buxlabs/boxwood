@@ -1,4 +1,4 @@
-const { isCurlyTag, getTagValue } = require('../string')
+const { isCurlyTag, getTagValue } = require('../utilities/string')
 const serialize = require('asttv')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { flatten } = require('pure-utilities/collection')

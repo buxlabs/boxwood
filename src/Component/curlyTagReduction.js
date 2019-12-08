@@ -7,7 +7,7 @@ const {
   memberExpressionReduction,
   ifStatementRemoval
 } = require('astoptech')
-const { isCurlyTag, getTagValue, curlyTag } = require('../string')
+const { isCurlyTag, getTagValue, curlyTag } = require('../utilities/string')
 const parse = require('../html/parse')
 const stringify = require('../html/stringify')
 const walk = require('himalaya-walk')

@@ -1,5 +1,5 @@
 const walk = require('himalaya-walk')
-const { isImportTag } = require('./string')
+const { isImportTag } = require('./utilities/string')
 const { unique, duplicates } = require('pure-utilities/array')
 const { getComponentNames } = require('./attributes')
 const { getAssetPaths, isImageNode, isSVGNode } = require('./node')

@@ -1,7 +1,7 @@
 const Plugin = require('./Plugin')
 const { parse, walk, generate } = require('css-tree')
 const { findAsset, isFileSupported } = require('../files')
-const { getExtension, getBase64Extension } = require('../string')
+const { getExtension, getBase64Extension } = require('../utilities/string')
 const { whitespacestrip } = require('pure-utilities/string')
 
 class InlinePlugin extends Plugin {

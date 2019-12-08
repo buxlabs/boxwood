@@ -1,7 +1,7 @@
 const { join } = require('path')
 const walk = require('himalaya-walk')
 const parse = require('./html/parse')
-const { isCurlyTag, isImportTag, isPartialTag } = require('./string')
+const { isCurlyTag, isImportTag, isPartialTag } = require('./utilities/string')
 const { parse: cssParse, walk: cssWalk } = require('css-tree')
 const { isFileSupported } = require('./files')
 const { unwrap } = require('pure-utilities/string')

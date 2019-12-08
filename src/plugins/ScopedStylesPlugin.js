@@ -2,7 +2,7 @@ const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')
 const { unique } = require('pure-utilities/array')
-const { extractValues, getTagValue, isCurlyTag, isSquareTag } = require('../string')
+const { extractValues, getTagValue, isCurlyTag, isSquareTag } = require('../utilities/string')
 const Plugin = require('./Plugin')
 const normalize = require('normalize-newline')
 

@@ -2,7 +2,7 @@ const { parse, parseDefaults } = require('himalaya')
 const { VOID_TAGS } = require('../enum')
 const { getComponentNames } = require('../attributes')
 const walk = require('himalaya-walk')
-const { isImportTag } = require('../string')
+const { isImportTag } = require('../utilities/string')
 
 function matchImportTags (source) {
   return source.match(/<import[\s\S]*?>[\s\S]*?>/gi)

@@ -1,4 +1,4 @@
-const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../string')
+const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../utilities/string')
 const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
