@@ -1,5 +1,5 @@
-const { getTemplateAssignmentExpression } = require('../factory')
-const { getLiteral } = require('../ast')
+const { getTemplateAssignmentExpression } = require('../utilities/factory')
+const { getLiteral } = require('../utilities/ast')
 module.exports = function ({ fragment, tree, options }) {
   const { spacing } = options.styles
   const { key } = fragment.attributes.find(attribute => Object.keys(spacing).includes(attribute.key))

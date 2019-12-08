@@ -1,8 +1,8 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { identifier } = require('pure-utilities/array')
-const { convertAttribute } = require('../convert')
+const { convertAttribute } = require('../utilities/convert')
 const { curlyTag, getTagValue, isSquareTag } = require('../utilities/string')
-const { getForLoop, getForLoopVariable, getForInLoop, getForInLoopVariable } = require('../factory')
+const { getForLoop, getForLoopVariable, getForInLoop, getForInLoopVariable } = require('../utilities/factory')
 const THREE_DOTS = '...'
 const TWO_DOTS = '..'
 

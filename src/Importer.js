@@ -1,13 +1,13 @@
 const { join, dirname } = require('path')
-const { readFile, readFileWithCache, resolveAlias } = require('./files')
+const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
 const Linter = require('./Linter')
-const request = require('./request')
-const { getFullRemoteUrl, isRemotePath } = require('./url')
+const request = require('./utilities/request')
+const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
 
-const { getComponentNames } = require('./attributes')
-const { getAssetPaths, getImportNodes } = require('./node')
-const parse = require('./html/parse')
+const { getComponentNames } = require('./utilities/attributes')
+const { getAssetPaths, getImportNodes } = require('./utilities/node')
+const { parse } = require('./utilities/html')
 const linter = new Linter()
 
 let id = 1

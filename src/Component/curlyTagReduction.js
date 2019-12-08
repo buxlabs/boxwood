@@ -1,4 +1,4 @@
-const lexer = require('../lexer')
+const lexer = require('../utilities/lexer')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const {
   logicalExpressionReduction,
@@ -8,10 +8,9 @@ const {
   ifStatementRemoval
 } = require('astoptech')
 const { isCurlyTag, getTagValue, curlyTag } = require('../utilities/string')
-const parse = require('../html/parse')
-const stringify = require('../html/stringify')
+const { parse, stringify } = require('../utilities/html')
 const walk = require('himalaya-walk')
-const { addPlaceholders, removePlaceholders } = require('../keywords')
+const { addPlaceholders, removePlaceholders } = require('../utilities/keywords')
 
 function canInlineTree ({ body }) {
   const statement = body[0]

@@ -4,7 +4,7 @@ const {
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
 const { getLiteral, getIdentifier } = require('./ast')
-const { extract, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue } = require('./utilities/string')
+const { extract, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue } = require('./string')
 const { getFilterName, extractFilterName } = require('./filters')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { array, math, collection, object, json, date } = require('pure-utilities')

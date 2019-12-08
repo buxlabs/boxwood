@@ -1,8 +1,8 @@
 const walk = require('himalaya-walk')
 const { isImportTag } = require('./utilities/string')
 const { unique, duplicates } = require('pure-utilities/array')
-const { getComponentNames } = require('./attributes')
-const { getAssetPaths, isImageNode, isSVGNode } = require('./node')
+const { getComponentNames } = require('./utilities/attributes')
+const { getAssetPaths, isImageNode, isSVGNode } = require('./utilities/node')
 
 function analyze (tree) {
   const components = []

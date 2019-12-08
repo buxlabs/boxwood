@@ -1,4 +1,4 @@
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./enum')
+const { OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
 
 class Analyzer {
   constructor (program) {

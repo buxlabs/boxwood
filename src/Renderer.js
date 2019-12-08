@@ -1,9 +1,9 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const walk = require('himalaya-walk')
-const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('./enum')
-const { getTemplateVariableDeclaration, getTemplateReturnStatement, getTemplateAssignmentExpression } = require('./factory')
-const collect = require('./collect')
-const { getFilter } = require('./filters')
+const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('./utilities/enum')
+const { getTemplateVariableDeclaration, getTemplateReturnStatement, getTemplateAssignmentExpression } = require('./utilities/factory')
+const collect = require('./utilities/collect')
+const { getFilter } = require('./utilities/filters')
 const { unique } = require('pure-utilities/array')
 const Statistics = require('./Statistics')
 const CurlyStylesPlugin = require('./plugins/CurlyStylesPlugin')
@@ -13,7 +13,7 @@ const BoxModelPlugin = require('./plugins/BoxModelPlugin')
 const InlinePlugin = require('./plugins/InlinePlugin')
 const SwappedStylesPlugin = require('./plugins/SwappedStylesPlugin')
 const Importer = require('./Importer')
-const { getLiteral } = require('./ast')
+const { getLiteral } = require('./utilities/ast')
 
 class Renderer {
   async render (source, htmltree, options) {

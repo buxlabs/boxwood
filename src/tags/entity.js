@@ -1,5 +1,5 @@
-const { getTemplateAssignmentExpression } = require('../factory')
-const { getLiteral } = require('../ast')
+const { getTemplateAssignmentExpression } = require('../utilities/factory')
+const { getLiteral } = require('../utilities/ast')
 const ALIASES = {
   'non-breaking space': ' ',
   'less than': '<',

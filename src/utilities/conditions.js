@@ -4,7 +4,7 @@ const { getAction } = require('./action')
 const { normalize } = require('./array')
 const { getLiteral, getIdentifier } = require('./ast')
 const { convertKey, convertToExpression } = require('./convert')
-const { isCurlyTag, getTagValue } = require('./utilities/string')
+const { isCurlyTag, getTagValue } = require('./string')
 const { OBJECT_VARIABLE, OPERATORS } = require('./enum')
 
 function getLiteralOrIdentifier (attribute, variables) {

@@ -1,5 +1,5 @@
-const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('../css')
-const { findAsset } = require('../files')
+const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('../utilities/css')
+const { findAsset } = require('../utilities/files')
 const normalizeNewline = require('normalize-newline')
 const { getExtension, getBase64Extension } = require('../utilities/string')
 

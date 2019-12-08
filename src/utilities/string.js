@@ -1,5 +1,5 @@
 const { ltrim } = require('pure-utilities/string')
-const lexer = require('../lexer')
+const lexer = require('./lexer')
 
 function curlyTag (string) {
   return `{${string}}`

@@ -1,6 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { OPERATORS } = require('../enum')
-const { getCondition } = require('../conditions')
+const { OPERATORS } = require('../utilities/enum')
+const { getCondition } = require('../utilities/conditions')
 
 module.exports = function ({ fragment, tree, attrs, variables, collectChildren }) {
   const leaf = tree.last('SwitchStatement')

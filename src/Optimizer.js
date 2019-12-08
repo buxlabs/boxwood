@@ -5,7 +5,7 @@ const {
   ternaryOperatorReduction,
   ifStatementRemoval
 } = require('astoptech')
-const { TEMPLATE_VARIABLE } = require('./enum')
+const { TEMPLATE_VARIABLE } = require('./utilities/enum')
 
 function isAssignmentExpressionWithLiteral (node) {
   return isAssignmentExpression(node) &&

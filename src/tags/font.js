@@ -1,5 +1,5 @@
-const { getLiteral } = require('../ast')
-const { getTemplateAssignmentExpression } = require('../factory')
+const { getLiteral } = require('../utilities/ast')
+const { getTemplateAssignmentExpression } = require('../utilities/factory')
 
 function getExtension (path) {
   const parts = path.split('.')

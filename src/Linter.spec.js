@@ -1,5 +1,5 @@
 import test from 'ava'
-import parse from './html/parse'
+import { parse } from './utilities/html'
 import Linter from './Linter'
 
 test('Linter: unused components', async assert => {

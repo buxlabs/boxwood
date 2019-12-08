@@ -1,5 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getCondition } = require('../conditions')
+const { getCondition } = require('../utilities/conditions')
 
 module.exports = function ({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren }) {
   let leaf = tree.last(`IfStatement[depth="${depth}"]`)

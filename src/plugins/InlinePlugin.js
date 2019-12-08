@@ -1,6 +1,6 @@
 const Plugin = require('./Plugin')
 const { parse, walk, generate } = require('css-tree')
-const { findAsset, isFileSupported } = require('../files')
+const { findAsset, isFileSupported } = require('../utilities/files')
 const { getExtension, getBase64Extension } = require('../utilities/string')
 const { whitespacestrip } = require('pure-utilities/string')
 

@@ -1,5 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { getCatchClause } = require('../factory')
+const { getCatchClause } = require('../utilities/factory')
 
 module.exports = function ({ fragment, tree, collectChildren }) {
   const leaf = tree.last('TryStatement')

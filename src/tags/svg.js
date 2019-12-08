@@ -1,7 +1,7 @@
 const normalizeNewline = require('normalize-newline')
-const { SVGError } = require('../errors')
-const { findAsset } = require('../files')
-const parse = require('../html/parse')
+const { SVGError } = require('../utilities/errors')
+const { findAsset } = require('../utilities/files')
+const { parse } = require('../utilities/html')
 
 module.exports = function ({ fragment, attrs, assets, options }) {
   const attr = attrs.find(attr => attr.key === 'from')

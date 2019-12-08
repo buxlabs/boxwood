@@ -1,10 +1,10 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const serialize = require('asttv')
 const { load } = require('yaml-js')
-const { findAsset } = require('../files')
+const { findAsset } = require('../utilities/files')
 const Plugin = require('./Plugin')
 const hash = require('string-hash')
-const { TranslationError } = require('../errors')
+const { TranslationError } = require('../utilities/errors')
 
 function parseYAML (content) {
   try {

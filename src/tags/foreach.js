@@ -1,5 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { convertKey } = require('../convert')
+const { convertKey } = require('../utilities/convert')
 
 module.exports = function ({ fragment, tree, variables, attrs, collectChildren }) {
   const ast = new AbstractSyntaxTree('')

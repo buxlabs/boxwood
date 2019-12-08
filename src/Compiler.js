@@ -2,8 +2,8 @@ const Parser = require('./Parser')
 const Renderer = require('./Renderer')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
-const { validateOptions } = require('./validation')
-const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./enum')
+const { validateOptions } = require('./utilities/validation')
+const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
 
 class Compiler {
   constructor (options) {
