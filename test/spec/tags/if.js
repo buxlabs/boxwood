@@ -2785,18 +2785,18 @@ test('if', async assert => {
 })
 
 test('if: call expressions', async assert => {
-  var { template, warnings } = await compile('<if valid()>bar</if>')
-  assert.deepEqual(template({ valid: () => false }, escape), '')
+  var { template, warnings } = await compile('<if foo()>bar</if>')
+  assert.deepEqual(template({ foo: () => false }, escape), '')
   assert.deepEqual(warnings, [])
 
-  var { template, warnings } = await compile('<if valid()>bar</if>')
-  assert.deepEqual(template({ valid: () => true }, escape), 'bar')
+  var { template, warnings } = await compile('<if foo()>bar</if>')
+  assert.deepEqual(template({ foo: () => true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 })
 
 test('if: negated call expressions', async assert => {
-  var { template, warnings, errors } = await compile('<if !valid()>bar</if>')
-  assert.deepEqual(template({ valid: () => false }, escape), 'bar')
+  var { template, warnings, errors } = await compile('<if !foo()>bar</if>')
+  assert.deepEqual(template({ foo: () => false }, escape), 'bar')
   assert.deepEqual(warnings, [])
   assert.deepEqual(errors, [])
 
