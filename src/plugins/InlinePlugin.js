@@ -12,7 +12,8 @@ class InlinePlugin extends Plugin {
 
   prerun ({ fragment, attrs, keys }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
-      let { value } = attrs.find(attr => attr.key === 'inline') || []
+      let { value } = attrs.find(attr => attr.key === 'inline') || {}
+      if (!value) { return null }
       value = value.split(',').map(whitespacestrip)
       if (value.includes('classes')) {
         const { content } = fragment.children[0]
