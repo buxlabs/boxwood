@@ -228,6 +228,11 @@ function getTemplateNode (expression, variables, unescape) {
       return getTemplateNode(leaf, variables, unescape)
     })
     return expression
+  } else if (expression.type === 'UnaryExpression') {
+    return {
+      ...expression,
+      argument: getTemplateNode(expression.argument, variables, unescape)
+    }
   } else {
     throw new ExpressionError(expression.type)
   }
