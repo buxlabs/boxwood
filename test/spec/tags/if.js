@@ -35,14 +35,6 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: ['baz'] }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
-  var { template, warnings } = await compile('<if valid()>bar</if>')
-  assert.deepEqual(template({ valid: () => false }, escape), '')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if valid()>bar</if>')
-  assert.deepEqual(template({ valid: () => true }, escape), 'bar')
-  assert.deepEqual(warnings, [])
-
   var { template, warnings } = await compile('<if foo>bar</if><else>baz</else>')
   assert.deepEqual(template({ foo: false }, escape), 'baz')
   assert.deepEqual(warnings, [])
@@ -113,7 +105,6 @@ test('if', async assert => {
 
   var { template, warnings } = await compile('<if foo and bar>baz</if>')
   assert.deepEqual(template({ foo: true, bar: true }, escape), 'baz')
-  console.log(warnings)
   assert.deepEqual(warnings, [])
 
   var { template, warnings } = await compile('<if foo and bar>baz</if>')
@@ -2790,6 +2781,24 @@ test('if', async assert => {
 
   var { template, warnings } = await compile('<if foo is not an instance of bar>bar</if>')
   assert.deepEqual(template({ foo: {}, bar: Date }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+})
+
+test('if: call expressions', async assert => {
+  var { template, warnings } = await compile('<if valid()>bar</if>')
+  assert.deepEqual(template({ valid: () => false }, escape), '')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if valid()>bar</if>')
+  assert.deepEqual(template({ valid: () => true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if !valid()>bar</if>')
+  assert.deepEqual(template({ valid: () => false }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if !valid()></if>')
+  assert.deepEqual(template({ valid: () => true }, escape), '')
   assert.deepEqual(warnings, [])
 })
 
