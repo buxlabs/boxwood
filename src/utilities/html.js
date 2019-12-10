@@ -42,11 +42,16 @@ function defaults (source, options) {
   return { ...parseDefaults, voidTags, ...options }
 }
 
+function parse (source, options) {
+  return parseHTML(source, defaults(source, options))
+}
+
+function stringify (tree, source, options) {
+  return stringifyHTML(tree, defaults(source, options))
+}
+
 module.exports = {
-  parse: function (source, options) {
-    return parseHTML(source, defaults(source, options))
-  },
-  stringify: function (tree, source, options) {
-    return stringifyHTML(tree, defaults(source, options))
-  }
+  defaults,
+  parse,
+  stringify
 }
