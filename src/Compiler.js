@@ -3,7 +3,7 @@ const Renderer = require('./Renderer')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Transpiler = require('./Transpiler')
-const { validateOptions } = require('./utilities/validation')
+const { validateOptions } = require('./utilities/options')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
 
 class Compiler {
