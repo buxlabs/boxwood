@@ -80,6 +80,10 @@ test('acceptance: event listeners', async assert => {
   await suite('event-listeners', assert)
 })
 
+test('acceptance: shorthand syntax for conditions', async assert => {
+  await suite('shorthand-syntax-for-conditions', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

@@ -14,28 +14,30 @@ const tokenize = (source) => {
 
 const transform = (tokens) => {
   const output = []
-  let context = null
+  const contexts = []
   tokens.forEach((token, index) => {
     const [type, value] = token
     if (type === 'tagName') {
       if (value === 'if' || value === 'unless') {
-        context = value
+        contexts.push(value)
       } else if (value === 'elseif' || value === 'else' || value === 'elseunless') {
+        const context = contexts[contexts.length - 1]
         if (context === 'if' || context === 'elseif' || context === 'unless') {
           const last = output.pop()
           output.push(['beginEndTag', '</'])
           output.push(['tagName', context])
           output.push(['finishTag', '>'])
           output.push(last)
-          context = value
+          contexts.push(value)
         }
       } else if (value === 'end') {
+        const context = contexts[contexts.length - 1]
         if (context === 'if' || context === 'unless' || context === 'elseunless' || context === 'else' || context === 'elseif') {
           tokens[index - 1][0] = 'beginEndTag'
           tokens[index - 1][1] = '</'
           token[1] = context
+          contexts.pop()
         }
-        context = null
       }
     }
     output.push(token)

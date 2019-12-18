@@ -2,6 +2,7 @@ const Parser = require('./Parser')
 const Renderer = require('./Renderer')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
+const Transpiler = require('./Transpiler')
 const { validateOptions } = require('./utilities/validation')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
 
@@ -35,6 +36,11 @@ class Compiler {
       onBeforeFile () {},
       onAfterFile () {}
     }, options.hooks)
+  }
+
+  transpile (source) {
+    const transpiler = new Transpiler()
+    return transpiler.transpile(source)
   }
 
   parse (source) {
@@ -72,7 +78,8 @@ class Compiler {
     return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
   }
 
-  async compile (source) {
+  async compile (input) {
+    const source = this.transpile(input)
     const tree = this.parse(source)
     return this.generate(source, tree)
   }
