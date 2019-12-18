@@ -3,34 +3,11 @@ const Renderer = require('./Renderer')
 const Analyzer = require('./Analyzer')
 const Optimizer = require('./Optimizer')
 const Transpiler = require('./Transpiler')
-const { validateOptions } = require('./utilities/options')
-const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
+const { getOptions, validateOptions } = require('./utilities/options')
 
 class Compiler {
   constructor (options) {
-    this.options = Object.assign({
-      inline: [],
-      compilers: {},
-      paths: [],
-      languages: [],
-      cache: true,
-      variables: {
-        template: TEMPLATE_VARIABLE,
-        object: OBJECT_VARIABLE,
-        escape: ESCAPE_VARIABLE
-      },
-      aliases: [],
-      styles: {
-        spacing: {
-          small: '5px',
-          medium: '15px',
-          large: '60px'
-        }
-      },
-      script: {
-        paths: []
-      }
-    }, options)
+    this.options = getOptions(options)
     this.errors = validateOptions(this.options)
     this.options.hooks = Object.assign({
       onBeforeFile () {},

@@ -1,7 +1,33 @@
 const { isPlainObject } = require('pure-conditions')
 const { CompilerError } = require('./errors')
+const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./enum')
 
 module.exports = {
+  getOptions: (options) => {
+    return Object.assign({
+      inline: [],
+      compilers: {},
+      paths: [],
+      languages: [],
+      cache: true,
+      variables: {
+        template: TEMPLATE_VARIABLE,
+        object: OBJECT_VARIABLE,
+        escape: ESCAPE_VARIABLE
+      },
+      aliases: [],
+      styles: {
+        spacing: {
+          small: '5px',
+          medium: '15px',
+          large: '60px'
+        }
+      },
+      script: {
+        paths: []
+      }
+    }, options)
+  },
   validateOptions: ({ inline, compilers, paths, languages, cache, aliases, styles }) => {
     return [
       arePathsValid(paths),
