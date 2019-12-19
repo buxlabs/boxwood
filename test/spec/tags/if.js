@@ -7,7 +7,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false }, escape), '')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<end>')
+  assert.deepEqual(template({ foo: false }, escape), '')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if>')
+  assert.deepEqual(template({ foo: true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<end>')
   assert.deepEqual(template({ foo: true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -15,7 +23,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: true, baz: true }, escape), 'barqux')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<end><if baz>qux<end>')
+  assert.deepEqual(template({ foo: true, baz: true }, escape), 'barqux')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><if baz>qux</if>')
+  assert.deepEqual(template({ foo: true, baz: false }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<end><if baz>qux<end>')
   assert.deepEqual(template({ foo: true, baz: false }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -23,7 +39,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false, baz: true }, escape), 'qux')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<end><if baz>qux<end>')
+  assert.deepEqual(template({ foo: false, baz: true }, escape), 'qux')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><if baz>qux</if>')
+  assert.deepEqual(template({ foo: false, baz: false }, escape), '')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<end><if baz>qux<end>')
   assert.deepEqual(template({ foo: false, baz: false }, escape), '')
   assert.deepEqual(warnings, [])
 
@@ -31,7 +55,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: [] }, escape), '')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo.length>bar<end>')
+  assert.deepEqual(template({ foo: [] }, escape), '')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo.length>bar</if>')
+  assert.deepEqual(template({ foo: ['baz'] }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo.length>bar<end>')
   assert.deepEqual(template({ foo: ['baz'] }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -39,7 +71,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false }, escape), 'baz')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<else>baz<end>')
+  assert.deepEqual(template({ foo: false }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><else>baz</else>')
+  assert.deepEqual(template({ foo: true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<else>baz<end>')
   assert.deepEqual(template({ foo: true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -47,7 +87,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: true, baz: false }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<end>')
+  assert.deepEqual(template({ foo: true, baz: false }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif>')
+  assert.deepEqual(template({ foo: true, baz: true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<end>')
   assert.deepEqual(template({ foo: true, baz: true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -55,7 +103,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false, baz: false }, escape), '')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<end>')
+  assert.deepEqual(template({ foo: false, baz: false }, escape), '')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif>')
+  assert.deepEqual(template({ foo: false, baz: true }, escape), 'qux')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<end>')
   assert.deepEqual(template({ foo: false, baz: true }, escape), 'qux')
   assert.deepEqual(warnings, [])
 
@@ -63,7 +119,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: true, baz: true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<else>quux<end>')
+  assert.deepEqual(template({ foo: true, baz: true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif><else>quux</else>')
+  assert.deepEqual(template({ foo: true, baz: false }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<else>quux<end>')
   assert.deepEqual(template({ foo: true, baz: false }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -71,7 +135,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false, baz: false }, escape), 'quux')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<else>quux<end>')
+  assert.deepEqual(template({ foo: false, baz: false }, escape), 'quux')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif><else>quux</else>')
+  assert.deepEqual(template({ foo: false, baz: true }, escape), 'qux')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<else>quux<end>')
   assert.deepEqual(template({ foo: false, baz: true }, escape), 'qux')
   assert.deepEqual(warnings, [])
 
@@ -79,7 +151,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: true, baz: true, quux: true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
+  assert.deepEqual(template({ foo: true, baz: true, quux: true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')
+  assert.deepEqual(template({ foo: true, baz: false, quux: true }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
   assert.deepEqual(template({ foo: true, baz: false, quux: true }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
@@ -87,7 +167,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: true, baz: false, quux: false }, escape), 'bar')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
+  assert.deepEqual(template({ foo: true, baz: false, quux: false }, escape), 'bar')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')
+  assert.deepEqual(template({ foo: false, baz: true, quux: false }, escape), 'qux')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
   assert.deepEqual(template({ foo: false, baz: true, quux: false }, escape), 'qux')
   assert.deepEqual(warnings, [])
 
@@ -95,7 +183,15 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false, baz: true, quux: true }, escape), 'qux')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
+  assert.deepEqual(template({ foo: false, baz: true, quux: true }, escape), 'qux')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if foo>bar</if><elseif baz>qux</elseif><elseif quux>corge</elseif>')
+  assert.deepEqual(template({ foo: false, baz: false, quux: true }, escape), 'corge')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
   assert.deepEqual(template({ foo: false, baz: false, quux: true }, escape), 'corge')
   assert.deepEqual(warnings, [])
 
@@ -103,6 +199,12 @@ test('if', async assert => {
   assert.deepEqual(template({ foo: false, baz: false, quux: true }, escape), 'corge')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if foo>bar<elseif baz>qux<elseif quux>corge<end>')
+  assert.deepEqual(template({ foo: false, baz: false, quux: true }, escape), 'corge')
+  assert.deepEqual(warnings, [])
+})
+
+test('if: conditions', async assert => {
   var { template, warnings } = await compile('<if foo and bar>baz</if>')
   assert.deepEqual(template({ foo: true, bar: true }, escape), 'baz')
   assert.deepEqual(warnings, [])
@@ -125,6 +227,10 @@ test('if', async assert => {
 
   var { template, warnings } = await compile('<if foo nand bar>baz</if>')
   assert.deepEqual(template({ foo: true, bar: true }, escape), '')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo or bar>baz</if>')
+  assert.deepEqual(template({ foo: true, bar: true }, escape), 'baz')
   assert.deepEqual(warnings, [])
 
   var { template, warnings } = await compile('<if foo or bar>baz</if>')
