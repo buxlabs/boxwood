@@ -13,6 +13,7 @@ const { addPlaceholders, placeholderName } = require('./keywords')
 const { isCurlyTag, isImportTag, getTagValue, extract } = require('./string')
 const Component = require('../Component')
 const Bundler = require('../Bundler')
+const Transpiler = require('../Transpiler')
 const tags = require('../tags')
 const { hasShorthandSyntax, normalizeAttributes } = require('./node')
 const { getComponentNames } = require('./attributes')
@@ -277,7 +278,8 @@ function resolveComponent (tree, component, fragment, components, plugins, error
   const localVariables = normalizeAttributes(fragment.attributes)
   const htmlComponent = new Component(component.content, localVariables)
   htmlComponent.optimize()
-  const content = htmlComponent.source
+  const transpiler = new Transpiler()
+  const content = transpiler.transpile(htmlComponent.source)
 
   const htmlTree = parse(content)
   let children = fragment.children
