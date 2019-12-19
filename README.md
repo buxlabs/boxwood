@@ -55,8 +55,10 @@ HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a 
 
 ```html
 <if name is present>
-  <div>hello {name}</div>
-</if>
+  Hello, {name}!
+<else>
+  Welcome!
+<end>
 ```
 
 ## Install
@@ -109,7 +111,21 @@ It's possible to import multiple components from a given directory. Curly bracke
 * conditional tags: if, else, elseif, unless, elseunless
 
 ```html
-<if foo>bar</if>
+<if foo>bar<end>
+```
+
+```html
+<if foo>
+  bar
+<elseif baz>
+  qux
+<else>
+  quux
+<end>
+```
+
+```html
+<unless foo>bar<end>
 ```
 
 * loops: for, each, foreach
