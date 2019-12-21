@@ -278,8 +278,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
   const localVariables = normalizeAttributes(fragment.attributes)
   const htmlComponent = new Component(component.content, localVariables)
   htmlComponent.optimize()
-  const transpiler = new Transpiler()
-  const content = transpiler.transpile(htmlComponent.source)
+  const content = htmlComponent.source
 
   const htmlTree = parse(content)
   let children = fragment.children

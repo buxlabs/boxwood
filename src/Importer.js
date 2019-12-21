@@ -1,6 +1,7 @@
 const { join, dirname } = require('path')
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
+const Transpiler = require('./Transpiler')
 const Linter = require('./Linter')
 const request = require('./utilities/request')
 const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
@@ -8,6 +9,7 @@ const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
 const { getComponentNames } = require('./utilities/attributes')
 const { getAssetPaths, getImportNodes } = require('./utilities/node')
 const { parse } = require('./utilities/html')
+const transpiler = new Transpiler()
 const linter = new Linter()
 
 let id = 1
@@ -27,7 +29,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         id += 1
         return {
           path,
-          source: buffer.toString(),
+          source: transpiler.transpile(buffer.toString()),
           buffer,
           base64,
           remote: true,
@@ -47,7 +49,8 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         file.buffer = await read(location)
         file.base64 = await read(location, 'base64')
         // TODO: Read once convert base64
-        file.source = await read(location, 'utf8')
+        const source = await read(location, 'utf8')
+        file.source = transpiler.transpile(source)
         file.remote = false
         id += 1
         file.id = id
