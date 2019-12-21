@@ -1111,3 +1111,17 @@ test('import: shorthand conditions syntax in the imported component', async asse
   assert.deepEqual(template({ baz: true }, escape), '<div>before</div><div>truthy</div><div>after</div>')
   assert.deepEqual(template({ baz: false }, escape), '<div>before</div><div>falsy</div><div>after</div>')
 })
+
+
+test('import: shorthand conditions syntax in a nested imported component', async assert => {
+  const { template } = await compile(`
+    <import bar from="./bar.html">
+    <bar baz="{qux}"/>
+  `, {
+    paths: [
+      path.join(__dirname, '../../fixtures/import/shorthand-conditions')
+    ]
+  })
+  assert.deepEqual(template({ qux: true }, escape), '<div>before</div><div>truthy</div><div>after</div>')
+  assert.deepEqual(template({ qux: false }, escape), '<div>before</div><div>falsy</div><div>after</div>')
+})
