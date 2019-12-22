@@ -478,3 +478,19 @@ test('i18n: loading translations from files', async assert => {
   assert.deepEqual(template({ language: 'pl' }, escape), 'foo1')
   assert.deepEqual(template({ language: 'en' }, escape), 'foo2')
 })
+
+test.skip('i18n: translations with slots', async assert => {
+  const { template } = await compile(`
+    <translate foo><a href="/bar">baz</a></translate>
+    <i18n yaml>
+      foo:
+      - 'qux {slot}'
+      - '{slot} qux'
+    </i18n>
+  `, {
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'qux <a href="/bar">baz</a>')
+  assert.deepEqual(template({ language: 'en' }, escape), '<a href="/bar">baz</a> qux')
+})
+

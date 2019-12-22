@@ -18,6 +18,7 @@ const elseTag = require('./else')
 const slotTag = require('./slot')
 const imgTag = require('./img')
 const svgTag = require('./svg')
+const translateTag = require('./translate')
 
 module.exports = {
   foreach: foreachTag,
@@ -39,5 +40,6 @@ module.exports = {
   else: elseTag,
   slot: slotTag,
   img: imgTag,
-  svg: svgTag
+  svg: svgTag,
+  translate: translateTag
 }
