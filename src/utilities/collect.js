@@ -413,7 +413,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       ast.body.forEach(node => tree.append(node))
       localVariables.forEach(() => variables.pop())
     } else if (tag === 'translate') {
-      tags.translate({ tree, attrs, options, filters, variables, translations, languages })
+      tags.translate({ tree, fragment, attrs, options, filters, variables, translations, languages })
     } else if (tag === 'content') {
       const { key } = attrs[1]
       store[key] = fragment

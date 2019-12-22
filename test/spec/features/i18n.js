@@ -95,7 +95,7 @@ test('i18n: translations in yaml - format validation', async assert => {
   assert.deepEqual(error1.type, 'TranslationError')
   assert.deepEqual(error1.message, 'YAML translation is unparseable')
   assert.deepEqual(error2.type, 'TranslationError')
-  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_1740225612 key')
+  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_3358967495 key')
   assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
 
   var { template, errors } = await compile(`
@@ -245,7 +245,7 @@ test('i18n: throws if the js file is corrupt', async assert => {
   assert.deepEqual(errors[0].message, 'JS translation is unparseable')
 })
 
-test('i18n: self-closing syntax', async assert => {
+test('i18n: multiple translations', async assert => {
   var { template } = await compile(
     `<script i18n yaml>
      title:
@@ -256,8 +256,8 @@ test('i18n: self-closing syntax', async assert => {
      - Send
     </script>
     <div>
-      <h1><translate title></h1>
-      <p><translate submit></p>
+      <h1><translate title/></h1>
+      <p><translate submit/></p>
     </div>`,
     { languages: ['pl', 'en'] }
   )
