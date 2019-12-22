@@ -19,7 +19,7 @@ function getTranslationNode (key, variables, filters, translations, languages) {
   if (node.type === 'ExpressionStatement') return node.expression
   return node
 }
-function getTranslateCallExpression (key, variables, filters, translations, languages) {
+function getTranslateCallExpression (key, variables, content, filters, translations, languages) {
   const usedFilters = []
   key = key.replace(/\|[a-z]+/g, match => {
     const filter = match.replace('|', '')
@@ -27,6 +27,11 @@ function getTranslateCallExpression (key, variables, filters, translations, lang
     filters.push(filter)
     return ''
   })
+  if (content) {
+    translations[key] = translations[key].map((translation) => {
+      return translation.replace(/{\s*slot\s*}/, content)
+    })
+  }
   const node = getTranslationNode(key, variables, filters, translations, languages)
   const objectMemberExpression = getObjectMemberExpression('language')
   objectMemberExpression.property.inlined = true
