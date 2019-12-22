@@ -164,7 +164,7 @@ It's possible to import multiple components from a given directory. Curly bracke
 * built-in i18n support (translate tag and filter)
 
 ```html
-<h1><translate hello></h1>
+<h1><translate hello/></h1>
 <i18n yaml>
 hello:
 - 'Hej!'

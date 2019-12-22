@@ -97,7 +97,6 @@ module.exports = {
   ],
   VOID_TAGS: [
     'import',
-    'require',
-    'translate'
+    'require'
   ]
 }
