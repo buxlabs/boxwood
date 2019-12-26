@@ -30,9 +30,9 @@ class Compiler {
     var { tree, statistics, warnings, errors } = await renderer.render(source, htmltree, this.options)
     const analyzer = new Analyzer(tree)
     const params = analyzer.params()
-    const optimizer = new Optimizer(tree)
-    optimizer.optimize()
-    const compiled = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
+    const optimizer = new Optimizer()
+    optimizer.optimize(tree)
+    const template = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
     const allErrors = [
       ...errors,
       ...this.errors
@@ -46,7 +46,7 @@ class Compiler {
         stack
       }
     })
-    return { template: compiled, statistics: statistics.serialize(), errors: allErrors, warnings }
+    return { template, statistics: statistics.serialize(), errors: allErrors, warnings }
   }
 
   async compile (input) {

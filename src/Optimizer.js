@@ -22,24 +22,20 @@ function isTemplateVariableDeclaration (node) {
 }
 
 class Optimizer {
-  constructor (program) {
-    this.program = program
-  }
-
-  optimize () {
+  optimize (tree) {
     // can the below be done in one walk?
-    this.program.replace({ enter: memberExpressionReduction })
-    this.program.replace({ enter: logicalExpressionReduction })
-    this.program.replace({ enter: binaryExpressionReduction })
-    this.program.replace({ enter: ternaryOperatorReduction })
-    this.program.replace({ enter: ifStatementRemoval })
-    this.concatenateLiterals()
-    this.concatenateAssignmentExpressions()
-    this.simplifyReturnValue()
+    tree.replace({ enter: memberExpressionReduction })
+    tree.replace({ enter: logicalExpressionReduction })
+    tree.replace({ enter: binaryExpressionReduction })
+    tree.replace({ enter: ternaryOperatorReduction })
+    tree.replace({ enter: ifStatementRemoval })
+    this.concatenateLiterals(tree)
+    this.concatenateAssignmentExpressions(tree)
+    this.simplifyReturnValue(tree)
   }
 
-  concatenateLiterals () {
-    this.program.walk(node => {
+  concatenateLiterals (tree) {
+    tree.walk(node => {
       if (node.body && node.body.reduce) {
         node.body = node.body.reduce((result, leaf) => {
           const last = result[result.length - 1]
@@ -60,8 +56,8 @@ class Optimizer {
     })
   }
 
-  concatenateAssignmentExpressions () {
-    this.program.walk(node => {
+  concatenateAssignmentExpressions (tree) {
+    tree.walk(node => {
       if (node.body && node.body.reduce) {
         node.body = node.body.reduce((result, leaf) => {
           // add below code when empty statements are removed properly
@@ -87,11 +83,11 @@ class Optimizer {
     })
   }
 
-  simplifyReturnValue () {
-    const { body } = this.program
+  simplifyReturnValue (tree) {
+    const { body } = tree
     if (body.length === 2) {
       const { value } = body[0].declarations[0].init
-      this.program.body = [{ type: 'ReturnStatement', argument: { type: 'Literal', value } }]
+      tree.body = [{ type: 'ReturnStatement', argument: { type: 'Literal', value } }]
     }
   }
 }
