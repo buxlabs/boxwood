@@ -1,7 +1,7 @@
+const Transpiler = require('./Transpiler')
 const Parser = require('./Parser')
 const Renderer = require('./Renderer')
-const Analyzer = require('./Analyzer')
-const Transpiler = require('./Transpiler')
+const Generator = require('./Generator')
 const { getOptions, validateOptions } = require('./utilities/options')
 const { normalizeErrors } = require('./utilities/errors')
 
@@ -16,16 +16,16 @@ const parse = (source) => {
 }
 
 const generate = async (source, html, options) => {
-    const renderer = new Renderer()
-    const { tree, statistics, warnings, errors } = await renderer.render(source, html, options)
-    const analyzer = new Analyzer()
-    const { params } = analyzer.analyze(tree)
-    const template = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
-    const allErrors = [
-      ...errors,
-      ...validateOptions(options)
-    ].map(normalizeErrors)
-    return { template, statistics: statistics.serialize(), errors: allErrors, warnings }
+  const renderer = new Renderer()
+  const { tree, statistics, warnings, errors } = await renderer.render(source, html, options)
+  const generator = new Generator()
+  const { template } = generator.generate(tree)
+  return {
+    template,
+    statistics: statistics.serialize(),
+    errors: errors.concat(validateOptions(options)).map(normalizeErrors),
+    warnings
+  }
 }
 
 class Compiler {
