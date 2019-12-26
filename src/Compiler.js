@@ -28,8 +28,8 @@ class Compiler {
   async generate (source, htmltree) {
     const renderer = new Renderer()
     var { tree, statistics, warnings, errors } = await renderer.render(source, htmltree, this.options)
-    const analyzer = new Analyzer(tree)
-    const params = analyzer.params()
+    const analyzer = new Analyzer()
+    const params = analyzer.params(tree)
     const optimizer = new Optimizer()
     optimizer.optimize(tree)
     const template = new Function(`return function render(${params}) {\n${tree.source}}`)() // eslint-disable-line
