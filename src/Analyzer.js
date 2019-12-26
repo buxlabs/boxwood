@@ -1,7 +1,12 @@
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
 
 class Analyzer {
-  params (tree) {
+  analyze (tree) {
+    const params = this.deduceParams(tree)
+    return { params }
+  }
+
+  deduceParams (tree) {
     // could do it more effectively by checking if given param was used at least once
     // instead of querying here
     if (tree.has(`Identifier[name="${ESCAPE_VARIABLE}"]`)) {

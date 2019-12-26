@@ -32,9 +32,21 @@ class ExpressionError extends Error {
   }
 }
 
+function normalizeErrors (error) {
+  const lines = error.stack.split('\n')
+  const type = lines.shift().split(':')[0]
+  const stack = lines.join('\n').trim()
+  return {
+    type,
+    message: error.message,
+    stack
+  }
+}
+
 module.exports = {
   CompilerError,
   SVGError,
   TranslationError,
-  ExpressionError
+  ExpressionError,
+  normalizeErrors
 }

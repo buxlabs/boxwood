@@ -4,7 +4,7 @@ const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./enum'
 
 module.exports = {
   getOptions: (options) => {
-    return Object.assign({
+    const newOptions = Object.assign({
       inline: [],
       compilers: {},
       paths: [],
@@ -27,6 +27,11 @@ module.exports = {
         paths: []
       }
     }, options)
+    newOptions.hooks = Object.assign({
+      onBeforeFile () {},
+      onAfterFile () {}
+    }, options.hooks)
+    return newOptions
   },
   validateOptions: ({ inline, compilers, paths, languages, cache, aliases, styles }) => {
     return [

@@ -13,6 +13,7 @@ const BoxModelPlugin = require('./plugins/BoxModelPlugin')
 const InlinePlugin = require('./plugins/InlinePlugin')
 const SwappedStylesPlugin = require('./plugins/SwappedStylesPlugin')
 const Importer = require('./Importer')
+const Optimizer = require('./Optimizer')
 const { getLiteral } = require('./utilities/ast')
 
 class Renderer {
@@ -106,6 +107,8 @@ class Renderer {
       })
     }
     tree.append(getTemplateReturnStatement())
+    const optimizer = new Optimizer()
+    optimizer.optimize(tree)
     return { tree, statistics, warnings, errors }
   }
 }
