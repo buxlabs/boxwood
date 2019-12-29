@@ -199,6 +199,26 @@ test.skip('style[inline-classes]: nested classes', async assert => {
   assert.deepEqual(template({}, escape), '<div><div style="color:white;"></div></div>')
 })
 
+test('style[inline|scoped]: inlined styles are scoped properly', async assert => {
+  const { template } = await compile(`
+    <div class="logo"></div>
+    <style scoped inline>
+    .logo {
+      background: url("./images/placeholder.jpg");
+      height: 33px;
+      width: 120px;
+    }
+    </style>
+  `, {
+    paths: [ join(__dirname, '../../fixtures') ]
+  })
+  const output = template({}, escape)
+  assert.truthy(output.includes('url(data:image/jpg;base64'))
+  assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
+  assert.truthy(output.includes('<div class="scope-2021582627 logo">'))
+  assert.truthy(output.includes('.scope-2021582627.logo'))
+})
+
 test('style: does not produce errors', async assert => {
   const { errors } = await compile(`<style>.foo { color: red; }</style>`)
   assert.deepEqual(errors, [])
