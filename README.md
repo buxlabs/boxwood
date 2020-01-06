@@ -131,12 +131,16 @@ It's possible to import multiple components from a given directory. Curly bracke
 * loops: for, each, foreach
 
 ```html
-<for car in cars>
+<for car of cars>
   {car.brand}
 </for>
 
-<for key and value in car>
-  {key}{value}
+<for car and index of cars>
+  #{index + 1} {car.brand}
+</for>
+
+<for key and value in object>
+  {key}: {value}
 </for>
 ```
 

@@ -52,18 +52,39 @@ module.exports = function ({ fragment, tree, attrs, variables, translations, lan
   } else if (attrs.length <= 5) {
     const ast = new AbstractSyntaxTree('')
     const [key, , value, operator, right] = attrs
-    const keyIdentifier = key.key
-    const valueIdentifier = value.key
-    variables.push(keyIdentifier)
-    variables.push(valueIdentifier)
+    if (operator.key === 'in' || operator.key === '|') {
+      const keyIdentifier = key.key
+      const valueIdentifier = value.key
+      variables.push(keyIdentifier)
+      variables.push(valueIdentifier)
 
-    const parent = operator.value || curlyTag(right.key)
-    const name = convertAttribute('html', parent, variables, translations, languages)
-    ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
+      const parent = operator.value || curlyTag(right.key)
+      const name = convertAttribute('html', parent, variables, translations, languages)
+      ast.append(getForInLoopVariable(keyIdentifier, valueIdentifier, name))
 
-    collectChildren(fragment, ast)
-    tree.append(getForInLoop(keyIdentifier, name, ast.body))
-    variables.pop()
-    variables.pop()
+      collectChildren(fragment, ast)
+      tree.append(getForInLoop(keyIdentifier, name, ast.body))
+      variables.pop()
+      variables.pop()
+    } else if (operator.key === 'of') {
+      const keyIdentifier = key.key
+      const valueIdentifier = value.key
+      variables.push(keyIdentifier)
+      variables.push(valueIdentifier)
+
+      const parent = operator.value || curlyTag(right.key)
+      const name = convertAttribute('html', parent, variables, translations, languages)
+      ast.append(getForLoopVariable(keyIdentifier, name, variables, valueIdentifier))
+
+      collectChildren(fragment, ast)
+
+      const guard = identifier(variables)
+      variables.push(guard)
+      tree.append(getForLoop(name, ast.body, variables, valueIdentifier, guard))
+      console.log(tree.source)
+      variables.pop()
+      variables.pop()
+      variables.pop()
+    }
   }
 }
