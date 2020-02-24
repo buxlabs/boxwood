@@ -53,5 +53,6 @@ function stringify (tree, source, options) {
 module.exports = {
   defaults,
   parse,
-  stringify
+  stringify,
+  walk
 }

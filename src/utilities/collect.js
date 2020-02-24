@@ -54,7 +54,8 @@ function collectComponent (name, path, components, component, assets, options) {
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
   const content = asset.source
-  components.push({ name, content, path: asset.path })
+  const { files } = asset
+  components.push({ name, content, files, path: asset.path })
 }
 
 function runPlugins (htmlTree, content, plugins, assets, errors, options) {
@@ -123,6 +124,7 @@ function collectComponentsFromPartialOrRender (fragment, assets, context, plugin
   const htmlTree = parse(content)
   const localVariables = normalizeAttributes(fragment.attributes)
   walk(htmlTree, leaf => {
+    leaf.context = asset.path
     if (localVariables.length > 0) {
       inlineLocalVariablesInFragment(leaf, localVariables)
     }
@@ -247,6 +249,7 @@ function collectComponentsFromPartialAttribute (fragment, assets, context, plugi
     const htmlTree = parse(content)
     const localVariables = normalizeAttributes(fragment.attributes)
     walk(htmlTree, leaf => {
+      leaf.context = asset.path
       if (localVariables.length > 0) {
         inlineLocalVariablesInFragment(leaf, localVariables)
       }
@@ -266,7 +269,7 @@ function collectComponentsFromPartialAttribute (fragment, assets, context, plugi
 function collectInlineComponents (fragment, attributes, components) {
   const { key } = attributes[attributes.length - 1]
   const { content } = fragment.children[0]
-  components.push({ name: key, content, path: null })
+  components.push({ name: key, files: ['.'], content, path: null })
   fragment.children.forEach(child => {
     child.used = true
   })
@@ -281,6 +284,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
   const htmlTree = parse(content)
   let children = fragment.children
   walk(htmlTree, leaf => {
+    leaf.context = component.path
     if (localVariables.length > 0) {
       inlineLocalVariablesInFragment(leaf, localVariables)
     }
@@ -365,7 +369,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     const tag = fragment.tagName
     const attrs = fragment.attributes
     const keys = attrs ? attrs.map(attr => attr.key) : []
-    const component = components.find(component => component.name === tag)
+    const context = fragment.context || '.'
+    const component = components.find(component => component.name === tag && component.files && component.files.includes(context))
     const { languages } = options
     plugins.forEach(plugin => {
       plugin.run({
