@@ -81,7 +81,6 @@ module.exports = function ({ fragment, tree, attrs, variables, translations, lan
       const guard = identifier(variables)
       variables.push(guard)
       tree.append(getForLoop(name, ast.body, variables, valueIdentifier, guard))
-      console.log(tree.source)
       variables.pop()
       variables.pop()
       variables.pop()
