@@ -9,7 +9,7 @@ const { parse } = require('./html')
 const { normalize } = require('./array')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
-const { isCurlyTag, isImportTag, getTagValue, extract } = require('./string')
+const { isCurlyTag, isSquareTag, isImportTag, getTagValue, extract } = require('./string')
 const Component = require('../Component')
 const Bundler = require('../Bundler')
 const tags = require('../tags')
@@ -193,38 +193,40 @@ function inlineExpressions (leaf, component, localVariables) {
         const parts = extract(string)
         const result = parts.reduce((accumulator, node) => {
           const { value } = node
-          if (node.type === 'text') {
-            return accumulator + value
-          } else {
-            const input = getTagValue(value)
-            if (isCurlyTag(input)) { return accumulator + value }
-            const source = addPlaceholders(input)
-            const ast = new AbstractSyntaxTree(source)
-            let replaced = false
-            ast.replace({
-              enter: (node, parent) => {
-                // TODO investigate
-                // this is too optimistic
-                if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
-                  const variable = localVariables.find(variable => variable.key === node.name || placeholderName(variable.key) === node.name)
-                  if (variable) {
-                    replaced = true
-                    if (isCurlyTag(variable.value)) {
-                      return convertToExpression(getTagValue(variable.value))
-                    }
-                    return { type: 'Literal', value: variable.value }
-                  }
-                }
-                return node
-              }
-            })
-            if (replaced) {
-              return accumulator + '{' + ast.source.replace(/;\n$/, '') + '}'
-            } else if (node.filters && node.filters.length > 0) {
-              return accumulator + node.original
-            }
+          if (node.type === 'text' && !isSquareTag(value)) {
             return accumulator + value
           }
+          const input = isSquareTag(value) ? value : getTagValue(value)
+          if (isCurlyTag(input)) { return accumulator + value }
+          const source = addPlaceholders(input)
+          const ast = new AbstractSyntaxTree(source)
+          let replaced = false
+          ast.replace({
+            enter: (node, parent) => {
+              // TODO investigate
+              // this is too optimistic
+              if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
+                const variable = localVariables.find(variable => variable.key === node.name || placeholderName(variable.key) === node.name)
+                if (variable) {
+                  replaced = true
+                  if (isCurlyTag(variable.value)) {
+                    return convertToExpression(getTagValue(variable.value))
+                  }
+                  return { type: 'Literal', value: variable.value }
+                }
+              }
+              return node
+            }
+          })
+          if (replaced) {
+            if (isSquareTag(value)) {
+              return accumulator + ast.source.replace(/;\n$/, '')
+            }
+            return accumulator + '{' + ast.source.replace(/;\n$/, '') + '}'
+          } else if (node.filters && node.filters.length > 0) {
+            return accumulator + node.original
+          }
+          return accumulator + value
         }, '')
         attr[type] = result
       }
