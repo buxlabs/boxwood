@@ -95,7 +95,7 @@ test('i18n: translations in yaml - format validation', async assert => {
   assert.deepEqual(error1.type, 'TranslationError')
   assert.deepEqual(error1.message, 'YAML translation is unparseable')
   assert.deepEqual(error2.type, 'TranslationError')
-  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_3358967495 key')
+  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_196157161 key')
   assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
 
   var { template, errors } = await compile(`

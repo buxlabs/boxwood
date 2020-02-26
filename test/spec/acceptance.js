@@ -84,7 +84,7 @@ test('acceptance: shorthand syntax for conditions', async assert => {
   await suite('shorthand-syntax-for-conditions', assert)
 })
 
-test.skip('acceptance: link as a component', async assert => {
+test('acceptance: link as a component', async assert => {
   await suite('link-as-component', assert)
 })
 
