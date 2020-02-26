@@ -19,34 +19,34 @@ const { findAsset } = require('./files')
 const { getScopeProperties } = require('./scope')
 let asyncCounter = 0
 
-function collectComponentsFromImport (fragment, components, component, assets, options) {
+function collectComponentsFromImport (fragment, components, context, assets, options) {
   const attrs = fragment.attributes
   const names = getComponentNames(attrs)
   if (names.length === 1) {
     const name = names[0]
     if (!hasShorthandSyntax(fragment)) {
       const path = attrs[1].value
-      collectComponent(name, path, components, component, assets, options)
+      collectComponent(name, path, components, context, assets, options)
     } else {
       const lastAttribute = attrs[attrs.length - 1]
       const dir = lastAttribute.value
       const path = join(dir, `${name}.html`)
-      collectComponent(name, path, components, component, assets, options)
+      collectComponent(name, path, components, context, assets, options)
     }
   } else {
     const lastAttribute = attrs[attrs.length - 1]
     const dir = lastAttribute.value
     names.forEach(name => {
       const path = join(dir, `${name}.html`)
-      collectComponent(name, path, components, component, assets, options)
+      collectComponent(name, path, components, context, assets, options)
     })
   }
 }
 
-function collectComponent (name, path, components, component, assets, options) {
+function collectComponent (name, path, components, context, assets, options) {
   let paths = [].concat(options.paths)
-  if (component) {
-    paths = paths.concat(dirname(component.path))
+  if (context) {
+    paths = paths.concat(dirname(context))
   }
   if (components) {
     paths = paths.concat(components.map(component => dirname(component.path)))
@@ -113,30 +113,44 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options) {
 
 function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, errors, options) {
   const path = fragment.attributes[0].value
+  collectComponentFromPath(path, fragment, assets, context, plugins, errors, options)
+}
+
+function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, errors, options) {
+  const attr = fragment.attributes.find(attr => attr.key === 'partial')
+  if (!attr) { return null }
+  const path = attr.value
+  collectComponentFromPath(path, fragment, assets, context, plugins, errors, options)
+  fragment.attributes = []
+}
+
+function collectComponentFromPath (path, fragment, assets, context, plugins, errors, options) {
   let paths = [].concat(options.paths)
   if (context) {
     paths = [dirname(context)].concat(paths)
   }
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
+  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, errors, assets, options)
+}
 
-  const content = asset.source
-  const htmlTree = parse(content)
+function inlineData (content, path, component, fragment, assets, plugins, errors, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
+  const htmlComponent = new Component(content, localVariables)
+  component && htmlComponent.optimize()
+  const htmlTree = parse(htmlComponent.source)
   walk(htmlTree, leaf => {
-    leaf.context = asset.path
+    leaf.context = path
     if (localVariables.length > 0) {
       inlineLocalVariablesInFragment(leaf, localVariables)
     }
     inlineAttributesInIfStatement(leaf)
   })
   walk(htmlTree, leaf => {
-    if (localVariables.length > 0) {
-      inlineExpressions(leaf, null, localVariables)
-    }
+    inlineExpressions(leaf, component, localVariables)
   })
   runPlugins(htmlTree, content, plugins, assets, errors, options)
-  fragment.children = htmlTree
+  return htmlTree
 }
 
 function inlineLocalVariablesInFragment (leaf, localVariables) {
@@ -185,6 +199,7 @@ function inlineExpressions (leaf, component, localVariables) {
     // the limitation can be unexpected
     leaf.root = true
   }
+  if (localVariables.length === 0) { return null }
   if (leaf.attributes) {
     leaf.attributes.forEach(attr => {
       const { key, value } = attr
@@ -237,37 +252,6 @@ function inlineExpressions (leaf, component, localVariables) {
   }
 }
 
-function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, errors, options) {
-  const attr = fragment.attributes.find(attr => attr.key === 'partial')
-  if (attr) {
-    const path = attr.value
-    let paths = [].concat(options.paths)
-    if (context) {
-      paths = [dirname(context)].concat(paths)
-    }
-    const asset = findAsset(path, assets, { paths, aliases: options.aliases })
-    if (!asset) return
-    const content = asset.source
-    const htmlTree = parse(content)
-    const localVariables = normalizeAttributes(fragment.attributes)
-    walk(htmlTree, leaf => {
-      leaf.context = asset.path
-      if (localVariables.length > 0) {
-        inlineLocalVariablesInFragment(leaf, localVariables)
-      }
-      inlineAttributesInIfStatement(leaf)
-    })
-    walk(htmlTree, leaf => {
-      if (localVariables.length > 0) {
-        inlineExpressions(leaf, null, localVariables)
-      }
-    })
-    runPlugins(htmlTree, content, plugins, assets, errors, options)
-    fragment.attributes = []
-    fragment.children = htmlTree
-  }
-}
-
 function collectInlineComponents (fragment, attributes, components) {
   const { key } = attributes[attributes.length - 1]
   const { content } = fragment.children[0]
@@ -277,36 +261,22 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function resolveComponent (tree, component, fragment, components, plugins, errors, assets, options) {
+function resolveComponent (content, path, component, fragment, components, plugins, errors, assets, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
-  const htmlComponent = new Component(component.content, localVariables)
-  htmlComponent.optimize()
-  const content = htmlComponent.source
+  const htmlTree = inlineData(content, path, component, fragment, assets, plugins, errors, options)
 
-  const htmlTree = parse(content)
-  let children = fragment.children
-  walk(htmlTree, leaf => {
-    leaf.context = component.path
-    if (localVariables.length > 0) {
-      inlineLocalVariablesInFragment(leaf, localVariables)
-    }
-    inlineAttributesInIfStatement(leaf)
-  })
-  walk(htmlTree, leaf => {
-    inlineExpressions(leaf, component, localVariables)
-  })
-  runPlugins(htmlTree, content, plugins, assets, errors, options)
   const currentComponents = []
   let slots = 0
+  let children = fragment.children
   walk(htmlTree, async (current, parent) => {
     const attrs = current.attributes || []
     const keys = attrs.map(attr => attr.key)
     if (isImportTag(current.tagName)) {
-      collectComponentsFromImport(current, currentComponents, component, assets, options)
+      collectComponentsFromImport(current, currentComponents, path, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, assets, component.path, plugins, errors, options)
+      collectComponentsFromPartialOrRender(current, assets, path, plugins, errors, options)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, assets, component.path, plugins, errors, options)
+      collectComponentsFromPartialAttribute(current, assets, path, plugins, errors, options)
     } else if (
       (current.tagName === 'template' && keys.length > 0) ||
       (current.tagName === 'script' && keys.includes('component'))
@@ -315,7 +285,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
-      resolveComponent(tree, currentComponent, current, components, plugins, errors, assets, options)
+      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, components, plugins, errors, assets, options)
       current.used = true
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
@@ -354,7 +324,7 @@ function resolveComponent (tree, component, fragment, components, plugins, error
   // we need to ignore it
   // but we can't ignore children nodes
   // can we do it better than marking the node as a slot?
-  fragment.tagName = 'slot'
+  if (component) { fragment.tagName = 'slot' }
   return { fragment, localVariables }
 }
 
@@ -387,7 +357,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(tree, component, fragment, components, plugins, errors, assets, options)
+      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, components, plugins, errors, assets, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
