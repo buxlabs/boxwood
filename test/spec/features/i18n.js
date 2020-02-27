@@ -385,6 +385,28 @@ test('i18n: dynamic scoped translations in conditions', async assert => {
   assert.deepEqual(template({ language: 'pl' }, escape), '<div><h1>foo</h1><h2>bar</h2></div>')
 })
 
+test('i18n: dynamic scoped translations in conditions with translations at the bottom', async assert => {
+  var { template } = await compile(`
+    <import ban from="./attributes/ban.html">
+    <ban
+      foo|translate="baz"
+      bar|translate="qux"
+    />
+    <i18n yaml>
+    baz:
+    - 'baz'
+    - 'baz'
+    qux:
+    - 'qux'
+    - 'qux'
+    </i18n>
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/translations')],
+    languages: ['pl', 'en']
+  })
+  assert.deepEqual(template({ language: 'pl' }, escape), '<div><h1>baz</h1><h2>qux</h2></div>')
+})
+
 test('i18n: dynamic translations', async assert => {
   var { template } = await compile(`
     <i18n yaml>
