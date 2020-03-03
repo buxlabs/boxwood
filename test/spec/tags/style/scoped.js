@@ -233,3 +233,15 @@ test('style[scoped]: square tags with multiple matching strings', async assert =
   `)
   assert.deepEqual(template({ baz: 'qux' }, escape), '<div class="scope-3071972208 foo bar qux"></div><style>.scope-3071972208.foo{color:red}.scope-3071972208.bar{height:100px}</style>')
 })
+
+test.skip('style[scoped]', async assert => {
+  const { template } = await compile(`
+    <img class="[rounded && 'rounded']">
+    <style scoped>
+      .rounded {
+        border-radius: 100%;
+      }
+    </style>
+  `)
+  assert.deepEqual(template({ rounded: true }, escape), '<img class="scope-3549884994 rounded"><style>.scope-3549884994.rounded{border-radius:100%}</style>')
+})
