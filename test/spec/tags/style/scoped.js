@@ -245,3 +245,18 @@ test('style[scoped]: shorthand syntax and scoped styles', async assert => {
   `)
   assert.deepEqual(template({ rounded: true }, escape), '<img class="scope-3549884994 rounded"><style>.scope-3549884994.rounded{border-radius:100%}</style>')
 })
+
+test.skip('style[scoped]: shorthand syntax with an expression and scoped styles', async assert => {
+  const { template } = await compile(`
+    <img class="[floated && 'floated {floated}']">
+    <style scoped>
+      .floated.right {
+        float: right;
+      }
+      .floated.left {
+        float: left;
+      }
+    </style>
+  `)
+  assert.deepEqual(template({ floated: "right" }, escape), '<img class="scope-1275170639 floated right"><style>.scope-1275170639.floated.right{float:right}.scope-1275170639.floated.left{float:left}</style>')
+})
