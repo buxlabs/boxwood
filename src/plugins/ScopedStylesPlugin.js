@@ -87,19 +87,27 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
         }
       })
     } else if (isSquareTag(string)) {
+      const isStringLiteral = (node) => {
+        return node.type === 'Literal' && typeof node.value === 'string'
+      }
+      const setScope = (node) => {
+        const candidate = node.value.trim()
+        if (candidate) {
+          const parts = candidate.split(/\s+/g)
+          scopes.forEach(scope => {
+            if (scope.type === 'class' && parts.includes(scope.name)) {
+              strings.unshift(scope.id)
+            }
+          })
+        }
+      }
       const source = string
       const tree = new AbstractSyntaxTree(source)
+      AbstractSyntaxTree.walk(tree, node => {
+        if (isStringLiteral(node)) { setScope(node) }
+      })
       tree.body[0].expression.elements.forEach(node => {
-        if (node.type === 'Literal' && typeof node.value === 'string') {
-          const candidate = node.value.trim()
-          if (candidate) {
-            const parts = candidate.split(/\s+/g)
-            scopes.forEach(scope => {
-              if (scope.type === 'class' && parts.includes(scope.name)) {
-                strings.unshift(scope.id)
-              }
-            })
-          }
+        if (isStringLiteral(node)) {
           strings.push(node.value)
         } else {
           const expression = AbstractSyntaxTree.generate(node)
