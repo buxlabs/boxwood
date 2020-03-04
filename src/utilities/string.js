@@ -30,6 +30,8 @@ function getTagValue (value) {
 }
 
 function extract (value) {
+  // is this the best way? should the lexer handle it?
+  if (isSquareTag(value)) { return [{ type: 'expression', value }] }
   const tokens = lexer(value.trim().replace(/\n/g, ''))
   const objects = tokens.map((token, index) => {
     if (token.type === 'expression') {

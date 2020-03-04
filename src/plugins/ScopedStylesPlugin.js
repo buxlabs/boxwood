@@ -90,7 +90,10 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
       const isStringLiteral = (node) => {
         return node.type === 'Literal' && typeof node.value === 'string'
       }
-      const setScope = (node) => {
+      const isTemplateLiteral = (node) => {
+        return node.type === 'TemplateLiteral'
+      }
+      const setScopeFromStringLiteral = (node) => {
         const candidate = node.value.trim()
         if (candidate) {
           const parts = candidate.split(/\s+/g)
@@ -101,10 +104,25 @@ function addScopeToHtmlClassAttribute (tag, attributes, scopes) {
           })
         }
       }
+      const setScopeFromTemplateLiteral = (node) => {
+        const { quasis } = node
+        quasis.forEach(item => {
+          const { raw } = item.value
+          if (typeof raw === 'string') {
+            const parts = raw.split(/\s+/g)
+            scopes.forEach(scope => {
+              if (scope.type === 'class' && parts.includes(scope.name)) {
+                strings.unshift(scope.id)
+              }
+            })
+          }
+        })
+      }
       const source = string
       const tree = new AbstractSyntaxTree(source)
       AbstractSyntaxTree.walk(tree, node => {
-        if (isStringLiteral(node)) { setScope(node) }
+        if (isStringLiteral(node)) { setScopeFromStringLiteral(node) }
+        if (isTemplateLiteral(node)) { setScopeFromTemplateLiteral(node) }
       })
       tree.body[0].expression.elements.forEach(node => {
         if (isStringLiteral(node)) {
