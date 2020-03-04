@@ -334,10 +334,9 @@ function convertTag (fragment, variables, currentFilters, translations, language
             }
           })
         }
-      } else {
+      } else if (attr.value) {
         parts.push(getLiteral(` ${getName(attr.key)}="`))
-        const { value } = attr
-        parts.push(convertAttribute(attr.key, value, variables, currentFilters, translations, languages))
+        parts.push(convertAttribute(attr.key, attr.value, variables, currentFilters, translations, languages))
         parts.push(getLiteral('"'))
       }
     })

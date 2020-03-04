@@ -84,12 +84,17 @@ test('basic: it strips unwanted whitespace in tag definition', async assert => {
 
 test('basic: it works for empty value attribute', async assert => {
   var { template } = await compile('<input value="">')
-  assert.deepEqual(template(), '<input value="">')
+  assert.deepEqual(template(), '<input>')
 })
 
 test('basic: it works for empty class attribute', async assert => {
   var { template } = await compile('<input class="">')
-  assert.deepEqual(template(), '<input class="">')
+  assert.deepEqual(template(), '<input>')
+})
+
+test('basic: it works for a disabled attribute', async assert => {
+  var { template } = await compile('<input disabled>')
+  assert.deepEqual(template(), '<input disabled>')
 })
 
 test('basic: it handles variables', async assert => {

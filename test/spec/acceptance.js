@@ -28,10 +28,6 @@ test('acceptance: import-multiple-components', async assert => {
   await suite('import-multiple-components', assert)
 })
 
-test('acceptance: shorthand-attribute-syntax', async assert => {
-  await suite('shorthand-attribute-syntax', assert)
-})
-
 test('acceptance: markdown', async assert => {
   await suite('markdown', assert)
 })
@@ -78,6 +74,14 @@ test('acceptance: template-literals', async assert => {
 
 test('acceptance: event listeners', async assert => {
   await suite('event-listeners', assert)
+})
+
+test('acceptance: shorthand-attribute-syntax', async assert => {
+  await suite('shorthand-attribute-syntax', assert)
+})
+
+test('acceptance: shorthand-attribute-syntax-unused-params', async assert => {
+  await suite('shorthand-attribute-syntax-unused-params', assert)
 })
 
 test('acceptance: shorthand syntax for conditions', async assert => {
