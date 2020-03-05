@@ -1,6 +1,6 @@
-import test from 'ava'
-import { parse } from './utilities/html'
-import Linter from './Linter'
+const test = require('ava')
+const { parse } = require('./utilities/html')
+const Linter = require('./Linter')
 
 test('Linter: unused components', async assert => {
   const linter = new Linter()

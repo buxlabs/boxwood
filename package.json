@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "ava",
+    "test": "ava 'test/spec/**/*.spec.js' 'src/**/*.spec.js'",
     "coverage": "nyc npm test",
-    "benchmark": "ava test/benchmark.js --verbose",
+    "benchmark": "ava test/benchmark.spec.js --verbose",
     "watch": "npm test -- --watch"
   },
   "ava": {
@@ -77,7 +77,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
-    "ava": "^2.4.0",
+    "ava": "^3.5.0",
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
     "express": "^4.16.4",

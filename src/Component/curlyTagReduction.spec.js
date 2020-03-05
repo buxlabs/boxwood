@@ -1,5 +1,5 @@
-import test from 'ava'
-import curlyTagReduction from './curlyTagReduction'
+const test = require('ava')
+const curlyTagReduction = require('./curlyTagReduction')
 
 test('curlyTagReduction: simplifies expressions in curly tags', assert => {
   assert.deepEqual(curlyTagReduction('{foo}', []), '')

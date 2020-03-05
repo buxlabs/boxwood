@@ -1,6 +1,6 @@
-import test from 'ava'
-import Bundler from './Bundler'
-import { join } from 'path'
+const test = require('ava')
+const Bundler = require('./Bundler')
+const { join } = require('path')
 
 test('Bundler: keeps simple code', async assert => {
   const source = 'const foo = "bar"; console.log(foo)'

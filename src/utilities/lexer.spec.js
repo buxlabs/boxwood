@@ -1,5 +1,5 @@
-import test from 'ava'
-import lexer from './lexer'
+const test = require('ava')
+const lexer = require('./lexer')
 
 test('lexer: returns tokens', assert => {
   assert.deepEqual(lexer('foo'), [{ type: 'text', value: 'foo' }])

@@ -1,5 +1,5 @@
-import test from 'ava'
-import Transpiler from './Transpiler'
+const test = require('ava')
+const Transpiler = require('./Transpiler')
 
 const transpile = (source) => {
   const transpiler = new Transpiler()

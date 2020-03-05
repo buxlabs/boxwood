@@ -1,5 +1,5 @@
-import test from 'ava'
-import { normalizeAttributes } from './node'
+const test = require('ava')
+const { normalizeAttributes } = require('./node')
 
 test('normalizeAttributes: empty attribute value considered as a boolean true', assert => {
   assert.deepEqual(normalizeAttributes([{ key: 'open', value: null }]), [{ key: 'open', value: '{true}' }])
