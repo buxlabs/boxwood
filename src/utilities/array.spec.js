@@ -1,5 +1,5 @@
-import test from 'ava'
-import { normalize } from './array'
+const test = require('ava')
+const { normalize } = require('./array')
 
 test('normalize: sets proper type for action and identifiers', assert => {
   assert.deepEqual(normalize([

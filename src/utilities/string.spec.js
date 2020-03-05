@@ -1,5 +1,5 @@
-import test from 'ava'
-import { extract } from './string'
+const test = require('ava')
+const { extract } = require('./string')
 
 test('extract: extracts from tokens filters and values', assert => {
   assert.deepEqual(extract('foo'), [{ type: 'text', value: 'foo' }])

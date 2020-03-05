@@ -68,8 +68,8 @@ HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a 
 ## Usage
 
 ```js
-const { compile } = import 'pure-engine'
-const escape = import 'escape-html'
+const { compile } = require('pure-engine')
+const escape = require('escape-html')
 
 async function example () {
   const { template } = await compile('<div>{foo}</div>')

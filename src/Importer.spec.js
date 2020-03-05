@@ -1,6 +1,6 @@
-import test from 'ava'
-import Importer from './Importer'
-import { join } from 'path'
+const test = require('ava')
+const Importer = require('./Importer')
+const { join } = require('path')
 const fixtures = join(__dirname, '../test/fixtures/Importer')
 const hooks = {
   onBeforeFile () {},
