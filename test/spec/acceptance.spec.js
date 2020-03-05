@@ -92,6 +92,10 @@ test('acceptance: link as a component', async assert => {
   await suite('link-as-component', assert)
 })
 
+test.skip('acceptance: pricing-table', async assert => {
+  await suite('pricing-table', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
