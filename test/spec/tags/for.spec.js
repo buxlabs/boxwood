@@ -361,5 +361,5 @@ test.skip('for: inlining with an object', async assert => {
     </template>
     <foo baz="{ { qux: 'quux' } }" />
   `)
-  assert.deepEqual(template({}, escape), 'foobar')
+  assert.deepEqual(template({}, escape), 'quxquux')
 })
