@@ -10,7 +10,12 @@
           <if price is present>
             {price}
           <else>
-            Unknown
+            foo
+          <end>
+          <if price is missing>
+            bar
+          <else>
+            {price}
           <end>
         </td>
       </tr>

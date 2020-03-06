@@ -2,8 +2,9 @@ const { flatten } = require('pure-utilities/collection')
 const { unique } = require('pure-utilities/array')
 const { ACTIONS } = require('./action')
 
-const ACTION_NAMES = ACTIONS.map(action => action.name.split('_'))
-const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTION_NAMES]))
+const ACTION_NAMES = ACTIONS.map(action => action.name)
+const ACTION_NAMES_IN_PARTS = ACTION_NAMES.map(name => name.split('_'))
+const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTION_NAMES_IN_PARTS]))
 
 function normalize (array, warnings) {
   const result = []
@@ -12,8 +13,8 @@ function normalize (array, warnings) {
     let attribute = array[i]
     let found = false
     index = i
-    for (let j = 0, jlen = ACTION_NAMES.length; j < jlen; j++) {
-      const action = ACTION_NAMES[j]
+    for (let j = 0, jlen = ACTION_NAMES_IN_PARTS.length; j < jlen; j++) {
+      const action = ACTION_NAMES_IN_PARTS[j]
       if (action[0] !== attribute.key) continue
       if (action.length === 1) {
         attribute.type = 'Action'
@@ -45,6 +46,11 @@ function normalize (array, warnings) {
       result.push(attribute)
     }
   }
+  result.forEach(item => {
+    if (ACTION_NAMES.includes(item.key)) {
+      item.type = 'Action'
+    }
+  })
   if (isInvalidAction(result)) {
     const action = result.reduce((accumulator, currentValue, index) => {
       accumulator += index === result.length - 1 ? currentValue.key : currentValue.key.concat(' ')

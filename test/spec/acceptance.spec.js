@@ -92,7 +92,7 @@ test('acceptance: link as a component', async assert => {
   await suite('link-as-component', assert)
 })
 
-test.skip('acceptance: pricing-table', async assert => {
+test('acceptance: pricing-table', async assert => {
   await suite('pricing-table', assert)
 })
 

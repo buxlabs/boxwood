@@ -9,6 +9,7 @@ const {
 } = require('astoptech')
 const { isCurlyTag, getTagValue, curlyTag } = require('../utilities/string')
 const { parse, stringify } = require('../utilities/html')
+const { inlineAttributesInIfStatement } = require('../utilities/inline')
 const walk = require('himalaya-walk')
 const { addPlaceholders, removePlaceholders } = require('../utilities/keywords')
 
@@ -141,6 +142,7 @@ function curlyTagReduction (string, variables) {
         node.forbidden = true
       })
     }
+    inlineAttributesInIfStatement(node, variables, true)
     if (node.type === 'text') {
       node.content = optimizeText(node.content, variables, newVariables)
     } else if (attributes && attributes.length > 0) {
