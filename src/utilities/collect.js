@@ -144,7 +144,7 @@ function inlineData (content, path, component, fragment, assets, plugins, errors
     if (localVariables.length > 0) {
       inlineLocalVariablesInFragment(leaf, localVariables)
     }
-    inlineAttributesInIfStatement(leaf)
+    inlineAttributesInIfStatement(leaf, localVariables)
   })
   walk(htmlTree, leaf => {
     inlineExpressions(leaf, component, localVariables)
@@ -177,14 +177,19 @@ function inlineLocalVariablesInFragment (leaf, localVariables) {
   }
 }
 
-function inlineAttributesInIfStatement (leaf) {
+function inlineAttributesInIfStatement (leaf, localVariables) {
+  // TODO we should handle elseif, unless etc.
   if (leaf.tagName === 'if') {
     const normalizedAttributes = normalize(leaf.attributes)
-
     leaf.attributes = normalizedAttributes.map(attr => {
       // TODO handle or remove words to numbers functionality
       if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
-        attr.key = `{${attr.key}}`
+        const variable = localVariables && localVariables.find(variable => variable.key === attr.key)
+        if (variable && isCurlyTag(variable.value)) {
+          attr.key = `${variable.value}`
+        } else {
+          attr.key = `{${attr.key}}`
+        }
       }
       return attr
     })
