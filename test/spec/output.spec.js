@@ -296,3 +296,21 @@ test('output: square syntax for one identifier', async assert => {
     return __t;
   }`))
 })
+
+test.skip('output: assigning variables', async assert => {
+  const { template } = await compile(`
+    <template foo>
+      <for car in cars>{car}</for>
+    </template>
+    <foo cars="{['BMW', 'Hyundai']}" />
+  `)
+  assert.deepEqual(normalize(template.toString()), normalize(`function render(__o, __e) {
+    var __t = "";
+    var c = ["BMW", "Hyundai"];
+    for (var a = 0, b = c.length; a < b; a++) {
+      var car = c[a];
+      __t += __e(car);
+    }
+    return __t;
+  }`))
+})
