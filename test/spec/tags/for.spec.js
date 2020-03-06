@@ -354,7 +354,7 @@ test('for: loop index', async assert => {
   assert.deepEqual(template({}, escape), "#1BMW#2Hyundai")
 })
 
-test.skip('for: inlining with an object', async assert => {
+test('for: inlining with an object', async assert => {
   const { template } = await compile(`
     <template foo>
       <for key and value in baz>{key}{value}</for>

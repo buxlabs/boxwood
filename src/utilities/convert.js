@@ -48,7 +48,7 @@ function convertToBinaryExpression (nodes) {
 
 function convertToExpression (string) {
   string = addPlaceholders(string)
-  const tree = new AbstractSyntaxTree(string)
+  const tree = new AbstractSyntaxTree(`(${string})`)
   tree.replace({ enter: removePlaceholders })
   const { expression } = tree.body[0]
   return expression
@@ -249,7 +249,7 @@ function isBooleanReturnFromExpression (node) {
 function convertText (text, variables, currentFilters, translations, languages, unescaped = false) {
   const nodes = extract(text).map(({ value, filters = [] }, index) => {
     if (isCurlyTag(value)) {
-      const property = value.substring(1, value.length - 1)
+      const property = value.substring(1, value.length - 1).trim()
       const expression = convertToExpression(property)
       filters.forEach(filter => currentFilters.push(filter))
       const name = expression.name
