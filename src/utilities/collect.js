@@ -6,7 +6,7 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 const { join, dirname } = require('path')
 const { parse } = require('./html')
-const { normalize } = require('./array')
+const { inlineAttributesInIfStatement } = require('./inline')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
 const { isCurlyTag, isSquareTag, isImportTag, getTagValue, extract } = require('./string')
@@ -173,25 +173,6 @@ function inlineLocalVariablesInFragment (leaf, localVariables) {
           attribute.value = variable.value
         }
       }
-    })
-  }
-}
-
-function inlineAttributesInIfStatement (leaf, localVariables) {
-  // TODO we should handle elseif, unless etc.
-  if (leaf.tagName === 'if') {
-    const normalizedAttributes = normalize(leaf.attributes)
-    leaf.attributes = normalizedAttributes.map(attr => {
-      // TODO handle or remove words to numbers functionality
-      if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
-        const variable = localVariables && localVariables.find(variable => variable.key === attr.key)
-        if (variable && isCurlyTag(variable.value)) {
-          attr.key = `${variable.value}`
-        } else {
-          attr.key = `{${attr.key}}`
-        }
-      }
-      return attr
     })
   }
 }
