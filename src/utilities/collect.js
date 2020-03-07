@@ -134,8 +134,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, err
   resolveComponent(asset.source, asset.path, null, fragment, [], plugins, errors, assets, options)
 }
 
-function inlineData (content, path, component, fragment, assets, plugins, errors, options) {
-  const localVariables = normalizeAttributes(fragment.attributes)
+function inlineData (content, path, component, fragment, assets, plugins, errors, localVariables, options) {
   const htmlComponent = new Component(content, localVariables)
   component && htmlComponent.optimize()
   const htmlTree = parse(htmlComponent.source)
@@ -249,7 +248,7 @@ function collectInlineComponents (fragment, attributes, components) {
 
 function resolveComponent (content, path, component, fragment, components, plugins, errors, assets, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
-  const htmlTree = inlineData(content, path, component, fragment, assets, plugins, errors, options)
+  const htmlTree = inlineData(content, path, component, fragment, assets, plugins, errors, localVariables, options)
 
   const currentComponents = []
   let slots = 0
@@ -361,8 +360,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       // variable and inline it there
       // so that the replacement code is only in one place
       ast.replace({
-        enter: node => {
-          if (node.type === 'Identifier' && !node.inlined && !node.omit) {
+        enter: (node, parent) => {
+          if (node.type === 'Identifier' && !node.inlined && !node.omit && parent.type !== 'VariableDeclarator') {
             const localVariable = localVariables.find(variable => variable.key === node.name)
             if (localVariable) {
               const variablesExcludingLocalVariable = variables.filter(variable => variable !== localVariable.key)
@@ -605,6 +604,8 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tags.space({ tree, attrs })
     } else if (tag === 'entity') {
       tags.entity({ tree, options, attrs })
+    } else if (tag === 'var') {
+      tags.var({ tree, attrs, variables })
     }
     depth -= 1
   } catch (exception) {

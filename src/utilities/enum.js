@@ -74,7 +74,8 @@ module.exports = {
     'font',
     'spacing',
     'space',
-    'entity'
+    'entity',
+    'var'
   ],
   UNESCAPED_NAMES: [
     'value',

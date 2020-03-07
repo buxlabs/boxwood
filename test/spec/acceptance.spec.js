@@ -96,6 +96,10 @@ test('acceptance: pricing-table', async assert => {
   await suite('pricing-table', assert)
 })
 
+test.skip('acceptance: variables', async assert => {
+  await suite('variables', assert)
+})
+
 async function suite (name, assert) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')

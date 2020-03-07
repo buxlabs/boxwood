@@ -125,6 +125,9 @@ function curlyTagReduction (string, variables) {
   const newVariables = []
   walk(tree, node => {
     if (node.forbidden) return
+    if (node.tagName === 'var') {
+      variables.push(node.attributes[0])
+    }
     if (isNodeAddingNewVariables(node)) {
       if (node.attributes.length === 3) {
         const attribute = node.attributes[0]
