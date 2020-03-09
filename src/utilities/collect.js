@@ -6,7 +6,7 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 const { join, dirname } = require('path')
 const { parse } = require('./html')
-const { inlineAttributesInIfStatement } = require('./inline')
+const { inlineAttributesInIfStatement, inlineLocalVariablesInFragment } = require('./inline')
 const { clone } = require('./object')
 const { addPlaceholders, placeholderName } = require('./keywords')
 const { isCurlyTag, isSquareTag, isImportTag, getTagValue, extract } = require('./string')
@@ -150,30 +150,6 @@ function inlineData (content, path, component, fragment, assets, plugins, errors
   })
   runPlugins(htmlTree, content, plugins, assets, errors, options)
   return htmlTree
-}
-
-function inlineLocalVariablesInFragment (leaf, localVariables) {
-  if (leaf.type === 'text') {
-    localVariables.forEach(variable => {
-      if (!isCurlyTag(variable.value)) {
-        leaf.content = leaf.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-      }
-    })
-  }
-  if (leaf.attributes && leaf.attributes.length > 0) {
-    leaf.attributes.forEach(attribute => {
-      if (isCurlyTag(attribute.key)) {
-        const key = getTagValue(attribute.key)
-        const variable = localVariables.find(localVariable => {
-          return localVariable.key === key
-        })
-        if (variable) {
-          attribute.key = variable.key
-          attribute.value = variable.value
-        }
-      }
-    })
-  }
 }
 
 function inlineExpressions (leaf, component, localVariables) {

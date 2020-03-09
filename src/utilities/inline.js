@@ -1,4 +1,4 @@
-const { isCurlyTag } = require('./string')
+const { isCurlyTag, getTagValue } = require('./string')
 const { normalize } = require('./array')
 
 const CONDITION_TAGS = ['if', 'elseif', 'unless', 'elseunless']
@@ -24,4 +24,31 @@ function inlineAttributesInIfStatement (node, localVariables, remove) {
   }
 }
 
-module.exports = { inlineAttributesInIfStatement }
+function inlineLocalVariablesInFragment (node, variables) {
+  if (node.type === 'text') {
+    variables.forEach(variable => {
+      if (!isCurlyTag(variable.value)) {
+        node.content = node.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+      }
+    })
+  }
+  if (node.attributes && node.attributes.length > 0) {
+    node.attributes.forEach(attribute => {
+      if (isCurlyTag(attribute.key)) {
+        const key = getTagValue(attribute.key)
+        const variable = variables.find(localVariable => {
+          return localVariable.key === key
+        })
+        if (variable) {
+          attribute.key = variable.key
+          attribute.value = variable.value
+        }
+      }
+    })
+  }
+}
+
+module.exports = {
+  inlineAttributesInIfStatement,
+  inlineLocalVariablesInFragment
+}
