@@ -43,6 +43,14 @@ function inlineLocalVariablesInFragment (node, variables) {
           attribute.key = variable.key
           attribute.value = variable.value
         }
+      } else if (isCurlyTag(attribute.value)) {
+        const key = getTagValue(attribute.value)
+        const variable = variables.find(localVariable => {
+          return localVariable.key === key
+        })
+        if (variable) {
+          attribute.value = variable.value
+        }
       }
     })
   }

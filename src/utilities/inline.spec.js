@@ -14,3 +14,10 @@ test('#inlineLocalVariablesInFragment inlines variables in the attribute keys', 
   inlineLocalVariablesInFragment(node, variables)
   assert.deepEqual(node.attributes, [{ key: 'foo', value: 'world' }])
 })
+
+test('#inlineLocalVariablesInFragment inlines variables in the attribute values', assert => {
+  const node = { type: 'text', content: 'hello', attributes: [{ key: 'foo', value: '{foo}' }] }
+  const variables = [{ key: 'foo', value: 'world' }]
+  inlineLocalVariablesInFragment(node, variables)
+  assert.deepEqual(node.attributes, [{ key: 'foo', value: 'world' }])
+})
