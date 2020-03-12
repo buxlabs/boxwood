@@ -176,7 +176,7 @@ hello:
 </i18n>
 ```
 
-* compiler tag for scripts
+* compiler attribute for scripts
 
 ```html
 <div id="app"></div>
@@ -189,6 +189,14 @@ render(
   <Foo bar="baz" />,
   document.getElementById("app")
 )
+</script>
+```
+
+* polyfills attribute for scripts
+
+```html
+<script polyfills="['promise.js']">
+new Promise(resolve => resolve())
 </script>
 ```
 

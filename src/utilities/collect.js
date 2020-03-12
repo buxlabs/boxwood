@@ -1,4 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const serialize = require('asttv')
 const { getLiteral } = require('./ast')
 const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
 const { convertText, convertTag } = require('./convert')
@@ -372,6 +373,25 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
         }
       })
+    } else if (tag === 'script' && keys.includes('polyfills')) {
+      let content = '<script>'
+      const { value } = attrs.find(attr => attr.key === 'polyfills')
+      const ast = new AbstractSyntaxTree(value)
+      const polyfills = serialize(ast.body[0].expression)
+      polyfills.forEach(polyfill => {
+        const asset = findAsset(polyfill, assets, options)
+        if (asset) {
+          content += asset.source
+        } else {
+          warnings.push({ type: 'POLYFILL_NOT_FOUND', message: `${polyfill} polyfill not found` })
+        }
+      })
+      fragment.children.forEach(node => {
+        node.used = true
+        content += node.content
+      })
+      content += '</script>'
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
     } else if (tag === 'script' && keys.includes('compiler')) {
       const { value } = attrs.find(attr => attr.key === 'compiler')
       const compiler = options.compilers[value]
