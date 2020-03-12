@@ -2,6 +2,7 @@ const Transpiler = require('./Transpiler')
 const Parser = require('./Parser')
 const Renderer = require('./Renderer')
 const Generator = require('./Generator')
+const Cache = require('./Cache')
 const { getOptions, validateOptions } = require('./utilities/options')
 const { normalizeErrors } = require('./utilities/errors')
 
@@ -31,12 +32,16 @@ const generate = async (source, html, options) => {
 class Compiler {
   constructor (options) {
     this.options = getOptions(options)
+    this.cache = new Cache()
   }
 
   async compile (input) {
+    if (this.options.cache && this.cache.has(input)) { return this.cache.get(input) }
     const source = transpile(input)
     const tree = parse(source)
-    return generate(source, tree, this.options)
+    const output = generate(source, tree, this.options)
+    this.options.cache && this.cache.set(input, output)
+    return output
   }
 }
 
