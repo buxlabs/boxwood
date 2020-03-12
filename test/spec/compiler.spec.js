@@ -126,3 +126,12 @@ test('compiler: returns errors for invalid styles option', async assert => {
   assert.deepEqual(errors.length, 1) 
   assert.deepEqual(errors[0].message, `Compiler option "styles.spacing.nano" allowed options: small, medium, large`)      
 })
+
+test('compiler: caches templates and related data', async assert => {
+  const output1 = await compile('<div>foo</div>', { cache: true })
+  const output2 = await compile('<div>foo</div>', { cache: true })
+  const output3 = await compile('<div>bar</div>', { cache: true })
+  assert.deepEqual(output1.from, 'generator')
+  assert.deepEqual(output2.from, 'cache')
+  assert.deepEqual(output3.from, 'generator')
+})

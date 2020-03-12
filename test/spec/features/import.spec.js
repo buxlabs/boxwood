@@ -1000,7 +1000,7 @@ test('import: caches remotes components', async assert => {
   var { template } = await compile(`
     <import foo from="http://localhost:${port}/baz/foo.html"><foo/>
     <import bar from="http://localhost:${port}/baz/bar.html"><bar/>
-    `, { paths: [] }
+    `, { cache: true, paths: [] }
   )
   assert.deepEqual(template({}, escape), 'foo<div>baz</div>bar<div>baz</div>')
   await server.stop()
@@ -1039,6 +1039,7 @@ test('import: caches local components', async assert => {
     <import foo from="./foo.html"><foo/>
     <import bar from="./nested/bar.html"><bar/>
     `, {
+      cache: true,
       paths: [path.join(__dirname, '../../fixtures/dynamic')],
       hooks: {
         onBeforeFile (filepath) {

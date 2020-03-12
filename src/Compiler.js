@@ -29,19 +29,20 @@ const generate = async (source, html, options) => {
   }
 }
 
+const cache = new Cache()
+
 class Compiler {
   constructor (options) {
     this.options = getOptions(options)
-    this.cache = new Cache()
   }
 
   async compile (input) {
-    if (this.options.cache && this.cache.has(input)) { return this.cache.get(input) }
+    if (this.options.cache === true && cache.has(input)) { return { ...cache.get(input), from: 'cache' } }
     const source = transpile(input)
     const tree = parse(source)
-    const output = generate(source, tree, this.options)
-    this.options.cache && this.cache.set(input, output)
-    return output
+    const output = await generate(source, tree, this.options)
+    this.options.cache === true && cache.set(input, output)
+    return { ...output, from: 'generator' }
   }
 }
 

@@ -9,7 +9,7 @@ module.exports = {
       compilers: {},
       paths: [],
       languages: [],
-      cache: true,
+      cache: false,
       variables: {
         template: TEMPLATE_VARIABLE,
         object: OBJECT_VARIABLE,
