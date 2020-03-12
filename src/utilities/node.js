@@ -1,4 +1,6 @@
 const { join } = require('path')
+const AbstractSyntaxTree = require('abstract-syntax-tree')
+const serialize = require('asttv')
 const walk = require('himalaya-walk')
 const { parse } = require('./html')
 const { isCurlyTag, isImportTag, isPartialTag } = require('./string')
@@ -22,6 +24,10 @@ function getAssetPath ({ attributes }, name) {
 function getAssetPaths (node, name) {
   if (isStyleWithInlineAttribute(node)) {
     return getAssetPathsFromStyleTag(node)
+  } else if (isScriptWithPolyfillsAttribute(node)) {
+    const attribute = node.attributes.find(attribute => attribute.key === 'polyfills')
+    const tree = new AbstractSyntaxTree(attribute.value)
+    return serialize(tree.body[0].expression)
   } else if (isTemplateTag(node)) {
     const { content } = node.children[0]
     const tree = parse(content)
@@ -59,6 +65,10 @@ function hasPartialAttribute (node) {
 function isScriptWithInlineAttribute (node) {
   return node.tagName === 'script' && node.attributes.find(attribute => attribute.key === 'inline') &&
     node.attributes.find(attribute => attribute.key === 'src')
+}
+
+function isScriptWithPolyfillsAttribute (node) {
+  return node.tagName === 'script' && node.attributes.find(attribute => attribute.key === 'polyfills')
 }
 
 function isLinkWithInlineAttribute (node) {
@@ -126,7 +136,7 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'IMPORT' })
     } else if (isPartialTag(node.tagName) || hasPartialAttribute(node)) {
       nodes.push({ node, kind: 'PARTIAL' })
-    } else if (isScriptWithInlineAttribute(node) || isGlobalInlineScript(node, options)) {
+    } else if (isScriptWithInlineAttribute(node) || isGlobalInlineScript(node, options) || isScriptWithPolyfillsAttribute(node)) {
       nodes.push({ node, kind: 'SCRIPT' })
     } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options) || isStyleWithInlineAttribute(node)) {
       nodes.push({ node, kind: 'STYLESHEET' })
