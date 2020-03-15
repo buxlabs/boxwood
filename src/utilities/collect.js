@@ -433,9 +433,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       if (!asset) return
       styles.push(asset.source.trim())
     } else if (tag === 'style') {
-      const { content } = fragment.children[0]
-      styles.push(content)
-      fragment.children[0].used = true
+      tags.style({ fragment, styles })
     } else if (tag === 'script') {
       let content = `<${tag}`
       fragment.attributes.forEach(attribute => {

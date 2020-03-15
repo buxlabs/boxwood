@@ -18,6 +18,7 @@ const elseifTag = require('./elseif')
 const elseTag = require('./else')
 const slotTag = require('./slot')
 const imgTag = require('./img')
+const styleTag = require('./style')
 const svgTag = require('./svg')
 const templateTag = require('./template')
 const translateTag = require('./translate')
@@ -44,6 +45,7 @@ module.exports = {
   else: elseTag,
   slot: slotTag,
   img: imgTag,
+  style: styleTag,
   svg: svgTag,
   template: templateTag,
   translate: translateTag,
