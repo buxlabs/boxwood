@@ -436,7 +436,24 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       const { content } = fragment.children[0]
       styles.push(content)
       fragment.children[0].used = true
-    } else if (tag === 'script' || tag === 'template') {
+    } else if (tag === 'script') {
+      let content = `<${tag}`
+      fragment.attributes.forEach(attribute => {
+        if (tag === 'style' && attribute.key === 'scoped') return
+        if (attribute.value) {
+          content += ` ${attribute.key}="${attribute.value}"`
+        } else {
+          content += ` ${attribute.key}`
+        }
+      })
+      content += '>'
+      fragment.children.forEach(node => {
+        node.used = true
+        content += node.content
+      })
+      content += `</${tag}>`
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
+    } else if (tag === 'template') {
       let content = `<${tag}`
       fragment.attributes.forEach(attribute => {
         if (tag === 'style' && attribute.key === 'scoped') return
