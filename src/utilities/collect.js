@@ -456,7 +456,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'template') {
       tags.template({ tree, fragment, options })
     } else if (tag === '!doctype') {
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<!doctype html>')))
+      tags.doctype({ tree, options })
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
       if (tag === 'svg' && keys.includes('from')) {
         const found = tags.svg({ fragment, attrs, assets, options })
