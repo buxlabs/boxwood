@@ -96,6 +96,10 @@ test('acceptance: pricing-table', async assert => {
   await suite('pricing-table', assert)
 })
 
+test.skip('acceptance: slot as a variable', async assert => {
+  await suite('slot-as-variable', assert)
+})
+
 test.skip('acceptance: variables', async assert => {
   await suite('variables', assert)
 })
