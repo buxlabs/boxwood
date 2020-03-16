@@ -95,8 +95,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
           return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
         })
         parent.body.splice(index, 1)
-        parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${result}`)))
-        parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
+        parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${result}</script>`)))
       }
     })
   } else if (keys.includes('compiler')) {
@@ -112,9 +111,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       leaf.used = true
       const result = compiler(leaf.content, params)
       if (typeof result === 'string') {
-        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
-        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(result)))
-        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
+        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`<script>${result}</script>`)))
       } else if (result instanceof Promise) {
         asyncCounter += 1
         const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
@@ -127,9 +124,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
               return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
             })
             parent.body.splice(index, 1)
-            parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
-            parent.body.splice(index + 1, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(source)))
-            parent.body.splice(index + 2, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral('</script>')))
+            parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`<script>${source}</script>`)))
           }
         })
       }
