@@ -75,7 +75,6 @@
     "yaml-js": "^0.2.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.3",
     "ava": "^3.5.1",
     "benchmark": "^2.1.4",
     "escape-html": "^1.0.3",
