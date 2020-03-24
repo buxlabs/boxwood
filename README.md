@@ -83,7 +83,11 @@ If you're using webpack you should use [pure-engine-loader](https://github.com/b
 
 ## API
 
-* import and require tags
+### Tags
+
+#### import/require
+
+You can import components and use them.
 
 ```html
 <import layout from="./layouts/default.html">
@@ -100,7 +104,11 @@ If you're using webpack you should use [pure-engine-loader](https://github.com/b
 
 It's possible to import multiple components from a given directory. Curly brackets within the import tag are optional.
 
-* render, partial and include tags
+You can use the special `<slot/>` tag if you want to render children nodes.
+
+#### render/partial/include
+
+You can also render html partials inline. It can be useful for fragments or pages like header, footer etc.
 
 ```html
 <partial from="./foo.html" />
@@ -108,7 +116,7 @@ It's possible to import multiple components from a given directory. Curly bracke
 <render partial="./foo.html" />
 ```
 
-* conditional tags: if, else, elseif, unless, elseunless
+#### if/else/elseif/unless/elseunless
 
 There are two syntaxes you can use - short and long. The short one allows you to specify the starting tags only, for example:
 
@@ -141,7 +149,9 @@ The long syntax requires to specify closing tags explicitly.
 </else>
 ```
 
-* loops: for, each, foreach
+#### for/each/foreach
+
+The only difference between those methods is what is being used under the hood, `<for>` uses a standard for tag, `<each>` and `<foreach>` call `.each(` and `.forEach(` method of given object.
 
 ```html
 <for car of cars>
@@ -157,17 +167,27 @@ The long syntax requires to specify closing tags explicitly.
 </for>
 ```
 
-* filters
+### Filters
+
+There are many filters available out of the box.
 
 ```html
 {title | capitalize}
 ```
 
-* special attributes
+### Attributes
+
+#### inline
+
+It's possible to inline images as base64 strings.
 
 ```html
 <img src="./foo.png" inline>
 ```
+
+#### scoped
+
+Scoped styles are adding special `scope-${number}` classes to both html and css to ensure they're unique.
 
 ```html
 <div class="foo">bar</div>
@@ -178,7 +198,11 @@ The long syntax requires to specify closing tags explicitly.
 </style>
 ```
 
-* built-in i18n support (translate tag and filter)
+### Internationalization
+
+#### i18n tag
+
+You can keep translations in every file. They're scoped so you can use same names in multiple files.
 
 ```html
 <h1><translate hello/></h1>
@@ -189,7 +213,13 @@ hello:
 </i18n>
 ```
 
-* compiler attribute for scripts
+The compiler needs to know the `languages`. The template needs to get the `language` to know which text to render.
+
+### Scripts
+
+#### compiler
+
+You can hook up any compiler, which will transform and inline the source code.
 
 ```html
 <div id="app"></div>
@@ -205,7 +235,9 @@ render(
 </script>
 ```
 
-* polyfills attribute for scripts
+#### polyfills
+
+Polyfills can be injected.
 
 ```html
 <script polyfills="['promise.js']">
@@ -214,6 +246,12 @@ new Promise(resolve => resolve())
 ```
 
 ## Examples
+
+The engine transforms html templates to a single rendering function. The compiler inlines variables, uses only the paths it needs and does other optimizations to create a fast template. There's still a big space for improvements, but the benchmarks look promising.
+
+Let's have a look at some examples.
+
+In this one, we'd like to render `{bar}`. The function has two parameters - __o (options) and __e (escape), which are referenced and used below.
 
 ```
 <if foo.length equals 0>{bar}</if>
@@ -229,6 +267,8 @@ function render(__o, __e) {
 }
 ```
 
+Let's have a look at a simple loop now.
+
 ```
 <for month in months>{month}</for>
 ```
@@ -243,6 +283,8 @@ function render(__o, __e) {
   return __t;
 }
 ```
+
+Using `<foreach` results with a slighty different code.
 
 ```
 <foreach month in months>{month}</foreach>
