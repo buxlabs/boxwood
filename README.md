@@ -84,14 +84,12 @@ const { compile } = require('pure-engine')
 const escape = require('escape-html')
 
 async function example () {
-  const { template } = await compile('<div>{foo}</div>')
+  const { template } = await compile('<div>{foo}</div>', { cache: false })
   console.log(template({ foo: 'bar' }, escape))
 }
 
 example()
 ```
-
-If you're using webpack you should use [pure-engine-loader](https://github.com/buxlabs/pure-engine-loader).
 
 ## API
 
