@@ -24,7 +24,7 @@ Pure Engine is a library designed to compile HTML templates into JS. It analyses
 
 The syntax of the template should be easy to read and write. There are three types of tags: curly, square and html tags.
 
-Status: Alpha / Proof of concept
+Status: Beta / Used in production / Needs security assessment
 
 ### Curly Tags
 
