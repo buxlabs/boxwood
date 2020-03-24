@@ -167,23 +167,125 @@ The only difference between those methods is what is being used under the hood, 
 </for>
 ```
 
+#### spacing
+
+Custom spacing can be tough. You can use a custom spacing tag, which can be used to define it per app basis.
+
+```html
+<spacing medium/>
+```
+
+You need to specify the heights as a part of the compiler's options.
+
+```js
+const { template } = await compile(`<spacing medium>`, {
+  styles: {
+    spacing: {
+      small: '25px',
+      medium: '50px',
+      big: '100px'
+    }
+  }
+})
+```
+
+#### space
+
+The engine removes unnecessary whitespaces to reduce the size of the template. You can add a space explicitly though.
+
+```js
+<space/>
+<space repeat="{5}"/>
+```
+
+#### entity
+
+Always forgetting how to write html entities? Maybe this helps:
+
+```html
+<entity lt>
+<entity gt>
+<entity amp>
+```
+
+```html
+<entity less than>
+<entity greater than>
+<entity ampersand>
+```
+
+#### template
+
+You can define local components as well. It can be useful for tiny bits of html. Don't forget to specify the name of the component.
+
+```html
+<template foo>{bar}</template>
+<foo {bar}/>
+```
+
 ### Filters
 
 There are many filters available out of the box.
 
 ```html
 {title | capitalize}
+{title | uppercase}
 ```
+
+Filters can be chained too.
+
+```html
+{title | trim | classify}
+```
+
+Params can be passed as well.
+
+```html
+{title | slugify('_')}
+```
+
+Full list of filters is available [here](https://buxlabs.pl/en/tools/js/pure-utilities/repl).
 
 ### Attributes
 
-#### inline
+#### element[padding|margin|border]
+
+Custom spacing is often a problem, so you can add paddings, margins and borders using a shorter syntax.
+
+```html
+<div padding-bottom="1rem"></div>
+```
+
+#### element[css|style]
+
+You can define styles as objects too.
+
+```html
+<div css="{{ padding: { bottom: '1rem', top: '2rem' } }}"></div>
+```
+#### element[partial]
+
+Partial attribute will load the html file and include as the children of given node. The tag will be preserved.
+
+```html
+<head partial="./head.html"></head>
+```
+
+#### img[inline]
 
 It's possible to inline images as base64 strings.
 
 ```html
-<img src="./foo.png" inline>
+<img src="images/foo.png" inline>
 ```
+
+#### svg[from]
+
+You can inline svgs too.
+
+<svg from="images/foo.svg"/>
+
+### Styles
 
 #### scoped
 
@@ -197,23 +299,6 @@ Scoped styles are adding special `scope-${number}` classes to both html and css 
 }
 </style>
 ```
-
-### Internationalization
-
-#### i18n tag
-
-You can keep translations in every file. They're scoped so you can use same names in multiple files.
-
-```html
-<h1><translate hello/></h1>
-<i18n yaml>
-hello:
-- 'Hej!'
-- 'Hello!'
-</i18n>
-```
-
-The compiler needs to know the `languages`. The template needs to get the `language` to know which text to render.
 
 ### Scripts
 
@@ -243,6 +328,29 @@ Polyfills can be injected.
 <script polyfills="['promise.js']">
 new Promise(resolve => resolve())
 </script>
+```
+
+### Internationalization
+
+#### i18n tag
+
+You can keep translations in every file. They're scoped so you can use same names in multiple files.
+
+```html
+<h1><translate hello/></h1>
+<i18n yaml>
+hello:
+- 'Hej!'
+- 'Hello!'
+</i18n>
+```
+
+The compiler needs to know the `languages`. The template needs to get the `language` to know which text to render.
+
+Translations can also use filters:
+
+```html
+<translate title|capitalize/>
 ```
 
 ## Examples
