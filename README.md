@@ -110,6 +110,8 @@ It's possible to import multiple components from a given directory. Curly bracke
 
 * conditional tags: if, else, elseif, unless, elseunless
 
+There are two syntaxes you can use - short and long. The short one allows you to specify the starting tags only, for example:
+
 ```html
 <if foo>bar<end>
 ```
@@ -126,6 +128,17 @@ It's possible to import multiple components from a given directory. Curly bracke
 
 ```html
 <unless foo>bar<end>
+```
+
+The long syntax requires to specify closing tags explicitly.
+
+```html
+<if foo>
+  bar
+</if>
+<else>
+  baz
+</else>
 ```
 
 * loops: for, each, foreach
