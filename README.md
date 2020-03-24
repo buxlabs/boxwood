@@ -169,7 +169,7 @@ The only difference between those methods is what is being used under the hood, 
 
 #### spacing
 
-Custom spacing can be tough. You can use a custom spacing tag, which can be used to define it per app basis.
+Custom spacing can be tough. You can use a spacing tag, which can be used to define it per app basis.
 
 ```html
 <spacing medium/>
@@ -193,7 +193,7 @@ const { template } = await compile(`<spacing medium>`, {
 
 The engine removes unnecessary whitespaces to reduce the size of the template. You can add a space explicitly though.
 
-```js
+```html
 <space/>
 <space repeat="{5}"/>
 ```
@@ -283,7 +283,9 @@ It's possible to inline images as base64 strings.
 
 You can inline svgs too.
 
+```html
 <svg from="images/foo.svg"/>
+```
 
 ### Styles
 
