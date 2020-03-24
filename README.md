@@ -20,13 +20,25 @@
 
 ## Background
 
-Pure Engine is a library designed to compile HTML templates into JS. It analyses the template and generates an optimal rendering function that can be used on the client and the server. The compilation process should ideally happen in a build step (for the client) or the output could be memoized after first usage (for the server).
+The library is a compiler designed to generate an optimal rendering function. The function should get cached and reused to provide a much better performance than other templating languages.
 
-The syntax of the template should be easy to read and write. There are three types of tags: curly, square and html tags.
+It can also be used in variety of contexts, for rendering html pages, email templates, pdf templates. It's capable of importing components and partials, inlining images and styles, which can be useful in those scenarios. The syntax should be easy to read and write.
 
-Status: Beta / Used in production / Needs security assessment
+Not everything is ready yet, but long-term, the library should be able to generate a template that includes minified html with critical css/js that's required to run the page. Scoped css/js should let you build big, dynamic apps.
 
-### Curly Tags
+Server-side rendering works out of the box, and some day we'd like to include an optional runtime with a minimal footprint, which allows you to seamlessly switch to a single-page-app mode, without page reloads.
+
+Even further in the future, the compiler is going to be split into a front-end compiler and a back-end compiler, that will use an intermediate representation to represent the app. This way it'll allow the app to be written in a different way, while preserving the performance, which will get better over time, as the compiler matures.
+
+If this sounds great, jump on board and try it out. Every little bit helps.
+
+### Status
+
+Beta / Used in production / Needs security assessment
+
+### Syntax
+
+#### Curly Tags
 
 `{name}` is a curly tag
 
@@ -37,7 +49,7 @@ They can also contain additional filters like `{name | capitalize}`.
 <div>{name}</div>
 ```
 
-### Square Tags
+#### Square Tags
 
 `[color]` is a square tag
 
@@ -47,7 +59,7 @@ Square tags are array expressions and can be used as values of html attributes.
 <button class="[color, size, shape]"><slot/></button>
 ```
 
-### HTML Tags
+#### HTML Tags
 
 `<if>` is an html tag
 
