@@ -1,5 +1,4 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const serialize = require('asttv')
 const Bundler = require('../Bundler')
 const { getLiteral } = require('../utilities/ast')
 const { getTemplateAssignmentExpression } = require('../utilities/factory')
@@ -35,7 +34,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     let content = '<script>'
     const { value } = attrs.find(attr => attr.key === 'polyfills')
     const ast = new AbstractSyntaxTree(value)
-    const polyfills = serialize(ast.body[0].expression)
+    const polyfills = AbstractSyntaxTree.serialize(ast.body[0].expression)
     polyfills.forEach(polyfill => {
       const asset = findAsset(polyfill, assets, options)
       if (asset) {

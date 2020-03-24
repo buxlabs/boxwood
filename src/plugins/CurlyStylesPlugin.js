@@ -1,5 +1,4 @@
 const { isCurlyTag, getTagValue } = require('../utilities/string')
-const serialize = require('asttv')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { flatten } = require('pure-utilities/collection')
 const Plugin = require('./Plugin')
@@ -36,7 +35,7 @@ class CurlyStylesPlugin extends Plugin {
           try {
             const expression = getTagValue(attr.value)
             const tree = new AbstractSyntaxTree(`(${expression})`)
-            const object = serialize(tree.first('ObjectExpression'))
+            const object = AbstractSyntaxTree.serialize(tree.first('ObjectExpression'))
             attr.key = 'style'
             attr.value = stringify(object)
           } catch (exception) {

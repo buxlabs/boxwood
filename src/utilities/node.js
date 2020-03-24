@@ -1,6 +1,5 @@
 const { join } = require('path')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const serialize = require('asttv')
 const walk = require('himalaya-walk')
 const { parse } = require('./html')
 const { isCurlyTag, isImportTag, isPartialTag } = require('./string')
@@ -27,7 +26,7 @@ function getAssetPaths (node, name) {
   } else if (isScriptWithPolyfillsAttribute(node)) {
     const attribute = node.attributes.find(attribute => attribute.key === 'polyfills')
     const tree = new AbstractSyntaxTree(attribute.value)
-    return serialize(tree.body[0].expression)
+    return AbstractSyntaxTree.serialize(tree.body[0].expression)
   } else if (isTemplateTag(node)) {
     const { content } = node.children[0]
     const tree = parse(content)

@@ -1,5 +1,4 @@
 const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../utilities/string')
-const serialize = require('asttv')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Plugin = require('./Plugin')
@@ -25,7 +24,7 @@ function convert (value) {
     value = getTagValue(value)
     const { expression } = new AbstractSyntaxTree(`(${value})`).body[0]
     if (expression.type === 'ObjectExpression') {
-      const object = serialize(expression)
+      const object = AbstractSyntaxTree.serialize(expression)
       return object
     }
     return expression.value

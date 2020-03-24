@@ -1,5 +1,4 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const serialize = require('asttv')
 const { load } = require('yaml-js')
 const { findAsset } = require('../utilities/files')
 const Plugin = require('./Plugin')
@@ -26,7 +25,7 @@ function parseJS (content) {
   try {
     const tree = new AbstractSyntaxTree(content)
     const node = tree.first('ExportDefaultDeclaration')
-    return serialize(node.declaration)
+    return AbstractSyntaxTree.serialize(node.declaration)
   } catch (exception) {
     throw new TranslationError('JS translation is unparseable')
   }
