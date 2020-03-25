@@ -127,7 +127,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, err
   }
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
-  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, errors, assets, options)
+  resolveComponent(asset.source, asset.path, null, fragment, plugins, errors, assets, options)
 }
 
 function inlineData (htmlTree, content, path, component, assets, plugins, errors, localVariables, options) {
@@ -154,7 +154,7 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function resolveComponent (content, path, component, fragment, components, plugins, errors, assets, options) {
+function resolveComponent (content, path, component, fragment, plugins, errors, assets, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
   const htmlComponent = new Component(content, localVariables)
   component && htmlComponent.optimize()
@@ -178,7 +178,7 @@ function resolveComponent (content, path, component, fragment, components, plugi
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     if (currentComponent && !current.root) {
-      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, components, plugins, errors, assets, options)
+      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, plugins, errors, assets, options)
       current.used = true
     }
     if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
@@ -250,7 +250,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, components, plugins, errors, assets, options)
+      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, plugins, errors, assets, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
