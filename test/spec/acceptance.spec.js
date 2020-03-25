@@ -96,7 +96,7 @@ test('acceptance: pricing-table', async assert => {
   await suite('pricing-table', assert)
 })
 
-test.skip('acceptance: component-name-override', async assert => {
+test('acceptance: component-name-override', async assert => {
   await suite('component-name-override', assert)
 })
 

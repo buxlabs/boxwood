@@ -139,13 +139,6 @@ function inlineData (htmlTree, content, path, component, assets, plugins, errors
     inlineAttributesInIfStatement(leaf, localVariables)
   })
   walk(htmlTree, leaf => {
-    if (component) { leaf.imported = true }
-    if (component && leaf.tagName === component.name) {
-      // TODO allow inlined components to have
-      // the same name as imported one
-      // the limitation can be unexpected
-      leaf.root = true
-    }
     inlineExpressions(leaf, localVariables)
   })
   runPlugins(htmlTree, content, plugins, assets, errors, options)
@@ -167,6 +160,9 @@ function resolveComponent (content, path, component, fragment, plugins, errors, 
   component && htmlComponent.optimize()
   let htmlTree = parse(htmlComponent.source)
   htmlTree = inlineData(htmlTree, content, path, component, assets, plugins, errors, localVariables, options)
+  walk(htmlTree, current => {
+    if (component) { current.imported = true }
+  })
 
   const currentComponents = []
   let slots = 0
@@ -184,7 +180,9 @@ function resolveComponent (content, path, component, fragment, plugins, errors, 
       collectInlineComponents(current, attrs, currentComponents)
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
-    if (currentComponent && !current.root) {
+    const unresolvable = component && current.tagName === component.name && !currentComponent
+    if (unresolvable) { current.unresolvable = true }
+    if (currentComponent && !current.unresolvable) {
       resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, plugins, errors, assets, options)
       current.used = true
     }
