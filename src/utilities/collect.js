@@ -139,7 +139,14 @@ function inlineData (htmlTree, content, path, component, assets, plugins, errors
     inlineAttributesInIfStatement(leaf, localVariables)
   })
   walk(htmlTree, leaf => {
-    inlineExpressions(leaf, component, localVariables)
+    if (component) { leaf.imported = true }
+    if (component && leaf.tagName === component.name) {
+      // TODO allow inlined components to have
+      // the same name as imported one
+      // the limitation can be unexpected
+      leaf.root = true
+    }
+    inlineExpressions(leaf, localVariables)
   })
   runPlugins(htmlTree, content, plugins, assets, errors, options)
   return htmlTree

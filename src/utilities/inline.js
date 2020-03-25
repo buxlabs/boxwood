@@ -59,14 +59,7 @@ function inlineLocalVariablesInFragment (node, variables) {
   }
 }
 
-function inlineExpressions (leaf, component, localVariables) {
-  if (component) { leaf.imported = true }
-  if (component && leaf.tagName === component.name) {
-    // TODO allow inlined components to have
-    // the same name as imported one
-    // the limitation can be unexpected
-    leaf.root = true
-  }
+function inlineExpressions (leaf, localVariables) {
   if (localVariables.length === 0) { return null }
   if (leaf.attributes) {
     leaf.attributes.forEach(attr => {
