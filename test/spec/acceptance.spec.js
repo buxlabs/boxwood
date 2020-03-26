@@ -100,6 +100,10 @@ test('acceptance: component-name-override', async assert => {
   await suite('component-name-override', assert)
 })
 
+test('acceptance: relative-paths', async assert => {
+  await suite('relative-paths', assert)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   await suite('slot-as-variable', assert)
 })
