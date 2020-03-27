@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('foreach', async assert => {
   var { template } = await compile(`<foreach foo in bar>{foo}</foreach>`)

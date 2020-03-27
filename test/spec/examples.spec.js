@@ -4,7 +4,7 @@ const { normalize } = require('../helpers/string')
 const { join } = require('path')
 const fs = require('fs')
 const util = require('util')
-const escape = require('escape-html')
+const { escape } = require('../..')
 
 const readFile = util.promisify(fs.readFile)
 

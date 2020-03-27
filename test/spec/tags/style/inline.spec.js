@@ -1,7 +1,7 @@
 const test = require('ava')
 const path = require('path')
 const compile = require('../../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../../..')
 
 test('img: inline for jpg', async assert => {
   const { template, warnings, errors } = await compile(`

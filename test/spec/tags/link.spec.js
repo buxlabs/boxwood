@@ -1,7 +1,7 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
 const path = require('path')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('link: inline for css', async assert => {
   var { template } = await compile(`<link href="./foo.css" inline>`, { paths: [path.join(__dirname, '../../fixtures/stylesheets')] })

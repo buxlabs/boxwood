@@ -75,13 +75,12 @@ HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a 
 
 ## Install
 
-`npm install pure-engine escape-html`
+`npm install pure-engine`
 
 ## Usage
 
 ```js
-const { compile } = require('pure-engine')
-const escape = require('escape-html')
+const { compile, escape } = require('pure-engine')
 
 async function example () {
   const { template } = await compile('<div>{foo}</div>', { cache: false })

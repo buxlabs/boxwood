@@ -1,9 +1,10 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
+const { escape } = require('../../..')
 
 test('spacing: small', async assert => {
   var { template } = await compile(`<spacing small>`)
-  assert.deepEqual(template({}), '<div style="height:5px"></div>')
+  assert.deepEqual(template({}, escape), '<div style="height:5px"></div>')
 
   var { template } = await compile(`<spacing small>`, {
     styles: {
@@ -17,7 +18,7 @@ test('spacing: small', async assert => {
 
 test('spacing: medium', async assert => {
   var { template } = await compile(`<spacing medium>`)
-  assert.deepEqual(template({}), '<div style="height:15px"></div>')
+  assert.deepEqual(template({}, escape), '<div style="height:15px"></div>')
 
   var { template } = await compile(`<spacing medium>`, {
     styles: {
@@ -26,12 +27,12 @@ test('spacing: medium', async assert => {
       }
     }
   })
-  assert.deepEqual(template({}), '<div style="height:50px"></div>')
+  assert.deepEqual(template({}, escape), '<div style="height:50px"></div>')
 })
 
 test('spacing: large', async assert => {
   var { template } = await compile(`<spacing large>`)
-  assert.deepEqual(template({}), '<div style="height:60px"></div>')
+  assert.deepEqual(template({}, escape), '<div style="height:60px"></div>')
 
   var { template } = await compile(`<spacing large>`, {
     styles: {
@@ -40,5 +41,5 @@ test('spacing: large', async assert => {
       }
     }
   })
-  assert.deepEqual(template({}), '<div style="height:120px"></div>')
+  assert.deepEqual(template({}, escape), '<div style="height:120px"></div>')
 })

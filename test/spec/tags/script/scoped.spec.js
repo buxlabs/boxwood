@@ -1,7 +1,7 @@
 const test = require('ava')
 const { join } = require('path')
 const compile = require('../../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../../..')
 
 test('script[scoped]: returns empty string when script does not have a body', async assert => {
   const { template } = await compile('<script scoped></script>')

@@ -1,5 +1,6 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
+const { escape } = require('../../..')
 
 test('entity: nbsp', async assert => {
   var { template } = await compile('<entity nbsp>')

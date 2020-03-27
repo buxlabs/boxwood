@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('if', async assert => {
   var { template, warnings } = await compile('<if foo>bar</if>')

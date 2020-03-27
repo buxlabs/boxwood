@@ -1,7 +1,7 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
 const { join } = require('path')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('style[inline]: inline fonts', async assert => {
   var { template } = await compile(`

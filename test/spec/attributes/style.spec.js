@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('div[style]: curly syntax', async assert => {
   var { template } = await compile(`<div style="{{color: 'red'}}"></div>`)

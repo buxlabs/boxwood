@@ -1,7 +1,7 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
 const path = require('path')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('input: can be used as a non self closing tag when imported as component', async assert => {
   var { template } = await compile(`

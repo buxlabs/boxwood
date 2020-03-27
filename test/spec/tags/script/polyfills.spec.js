@@ -1,7 +1,7 @@
 const test = require('ava')
 const { join } = require('path')
 const compile = require('../../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../../..')
 
 test('script[polyfills]: includes the polyfills', async assert => {
   const { template } = await compile(`<script polyfills="['promise.js']">new Promise(resolve => resolve());</script>`, {

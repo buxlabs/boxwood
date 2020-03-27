@@ -1,7 +1,7 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
 const path = require('path')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 const Server = require('../../helpers/Server')
 const request = require('axios')
 const fs = require('fs')

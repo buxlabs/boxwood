@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('div[padding]: works with values', async assert => {
   var { template } = await compile(`<div padding="15px"></div>`)

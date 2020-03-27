@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../../..')
 
 test('style[scoped]: first tag', async assert => {
   var { template } = await compile('<style scoped>.foo{color:red}</style><a class="foo">bar</a>')

@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../..')
 
 test('basic: it returns nothing for no template', async assert => {
   var { template } = await compile('')

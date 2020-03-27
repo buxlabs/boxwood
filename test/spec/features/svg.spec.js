@@ -1,6 +1,6 @@
 const test = require('ava')
 const compile = require('../../helpers/compile')
-const escape = require('escape-html')
+const { escape } = require('../../..')
 
 test('svg can be imported', async assert => {
   var { template } = await compile('<svg from="../../fixtures/svg/rectangle.svg" />', { paths: [__dirname] })

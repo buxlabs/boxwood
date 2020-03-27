@@ -1,7 +1,7 @@
 const test = require('ava')
 const compile = require('../helpers/compile')
 const { join } = require('path')
-const escape = require('escape-html')
+const { escape } = require('../..')
 const fs = require('fs')
 const util = require('util')
 
