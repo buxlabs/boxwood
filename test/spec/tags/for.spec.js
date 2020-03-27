@@ -343,7 +343,6 @@ test('for: inlining with of operator', async assert => {
   assert.deepEqual(template({}, escape), 'BMWHyundai')
 })
 
-
 test('for: loop index', async assert => {
   const { template } = await compile(`
     <template foo>

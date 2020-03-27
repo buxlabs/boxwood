@@ -3,6 +3,17 @@ const compile = require('../../helpers/compile')
 const path = require('path')
 const { escape } = require('../../..')
 
+test('link: href handling', async assert => {
+  const { template } = await compile(`
+    <for stylesheet in stylesheets>
+      <link rel="stylesheet" type="text/css" href="{ stylesheet }">
+    </for>
+  `)
+  assert.deepEqual(template({
+    stylesheets: ["https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"]
+  }, escape), '<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">')
+})
+
 test('link: inline for css', async assert => {
   var { template } = await compile(`<link href="./foo.css" inline>`, { paths: [path.join(__dirname, '../../fixtures/stylesheets')] })
   assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
