@@ -423,6 +423,44 @@ function render(__o, __e) {
 
 `npm run benchmark`
 
+```
+todos: pure-engine x 5,563,903 ops/sec ±1.21% (87 runs sampled)
+todos: underscore x 229,349 ops/sec ±1.10% (92 runs sampled)
+todos: lodash x 274,233 ops/sec ±0.93% (88 runs sampled)
+todos: handlebars x 237,890 ops/sec ±1.04% (89 runs sampled)
+todos: mustache x 550,987 ops/sec ±0.46% (92 runs sampled)
+Fastest is pure-engine
+  ✔ benchmark: todos (31s)
+friends: pure-engine x 1,661,007 ops/sec ±0.34% (92 runs sampled)
+friends: underscore x 105,190 ops/sec ±0.33% (89 runs sampled)
+friends: lodash x 139,677 ops/sec ±0.62% (89 runs sampled)
+friends: handlebars x 289,353 ops/sec ±0.25% (89 runs sampled)
+friends: mustache x 163,736 ops/sec ±0.43% (86 runs sampled)
+Fastest is pure-engine
+  ✔ benchmark: friends (30.6s)
+if: pure-engine x 58,634,397 ops/sec ±2.70% (83 runs sampled)
+if: underscore x 532,136 ops/sec ±1.05% (89 runs sampled)
+if: lodash x 570,715 ops/sec ±0.62% (91 runs sampled)
+if: handlebars x 292,520 ops/sec ±0.31% (89 runs sampled)
+if: mustache x 708,163 ops/sec ±0.51% (86 runs sampled)
+Fastest is pure-engine
+  ✔ benchmark: if (30.8s)
+projects: pure-engine x 1,920,711 ops/sec ±1.04% (89 runs sampled)
+projects: underscore x 119,694 ops/sec ±0.34% (90 runs sampled)
+projects: lodash x 157,345 ops/sec ±0.44% (91 runs sampled)
+projects: handlebars x 224,298 ops/sec ±0.34% (92 runs sampled)
+projects: mustache x 229,673 ops/sec ±0.87% (91 runs sampled)
+Fastest is pure-engine
+  ✔ benchmark: projects (30.9s)
+search: pure-engine x 684,211 ops/sec ±0.34% (88 runs sampled)
+search: underscore x 24,546 ops/sec ±0.49% (93 runs sampled)
+search: lodash x 29,739 ops/sec ±0.64% (89 runs sampled)
+search: handlebars x 260,162 ops/sec ±0.55% (90 runs sampled)
+search: mustache x 104,369 ops/sec ±0.87% (91 runs sampled)
+Fastest is pure-engine
+  ✔ benchmark: search (31.1s)
+```
+
 ## Maintainers
 
 [@emilos](https://github.com/emilos)
