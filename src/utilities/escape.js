@@ -8,10 +8,11 @@ function escape (input) {
 
   let text
   let html = ''
-  let index = 0
+  let index = match.index
   let lastIndex = 0
+  const length = string.length
 
-  for (index = match.index; index < string.length; index++) {
+  for (; index < length; index++) {
     switch (string.charCodeAt(index)) {
       case 34:
         text = '&quot;'
@@ -40,9 +41,8 @@ function escape (input) {
     html += text
   }
 
-  return lastIndex !== index
-    ? html + string.substring(lastIndex, index)
-    : html
+  if (lastIndex === index) { return html }
+  return html + string.substring(lastIndex, index)
 }
 
 module.exports = escape
