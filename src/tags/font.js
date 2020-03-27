@@ -1,3 +1,5 @@
+'use strict'
+
 const { getLiteral } = require('../utilities/ast')
 const { getTemplateAssignmentExpression } = require('../utilities/factory')
 

@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 
 module.exports = function ({ fragment, tree, depth, collectChildren }) {

@@ -1,3 +1,5 @@
+'use strict'
+
 const test = require('ava')
 const Bundler = require('./Bundler')
 const { join } = require('path')

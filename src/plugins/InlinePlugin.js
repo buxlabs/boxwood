@@ -1,3 +1,5 @@
+'use strict'
+
 const Plugin = require('./Plugin')
 const { parse, walk, generate } = require('css-tree')
 const { findAsset, isFileSupported } = require('../utilities/files')

@@ -1,3 +1,5 @@
+'use strict'
+
 class CompilerError extends Error {
   constructor (option, message) {
     message = `Compiler option "${option}" ${message}`

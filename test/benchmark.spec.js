@@ -1,3 +1,5 @@
+'use strict'
+
 const test = require('ava')
 const { Suite } = require('benchmark')
 const compile = require('./helpers/compile')

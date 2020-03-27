@@ -1,3 +1,5 @@
+'use strict'
+
 // basic cache implementation
 
 // ideally the cache should be dependent not only on the key, but also on the options that are passed to the compiler

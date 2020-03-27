@@ -1,3 +1,5 @@
+'use strict'
+
 const { flatten } = require('pure-utilities/collection')
 const { unique } = require('pure-utilities/array')
 const { ACTIONS } = require('./action')

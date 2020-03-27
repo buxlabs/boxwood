@@ -1,3 +1,5 @@
+'use strict'
+
 function getComponentNames (attributes) {
   const omitted = ['{', '}', 'from', 'partial']
   const keys = attributes.map(attribute => attribute.key).filter(key => !omitted.includes(key))

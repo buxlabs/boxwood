@@ -1,3 +1,5 @@
+'use strict'
+
 // TODO pure-utilities unique should work for objects
 function uniq (array) {
   return Array.from(new Set(array.map(item => JSON.stringify(item)))).map(JSON.parse)

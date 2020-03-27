@@ -1,3 +1,5 @@
+'use strict'
+
 const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
 const {
   getObjectMemberExpression,

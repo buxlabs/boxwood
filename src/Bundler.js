@@ -1,3 +1,5 @@
+'use strict'
+
 const { rollup } = require('rollup')
 const resolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')

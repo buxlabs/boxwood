@@ -1,3 +1,5 @@
+'use strict'
+
 const { join } = require('path')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const walk = require('himalaya-walk')

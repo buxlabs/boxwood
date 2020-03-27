@@ -1,3 +1,5 @@
+'use strict'
+
 const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../utilities/string')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')

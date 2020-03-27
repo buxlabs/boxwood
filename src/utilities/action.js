@@ -1,3 +1,5 @@
+'use strict'
+
 const { parse, replace, first, walk } = require('abstract-syntax-tree')
 const conditions = require('pure-conditions')
 const negate = require('negate-sentence')

@@ -1,3 +1,5 @@
+'use strict'
+
 const { unwrap } = require('pure-utilities/string')
 const { getTemplateAssignmentExpression } = require('../utilities/factory')
 const { getLiteral } = require('../utilities/ast')

@@ -1,3 +1,5 @@
+'use strict'
+
 const curlyTagReduction = require('./curlyTagReduction')
 
 class Component {

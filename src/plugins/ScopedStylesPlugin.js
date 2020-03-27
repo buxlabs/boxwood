@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')

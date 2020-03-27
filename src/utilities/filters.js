@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const utilities = require('pure-utilities')
 const { CompilerError } = require('./errors')

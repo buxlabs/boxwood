@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { identifier } = require('pure-utilities/array')
 const { convertAttribute } = require('../utilities/convert')

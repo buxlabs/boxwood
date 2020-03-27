@@ -1,3 +1,5 @@
+'use strict'
+
 const test = require('ava')
 const Importer = require('./Importer')
 const { join } = require('path')

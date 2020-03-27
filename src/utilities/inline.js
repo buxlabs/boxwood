@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { extract, isCurlyTag, isSquareTag, getTagValue } = require('./string')
 const { addPlaceholders, placeholderName } = require('./keywords')

@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { load } = require('yaml-js')
 const { findAsset } = require('../utilities/files')

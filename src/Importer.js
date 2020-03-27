@@ -1,3 +1,5 @@
+'use strict'
+
 const { join, dirname } = require('path')
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')

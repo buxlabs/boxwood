@@ -1,3 +1,5 @@
+'use strict'
+
 const Plugin = require('./Plugin')
 
 class SwappedStylesPlugin extends Plugin {

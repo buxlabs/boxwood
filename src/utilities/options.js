@@ -1,3 +1,5 @@
+'use strict'
+
 const { isPlainObject } = require('pure-conditions')
 const { CompilerError } = require('./errors')
 const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./enum')

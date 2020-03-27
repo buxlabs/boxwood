@@ -1,3 +1,5 @@
+'use strict'
+
 const { getTemplateAssignmentExpression } = require('../utilities/factory')
 const { getTranslateCallExpression } = require('../utilities/translations')
 const { stringify } = require('../utilities/html')

@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { wordsToNumbers } = require('words-to-numbers')
 const { getAction } = require('./action')

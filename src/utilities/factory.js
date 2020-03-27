@@ -1,3 +1,5 @@
+'use strict'
+
 const {
   TEMPLATE_VARIABLE,
   OBJECT_VARIABLE,

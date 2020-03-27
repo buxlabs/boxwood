@@ -1,3 +1,5 @@
+'use strict'
+
 const { parse: parseHTML, stringify: stringifyHTML, parseDefaults } = require('himalaya')
 const walk = require('himalaya-walk')
 const { VOID_TAGS } = require('./enum')

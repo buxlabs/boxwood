@@ -1,3 +1,5 @@
+'use strict'
+
 const { join, dirname } = require('path')
 const { URL } = require('url')
 

@@ -1,3 +1,5 @@
+'use strict'
+
 const TAGS_TO_REPLACE_REGEXP = /["'&<>]/
 
 function escape (input) {

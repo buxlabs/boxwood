@@ -1,3 +1,5 @@
+'use strict'
+
 const walk = require('himalaya-walk')
 const { isImportTag } = require('./utilities/string')
 const { unique, duplicates } = require('pure-utilities/array')

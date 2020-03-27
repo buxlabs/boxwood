@@ -1,3 +1,5 @@
+'use strict'
+
 const { join } = require('path')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
 const fs = require('fs')

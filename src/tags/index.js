@@ -1,3 +1,5 @@
+'use strict'
+
 const foreachTag = require('./foreach')
 const forTag = require('./for')
 const tryTag = require('./try')

@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { OPERATORS } = require('../utilities/enum')
 const { getCondition } = require('../utilities/conditions')

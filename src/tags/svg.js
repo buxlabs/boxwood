@@ -1,3 +1,5 @@
+'use strict'
+
 const normalizeNewline = require('normalize-newline')
 const { SVGError } = require('../utilities/errors')
 const { findAsset } = require('../utilities/files')

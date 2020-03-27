@@ -1,3 +1,5 @@
+'use strict'
+
 const Lexer = require('html-lexer')
 
 const tokenize = (source) => {

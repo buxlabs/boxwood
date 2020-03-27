@@ -1,3 +1,5 @@
+'use strict'
+
 module.exports = function ({ tree, attrs }) {
   tree.append({
     type: 'SwitchStatement',

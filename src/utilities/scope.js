@@ -1,3 +1,5 @@
+'use strict'
+
 const { OBJECT_VARIABLE } = require('./enum')
 
 function getScopeProperties (tree) {

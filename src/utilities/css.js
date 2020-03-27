@@ -1,3 +1,5 @@
+'use strict'
+
 const { findAsset } = require('./files')
 const size = require('image-size')
 

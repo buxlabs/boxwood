@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getLiteral } = require('./ast')
 const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')

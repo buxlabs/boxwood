@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Bundler = require('../Bundler')
 const { getLiteral } = require('../utilities/ast')

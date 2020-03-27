@@ -1,3 +1,5 @@
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { isCurlyTag, getTagValue } = require('../utilities/string')
 

@@ -1,3 +1,5 @@
+'use strict'
+
 const { ltrim } = require('pure-utilities/string')
 const lexer = require('./lexer')
 

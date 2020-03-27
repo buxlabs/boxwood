@@ -1,3 +1,5 @@
+'use strict'
+
 const { getObjectMemberExpression } = require('./factory')
 const { convertText, modify } = require('./convert')
 

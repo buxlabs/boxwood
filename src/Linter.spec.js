@@ -1,3 +1,5 @@
+'use strict'
+
 const test = require('ava')
 const { parse } = require('./utilities/html')
 const Linter = require('./Linter')

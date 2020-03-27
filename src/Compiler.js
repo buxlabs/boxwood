@@ -1,3 +1,5 @@
+'use strict'
+
 const Transpiler = require('./Transpiler')
 const Parser = require('./Parser')
 const Renderer = require('./Renderer')

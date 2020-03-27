@@ -1,3 +1,5 @@
+'use strict'
+
 const START_TAG = '{'
 const END_TAG = '}'
 

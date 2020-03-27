@@ -1,3 +1,5 @@
+'use strict'
+
 const lexer = require('../utilities/lexer')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const {

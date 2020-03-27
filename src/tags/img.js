@@ -1,3 +1,5 @@
+'use strict'
+
 const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('../utilities/css')
 const { findAsset } = require('../utilities/files')
 const normalizeNewline = require('normalize-newline')

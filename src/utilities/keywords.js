@@ -1,3 +1,5 @@
+'use strict'
+
 const { RESERVED_KEYWORDS } = require('./enum')
 
 function placeholderName (keyword) {
