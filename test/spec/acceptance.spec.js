@@ -9,110 +9,141 @@ const fs = require('fs')
 const readFile = util.promisify(fs.readFile)
 
 test('acceptance: components-in-a-loop', async assert => {
-  await suite('components-in-a-loop', assert)
+  const { actual, expected } = await suite('components-in-a-loop')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: same-attributes', async assert => {
-  await suite('same-attributes', assert)
+  const { actual, expected } = await suite('same-attributes')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: objects-as-parameters', async assert => {
-  await suite('objects-as-parameters', assert)
+  const { actual, expected } = await suite('objects-as-parameters')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: components-with-box-model-attributes', async assert => {
-  await suite('components-with-box-model-attributes', assert)
+  const { actual, expected } = await suite('components-with-box-model-attributes')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: import-multiple-components', async assert => {
-  await suite('import-multiple-components', assert)
+  const { actual, expected } = await suite('import-multiple-components')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: markdown', async assert => {
-  await suite('markdown', assert)
+  const { actual, expected } = await suite('markdown')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: inline-classes', async assert => {
-  await suite('inline-classes', assert)
+  const { actual, expected } = await suite('inline-classes')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: inline in template', async assert => {
-  await suite('inline-in-template', assert)
+  const { actual, expected } = await suite('inline-in-template')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: app-page', async assert => {
-  await suite('app-page', assert)
+  const { actual, expected } = await suite('app-page')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: tool-page', async assert => {
-  await suite('tool-page', assert)
+  const { actual, expected } = await suite('tool-page')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: admin-page', async assert => {
-  await suite('admin-page', assert)
+  const { actual, expected } = await suite('admin-page')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: scoped-styles-are-not-shared', async assert => {
-  await suite('scoped-styles-are-not-shared', assert)
+  const { actual, expected } = await suite('scoped-styles-are-not-shared')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: scoped-styles-within-slots', async assert => {
-  await suite('scoped-styles-within-slots', assert)
+  const { actual, expected } = await suite('scoped-styles-within-slots')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: slider', async assert => {
-  await suite('slider', assert)
+  const { actual, expected } = await suite('slider')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: calendar', async assert => {
-  await suite('calendar', assert)
+  const { actual, expected } = await suite('calendar')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: template-literals', async assert => {
-  await suite('template-literals', assert)
+  const { actual, expected } = await suite('template-literals')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: event listeners', async assert => {
-  await suite('event-listeners', assert)
+  const { actual, expected } = await suite('event-listeners')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: shorthand-attribute-syntax', async assert => {
-  await suite('shorthand-attribute-syntax', assert)
+  const { actual, expected } = await suite('shorthand-attribute-syntax')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: shorthand-attribute-syntax-unused-params', async assert => {
-  await suite('shorthand-attribute-syntax-unused-params', assert)
+  const { actual, expected } = await suite('shorthand-attribute-syntax-unused-params')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: shorthand syntax for conditions', async assert => {
-  await suite('shorthand-syntax-for-conditions', assert)
+  const { actual, expected } = await suite('shorthand-syntax-for-conditions')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: link as a component', async assert => {
-  await suite('link-as-component', assert)
+  const { actual, expected } = await suite('link-as-component')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: pricing-table', async assert => {
-  await suite('pricing-table', assert)
+  const { actual, expected } = await suite('pricing-table')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: component-name-override', async assert => {
-  await suite('component-name-override', assert)
+  const { actual, expected } = await suite('component-name-override')
+  assert.deepEqual(actual, expected)
 })
 
 test('acceptance: relative-paths', async assert => {
-  await suite('relative-paths', assert)
+  const { actual, expected } = await suite('relative-paths')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: implicit-variables', async assert => {
+  const { actual } = await suite('implicit-variables')
+  assert.truthy(actual.includes('TypeError: Cannot read property \'name\' of undefined'))
 })
 
 test.skip('acceptance: slot as a variable', async assert => {
-  await suite('slot-as-variable', assert)
+  const { actual, expected } = await suite('slot-as-variable')
+  assert.deepEqual(actual, expected)
 })
 
 test.skip('acceptance: variables', async assert => {
-  await suite('variables', assert)
+  const { actual, expected } = await suite('variables')
+  assert.deepEqual(actual, expected)
 })
 
-async function suite (name, assert) {
+async function suite (name) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
   const path2 = join(dir, 'expected.html')
@@ -120,12 +151,17 @@ async function suite (name, assert) {
   const content1 = await readFile(path1, 'utf8')
   const content2 = await readFile(path2, 'utf8')
   const content3 = await readFile(path3, 'utf8')
-  var { template } = await compile(content1, {
+  const { template, warnings, errors } = await compile(content1, {
     paths: [dir],
     languages: ['pl', 'en']
   })
   const data = JSON.parse(content3)
-  const actual = normalize(template(data, escape))
+  let actual = ''
+  try {
+    actual = normalize(template(data, escape))
+  } catch (exception) {
+    actual = exception.stack
+  }
   const expected = normalize(content2)
-  assert.deepEqual(actual, expected)
+  return { actual, expected, warnings, errors }
 }
