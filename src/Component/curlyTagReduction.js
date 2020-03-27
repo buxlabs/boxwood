@@ -84,6 +84,13 @@ function falsyCodeRemoval (node) {
   return node
 }
 
+function undefinedOptionsRemoval (node) {
+  if (node.type === 'MemberExpression' && node.object.type === 'Identifier' && node.object.name === 'undefined') {
+    return null
+  }
+  return node
+}
+
 function optimizeCurlyTag (value, variables, newVariables) {
   value = addPlaceholders(value)
   if (isObject(value)) value = `(${value})`
@@ -96,6 +103,7 @@ function optimizeCurlyTag (value, variables, newVariables) {
   tree.replace({ enter: ternaryOperatorReduction })
   tree.replace({ enter: ifStatementRemoval })
   tree.replace({ enter: falsyCodeRemoval })
+  tree.replace({ enter: undefinedOptionsRemoval })
   if (canInlineTree(tree)) {
     const { value } = tree.body[0].expression
     return value
