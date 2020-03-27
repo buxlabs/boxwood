@@ -297,6 +297,21 @@ test('output: square syntax for one identifier', async assert => {
   }`))
 })
 
+test('output: undefined options', async assert => {
+  const { template } = await compile(`
+    <template foo>
+      { bar.baz }
+    </template>
+    <foo/>
+    { bar.baz }
+  `)
+  assert.deepEqual(normalize(template.toString()), normalize(`function render(__o, __e) {
+    var __t = "";
+    __t += __e(__o.bar.baz);
+    return __t;
+  }`))
+})
+
 test.skip('output: assigning variables', async assert => {
   const { template } = await compile(`
     <template foo>
