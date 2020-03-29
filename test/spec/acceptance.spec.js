@@ -133,7 +133,7 @@ test('acceptance: implicit-variables', async assert => {
   assert.truthy(actual.includes('TypeError: Cannot read property \'name\' of undefined'))
 })
 
-test.skip('acceptance: explicit-variables', async assert => {
+test('acceptance: explicit-variables', async assert => {
   const { actual, expected } = await suite('explicit-variables')
   assert.deepEqual(actual, expected)
 })
