@@ -14,17 +14,17 @@ test('partial', async assert => {
   })
   assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
 
-  var { template } = await compile(`<include partial="./header.html" />`, {
+  var { template } = await compile(`<include partial="./header.html" {title}/>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  var { template } = await compile(`<include partial="./header.html">`, {
+  var { template } = await compile(`<include partial="./header.html" {title}>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  var { template } = await compile(`<include partial="./header.html" />`, {
+  var { template } = await compile(`<include partial="./header.html"  {title}/>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')

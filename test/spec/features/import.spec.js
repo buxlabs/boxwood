@@ -122,12 +122,12 @@ test('import', async assert => {
   })
   assert.deepEqual(template({}), '<div>foo</div><footer>bar</footer>')
 
-  var { template } = await compile(`<render partial="./header.html">`, {
+  var { template } = await compile(`<render partial="./header.html" {title}>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 
-  var { template } = await compile(`<render partial="./header.html" />`, {
+  var { template } = await compile(`<render partial="./header.html" {title}/>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
@@ -1123,7 +1123,7 @@ test('import: shorthand conditions syntax in a nested imported component', async
 })
 
 test('import: partial should be optimized safely', async assert => {
-  var { template } = await compile(`<render partial="./header.html"></render>`, {
+  var { template } = await compile(`<render partial="./header.html" {title}></render>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial') ]
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')

@@ -157,7 +157,7 @@ function collectInlineComponents (fragment, attributes, components) {
 function resolveComponent (content, path, component, fragment, plugins, errors, assets, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
   const htmlComponent = new Component(content, localVariables)
-  component && htmlComponent.optimize()
+  htmlComponent.optimize()
   let htmlTree = parse(htmlComponent.source)
   htmlTree = inlineData(htmlTree, content, path, assets, plugins, errors, localVariables, options)
   walk(htmlTree, current => {
