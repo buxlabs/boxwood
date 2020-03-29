@@ -338,23 +338,23 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           node.depth = depth
           return tree.append(node)
         }
-        tree.append(getTemplateAssignmentExpression(options.variables.template, node))
+        append(node)
       })
       collectChildren(fragment, tree)
       if (!SELF_CLOSING_TAGS.includes(tag)) {
         const attr = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag|bind')
         if (attr) {
           const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
-          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('</')))
-          tree.append(getTemplateAssignmentExpression(options.variables.template, getObjectMemberExpression(property)))
-          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('>')))
+          append(getLiteral('</'))
+          append(getObjectMemberExpression(property))
+          append(getLiteral('>'))
         } else {
-          tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`</${tag}>`)))
+          append(getLiteral(`</${tag}>`))
         }
       }
     } else if (fragment.type === 'text') {
       const nodes = convertText(fragment.content, variables, filters, translations, languages)
-      return nodes.forEach(node => tree.append(getTemplateAssignmentExpression(options.variables.template, node)))
+      return nodes.forEach(node => append(node))
     } else if (tag === 'if') {
       tags.if({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
     } else if (tag === 'elseif') {
