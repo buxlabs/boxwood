@@ -155,7 +155,14 @@ function curlyTagReduction (string, variables) {
         node.forbidden = true
       })
     }
-    inlineAttributesInIfStatement(node, variables, true)
+    const vars = [
+      ...variables,
+      ...newVariables.map((variable) => {
+        variable.local = true
+        return variable
+      })
+    ]
+    inlineAttributesInIfStatement(node, vars, true)
     if (node.type === 'text') {
       node.content = optimizeText(node.content, variables, newVariables)
     } else if (attributes && attributes.length > 0) {

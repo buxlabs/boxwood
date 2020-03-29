@@ -15,8 +15,11 @@ function inlineAttributesInIfStatement (node, localVariables, remove) {
     node.attributes = normalizedAttributes.map(attr => {
       // TODO handle or remove words to numbers functionality
       if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
-        const variable = localVariables && localVariables.find(variable => variable.key === attr.key)
-        if (variable && isCurlyTag(variable.value)) {
+        const key = attr.key.includes('.') ? attr.key.split('.')[0] : attr.key
+        const variable = localVariables && localVariables.find(variable => variable.key === key)
+        if (variable && variable.local) {
+          return attr
+        } else if (variable && isCurlyTag(variable.value)) {
           attr.key = `${variable.value}`
         } else if (!variable && remove) {
           attr.key = '{void(0)}'
