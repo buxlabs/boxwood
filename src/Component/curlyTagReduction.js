@@ -14,6 +14,7 @@ const { parse, stringify } = require('../utilities/html')
 const { inlineAttributesInIfStatement } = require('../utilities/inline')
 const walk = require('himalaya-walk')
 const { addPlaceholders, removePlaceholders } = require('../utilities/keywords')
+const { GLOBAL_VARIABLE } = require('../utilities/enum')
 
 function canInlineTree ({ body }) {
   const statement = body[0]
@@ -91,10 +92,19 @@ function undefinedOptionsRemoval (node) {
   return node
 }
 
+function isGlobalVariable (tree) {
+  const node = tree.body[0]
+  return node.type === 'ExpressionStatement' &&
+    node.expression.type === 'MemberExpression' &&
+    node.expression.object.type === 'Identifier' &&
+    node.expression.object.name === GLOBAL_VARIABLE
+}
+
 function optimizeCurlyTag (value, variables, newVariables) {
   value = addPlaceholders(value)
   if (isObject(value)) value = `(${value})`
   const tree = new AbstractSyntaxTree(value)
+  if (isGlobalVariable(tree)) { return curlyTag(value) }
   tree.replace({ enter: removePlaceholders })
   tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables, newVariables) })
   tree.replace({ enter: memberExpressionReduction })

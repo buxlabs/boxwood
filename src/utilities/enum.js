@@ -4,6 +4,7 @@ module.exports = {
   TEMPLATE_VARIABLE: '__t',
   OBJECT_VARIABLE: '__o',
   ESCAPE_VARIABLE: '__e',
+  GLOBAL_VARIABLE: 'globals',
   GLOBAL_VARIABLES: ['JSON', 'Math', 'Number', 'console', 'Date'],
   BOOLEAN_ATTRIBUTES: [
     'async',
