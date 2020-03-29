@@ -23,7 +23,8 @@ class Scope {
         return {
           type: 'MemberExpression',
           object: { type: 'Identifier', name: OBJECT_VARIABLE },
-          property: node.property
+          property: node.property,
+          computed: node.computed
         }
       }
     })

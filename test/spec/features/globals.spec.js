@@ -45,3 +45,17 @@ test('globals: Date', async assert => {
   var { template } = await compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')
   assert.deepEqual(template({}, escape), '818035920000')
 })
+
+test('globals: implicit variables', async assert => {
+  var { template } = await compile('{globals.foo} {globals["foo"]}')
+  assert.deepEqual(template({ foo: 'bar' }, escape), 'bar bar')
+
+  var { template } = await compile('{globals.foo.bar}')
+  assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), 'baz')
+
+  var { template } = await compile('<for bar in globals.foo>{bar}</for>')
+  assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '123')
+
+  var { template } = await compile('<if globals.foo>foo<end>')
+  assert.deepEqual(template({ foo: true }, escape), 'foo')
+})
