@@ -135,9 +135,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, err
 function inlineData (htmlTree, content, path, assets, plugins, errors, localVariables, options) {
   walk(htmlTree, leaf => {
     leaf.context = path
-    if (localVariables.length > 0) {
-      inlineLocalVariablesInFragment(leaf, localVariables)
-    }
+    inlineLocalVariablesInFragment(leaf, localVariables)
     inlineAttributesInIfStatement(leaf, localVariables)
   })
   walk(htmlTree, leaf => {
