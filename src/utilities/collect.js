@@ -132,7 +132,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, err
   resolveComponent(asset.source, asset.path, null, fragment, plugins, errors, assets, options)
 }
 
-function inlineData (htmlTree, content, path, component, assets, plugins, errors, localVariables, options) {
+function inlineData (htmlTree, content, path, assets, plugins, errors, localVariables, options) {
   walk(htmlTree, leaf => {
     leaf.context = path
     if (localVariables.length > 0) {
@@ -161,11 +161,10 @@ function resolveComponent (content, path, component, fragment, plugins, errors, 
   const htmlComponent = new Component(content, localVariables)
   component && htmlComponent.optimize()
   let htmlTree = parse(htmlComponent.source)
-  htmlTree = inlineData(htmlTree, content, path, component, assets, plugins, errors, localVariables, options)
+  htmlTree = inlineData(htmlTree, content, path, assets, plugins, errors, localVariables, options)
   walk(htmlTree, current => {
     if (component) { current.imported = true }
   })
-
   const currentComponents = []
   let slots = 0
   let children = fragment.children
