@@ -231,6 +231,9 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings })
     })
   }
+  function append (node) {
+    tree.append(getTemplateAssignmentExpression(options.variables.template, node))
+  }
   try {
     if (fragment.used) return
     depth += 1
@@ -304,7 +307,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'style') {
       tags.style({ fragment, styles })
     } else if (tag === 'script') {
-      tags.script({ tree, fragment, keys, attrs, assets, variables, promises, warnings, options })
+      tags.script({ tree, fragment, keys, attrs, assets, variables, promises, warnings, filters, translations, languages, append, options })
     } else if (tag === 'template') {
       tags.template({ tree, fragment, options })
     } else if (tag === '!doctype') {
