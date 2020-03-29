@@ -58,7 +58,7 @@ test('acceptance: tool-page', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: admin-page', async assert => {
+test('acceptance: admin-page', async assert => {
   const { actual, expected } = await suite('admin-page')
   assert.deepEqual(actual, expected)
 })
