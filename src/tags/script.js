@@ -6,9 +6,11 @@ const { getLiteral } = require('../utilities/ast')
 const { getTemplateAssignmentExpression } = require('../utilities/factory')
 const { getScopeProperties } = require('../utilities/scope')
 const { findAsset } = require('../utilities/files')
+const { isCurlyTag } = require('../utilities/string')
+const { convertAttribute } = require('../utilities/convert')
 let asyncCounter = 0
 
-module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, options }) {
+module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, options }) {
   if (keys.includes('inline') || options.inline.includes('scripts')) {
     if (keys.includes('src')) {
       const { value: path } = attrs.find(attr => attr.key === 'src')
@@ -131,20 +133,23 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       }
     }
   } else {
-    let content = '<script'
+    append(getLiteral('<script'))
     fragment.attributes.forEach(attribute => {
-      if (attribute.value) {
-        content += ` ${attribute.key}="${attribute.value}"`
+      if (isCurlyTag(attribute.value)) {
+        append(getLiteral(` ${attribute.key}="`))
+        append(convertAttribute(attribute.key, attribute.value, variables, filters, translations, languages))
+        append(getLiteral('"'))
+      } else if (attribute.value) {
+        append(getLiteral(` ${attribute.key}="${attribute.value}"`))
       } else {
-        content += ` ${attribute.key}`
+        append(getLiteral(` ${attribute.key}`))
       }
     })
-    content += '>'
+    append(getLiteral('>'))
     fragment.children.forEach(node => {
       node.used = true
-      content += node.content
+      append(getLiteral(node.content))
     })
-    content += '</script>'
-    tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
+    append(getLiteral('</script>'))
   }
 }

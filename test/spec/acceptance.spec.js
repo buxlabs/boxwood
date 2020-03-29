@@ -143,6 +143,11 @@ test('acceptance: globals', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: static-page', async assert => {
+  const { actual, expected } = await suite('static-page')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
