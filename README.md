@@ -341,6 +341,24 @@ new Promise(resolve => resolve())
 </script>
 ```
 
+### Variables
+
+#### globals
+
+You can reference the parameters that were passed to the template via the `globals` object too. It might be useful is some scenarios but sending params explicitly is usually better.
+
+```html
+<!-- layouts/partials/head.html - layouts/default.html - pages/about/index.html  -->
+<!-- you could send stylesheets explicitly, but it could -->
+<!-- get annoying if the layout is used in many places -->
+
+<head>
+  <for stylesheet in globals.stylesheets>
+    <link rel="stylesheet" type="text/css" href="{stylesheet}">
+  </for>
+</head>
+```
+
 ### Internationalization
 
 #### i18n tag
