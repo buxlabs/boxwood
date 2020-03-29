@@ -16,6 +16,7 @@ const InlinePlugin = require('./plugins/InlinePlugin')
 const SwappedStylesPlugin = require('./plugins/SwappedStylesPlugin')
 const Importer = require('./Importer')
 const Optimizer = require('./Optimizer')
+const Scope = require('./Scope')
 const { getLiteral } = require('./utilities/ast')
 
 class Renderer {
@@ -109,6 +110,8 @@ class Renderer {
       })
     }
     tree.append(getTemplateReturnStatement())
+    const scope = new Scope()
+    scope.flatten(tree)
     const optimizer = new Optimizer()
     optimizer.optimize(tree)
     return { tree, statistics, warnings, errors }

@@ -138,7 +138,7 @@ test('acceptance: explicit-variables', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: globals', async assert => {
+test('acceptance: globals', async assert => {
   const { actual, expected } = await suite('globals')
   assert.deepEqual(actual, expected)
 })
