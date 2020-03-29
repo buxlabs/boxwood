@@ -5,6 +5,7 @@ const { extract, isCurlyTag, isSquareTag, getTagValue } = require('./string')
 const { addPlaceholders, placeholderName } = require('./keywords')
 const { convertToExpression } = require('./convert')
 const { normalize } = require('./array')
+const { GLOBAL_VARIABLE } = require('./enum')
 
 const CONDITION_TAGS = ['if', 'elseif', 'unless', 'elseunless']
 
@@ -15,7 +16,11 @@ function inlineAttributesInIfStatement (node, localVariables, remove) {
     node.attributes = normalizedAttributes.map(attr => {
       // TODO handle or remove words to numbers functionality
       if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
+        // TODO this does not handle computed values
+        // we should create a new abstract-syntax-tree and get the key that way
+        // instead of string manipulation
         const key = attr.key.includes('.') ? attr.key.split('.')[0] : attr.key
+        if (key === GLOBAL_VARIABLE) { return attr }
         const variable = localVariables && localVariables.find(variable => variable.key === key)
         if (variable && variable.local) {
           return attr
