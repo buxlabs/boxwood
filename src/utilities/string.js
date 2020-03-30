@@ -1,6 +1,5 @@
 'use strict'
 
-const { ltrim } = require('pure-utilities/string')
 const lexer = require('./lexer')
 
 function curlyTag (string) {
@@ -31,10 +30,11 @@ function getTagValue (value) {
   return value.substring(1, value.length - 1)
 }
 
-function extract (value) {
+function extract (value, compact) {
   // is this the best way? should the lexer handle it?
   if (isSquareTag(value)) { return [{ type: 'expression', value }] }
-  const tokens = lexer(value.trim().replace(/\n/g, ''))
+  const text = compact ? value.trim().replace(/\n/g, '') : value
+  const tokens = lexer(text)
   const objects = tokens.map((token, index) => {
     if (token.type === 'expression') {
       // TODO
@@ -46,11 +46,6 @@ function extract (value) {
         token.filters = parts.slice(1)
       } else {
         token.value = `{${token.value}}`
-      }
-    } else if (token.type === 'text') {
-      const previous = tokens[index - 1]
-      if (!previous || previous.type !== 'expression') {
-        token.value = ltrim(token.value)
       }
     }
     return token

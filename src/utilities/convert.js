@@ -248,8 +248,8 @@ function isBooleanReturnFromExpression (node) {
   return node.type === 'BinaryExpression' && isComparisonOperator(node.operator)
 }
 
-function convertText (text, variables, currentFilters, translations, languages, unescaped = false) {
-  const nodes = extract(text).map(({ value, filters = [] }, index) => {
+function convertText (text, variables, currentFilters, translations, languages, unescaped = false, compact = false) {
+  const nodes = extract(text, compact).map(({ value, filters = [] }, index) => {
     if (isCurlyTag(value)) {
       const property = value.substring(1, value.length - 1).trim()
       const expression = convertToExpression(property)

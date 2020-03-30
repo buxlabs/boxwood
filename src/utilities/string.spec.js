@@ -15,7 +15,7 @@ test('extract: extracts from tokens filters and values', assert => {
   assert.deepEqual(extract('foo bar {baz}'), [{ type: 'text', value: 'foo bar ' }, { type: 'expression', value: '{baz}' }])
   assert.deepEqual(extract('foo {bar} baz'), [{ type: 'text', value: 'foo ' }, { type: 'expression', value: '{bar}' }, { type: 'text', value: ' baz' }])
   assert.deepEqual(extract('foo     bar'), [{ type: 'text', value: 'foo     bar' }])
-  assert.deepEqual(extract('   foo     bar    '), [{ type: 'text', value: 'foo     bar' }])
+  assert.deepEqual(extract('   foo     bar    '), [{ type: 'text', value: '   foo     bar    ' }])
   assert.deepEqual(extract('foo-{bar}'), [{ type: 'text', value: 'foo-' }, { type: 'expression', value: '{bar}' }])
   assert.deepEqual(extract('{foo}-{bar}'), [{ type: 'expression', value: '{foo}' }, { type: 'text', value: '-' }, { type: 'expression', value: '{bar}' }])
   assert.deepEqual(extract('{foo | uppercase}'), [{ type: 'expression', value: '{foo}', original: '{foo | uppercase}', filters: ['uppercase'] }])

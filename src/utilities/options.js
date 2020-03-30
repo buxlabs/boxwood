@@ -12,6 +12,7 @@ module.exports = {
       paths: [],
       languages: [],
       cache: false,
+      compact: false,
       variables: {
         template: TEMPLATE_VARIABLE,
         object: OBJECT_VARIABLE,

@@ -353,7 +353,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         }
       }
     } else if (fragment.type === 'text') {
-      const nodes = convertText(fragment.content, variables, filters, translations, languages)
+      const nodes = convertText(fragment.content, variables, filters, translations, languages, false, options.compact)
       return nodes.forEach(node => append(node))
     } else if (tag === 'if') {
       tags.if({ fragment, tree, attrs, variables, filters, translations, languages, warnings, depth, collectChildren })
