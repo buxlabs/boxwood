@@ -200,7 +200,7 @@ const { template } = await compile(`<spacing medium>`, {
 
 #### space
 
-The engine removes unnecessary whitespaces to reduce the size of the template. You can add a space explicitly though.
+You can add a space explicitly if needed.
 
 ```html
 <space/>
