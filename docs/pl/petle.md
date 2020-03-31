@@ -66,7 +66,7 @@ W celu iterowania po indeksach zamiast wartościach należy skorzystać z tagu `
 
 ## Iterowanie po obiektach
 
-Pure-engine wspiera iterowanie po kluczach oraz wartościach obiektu. Do tego celu służy tag `for`. 
+Boxwood wspiera iterowanie po kluczach oraz wartościach obiektu. Do tego celu służy tag `for`. 
 Na chwilę obecną nie mam możliwości iterowania tylko po kluczach lub wartościach. Należy podać obydwa atrybuty.
 
 ```html

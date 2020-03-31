@@ -15,7 +15,7 @@ const fs = require('fs')
 const readFile = util.promisify(fs.readFile)
 
 async function benchmark (dir, assert) {
-  const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/pure-engine.html`), 'utf8')
+  const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.html`), 'utf8')
   const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/underscore.ejs`), 'utf8')
   const source3 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/lodash.ejs`), 'utf8')
   const source4 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/handlebars.hbs`), 'utf8')
@@ -41,7 +41,7 @@ async function benchmark (dir, assert) {
   assert.deepEqual(result, normalize(mustache.render(source5, data)))
 
   await new Promise(resolve => {
-    suite.add('pure-engine', function () {
+    suite.add('boxwood', function () {
       fn1(data, escape)
     })
       .add('underscore', function () {
