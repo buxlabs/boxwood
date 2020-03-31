@@ -1,15 +1,15 @@
-# pure-engine
+# boxwood
 
 > Kompiluj szablony HTML do JS
 
-![npm (scoped)](https://img.shields.io/npm/v/pure-engine.svg)
-[![Codeship Status for buxlabs/pure-engine](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
+![npm (scoped)](https://img.shields.io/npm/v/boxwood.svg)
+[![Codeship Status for buxlabs/boxwood](https://img.shields.io/codeship/0f4ad4f0-3059-0136-f8b6-0ef1398f25bc/master.svg)](https://app.codeship.com/projects/288586)
 
-[REPL](https://buxlabs.pl/en/tools/js/pure-engine)
+[REPL](https://buxlabs.pl/en/tools/js/boxwood)
 
 ## Opis
 
-Pure Engine jest silnikiem przeznaczonym do kompilacji szablonów HTML na funkcje w JS. Analizuje szablon i generuje optymalną funkcję renderującą, która może być używana zarówno po stronie klienta, jak i serwera. Proces kompilacji powinien w idealnym przypadku nastąpić w procesie budowania (dla klienta) lub jego rezultat powinien zostać zachowany w celu ponownego wykorzystania (na serwerze).
+Boxwood jest silnikiem przeznaczonym do kompilacji szablonów HTML na funkcje w JS. Analizuje szablon i generuje optymalną funkcję renderującą, która może być używana zarówno po stronie klienta, jak i serwera. Proces kompilacji powinien w idealnym przypadku nastąpić w procesie budowania (dla klienta) lub jego rezultat powinien zostać zachowany w celu ponownego wykorzystania (na serwerze).
 
 Składnia szablonów powinna być łatwa w czytaniu i pisaniu. Istnieją dwa typy tagów: klamrowe i HTML.
 
@@ -30,10 +30,10 @@ Tagi HTML mogą posiadać dodatkowe atrybuty, np.: `<if limit is a number>` jest
 
 ## Użycie
 
-`npm install pure-engine escape-html`
+`npm install boxwood escape-html`
 
 ```js
-const { compile } = import 'pure-engine'
+const { compile } = import 'boxwood'
 const escape = import 'escape-html'
 // ... dalej, wewnątrz async function
 const template = await compile('<div>{foo}</div>')
@@ -162,12 +162,12 @@ function render(__o, __e) {
 `npm run benchmark`
 
 ```
-pure-engine x 4,053,839 ops/sec ±0.91% (87 runs sampled)
+boxwood x 4,053,839 ops/sec ±0.91% (87 runs sampled)
 underscore x 161,728 ops/sec ±0.88% (91 runs sampled)
 lodash x 204,561 ops/sec ±0.73% (90 runs sampled)
 handlebars x 1,699,469 ops/sec ±1.12% (85 runs sampled)
 mustache x 447,168 ops/sec ±1.09% (82 runs sampled)
-Fastest is pure-engine
+Fastest is boxwood
 ```
 
 ## Licencja

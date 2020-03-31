@@ -33,7 +33,7 @@ Do kontrolowania renderowania elementów służą tagi `if` `elseif` `else`.
 ```
 
 W niektórych przypadkach będziesz potrzebował bardziej złożonych testów dla twoich warunków.
-W tym celu pure-engine wykorzystuje akcje.
+W tym celu boxwood wykorzystuje akcje.
 
 Akcje są zbiorem zdefiniowanych atrybutów, które połączone razem tworzą funkcję testową.
 Składnia akcji jest zbliżona do języka naturalnego.

@@ -1,5 +1,5 @@
 {
-  "name": "pure-engine",
+  "name": "boxwood",
   "version": "0.21.0",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/buxlabs/pure-engine.git"
+    "url": "git+https://github.com/buxlabs/boxwood.git"
   },
   "keywords": [
     "html",
@@ -47,9 +47,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/buxlabs/pure-engine/issues"
+    "url": "https://github.com/buxlabs/boxwood/issues"
   },
-  "homepage": "https://github.com/buxlabs/pure-engine#readme",
+  "homepage": "https://github.com/buxlabs/boxwood#readme",
   "dependencies": {
     "abstract-syntax-tree": "^2.7.0",
     "astoptech": "^1.0.6",

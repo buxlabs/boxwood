@@ -66,7 +66,7 @@ If you want iterate over indexes rather than values, you can use `range` attribu
 
 ## Iterating over objects
 
-Pure-engine support also iterating over objects. For this purpose use `for` tag.
+Boxwood support also iterating over objects. For this purpose use `for` tag.
 At the moment it is impossible to iterate only for keys or values. You must provide both attributes.
 
 ```html
