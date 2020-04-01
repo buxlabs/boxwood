@@ -7,11 +7,45 @@ const { convertToExpression } = require('./convert')
 const { normalize } = require('./array')
 const { GLOBAL_VARIABLE } = require('./enum')
 
-const CONDITION_TAGS = ['if', 'elseif', 'unless', 'elseunless']
+function inlineLocalVariablesInText (node, variables) {
+  if (node.type === 'text') {
+    variables.forEach(variable => {
+      if (!isCurlyTag(variable.value)) {
+        node.content = node.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
+      }
+    })
+  }
+}
 
-function inlineAttributesInIfStatement (node, localVariables, remove) {
+function inlineLocalVariablesInAttributes (node, variables) {
+  if (node.attributes && node.attributes.length > 0) {
+    node.attributes.forEach(attribute => {
+      if (isCurlyTag(attribute.key)) {
+        const key = getTagValue(attribute.key)
+        const variable = variables.find(localVariable => {
+          return localVariable.key === key
+        })
+        if (variable) {
+          attribute.key = variable.key
+          attribute.value = variable.value
+        }
+      } else if (isCurlyTag(attribute.value)) {
+        const key = getTagValue(attribute.value)
+        const variable = variables.find(localVariable => {
+          return localVariable.key === key
+        })
+        if (variable) {
+          attribute.value = variable.value
+        }
+      }
+    })
+  }
+}
+
+const INLINEABLE_TAGS = ['if', 'elseif', 'unless', 'elseunless']
+function inlineLocalVariablesInTags (node, localVariables, remove) {
   // TODO we should handle switch etc.
-  if (CONDITION_TAGS.includes(node.tagName)) {
+  if (INLINEABLE_TAGS.includes(node.tagName)) {
     const normalizedAttributes = normalize(node.attributes)
     node.attributes = normalizedAttributes.map(attr => {
       // TODO handle or remove words to numbers functionality
@@ -37,36 +71,10 @@ function inlineAttributesInIfStatement (node, localVariables, remove) {
   }
 }
 
-function inlineLocalVariablesInFragment (node, variables) {
-  if (node.type === 'text') {
-    variables.forEach(variable => {
-      if (!isCurlyTag(variable.value)) {
-        node.content = node.content.replace(new RegExp(`{${variable.key}}`, 'g'), variable.value)
-      }
-    })
-  }
-  if (node.attributes && node.attributes.length > 0) {
-    node.attributes.forEach(attribute => {
-      if (isCurlyTag(attribute.key)) {
-        const key = getTagValue(attribute.key)
-        const variable = variables.find(localVariable => {
-          return localVariable.key === key
-        })
-        if (variable) {
-          attribute.key = variable.key
-          attribute.value = variable.value
-        }
-      } else if (isCurlyTag(attribute.value)) {
-        const key = getTagValue(attribute.value)
-        const variable = variables.find(localVariable => {
-          return localVariable.key === key
-        })
-        if (variable) {
-          attribute.value = variable.value
-        }
-      }
-    })
-  }
+function inlineLocalVariables (node, variables) {
+  inlineLocalVariablesInText(node, variables)
+  inlineLocalVariablesInAttributes(node, variables)
+  inlineLocalVariablesInTags(node, variables)
 }
 
 function inlineExpressions (leaf, localVariables) {
@@ -124,7 +132,7 @@ function inlineExpressions (leaf, localVariables) {
 }
 
 module.exports = {
-  inlineAttributesInIfStatement,
-  inlineLocalVariablesInFragment,
+  inlineLocalVariablesInTags,
+  inlineLocalVariables,
   inlineExpressions
 }

@@ -8,7 +8,7 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 const { join, dirname } = require('path')
 const { parse } = require('./html')
-const { inlineAttributesInIfStatement, inlineLocalVariablesInFragment, inlineExpressions } = require('./inline')
+const { inlineLocalVariables, inlineExpressions } = require('./inline')
 const { clone } = require('./object')
 const { isImportTag } = require('./string')
 const Component = require('../Component')
@@ -135,8 +135,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, err
 function inlineData (htmlTree, content, path, assets, plugins, errors, localVariables, options) {
   walk(htmlTree, leaf => {
     leaf.context = path
-    inlineLocalVariablesInFragment(leaf, localVariables)
-    inlineAttributesInIfStatement(leaf, localVariables)
+    inlineLocalVariables(leaf, localVariables)
   })
   walk(htmlTree, leaf => {
     inlineExpressions(leaf, localVariables)
