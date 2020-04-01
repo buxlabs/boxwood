@@ -1,0 +1,6 @@
+{
+  "menu": [
+    { "href": "/", "text": "Start" },
+    { "href": "/login", "text": "Logowanie" }
+  ]
+}
