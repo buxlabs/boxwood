@@ -1,25 +1,25 @@
 'use strict'
 
 const test = require('ava')
-const { inlineLocalVariablesInFragment } = require('./inline')
+const { inlineLocalVariables } = require('./inline')
 
-test('#inlineLocalVariablesInFragment inlines variables in the text', assert => {
+test('#inlineLocalVariables inlines variables in the text', assert => {
   const node = { type: 'text', content: 'hello, {foo}', attributes: [] }
   const variables = [{ key: 'foo', value: 'world' }]
-  inlineLocalVariablesInFragment(node, variables)
+  inlineLocalVariables(node, variables)
   assert.deepEqual(node.content, 'hello, world')
 })
 
-test('#inlineLocalVariablesInFragment inlines variables in the attribute keys', assert => {
+test('#inlineLocalVariables inlines variables in the attribute keys', assert => {
   const node = { type: 'text', content: 'hello', attributes: [{ key: '{foo}' }] }
   const variables = [{ key: 'foo', value: 'world' }]
-  inlineLocalVariablesInFragment(node, variables)
+  inlineLocalVariables(node, variables)
   assert.deepEqual(node.attributes, [{ key: 'foo', value: 'world' }])
 })
 
-test('#inlineLocalVariablesInFragment inlines variables in the attribute values', assert => {
+test('#inlineLocalVariables inlines variables in the attribute values', assert => {
   const node = { type: 'text', content: 'hello', attributes: [{ key: 'foo', value: '{foo}' }] }
   const variables = [{ key: 'foo', value: 'world' }]
-  inlineLocalVariablesInFragment(node, variables)
+  inlineLocalVariables(node, variables)
   assert.deepEqual(node.attributes, [{ key: 'foo', value: 'world' }])
 })
