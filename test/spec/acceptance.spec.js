@@ -153,6 +153,11 @@ test('acceptance: globals-env', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: styleguide', async assert => {
+  const { actual, expected } = await suite('styleguide')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
