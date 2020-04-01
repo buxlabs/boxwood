@@ -362,3 +362,23 @@ test('for: inlining with an object', async assert => {
   `)
   assert.deepEqual(template({}, escape), 'quxquux')
 })
+
+test('for: inline array', async assert => {
+  const { template } = await compile(`
+    <template foo>
+      <for car and index of ['BMW','Hyundai']>#{index + 1}{car}</for>
+    </template>
+    <foo />
+  `)
+  assert.deepEqual(template({}, escape), "#1BMW#2Hyundai")
+})
+
+test('for: inline object', async assert => {
+  const { template } = await compile(`
+    <template foo>
+      <for key and value in {qux:'quux'}>{key}{value}</for>
+    </template>
+    <foo />
+  `)
+  assert.deepEqual(template({}, escape), "quxquux")
+})

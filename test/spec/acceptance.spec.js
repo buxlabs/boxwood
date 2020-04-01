@@ -153,7 +153,7 @@ test('acceptance: globals-env', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: styleguide', async assert => {
+test.only('acceptance: styleguide', async assert => {
   const { actual, expected } = await suite('styleguide')
   assert.deepEqual(actual, expected)
 })
