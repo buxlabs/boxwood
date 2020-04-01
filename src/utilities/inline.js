@@ -42,10 +42,11 @@ function inlineLocalVariablesInAttributes (node, variables) {
   }
 }
 
-const INLINEABLE_TAGS = ['if', 'elseif', 'unless', 'elseunless']
+const CONDITION_TAGS = ['if', 'elseif', 'unless', 'elseunless']
+const LOOP_TAGS = ['for', 'each', 'foreach']
 function inlineLocalVariablesInTags (node, localVariables, remove) {
   // TODO we should handle switch etc.
-  if (INLINEABLE_TAGS.includes(node.tagName)) {
+  if (CONDITION_TAGS.includes(node.tagName)) {
     const normalizedAttributes = normalize(node.attributes)
     node.attributes = normalizedAttributes.map(attr => {
       // TODO handle or remove words to numbers functionality
@@ -68,6 +69,20 @@ function inlineLocalVariablesInTags (node, localVariables, remove) {
       }
       return attr
     })
+  } else if (LOOP_TAGS.includes(node.tagName)) {
+    // TODO this approach is not great, e.g. would not work for items with whitespace in strings
+    // the variable will also be reused inside of the loop
+    // we should probably do a transpilation step of the source code first
+    // to host variables, give them a name and reuse
+    // this way we can utilize other code paths without needing to come here
+    const attribute = node.attributes[node.attributes.length - 1]
+    const variable = localVariables && localVariables.find(variable => variable.key === attribute.key)
+    if (variable) {
+      const value = getTagValue(variable.value)
+      if (isSquareTag(value)) {
+        attribute.key = value.replace(/\s+/g, '')
+      }
+    }
   }
 }
 
