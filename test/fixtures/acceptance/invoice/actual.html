@@ -1,0 +1,31 @@
+<for person of people>
+  <if person.active>
+    <table>
+      <thead>
+        <tr>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
+        </tr>
+      </thead>
+      <tbody>
+        <for week of person.weeks>
+          <tr>
+            <for hours of week>
+              <if hours>
+                <td>{hours}</td>
+              </if>
+              <else>
+                <td>-</td>
+              </else>
+            </for>
+          </tr>
+        </for>
+      </tbody>
+    </table>
+  </if>
+</for>

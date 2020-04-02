@@ -153,8 +153,13 @@ test('acceptance: globals-env', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.only('acceptance: styleguide', async assert => {
+test('acceptance: styleguide', async assert => {
   const { actual, expected } = await suite('styleguide')
+  assert.deepEqual(actual, expected)
+})
+
+test.skip('acceptance: invoice', async assert => {
+  const { actual, expected } = await suite('invoice', { compact: false })
   assert.deepEqual(actual, expected)
 })
 
@@ -168,7 +173,7 @@ test.skip('acceptance: variables', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-async function suite (name) {
+async function suite (name, compilerOptions = {}) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, 'actual.html')
   const path2 = join(dir, 'expected.html')
@@ -178,7 +183,8 @@ async function suite (name) {
   const content3 = await readFile(path3, 'utf8')
   const { template, warnings, errors } = await compile(content1, {
     paths: [dir],
-    languages: ['pl', 'en']
+    languages: ['pl', 'en'],
+    ...compilerOptions
   })
   const data = JSON.parse(content3)
   let actual = ''
