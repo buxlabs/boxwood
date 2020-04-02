@@ -158,7 +158,7 @@ test('acceptance: styleguide', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: invoice', async assert => {
+test('acceptance: invoice', async assert => {
   const { actual, expected } = await suite('invoice', { compact: false })
   assert.deepEqual(actual, expected)
 })
