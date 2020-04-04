@@ -1,8 +1,19 @@
+<import header from="./partials/header.html" />
+
 <html>
   <head>
     <title>boxwood</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&family=Roboto+Condensed&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/normalize.css" inline>
+    <link rel="stylesheet" type="text/css" href="assets/css/global.css" inline>
   </head>
   <body>
-    <slot />
+    <header />
+    <main><slot /></main>
   </body>
+  <style scoped>
+  main {
+    padding: 1rem;
+  }
+  </style>
 </html>

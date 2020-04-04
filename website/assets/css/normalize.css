@@ -1,22 +1,4 @@
-
-
-
-
-<html><head><title>boxwood</title><link href="https://fonts.googleapis.com/css2?family=Nunito&family=Roboto+Condensed&display=swap" rel="stylesheet"></head><body><header class="scope-129354352"><div class="scope-906273745 container"><span class="scope-129354352 green">BOX</span><span class="scope-129354352 blue">WOOD</span></div></header><main class="scope-664696307">
-  <div class="scope-906273745 container">
-    <h1>
-      Progressively enhanced HTML templating engine written in JavaScript
-    </h1>
-    <h2>Features</h2>
-    <h3>Import</h3>
-    <code class="scope-657980726">&lt;import layout from="layouts/default.html" /&gt;
-
-&lt;layout&gt;
-  Lorem ipsum dolor sit amet.
-&lt;/layout&gt;</code>
-  </div>
-</main></body></html>
-<style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
+/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 
 /* Document
    ========================================================================== */
@@ -364,10 +346,4 @@ template {
 
 [hidden] {
   display: none;
-} html, body {
-  font-family: "Roboto Condensed", sans-serif;
 }
-
-h1, h2, h3, h4, h5 {
-  font-family: "Nunito", sans-serif;
-} .scope-906273745.container{margin:0 auto;max-width:1024px} header.scope-129354352{background:#000333;color:white;padding:1rem}.scope-129354352.green{color:#5db882}.scope-129354352.blue{color:#1d70b7} code.scope-657980726{background:#f9f9f9;display:block;padding:1rem;width:100%;white-space:pre-wrap} main.scope-664696307{padding:1rem}</style>
