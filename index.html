@@ -2,20 +2,71 @@
 
 
 
-<html><head><title>boxwood</title><link href="https://fonts.googleapis.com/css2?family=Nunito&family=Roboto+Condensed&display=swap" rel="stylesheet"></head><body><header class="scope-129354352"><div class="scope-906273745 container"><span class="scope-129354352 green">BOX</span><span class="scope-129354352 blue">WOOD</span></div></header><main class="scope-664696307">
-  <div class="scope-906273745 container">
-    <h1>
-      Progressively enhanced HTML templating engine written in JavaScript
-    </h1>
-    <h2>Features</h2>
-    <h3>Import</h3>
-    <code class="scope-657980726">&lt;import layout from="layouts/default.html" /&gt;
 
-&lt;layout&gt;
-  Lorem ipsum dolor sit amet.
-&lt;/layout&gt;</code>
+
+<html><head><title>boxwood</title><link href="https://fonts.googleapis.com/css2?family=Nunito&family=Roboto+Condensed&display=swap" rel="stylesheet"></head><body class="scope-1626639808"><header class="scope-3503744370"><div class="scope-2341705298 container"><span class="scope-3503744370 green">BOX</span><span class="scope-3503744370 blue">WOOD</span></div></header><main>
+  <div class="scope-2341705298 container">
+    <div class="scope-2380255172 sidebar">
+      <p class="scope-3032616704 heading">Introduction</p>
+      <ul class="scope-3032616704">
+        <li class="scope-3032616704"><a class="scope-3032616704">Why Boxwood</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Installation</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Getting Started</a></li>
+      </ul>
+      <p class="scope-3032616704 heading">Essential concepts</p>
+      <ul class="scope-3032616704">
+        <li class="scope-3032616704"><a class="scope-3032616704">Partials</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Slots</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Conditions</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Loops</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Filters</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Attributes</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Styles</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Scripts</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Images</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">Translations</a></li>
+      </ul>
+      <p class="scope-3032616704 heading">Tags</p>
+      <ul class="scope-3032616704">
+        <li class="scope-3032616704"><a class="scope-3032616704">case</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">catch</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">default</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">else</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">elseif</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">elseunless</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">each</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">entity</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">font</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">for</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">foreach</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">if</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">img</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">import</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">include</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">link</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">partial</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">require</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">slot</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">space</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">spacing</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">style</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">svg</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">switch</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">template</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">translate</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">try</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">unless</a></li>
+        <li class="scope-3032616704"><a class="scope-3032616704">var</a></li>
+      </ul>
+    </div>
+    <div class="scope-2479498790 content">
+      <h1>Why Boxwood?</h1>
+      <p>Because it's great.</p>
+    </div>
   </div>
 </main></body></html>
+
+
 <style>/*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */
 
 /* Document
@@ -365,9 +416,10 @@ template {
 [hidden] {
   display: none;
 } html, body {
+  color: rgba(0,0,0,.87);
   font-family: "Roboto Condensed", sans-serif;
 }
 
 h1, h2, h3, h4, h5 {
   font-family: "Nunito", sans-serif;
-} .scope-906273745.container{margin:0 auto;max-width:1024px} header.scope-129354352{background:#000333;color:white;padding:1rem}.scope-129354352.green{color:#5db882}.scope-129354352.blue{color:#1d70b7} code.scope-657980726{background:#f9f9f9;display:block;padding:1rem;width:100%;white-space:pre-wrap} main.scope-664696307{padding:1rem}</style>
+} .scope-2341705298.container{display:flex;flex:1;flex-direction:row;margin:0 auto;max-width:980px} header.scope-3503744370{background:#000333;color:white;font-weight:bold;line-height:1;padding:1.25rem;position:sticky;top:0}.scope-3503744370.green{color:#5db882}.scope-3503744370.blue{color:#1d70b7} .scope-2380255172.sidebar{flex:0 0 15em;border-right:1px solid #E1EAEF;overflow-y:scroll;top:56px;height:calc(100vh - 56px);padding-bottom:56px} .scope-2479498790.content{flex:1;padding-left:1em;overflow-y:scroll;margin-bottom:10em} body.scope-1626639808{background:#f9f9f9} .scope-3032616704.heading{font-weight:bold;text-transform:uppercase}ul.scope-3032616704{list-style-type:none;margin:0;padding:0}li.scope-3032616704{color:#4183c4;margin:0;padding:0}a.scope-3032616704{color:#4183c4;cursor:pointer;text-decoration:none}</style>

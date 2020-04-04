@@ -1,18 +1,89 @@
 <import layout from="layouts/default.html" />
 <import container from="components/container.html" />
 <import code from="components/code.html" />
+<import sidebar from="partials/sidebar.html" />
+<import content from="partials/content.html" />
 
 <layout>
   <container>
-    <h1>
-      Progressively enhanced HTML templating engine written in JavaScript
-    </h1>
-    <h2>Features</h2>
-    <h3>Import</h3>
-    <code><entity lt />import layout from="layouts/default.html" /<entity gt />
-
-<entity lt />layout<entity gt />
-  Lorem ipsum dolor sit amet.
-<entity lt />/layout<entity gt /></code>
+    <sidebar>
+      <p class="heading">Introduction</p>
+      <ul>
+        <li><a>Why Boxwood</a></li>
+        <li><a>Installation</a></li>
+        <li><a>Getting Started</a></li>
+      </ul>
+      <p class="heading">Essential concepts</p>
+      <ul>
+        <li><a>Partials</a></li>
+        <li><a>Slots</a></li>
+        <li><a>Conditions</a></li>
+        <li><a>Loops</a></li>
+        <li><a>Filters</a></li>
+        <li><a>Attributes</a></li>
+        <li><a>Styles</a></li>
+        <li><a>Scripts</a></li>
+        <li><a>Images</a></li>
+        <li><a>Translations</a></li>
+      </ul>
+      <p class="heading">Tags</p>
+      <ul>
+        <li><a>case</a></li>
+        <li><a>catch</a></li>
+        <li><a>default</a></li>
+        <li><a>else</a></li>
+        <li><a>elseif</a></li>
+        <li><a>elseunless</a></li>
+        <li><a>each</a></li>
+        <li><a>entity</a></li>
+        <li><a>font</a></li>
+        <li><a>for</a></li>
+        <li><a>foreach</a></li>
+        <li><a>if</a></li>
+        <li><a>img</a></li>
+        <li><a>import</a></li>
+        <li><a>include</a></li>
+        <li><a>link</a></li>
+        <li><a>partial</a></li>
+        <li><a>require</a></li>
+        <li><a>slot</a></li>
+        <li><a>space</a></li>
+        <li><a>spacing</a></li>
+        <li><a>style</a></li>
+        <li><a>svg</a></li>
+        <li><a>switch</a></li>
+        <li><a>template</a></li>
+        <li><a>translate</a></li>
+        <li><a>try</a></li>
+        <li><a>unless</a></li>
+        <li><a>var</a></li>
+      </ul>
+    </sidebar>
+    <content>
+      <h1>Why Boxwood?</h1>
+      <p>Because it's great.</p>
+    </content>
   </container>
 </layout>
+
+<style scoped>
+.heading {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+li {
+  color: #4183c4;
+  margin: 0;
+  padding: 0;
+}
+a {
+  color: #4183c4;
+  cursor: pointer;
+  text-decoration: none;
+}
+</style>
