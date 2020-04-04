@@ -8,7 +8,8 @@
     "test": "ava 'test/spec/**/*.spec.js' 'src/**/*.spec.js'",
     "coverage": "nyc npm test",
     "benchmark": "ava test/benchmark.spec.js --verbose",
-    "watch": "npm test -- --watch"
+    "watch": "npm test -- --watch",
+    "build": "node website/build.js"
   },
   "ava": {
     "files": [
