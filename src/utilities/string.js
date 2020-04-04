@@ -27,7 +27,7 @@ function containsCurlyTag (value) {
 }
 
 function getTagValue (value) {
-  return value.substring(1, value.length - 1)
+  return value.substring(1, value.length - 1).trim()
 }
 
 function extract (value, compact) {

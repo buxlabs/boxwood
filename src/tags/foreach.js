@@ -5,12 +5,16 @@ const { convertKey } = require('../utilities/convert')
 
 module.exports = function ({ fragment, tree, variables, attrs, collectChildren }) {
   const ast = new AbstractSyntaxTree('')
-  let left, right, key, value
+  let left, operator, right, key, value
 
-  if (attrs.length === 3) {
-    [left, , right] = attrs
+  if (attrs.length === 2) {
+    [left, operator] = attrs
+  } if (attrs.length === 3) {
+    [left, operator, right] = attrs
+  } else if (attrs.length === 4) {
+    [key, , value, operator] = attrs
   } else if (attrs.length === 5) {
-    [key, , value, , right] = attrs
+    [key, , value, operator, right] = attrs
   }
 
   if (left) {
@@ -35,7 +39,7 @@ module.exports = function ({ fragment, tree, variables, attrs, collectChildren }
       type: 'CallExpression',
       callee: {
         type: 'MemberExpression',
-        object: convertKey(right.key, variables),
+        object: convertKey(operator.value || right.key, variables),
         property: {
           type: 'Identifier',
           name: fragment.tagName === 'foreach' ? 'forEach' : 'each'
