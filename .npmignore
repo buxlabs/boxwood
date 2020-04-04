@@ -4,3 +4,5 @@ coverage
 .github
 docs
 **/*.spec.js
+website
+index.html
