@@ -70,11 +70,6 @@ function inlineLocalVariablesInTags (node, localVariables, remove) {
       return attr
     })
   } else if (LOOP_TAGS.includes(node.tagName)) {
-    // TODO this approach is not great, e.g. would not work for items with whitespace in strings
-    // the variable will also be reused inside of the loop
-    // we should probably do a transpilation step of the source code first
-    // to host variables, give them a name and reuse
-    // this way we can utilize other code paths without needing to come here
     if (node.attributes.length === 3 || node.attributes.length === 5) {
       const attribute = node.attributes[node.attributes.length - 1]
       const variable = localVariables && localVariables.find(variable => variable.key === attribute.key)
