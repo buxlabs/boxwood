@@ -73,7 +73,6 @@ module.exports = function ({ fragment, tree, attrs, variables, translations, lan
       const valueIdentifier = value.key
       variables.push(keyIdentifier)
       variables.push(valueIdentifier)
-
       const parent = operator.value || curlyTag(right.key)
       const name = convertAttribute('html', parent, variables, translations, languages)
       ast.append(getForLoopVariable(keyIdentifier, name, variables, valueIdentifier))

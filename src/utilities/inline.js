@@ -75,12 +75,25 @@ function inlineLocalVariablesInTags (node, localVariables, remove) {
     // we should probably do a transpilation step of the source code first
     // to host variables, give them a name and reuse
     // this way we can utilize other code paths without needing to come here
-    const attribute = node.attributes[node.attributes.length - 1]
-    const variable = localVariables && localVariables.find(variable => variable.key === attribute.key)
-    if (variable) {
-      const value = getTagValue(variable.value)
-      if (isSquareTag(value)) {
-        attribute.key = value.replace(/\s+/g, '')
+    if (node.attributes.length === 3 || node.attributes.length === 5) {
+      const attribute = node.attributes[node.attributes.length - 1]
+      const variable = localVariables && localVariables.find(variable => variable.key === attribute.key)
+      if (variable) {
+        const value = getTagValue(variable.value).trim()
+        const previous = node.attributes[node.attributes.length - 2]
+        if (isCurlyTag(value)) {
+          previous.value = `{${value}}`
+          node.attributes.pop()
+        } else if (isSquareTag(value)) {
+          previous.value = `{${value}}`
+          node.attributes.pop()
+        } else if (value.startsWith('(') && value.endsWith(')')) {
+          const string = getTagValue(value).trim()
+          if (isCurlyTag(string)) {
+            previous.value = `{${string}}`
+            node.attributes.pop()
+          }
+        }
       }
     }
   }
