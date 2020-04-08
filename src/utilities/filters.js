@@ -57,7 +57,7 @@ function getTranslations (translations, key, languages) {
     })
   } else if (isPlainObject(translation)) {
     const result = []
-    for (let key in translation) {
+    for (const key in translation) {
       const index = languages.indexOf(key)
       if (Object.prototype.hasOwnProperty.call(translation, key)) {
         const value = translation[key]
