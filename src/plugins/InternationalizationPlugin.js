@@ -63,6 +63,10 @@ function isI18nTag (tag, keys) {
   return (tag === 'script' && keys.includes('i18n')) || tag === 'i18n'
 }
 
+function isDataTag (tag) {
+  return tag === 'data'
+}
+
 function hasTranslateModifier (attribute) {
   return attribute.key.endsWith('|translate')
 }
@@ -95,6 +99,15 @@ class InternationalizationPlugin extends Plugin {
       for (const key in data) {
         if (this.translations[key]) { throw new TranslationError('Translation already exists') }
         this.translations[`${key}_${id}`] = data[key]
+      }
+    } else if (isDataTag(tag)) {
+      const format = getTranslationsFormat(keys)
+      const leaf = fragment.children[0]
+      const data = parse(format, leaf.content)
+      const { i18n } = data
+      for (const key in i18n) {
+        if (this.translations[key]) { throw new TranslationError('Translation already exists') }
+        this.translations[`${key}_${id}`] = i18n[key]
       }
     }
     attrs.forEach(attr => {

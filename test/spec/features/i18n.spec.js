@@ -549,3 +549,35 @@ test('i18n: translations with named languages in random order', async assert => 
   assert.deepEqual(template({ language: 'en' }, escape), 'HelloBye')
   assert.deepEqual(template({ language: 'pl' }, escape), 'SiemaHej')
 })
+
+test('i18n: keeping translations in data tag', async assert => {
+  const { template } = await compile(`
+    <translate foo/>
+    <data yaml>
+      i18n:
+        foo:
+          en: Hello
+          pl: Siema
+    </data>
+  `, {
+    languages: ['en', 'pl']
+  })
+  assert.deepEqual(template({ language: 'en' }, escape), 'Hello')
+  assert.deepEqual(template({ language: 'pl' }, escape), 'Siema')
+})
+
+test('i18n: keeping translations in data tag with keys in random order', async assert => {
+  const { template } = await compile(`
+    <translate foo/>
+    <data yaml>
+      i18n:
+        foo:
+          pl: Siema
+          en: Hello
+    </data>
+  `, {
+    languages: ['en', 'pl']
+  })
+  assert.deepEqual(template({ language: 'en' }, escape), 'Hello')
+  assert.deepEqual(template({ language: 'pl' }, escape), 'Siema')
+})

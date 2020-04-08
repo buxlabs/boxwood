@@ -37,7 +37,7 @@ function getTranslateCallExpression (key, variables, content, filters, translati
         return translation.replace(/{\s*slot\s*}/, content)
       })
     } else if (isPlainObject(translation)) {
-      for (let key in translation) {
+      for (const key in translation) {
         if (Object.prototype.hasOwnProperty.call(translation, key)) {
           translation[key] = translation[key].replace(/{\s*slot\s*}/, content)
         }

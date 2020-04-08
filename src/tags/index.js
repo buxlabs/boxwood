@@ -8,6 +8,7 @@ const unlessTag = require('./unless')
 const elseunlessTag = require('./elseunless')
 const switchTag = require('./switch')
 const caseTag = require('./case')
+const dataTag = require('./data')
 const defaultTag = require('./default')
 const doctypeTag = require('./doctype')
 const markdownTag = require('./markdown')
@@ -36,6 +37,7 @@ module.exports = {
   elseunless: elseunlessTag,
   switch: switchTag,
   case: caseTag,
+  data: dataTag,
   default: defaultTag,
   doctype: doctypeTag,
   markdown: markdownTag,
