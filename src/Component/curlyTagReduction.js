@@ -195,11 +195,7 @@ function optimizeText (text, variables, newVariables) {
     return token
   })
   const value = tokens.map(token => token.value).join('')
-  return optimizeWhitespace(value)
-}
-
-function optimizeWhitespace (text) {
-  return text.trim().replace(/\s\s+/, ' ')
+  return value.trim()
 }
 
 module.exports = curlyTagReduction
