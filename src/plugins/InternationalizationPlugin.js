@@ -43,7 +43,7 @@ function merge (value, translations, languages) {
   if (value.includes('{') && value.includes('}')) return translations
   if (!translations[value]) throw new TranslationError(`There is no translation for the ${value} key`)
   languages.forEach((language, index) => {
-    if (!translations[value][index]) throw new TranslationError(`There is no translation for the ${value} key in ${language} language.`)
+    if (!translations[value][index] && !translations[value][language]) throw new TranslationError(`There is no translation for the ${value} key in ${language} language.`)
   })
   return translations
 }

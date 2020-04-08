@@ -2,6 +2,7 @@
 
 const { getObjectMemberExpression } = require('./factory')
 const { convertText, modify } = require('./convert')
+const { isPlainObject } = require('pure-conditions')
 
 function isStaticTranslationKey (key) {
   return !isDynamicTranslationKey(key)
@@ -30,9 +31,18 @@ function getTranslateCallExpression (key, variables, content, filters, translati
     return ''
   })
   if (content) {
-    translations[key] = translations[key].map((translation) => {
-      return translation.replace(/{\s*slot\s*}/, content)
-    })
+    const translation = translations[key]
+    if (Array.isArray(translation)) {
+      translations[key] = translations[key].map((translation) => {
+        return translation.replace(/{\s*slot\s*}/, content)
+      })
+    } else if (isPlainObject(translation)) {
+      for (let key in translation) {
+        if (Object.prototype.hasOwnProperty.call(translation, key)) {
+          translation[key] = translation[key].replace(/{\s*slot\s*}/, content)
+        }
+      }
+    }
   }
   const node = getTranslationNode(key, variables, filters, translations, languages)
   const objectMemberExpression = getObjectMemberExpression('language')
