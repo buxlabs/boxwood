@@ -5,6 +5,7 @@ const utilities = require('pure-utilities')
 const { CompilerError } = require('./errors')
 const { getObjectMemberExpression } = require('./factory')
 const { wrap } = require('pure-utilities/string')
+const { isPlainObject } = require('pure-conditions')
 
 const aliases = {
   json: 'prettify',
@@ -39,6 +40,43 @@ function getPropertyKey (value) {
   return { type: 'Identifier', name: value }
 }
 
+function getTranslations (translations, key) {
+  const translation = translations[key]
+  if (Array.isArray(translation)) {
+    return translation.map(text => {
+      text = wrap(text.replace(/{{1}[^}]+}{1}/g, match => `$${match}`), '`')
+      const tree = new AbstractSyntaxTree(text)
+      tree.replace({
+        leave: node => {
+          if (node.type === 'Identifier') {
+            return getObjectMemberExpression(node.name)
+          }
+        }
+      })
+      return tree.first('TemplateLiteral')
+    })
+  } else if (isPlainObject(translation)) {
+    const result = []
+    for (let key in translation) {
+      if (Object.prototype.hasOwnProperty.call(translation, key)) {
+        const value = translation[key]
+        const text = wrap(value.replace(/{{1}[^}]+}{1}/g, match => `$${match}`), '`')
+        const tree = new AbstractSyntaxTree(text)
+        tree.replace({
+          leave: node => {
+            if (node.type === 'Identifier') {
+              return getObjectMemberExpression(node.name)
+            }
+          }
+        })
+        result.push(tree.first('TemplateLiteral'))
+      }
+    }
+    return result
+  }
+  return []
+}
+
 function serializeProperties (translations) {
   const properties = []
   for (const key in translations) {
@@ -47,18 +85,7 @@ function serializeProperties (translations) {
       key: getPropertyKey(key),
       value: {
         type: 'ArrayExpression',
-        elements: translations[key].map(text => {
-          text = wrap(text.replace(/{{1}[^}]+}{1}/g, match => `$${match}`), '`')
-          const tree = new AbstractSyntaxTree(text)
-          tree.replace({
-            leave: node => {
-              if (node.type === 'Identifier') {
-                return getObjectMemberExpression(node.name)
-              }
-            }
-          })
-          return tree.first('TemplateLiteral')
-        })
+        elements: getTranslations(translations, key)
       },
       kind: 'init'
     })
