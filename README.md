@@ -361,20 +361,28 @@ You can reference the parameters that were passed to the template via the `globa
 
 ### Internationalization
 
-#### i18n tag
+#### data tag
 
 You can keep translations in every file. They're scoped so you can use same names in multiple files.
 
 ```html
 <h1><translate hello/></h1>
-<i18n yaml>
-hello:
-- 'Hej!'
-- 'Hello!'
-</i18n>
+<data yaml>
+i18n:
+  hello:
+    pl: Hej
+    en: Hello
+</data>
 ```
 
-The compiler needs to know the `languages`. The template needs to get the `language` to know which text to render.
+You also need to pass `languages` to the compiler. The template needs to get the `language` to know which text to render.
+
+```js
+// ...
+const { template } = await compile(source, { languages: ['pl', 'en'])
+const html = template({ language: 'en' }, escape)
+// ...
+```
 
 Translations can also use filters:
 
