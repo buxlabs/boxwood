@@ -518,7 +518,7 @@ test('i18n: translations with slots', async assert => {
 
 test('i18n: translations with named languages', async assert => {
   const { template } = await compile(`
-    <translate foo>
+    <translate foo/>
     <i18n yaml>
       foo:
         en: Hello
@@ -529,4 +529,23 @@ test('i18n: translations with named languages', async assert => {
   })
   assert.deepEqual(template({ language: 'en' }, escape), 'Hello')
   assert.deepEqual(template({ language: 'pl' }, escape), 'Siema')
+})
+
+
+test('i18n: translations with named languages in random order', async assert => {
+  const { template } = await compile(`
+    <translate foo/><translate bar/>
+    <i18n yaml>
+      foo:
+        en: Hello
+        pl: Siema
+      bar:
+        pl: Hej
+        en: Bye
+    </i18n>
+  `, {
+    languages: ['en', 'pl']
+  })
+  assert.deepEqual(template({ language: 'en' }, escape), 'HelloBye')
+  assert.deepEqual(template({ language: 'pl' }, escape), 'SiemaHej')
 })

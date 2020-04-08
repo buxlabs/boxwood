@@ -40,7 +40,7 @@ function getPropertyKey (value) {
   return { type: 'Identifier', name: value }
 }
 
-function getTranslations (translations, key) {
+function getTranslations (translations, key, languages) {
   const translation = translations[key]
   if (Array.isArray(translation)) {
     return translation.map(text => {
@@ -58,6 +58,7 @@ function getTranslations (translations, key) {
   } else if (isPlainObject(translation)) {
     const result = []
     for (let key in translation) {
+      const index = languages.indexOf(key)
       if (Object.prototype.hasOwnProperty.call(translation, key)) {
         const value = translation[key]
         const text = wrap(value.replace(/{{1}[^}]+}{1}/g, match => `$${match}`), '`')
@@ -69,7 +70,7 @@ function getTranslations (translations, key) {
             }
           }
         })
-        result.push(tree.first('TemplateLiteral'))
+        result[index] = tree.first('TemplateLiteral')
       }
     }
     return result
@@ -77,7 +78,7 @@ function getTranslations (translations, key) {
   return []
 }
 
-function serializeProperties (translations) {
+function serializeProperties (translations, languages) {
   const properties = []
   for (const key in translations) {
     properties.push({
@@ -85,7 +86,7 @@ function serializeProperties (translations) {
       key: getPropertyKey(key),
       value: {
         type: 'ArrayExpression',
-        elements: getTranslations(translations, key)
+        elements: getTranslations(translations, key, languages)
       },
       kind: 'init'
     })
@@ -110,6 +111,7 @@ module.exports = {
   getFilterName,
   extractFilterName,
   getFilter (filter, translations, options = {}) {
+    const { languages } = options
     let name = extractFilterName(filter)
     name = getFilterName(name)
     const method = utilities.string[name] ||
@@ -129,8 +131,8 @@ module.exports = {
     const leaf = new AbstractSyntaxTree(source)
     const fn = leaf.body[0]
     if (name === 'translate') {
-      fn.body.body[0].declarations[0].init.properties = serializeProperties(translations)
-      fn.body.body[1].declarations[0].init.elements = serializeLanguages(options.languages)
+      fn.body.body[0].declarations[0].init.properties = serializeProperties(translations, languages)
+      fn.body.body[1].declarations[0].init.elements = serializeLanguages(languages)
     }
     fn.id.name = name
     return fn
