@@ -130,8 +130,21 @@ test('compiler: returns errors for invalid styles option', async assert => {
 test('compiler: caches templates and related data', async assert => {
   const output1 = await compile('<div>foo</div>', { cache: true })
   const output2 = await compile('<div>foo</div>', { cache: true })
-  const output3 = await compile('<div>bar</div>', { cache: true })
+  const output3 = await compile('<div>{bar}</div>', { cache: true })
   assert.deepEqual(output1.from, 'generator')
+  assert.deepEqual(output1.dynamic, false)
   assert.deepEqual(output2.from, 'cache')
+  assert.deepEqual(output2.dynamic, false)
   assert.deepEqual(output3.from, 'generator')
+  assert.deepEqual(output3.dynamic, true)
+})
+
+test('compiler: returns dynamic flag that is set to true if the template uses any data', async assert => {
+  const { dynamic } = await compile('<div>{foo}</div>')
+  assert.deepEqual(dynamic, true)
+})
+
+test('compiler: returns dynamic flag that is set to false if the template does not use any data', async assert => {
+  const { dynamic } = await compile('<div>foo</div>')
+  assert.deepEqual(dynamic, false)
 })

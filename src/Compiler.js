@@ -22,12 +22,13 @@ const generate = async (source, html, options) => {
   const renderer = new Renderer()
   const { tree, statistics, warnings, errors } = await renderer.render(source, html, options)
   const generator = new Generator()
-  const { template } = generator.generate(tree)
+  const { template, dynamic } = generator.generate(tree)
   return {
     template,
     statistics: statistics.serialize(),
     errors: errors.concat(validateOptions(options)).map(normalizeErrors),
-    warnings
+    warnings,
+    dynamic
   }
 }
 
