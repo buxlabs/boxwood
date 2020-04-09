@@ -148,3 +148,13 @@ test('compiler: returns dynamic flag that is set to false if the template does n
   const { dynamic } = await compile('<div>foo</div>')
   assert.deepEqual(dynamic, false)
 })
+
+test('compiler: does not return static html if the template uses data', async assert => {
+  const { html } = await compile('<div>{foo}</div>')
+  assert.deepEqual(html, undefined)
+})
+
+test('compiler: returns html if the template does not use any data', async assert => {
+  const { html } = await compile('<div>foo</div>')
+  assert.deepEqual(html, '<div>foo</div>')
+})

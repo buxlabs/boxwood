@@ -44,7 +44,12 @@ class Compiler {
     const source = transpile(input)
     const tree = parse(source)
     const output = await generate(source, tree, this.options)
-    this.options.cache === true && cache.set(input, output)
+    if (output.dynamic === false) {
+      output.html = output.template()
+    }
+    if (this.options.cache === true) {
+      cache.set(input, output)
+    }
     return { ...output, from: 'generator' }
   }
 }
