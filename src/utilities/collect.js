@@ -129,7 +129,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, err
   }
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
-  resolveComponent(asset.source, asset.path, null, fragment, plugins, errors, assets, options)
+  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, errors, assets, options)
 }
 
 function inlineData (htmlTree, content, path, assets, plugins, errors, localVariables, options) {
@@ -153,7 +153,11 @@ function collectInlineComponents (fragment, attributes, components) {
   })
 }
 
-function resolveComponent (content, path, component, fragment, plugins, errors, assets, options) {
+function isSlotOrYield (node) {
+  return node.tagName === 'slot' || node.tagName === 'yield'
+}
+
+function resolveComponent (content, path, component, fragment, queue, plugins, errors, assets, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
   const htmlComponent = new Component(content, localVariables)
   htmlComponent.optimize()
@@ -165,7 +169,7 @@ function resolveComponent (content, path, component, fragment, plugins, errors, 
   const currentComponents = []
   let slots = 0
   let children = fragment.children
-  walk(htmlTree, async (current, parent) => {
+  walk(htmlTree, async (current) => {
     const attrs = current.attributes || []
     const keys = attrs.map(attr => attr.key)
     if (isImportTag(current.tagName)) {
@@ -181,15 +185,22 @@ function resolveComponent (content, path, component, fragment, plugins, errors, 
     const unresolvable = component && current.tagName === component.name && !currentComponent
     if (unresolvable) { current.unresolvable = true }
     if (currentComponent && !current.unresolvable) {
-      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, plugins, errors, assets, options)
+      queue.push(children)
+      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, queue, plugins, errors, assets, options)
       current.used = true
     }
-    if ((current.tagName === 'slot' || current.tagName === 'yield') && current.children.length === 0) {
+    if (isSlotOrYield(current) && current.children.length === 0 && !current.yielded) {
       if (current.attributes.length === 0) {
         // putting a slot into a slot is problematic
         if (children.length === 1 && children[0].tagName === 'slot') {
           children = children[0].children
         }
+        walk(children, leaf => {
+          leaf.yielded = true
+          if (isSlotOrYield(leaf)) {
+            leaf.children = queue.pop()
+          }
+        })
         if (slots === 0) {
           current.children = children
         } else {
@@ -199,9 +210,10 @@ function resolveComponent (content, path, component, fragment, plugins, errors, 
       } else {
         const name = current.attributes[0].key
         walk(children, leaf => {
-          if ((leaf.tagName === 'slot' || leaf.tagName === 'yield') && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
+          if (isSlotOrYield(leaf) && leaf.attributes.length > 0 && leaf.attributes[0].key === name) {
             // the following might not be super performant in case of components with multiple slots
             // we could do this only if a slot with given name is not unique (e.g. in if / else statements)
+            // TODO handle deeply nested named slots with queue.pop()
             if (slots > 2) {
               current.children = clone(leaf.children)
             } else {
@@ -256,7 +268,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, plugins, errors, assets, options)
+      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, [], plugins, errors, assets, options)
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
