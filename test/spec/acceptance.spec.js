@@ -168,6 +168,21 @@ test('acceptance: data', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: nested-slots-2-levels', async assert => {
+  const { actual, expected } = await suite('nested-slots-2-levels')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: nested-slots-3-levels', async assert => {
+  const { actual, expected } = await suite('nested-slots-3-levels')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: nested-slots-4-levels', async assert => {
+  const { actual, expected } = await suite('nested-slots-4-levels')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
