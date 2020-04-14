@@ -11,7 +11,7 @@ const { parse } = require('./html')
 const { inlineLocalVariables, inlineExpressions } = require('./inline')
 const { clone } = require('./object')
 const { isImportTag } = require('./string')
-const Component = require('../Component')
+const { optimize } = require('./optimize')
 const tags = require('../tags')
 const { hasShorthandSyntax, normalizeAttributes } = require('./node')
 const { getComponentNames } = require('./attributes')
@@ -159,9 +159,7 @@ function isSlotOrYield (node) {
 
 function resolveComponent (content, path, component, fragment, queue, plugins, errors, assets, options) {
   const localVariables = normalizeAttributes(fragment.attributes)
-  const htmlComponent = new Component(content, localVariables)
-  htmlComponent.optimize()
-  let htmlTree = parse(htmlComponent.source)
+  let htmlTree = parse(optimize(content, localVariables))
   htmlTree = inlineData(htmlTree, content, path, assets, plugins, errors, localVariables, options)
   walk(htmlTree, current => {
     if (component) { current.imported = true }

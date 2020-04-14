@@ -1,43 +1,10 @@
 'use strict'
 
-const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { load } = require('yaml-js')
 const { findAsset } = require('../utilities/files')
 const Plugin = require('./Plugin')
 const hash = require('string-hash')
+const { parseData, getDataFormat } = require('../utilities/data')
 const { TranslationError } = require('../utilities/errors')
-
-function parseYAML (content) {
-  try {
-    return load(content)
-  } catch (exception) {
-    throw new TranslationError('YAML translation is unparseable')
-  }
-}
-
-function parseJSON (content) {
-  try {
-    return JSON.parse(content)
-  } catch (exception) {
-    throw new TranslationError('JSON translation is unparseable')
-  }
-}
-
-function parseJS (content) {
-  try {
-    const tree = new AbstractSyntaxTree(content)
-    const node = tree.first('ExportDefaultDeclaration')
-    return AbstractSyntaxTree.serialize(node.declaration)
-  } catch (exception) {
-    throw new TranslationError('JS translation is unparseable')
-  }
-}
-
-function parse (format, content) {
-  if (format === '.yaml') return parseYAML(content)
-  if (format === '.json') return parseJSON(content)
-  return parseJS(content)
-}
 
 function merge (value, translations, languages) {
   if (value.includes('{') && value.includes('}')) return translations
@@ -51,12 +18,6 @@ function merge (value, translations, languages) {
 function getExtension (path) {
   const values = path.split('.')
   return values[values.length - 1]
-}
-
-function getTranslationsFormat (keys) {
-  if (keys.includes('yaml')) return '.yaml'
-  if (keys.includes('json')) return '.json'
-  return 'js'
 }
 
 function isI18nTag (tag, keys) {
@@ -94,16 +55,16 @@ class InternationalizationPlugin extends Plugin {
         throw new TranslationError('The translation script cannot be empty')
       }
       leaf.used = true
-      const format = getTranslationsFormat(keys)
-      const data = parse(format, leaf.content)
+      const format = getDataFormat(keys)
+      const data = parseData(format, leaf.content)
       for (const key in data) {
         if (this.translations[key]) { throw new TranslationError('Translation already exists') }
         this.translations[`${key}_${id}`] = data[key]
       }
     } else if (isDataTag(tag)) {
-      const format = getTranslationsFormat(keys)
+      const format = getDataFormat(keys)
       const leaf = fragment.children[0]
-      const data = parse(format, leaf.content)
+      const data = parseData(format, leaf.content)
       const { i18n } = data
       for (const key in i18n) {
         if (this.translations[key]) { throw new TranslationError('Translation already exists') }
