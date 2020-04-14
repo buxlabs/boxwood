@@ -1,5 +1,6 @@
 <import foo from="components/foo.html" />
 <import bar from="components/bar.html" />
+<import baz from="components/baz.html" />
 <foo /><bar />
 <data yaml>
 i18n:
@@ -17,3 +18,4 @@ qux:
 {i18n.hello.en}
 {i18n.hello[language]}
 { qux.quux }
+<baz qux="{foo}" quux="{qux.quux}" />

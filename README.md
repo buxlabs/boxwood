@@ -176,6 +176,18 @@ The only difference between those methods is what is being used under the hood, 
 </for>
 ```
 
+#### data
+
+```html
+<data yaml>
+title: Hello, world!
+subtitle: Hey!
+</data>
+<layout {title}>
+  {subtitle}
+</layout>
+```
+
 #### spacing
 
 Custom spacing can be tough. You can use a spacing tag, which can be used to define it per app basis.

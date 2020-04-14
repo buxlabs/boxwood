@@ -163,7 +163,7 @@ test('acceptance: invoice', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: data', async assert => {
+test.only('acceptance: data', async assert => {
   const { actual, expected } = await suite('data')
   assert.deepEqual(actual, expected)
 })
