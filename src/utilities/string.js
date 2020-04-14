@@ -7,7 +7,7 @@ function curlyTag (string) {
 }
 
 function isTag (value, startTag, endTag) {
-  return value && value.startsWith(startTag) && value.endsWith(endTag)
+  return value && typeof value === 'string' && value.startsWith(startTag) && value.endsWith(endTag)
 }
 
 function containsTag (value, startTag, endTag) {

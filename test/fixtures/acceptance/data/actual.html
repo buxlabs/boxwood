@@ -1,3 +1,19 @@
 <import foo from="components/foo.html" />
 <import bar from="components/bar.html" />
 <foo /><bar />
+<data yaml>
+i18n:
+  hello:
+    pl: Hej
+    en: Hello
+foo: This is foo
+qux:
+  quux: QUUUX
+</data>
+{foo}
+{bar}
+{baz}
+{i18n.hello.pl}
+{i18n.hello.en}
+{i18n.hello[language]}
+{ qux.quux }
