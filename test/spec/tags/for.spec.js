@@ -382,3 +382,13 @@ test('for: inline object', async assert => {
   `)
   assert.deepEqual(template({}, escape), "quxquux")
 })
+
+test('for: short syntax inside of the loop', async assert => {
+  const { template } = await compile(`
+    <h1 {id}>Pages</h1>
+    <for page and href in pages>
+      <a {href}>{page}</a>
+    </for>
+  `)
+  assert.deepEqual(template({ id: "pages", pages: { home: '/' } }, escape), '<h1 id="pages">Pages</h1><a href="/">home</a>')
+})

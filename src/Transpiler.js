@@ -1,6 +1,8 @@
 'use strict'
 
 const Lexer = require('html-lexer')
+const { isCurlyTag, getTagValue } = require('./utilities/string')
+const { SPECIAL_TAGS } = require('./utilities/enum')
 
 const tokenize = (source) => {
   const tokens = []
@@ -17,9 +19,12 @@ const tokenize = (source) => {
 const transform = (tokens) => {
   const output = []
   const contexts = []
+  let lastTag
   tokens.forEach((token, index) => {
     const [type, value] = token
+    const next = tokens[index + 1]
     if (type === 'tagName') {
+      lastTag = value
       if (value === 'if' || value === 'unless') {
         contexts.push(value)
       } else if (value === 'elseif' || value === 'else' || value === 'elseunless') {
@@ -41,8 +46,20 @@ const transform = (tokens) => {
           contexts.pop()
         }
       }
+      output.push(token)
+    } else if (type === 'attributeName' && isCurlyTag(value) && next && next[0] !== 'attributeAssign') {
+      if (SPECIAL_TAGS.includes(lastTag)) {
+        output.push(token)
+      } else {
+        output.push(['attributeName', getTagValue(value)])
+        output.push(['attributeAssign', '='])
+        output.push(['beginAttributeValue', '"'])
+        output.push(['attributeData', value])
+        output.push(['finishAttributeValue', '"'])
+      }
+    } else {
+      output.push(token)
     }
-    output.push(token)
   })
   return output
 }

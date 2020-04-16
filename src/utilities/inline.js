@@ -20,16 +20,7 @@ function inlineLocalVariablesInText (node, variables) {
 function inlineLocalVariablesInAttributes (node, variables) {
   if (node.attributes && node.attributes.length > 0) {
     node.attributes.forEach(attribute => {
-      if (isCurlyTag(attribute.key)) {
-        const key = getTagValue(attribute.key)
-        const variable = variables.find(localVariable => {
-          return localVariable.key === key
-        })
-        if (variable) {
-          attribute.key = variable.key
-          attribute.value = variable.value
-        }
-      } else if (isCurlyTag(attribute.value)) {
+      if (isCurlyTag(attribute.value)) {
         const key = getTagValue(attribute.value)
         const variable = variables.find(localVariable => {
           return localVariable.key === key
