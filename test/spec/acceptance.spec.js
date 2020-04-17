@@ -143,13 +143,13 @@ test('acceptance: globals', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: static-page', async assert => {
-  const { actual, expected } = await suite('static-page')
+test('acceptance: globals-env', async assert => {
+  const { actual, expected } = await suite('globals-env')
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: globals-env', async assert => {
-  const { actual, expected } = await suite('globals-env')
+test('acceptance: static-page', async assert => {
+  const { actual, expected } = await suite('static-page')
   assert.deepEqual(actual, expected)
 })
 
