@@ -14,8 +14,8 @@ const { parse, stringify } = require('./html')
 const { inlineLocalVariablesInTags } = require('./inline')
 const walk = require('himalaya-walk')
 const { addPlaceholders, removePlaceholders } = require('./keywords')
-const { GLOBAL_VARIABLE } = require('./enum')
 const { parseData, getDataFormat } = require('./data')
+const { isGlobalVariable } = require('./globals')
 const { isPlainObject } = require('pure-conditions')
 
 function canInlineTree ({ body }) {
@@ -89,19 +89,31 @@ function falsyCodeRemoval (node) {
   return node
 }
 
-function undefinedOptionsRemoval (node) {
-  if (node.type === 'MemberExpression' && node.object.type === 'Identifier' && node.object.name === 'undefined') {
-    return null
-  }
-  return node
+function isMemberExpression (node) {
+  return node.type === 'ExpressionStatement' && node.expression.type === 'MemberExpression'
 }
 
-function isGlobalVariable (tree) {
-  const node = tree.body[0]
+function isUndefinedMemberExpression (node) {
   return node.type === 'ExpressionStatement' &&
     node.expression.type === 'MemberExpression' &&
     node.expression.object.type === 'Identifier' &&
-    node.expression.object.name === GLOBAL_VARIABLE
+    node.expression.object.name === 'undefined'
+}
+
+function isComplexUndefinedMemberExpression (node) {
+  if (!isMemberExpression(node)) { return false }
+  node = node.expression
+  while (node.object.type === 'MemberExpression') {
+    node = node.object
+  }
+  return isUndefinedMemberExpression(node)
+}
+
+function undefinedOptionsRemoval (node) {
+  if (isUndefinedMemberExpression(node) || isComplexUndefinedMemberExpression(node)) {
+    return null
+  }
+  return node
 }
 
 function optimizeCurlyTag (value, variables, newVariables, loose) {
@@ -109,7 +121,9 @@ function optimizeCurlyTag (value, variables, newVariables, loose) {
   value = addPlaceholders(value)
   if (isObject(value)) value = `(${value})`
   const tree = new AbstractSyntaxTree(value)
-  if (isGlobalVariable(tree)) { return curlyTag(value) }
+  if (isGlobalVariable(tree.body[0])) {
+    return curlyTag(value)
+  }
   tree.replace({ enter: removePlaceholders })
   tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables, newVariables) })
   tree.replace({ enter: memberExpressionReduction })
