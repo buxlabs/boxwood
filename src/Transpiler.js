@@ -19,6 +19,7 @@ const tokenize = (source) => {
 const transform = (tokens) => {
   const output = []
   const contexts = []
+  const imports = []
   let lastTag
   tokens.forEach((token, index) => {
     const [type, value] = token
@@ -47,8 +48,17 @@ const transform = (tokens) => {
         }
       }
       output.push(token)
+    } else if (type === 'attributeName' && (lastTag === 'import' || lastTag === 'require')) {
+      const [, value] = token
+      if (value !== 'from' && value !== '{' && value !== '}') {
+        // TODO unify with getComponentNames
+        const parts = value.replace('{', '').replace('}', '').split(/,/g).map(key => key.trim()).filter(Boolean)
+        parts.forEach(part => imports.push(part))
+      }
+      output.push(token)
     } else if (type === 'attributeName' && isCurlyTag(value) && next && next[0] !== 'attributeAssign') {
-      if (SPECIAL_TAGS.includes(lastTag)) {
+      const tags = SPECIAL_TAGS.filter(tag => !imports.includes(tag))
+      if (tags.includes(lastTag)) {
         output.push(token)
       } else {
         output.push(['attributeName', getTagValue(value)])
