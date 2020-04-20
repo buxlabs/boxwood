@@ -1,4 +1,13 @@
-<import button from="./components/button.html"/>
-<import page from="./components/page.html"/>
-<button>foo</button>
-<page {foo} />
+<import button from="components/button.html"/>
+<import page from="components/page.html"/>
+<import layout from="layouts/default.html"/>
+<layout slogan|translate="hello">
+  <button>foo</button>
+  <page {foo} />
+</layout>
+<data yaml>
+i18n:
+  hello:
+    en: Hello, world!
+    pl: Witaj, świecie!
+</data>
