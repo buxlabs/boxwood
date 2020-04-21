@@ -351,10 +351,10 @@ function convertTag (fragment, variables, currentFilters, translations, language
   return parts
 }
 
-function convertKey (key, variables, filters, translations, langauges) {
+function convertKey (key, variables, filters = [], translations = [], languages = []) {
   if (isCurlyTag(key)) {
     if (key.includes('translate(language)')) {
-      return convertText(key, variables, filters, translations, langauges)[0]
+      return convertText(key, variables, filters, translations, languages)[0]
     }
     key = getTagValue(key)
   }
