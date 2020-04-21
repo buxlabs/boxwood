@@ -183,6 +183,11 @@ test('acceptance: nested-slots-4-levels', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: translate-modifier', async assert => {
+  const { actual, expected } = await suite('translate-modifier')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
