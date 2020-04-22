@@ -188,6 +188,11 @@ test('acceptance: translate-modifier', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: routes', async assert => {
+  const { actual, expected } = await suite('routes')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
