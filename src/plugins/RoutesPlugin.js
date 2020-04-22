@@ -1,5 +1,6 @@
 const Plugin = require('./Plugin')
 const { isEmptyObject } = require('pure-conditions')
+const { dig } = require('pure-utilities/object')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 
 class RoutesPlugin extends Plugin {
@@ -9,6 +10,7 @@ class RoutesPlugin extends Plugin {
     this.routes = routes
     this.disabled = isEmptyObject(routes)
   }
+
   prerun ({ tag, keys, fragment }) {
     if (this.disabled) { return }
     if (tag === 'script' && keys.includes('routes')) {
@@ -21,9 +23,26 @@ class RoutesPlugin extends Plugin {
             if (params.length === 0) {
               // errors.push({ ... })
             } else if (params.length === 1) {
+              const param = params[0]
+              if (!param) {
+                // errors.push({ ... })
+                // return
+              } else if (param.type !== 'Literal') {
+                // errors.push({ ... })
+                // return
+              } else if (typeof param.value !== 'string') {
+                // errors.push({ ... })
+                // return
+              }
+              console.log(param.value)
+              const url = dig(this.routes, param.value)
+              if (!url) {
+                // errors.push({ ... })
+                // return
+              }
               return {
                 type: 'Literal',
-                value: '/rest/users'
+                value: url
               }
             } else if (params.length > 1) {
               // '/foo/:id'.replace(':id', id) <-- verbose, but works everywhere
