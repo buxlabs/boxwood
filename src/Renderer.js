@@ -8,6 +8,7 @@ const collect = require('./utilities/collect')
 const { getFilter } = require('./utilities/filters')
 const { unique } = require('pure-utilities/array')
 const Statistics = require('./Statistics')
+const RoutesPlugin = require('./plugins/RoutesPlugin')
 const DataPlugin = require('./plugins/DataPlugin')
 const CurlyStylesPlugin = require('./plugins/CurlyStylesPlugin')
 const ScopedStylesPlugin = require('./plugins/ScopedStylesPlugin')
@@ -57,6 +58,7 @@ class Renderer {
     const promises = []
     const errors = []
     const plugins = [
+      new RoutesPlugin(options),
       new DataPlugin(),
       new InlinePlugin(),
       new BoxModelPlugin(options),
