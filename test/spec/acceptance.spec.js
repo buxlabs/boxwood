@@ -188,8 +188,14 @@ test('acceptance: translate-modifier', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: routes', async assert => {
-  const { actual, expected } = await suite('routes')
+test('acceptance: routes', async assert => {
+  const { actual, expected } = await suite('routes', {
+    routes: {
+      Users: {
+        browse: '/rest/users'
+      }
+    }
+  })
   assert.deepEqual(actual, expected)
 })
 
