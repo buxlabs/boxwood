@@ -11,6 +11,14 @@ test('it replaces routes.get with url', assert => {
   assert.deepEqual(output.trim(), '"/user";')
 })
 
+test('it works for urls with params', assert => {
+  const input = 'routes.get("User.browse", id)'
+  const routes = { User: { browse: '/user/:id' } }
+  const errors = []
+  const output = transform(input, routes, errors)
+  assert.deepEqual(output.trim(), '`/user/${id}`;')
+})
+
 test('it adds an error if given url does not exist', assert => {
   const input = 'routes.get("User.browse")'
   const routes = {}
