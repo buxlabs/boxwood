@@ -58,7 +58,7 @@ class Renderer {
     const promises = []
     const errors = []
     const plugins = [
-      new RoutesPlugin(options),
+      new RoutesPlugin(options, errors),
       new DataPlugin(),
       new InlinePlugin(),
       new BoxModelPlugin(options),

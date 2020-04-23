@@ -1,7 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { dig } = require('pure-utilities/object')
 
-function transform (source, routes) {
+function transform (source, routes, errors) {
   const tree = new AbstractSyntaxTree(source)
   tree.replace(node => {
     if (node.type === 'CallExpression' &&
@@ -13,23 +13,17 @@ function transform (source, routes) {
       node.callee.property.name === 'get') {
       const params = node.arguments
       if (params.length === 0) {
-        // errors.push({ ... })
+        errors.push({ type: 'ROUTE_INVALID', message: 'routes.get requires a string literal as the first parameter.' })
       } else if (params.length === 1) {
         const param = params[0]
-        if (!param) {
-          // errors.push({ ... })
-          // return
-        } else if (param.type !== 'Literal') {
-          // errors.push({ ... })
-          // return
-        } else if (typeof param.value !== 'string') {
-          // errors.push({ ... })
-          // return
+        if (param.type !== 'Literal' || typeof param.value !== 'string') {
+          errors.push({ type: 'ROUTE_INVALID', message: 'routes.get requires a string literal as the first parameter.' })
+          return node
         }
         const url = dig(routes, param.value)
         if (!url) {
-          // errors.push({ ... })
-          // return
+          errors.push({ type: 'ROUTE_MISSING', message: `routes.get could not find the '${param.value}' route.` })
+          return node
         }
         return {
           type: 'Literal',
