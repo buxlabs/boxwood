@@ -15,10 +15,17 @@ class RoutesPlugin extends Plugin {
     if (this.disabled) { return }
     if (tag === 'script' && keys.includes('routes')) {
       const { content } = fragment.children[0]
-      if (content.includes('route(')) {
+      // TODO implement routes.has(, routes.each(
+      if (content.includes('routes.get(')) {
         const tree = new AbstractSyntaxTree(content)
         tree.replace(node => {
-          if (node.type === 'CallExpression' && node.callee && node.callee.type === 'Identifier' && node.callee.name === 'route') {
+          if (node.type === 'CallExpression' &&
+            node.callee &&
+            node.callee.type === 'MemberExpression' &&
+            node.callee.object.type === 'Identifier' &&
+            node.callee.object.name === 'routes' &&
+            node.callee.property.type === 'Identifier' &&
+            node.callee.property.name === 'get') {
             const params = node.arguments
             if (params.length === 0) {
               // errors.push({ ... })
@@ -34,7 +41,6 @@ class RoutesPlugin extends Plugin {
                 // errors.push({ ... })
                 // return
               }
-              console.log(param.value)
               const url = dig(this.routes, param.value)
               if (!url) {
                 // errors.push({ ... })
