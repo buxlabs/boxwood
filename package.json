@@ -65,6 +65,7 @@
     "memoizee": "^0.4.14",
     "negate-sentence": "^0.2.0",
     "normalize-newline": "^3.0.0",
+    "path-to-regexp": "^6.1.0",
     "pure-conditions": "^1.0.5",
     "pure-utilities": "^1.2.0",
     "rollup": "^2.6.1",
