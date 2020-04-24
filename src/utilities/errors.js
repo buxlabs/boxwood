@@ -35,13 +35,13 @@ class ExpressionError extends Error {
 }
 
 function normalizeErrors (error) {
-  const lines = error.stack.split('\n')
+  const stack = error.stack || ''
+  const lines = stack.split('\n')
   const type = lines.shift().split(':')[0]
-  const stack = lines.join('\n').trim()
   return {
-    type,
+    type: error.type || type,
     message: error.message,
-    stack
+    stack: lines.join('\n').trim()
   }
 }
 
