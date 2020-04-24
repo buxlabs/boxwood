@@ -12,8 +12,10 @@ class RoutesPlugin extends Plugin {
   }
 
   prerun ({ tag, keys, fragment }) {
-    if (this.disabled) { return }
     if (tag === 'script' && keys.includes('routes')) {
+      if (this.disabled) {
+        return this.errors.push({ type: 'EMPTY_ROUTES', message: 'You need to set up routes in compiler options.' })
+      }
       const { content } = fragment.children[0]
       // TODO implement routes.has(, routes.each(
       if (content.includes('routes.get(')) {
