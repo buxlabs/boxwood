@@ -34,7 +34,7 @@ class ExpressionError extends Error {
   }
 }
 
-function normalizeErrors (error) {
+function normalizeError (error) {
   const stack = error.stack || ''
   const lines = stack.split('\n')
   const type = lines.shift().split(':')[0]
@@ -50,5 +50,5 @@ module.exports = {
   SVGError,
   TranslationError,
   ExpressionError,
-  normalizeErrors
+  normalizeError
 }

@@ -6,7 +6,7 @@ const Renderer = require('./Renderer')
 const Generator = require('./Generator')
 const Cache = require('./Cache')
 const { getOptions, validateOptions } = require('./utilities/options')
-const { normalizeErrors } = require('./utilities/errors')
+const { normalizeError } = require('./utilities/errors')
 
 const transpile = (source) => {
   const transpiler = new Transpiler()
@@ -26,7 +26,7 @@ const generate = async (source, html, options) => {
   return {
     template,
     statistics: statistics.serialize(),
-    errors: errors.concat(validateOptions(options)).map(normalizeErrors),
+    errors: errors.concat(validateOptions(options)).map(normalizeError),
     warnings,
     dynamic
   }
