@@ -3073,3 +3073,44 @@ test('if: shorthand syntax with translate tag', async assert => {
   assert.deepEqual(template({ bar: false, language: 'pl' }, escape), 'fOo')
   assert.deepEqual(template({ bar: false, language: 'en' }, escape), 'foO')
 })
+
+test('if: true in a curly tag', async assert => {
+  const { template } = await compile(`<if {true}>foo<end>`)
+  assert.deepEqual(template({}, escape), 'foo')
+})
+
+test('if: true without a tag', async assert => {
+  const { template } = await compile(`<if true>foo<end>`)
+  assert.deepEqual(template({}, escape), 'foo')
+})
+
+test('if: false in a curly tag', async assert => {
+  const { template } = await compile(`<if {false}>foo<end>`)
+  assert.deepEqual(template({}, escape), '')
+})
+
+test('if: false without a tag', async assert => {
+  const { template } = await compile(`<if false>foo<end>`)
+  assert.deepEqual(template({}, escape), '')
+})
+
+
+test('if: true in a curly tag and else tag', async assert => {
+  const { template } = await compile(`<if {true}>foo<else>bar<end>`)
+  assert.deepEqual(template({}, escape), 'foo')
+})
+
+test('if: true without a tag and else tag', async assert => {
+  const { template } = await compile(`<if true>foo<else>bar<end>`)
+  assert.deepEqual(template({}, escape), 'foo')
+})
+
+test('if: false in a curly tag and else tag', async assert => {
+  const { template } = await compile(`<if {false}>foo<else>bar<end>`)
+  assert.deepEqual(template({}, escape), 'bar')
+})
+
+test('if: false without a tag and else tag', async assert => {
+  const { template } = await compile(`<if false>foo<else>bar<end>`)
+  assert.deepEqual(template({}, escape), 'bar')
+})
