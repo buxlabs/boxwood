@@ -8,7 +8,15 @@ const ACTION_NAMES = ACTIONS.map(action => action.name)
 const ACTION_NAMES_IN_PARTS = ACTION_NAMES.map(name => name.split('_'))
 const ACTIONS_KEYWORDS_DICTIONARY = unique(flatten([...ACTION_NAMES_IN_PARTS]))
 
+function isBoolean (string) {
+  return string === 'true' || string === 'false'
+}
+
 function normalize (array, warnings) {
+  if (array.length === 1) {
+    const item = array[0]
+    if (isBoolean(item.key)) { item.key = `{${item.key}}` }
+  }
   const result = []
   let index
   for (let i = 0, ilen = array.length; i < ilen; i++) {
