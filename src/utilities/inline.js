@@ -35,10 +35,10 @@ function inlineLocalVariablesInAttributes (node, variables) {
 
 const CONDITION_TAGS = ['if', 'elseif', 'unless', 'elseunless']
 const LOOP_TAGS = ['for', 'each', 'foreach']
-function inlineLocalVariablesInTags (node, localVariables, remove) {
+function inlineLocalVariablesInTags (node, localVariables, warnings, remove) {
   // TODO we should handle switch etc.
   if (CONDITION_TAGS.includes(node.tagName)) {
-    const normalizedAttributes = normalize(node.attributes)
+    const normalizedAttributes = normalize(node.attributes, warnings)
     node.attributes = normalizedAttributes.map(attr => {
       // TODO handle or remove words to numbers functionality
       if (attr.type === 'Identifier' && !isCurlyTag(attr.key)) {
@@ -85,10 +85,10 @@ function inlineLocalVariablesInTags (node, localVariables, remove) {
   }
 }
 
-function inlineLocalVariables (node, variables) {
+function inlineLocalVariables (node, variables, warnings) {
   inlineLocalVariablesInText(node, variables)
   inlineLocalVariablesInAttributes(node, variables)
-  inlineLocalVariablesInTags(node, variables)
+  inlineLocalVariablesInTags(node, variables, warnings)
 }
 
 function inlineExpressions (leaf, localVariables) {

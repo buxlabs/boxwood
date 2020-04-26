@@ -188,6 +188,13 @@ test('acceptance: translate-modifier', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: booleans', async assert => {
+  const { actual, expected, warnings, errors } = await suite('booleans')
+  assert.deepEqual(actual, expected)
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
+})
+
 test('acceptance: routes', async assert => {
   const { actual, expected } = await suite('routes', {
     routes: {

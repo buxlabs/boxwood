@@ -174,7 +174,7 @@ function isEachTag (node) {
 }
 
 const FORBIDDEN_TAGS = ['template', 'script', 'style']
-function curlyTagReduction (string, variables) {
+function curlyTagReduction (string, variables, warnings) {
   const tree = parse(string)
   const newVariables = []
   walk(tree, node => {
@@ -218,7 +218,7 @@ function curlyTagReduction (string, variables) {
         return variable
       })
     ]
-    inlineLocalVariablesInTags(node, vars, true)
+    inlineLocalVariablesInTags(node, vars, warnings, true)
     optimizeNode(node, variables, newVariables)
   })
   return stringify(tree, string)
@@ -249,8 +249,8 @@ function optimizeText (text, variables, newVariables, loose) {
   return value.trim()
 }
 
-function optimize (source, variables) {
-  return curlyTagReduction(source, variables)
+function optimize (source, variables, warnings) {
+  return curlyTagReduction(source, variables, warnings)
 }
 
 module.exports = { optimize, optimizeNode }
