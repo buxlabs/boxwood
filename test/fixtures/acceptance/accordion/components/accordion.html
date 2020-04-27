@@ -1,0 +1,16 @@
+<div class="accordion-toggle">{title}</div>
+<div class="accordion"><slot /></div>
+<style scoped>
+.accordion.hidden {
+  display: none;
+}
+</style>
+<script>
+const accordions = document.getElementsByClassName('accordion-toggle')
+accordions.forEach(function (accordion) {
+  accordion.addEventListener("click", function (event) {
+    const sibling = this.nextElementSibling
+    sibling.classList.toggle('hidden')
+  })
+})
+</script>

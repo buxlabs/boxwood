@@ -206,6 +206,11 @@ test('acceptance: routes', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: accordion', async assert => {
+  const { actual, expected } = await suite('accordion')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)

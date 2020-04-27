@@ -96,27 +96,6 @@
   </div>
 </body>
 </html>
-<script>
-  const filter = document.getElementById('filter')
-  const searchables = document.querySelectorAll('[data-searchable="searchable"]')
-  filter.addEventListener('keyup', event => {
-    let { value } = event.target
-    value = value.trim().toLowerCase()
-    for (let i = 0; i < searchables.length; i++) {
-      const searchable = searchables[i]
-      const header = searchable.querySelector('h2')
-      const list = searchable.querySelector('ul')
-      const { children } = list
-      for (let j = 0; j < children.length; j++) {
-        const child = children[j]
-        const text = child.innerText.toLowerCase()
-        child.classList.toggle('undisplayed', !text.includes(value))
-      }
-      const hiddenLength = list.querySelectorAll('li.undisplayed').length
-      header.classList.toggle('undisplayed', hiddenLength === children.length)
-    }
-  })
-</script>
 <style>
   .sidebar {
     position: fixed;
@@ -145,3 +124,24 @@
     color: #00ffa5;
   }  
 </style>
+<script>
+  const filter = document.getElementById('filter')
+  const searchables = document.querySelectorAll('[data-searchable="searchable"]')
+  filter.addEventListener('keyup', event => {
+    let { value } = event.target
+    value = value.trim().toLowerCase()
+    for (let i = 0; i < searchables.length; i++) {
+      const searchable = searchables[i]
+      const header = searchable.querySelector('h2')
+      const list = searchable.querySelector('ul')
+      const { children } = list
+      for (let j = 0; j < children.length; j++) {
+        const child = children[j]
+        const text = child.innerText.toLowerCase()
+        child.classList.toggle('undisplayed', !text.includes(value))
+      }
+      const hiddenLength = list.querySelectorAll('li.undisplayed').length
+      header.classList.toggle('undisplayed', hiddenLength === children.length)
+    }
+  })
+</script>

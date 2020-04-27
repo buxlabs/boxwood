@@ -22,14 +22,6 @@
         <h3>Interesujący slogan</h3>
       </div> 
     </div>
-    <script>
-      const root = document.querySelector('.logo')
-      document.querySelector('.back').addEventListener('click', () => {
-        const { referrer } = document
-        if (referrer && referrer.startsWith(window.location.origin)) return this.history.back()
-        window.location.href = root.href
-      })
-    </script>
     <div class="ui container black">
       <div class="ui stackable grid">
         <div class="row">
@@ -165,3 +157,11 @@
     text-align: justify
   }
 </style>
+<script>
+  const root = document.querySelector('.logo')
+  document.querySelector('.back').addEventListener('click', () => {
+    const { referrer } = document
+    if (referrer && referrer.startsWith(window.location.origin)) return this.history.back()
+    window.location.href = root.href
+  })
+</script>

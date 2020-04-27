@@ -10,23 +10,14 @@ const { isCurlyTag } = require('../utilities/string')
 const { convertAttribute } = require('../utilities/convert')
 let asyncCounter = 0
 
-module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, options }) {
+module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
   if (keys.includes('inline') || options.inline.includes('scripts')) {
     if (keys.includes('src')) {
       const { value: path } = attrs.find(attr => attr.key === 'src')
       const asset = findAsset(path, assets, options)
       if (!asset) return
-      let content = '<script'
-      fragment.attributes.forEach(attribute => {
-        const { key, value } = attribute
-        if (key !== 'src' && key !== 'inline') {
-          content += ` ${key}="${value}"`
-        }
-      })
-      content += '>'
-      content += asset.source.trim()
-      content += '</script>'
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
+      const content = asset.source.trim()
+      scripts.push(content)
     } else {
       const leaf = fragment.children[0]
       leaf.used = true
@@ -35,7 +26,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       ast.body.forEach(node => tree.append(node))
     }
   } else if (keys.includes('polyfills')) {
-    let content = '<script>'
+    let content = ''
     const { value } = attrs.find(attr => attr.key === 'polyfills')
     const ast = new AbstractSyntaxTree(value)
     const polyfills = AbstractSyntaxTree.serialize(ast.body[0].expression)
@@ -51,8 +42,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       node.used = true
       content += node.content
     })
-    content += '</script>'
-    tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(content)))
+    scripts.push(content)
   } else if (keys.includes('scoped')) {
     const leaf = fragment.children[0]
     if (!leaf) return
@@ -132,7 +122,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
         })
       }
     }
-  } else {
+  } else if (keys.includes('src')) {
     append(getLiteral('<script'))
     fragment.attributes.forEach(attribute => {
       if (isCurlyTag(attribute.value)) {
@@ -151,5 +141,11 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       append(getLiteral(node.content))
     })
     append(getLiteral('</script>'))
+  } else {
+    fragment.children.forEach(node => {
+      node.used = true
+      const { content } = node
+      scripts.push(content)
+    })
   }
 }
