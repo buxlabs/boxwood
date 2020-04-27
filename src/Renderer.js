@@ -52,6 +52,7 @@ class Renderer {
         statistics.translations.push(asset)
       }
     })
+    const scripts = []
     const styles = []
     const store = {}
     const translations = {}
@@ -98,12 +99,16 @@ class Renderer {
     const severities = warnings.map(warning => warning.severity)
     if (!severities.includes('critical')) {
       walk(htmltree, async fragment => {
-        await collect({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings })
+        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, store, depth, options, promises, errors, warnings })
       })
       await Promise.all(promises)
       const style = unique(styles).join(' ')
       if (style) {
         tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
+      }
+      const script = unique(scripts).join(' ')
+      if (script) {
+        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<script>${script}</script>`)))
       }
       const used = []
       unique(filters).forEach(name => {

@@ -380,7 +380,7 @@ test('basic', async assert => {
   assert.deepEqual(template({}, escape), '')
 
   var { template } = await compile('<script></script>')
-  assert.deepEqual(template({}, escape), '<script></script>')
+  assert.deepEqual(template({}, escape), '')
 
   var { template } = await compile('<script src="foo.js" defer></script>')
   assert.deepEqual(template({}, escape), '<script src="foo.js" defer></script>')

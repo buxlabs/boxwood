@@ -64,23 +64,7 @@
                 </ul>
               </div>
             </div>
-          </div>
-          <script>
-            Array.from(document.querySelector('.dropdown.list').childNodes).filter(node => node.localName === 'li')
-              .forEach(dropdownItem => {
-                dropdownItem.addEventListener('click', ({ target }) => {
-                  const dropdownContainer = target.closest('.dropdown.container')
-                  if (dropdownContainer) {
-                    dropdownContainer.classList.toggle('open')
-                    const dropdownList = dropdownContainer.parentElement.querySelector('ul')
-                    if (dropdownList) dropdownList.classList.toggle('undisplayed')
-                  }
-                })
-              })
-            document.querySelector('#sidebar-toggle').addEventListener('click', event => {
-              document.querySelector('#sidebar').classList.toggle('undisplayed')
-            })
-          </script>          
+          </div>         
           <div class="nine wide column" style="flex: 1;">
             <h2 class="purple">Issues list</h2>
             <div class="ui fluid concise input">
@@ -124,7 +108,26 @@
   </div>
 </body>
 </html>
+<style>
+  .scope-2654693148.unstyled.dropdown.list li a.active { 
+    color: #4183c4
+  }
+</style>
 <script>
+  Array.from(document.querySelector('.dropdown.list').childNodes).filter(node => node.localName === 'li')
+    .forEach(dropdownItem => {
+      dropdownItem.addEventListener('click', ({ target }) => {
+        const dropdownContainer = target.closest('.dropdown.container')
+        if (dropdownContainer) {
+          dropdownContainer.classList.toggle('open')
+          const dropdownList = dropdownContainer.parentElement.querySelector('ul')
+          if (dropdownList) dropdownList.classList.toggle('undisplayed')
+        }
+      })
+    })
+  document.querySelector('#sidebar-toggle').addEventListener('click', event => {
+    document.querySelector('#sidebar').classList.toggle('undisplayed')
+  })
   const searchInput = document.getElementById('search')
   const issues = Array.from(document.getElementsByClassName('ui task grid'))
   searchInput.addEventListener('keyup', ({ target }) => {
@@ -134,9 +137,4 @@
       issue.classList.toggle('undisplayed', !title.innerText.includes(value))
     })
   })
-</script>
-<style>
-  .scope-2654693148.unstyled.dropdown.list li a.active { 
-    color: #4183c4
-  }
-</style>
+</script> 

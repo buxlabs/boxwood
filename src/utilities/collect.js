@@ -234,10 +234,10 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
   return { fragment, localVariables }
 }
 
-async function collect ({ source, tree, fragment, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, store, depth, options, promises, errors, warnings }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, styles, translations, plugins, store, depth, options, promises, errors, warnings })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, store, depth, options, promises, errors, warnings })
     })
   }
   function append (node) {
@@ -316,7 +316,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'style') {
       tags.style({ fragment, styles })
     } else if (tag === 'script') {
-      tags.script({ tree, fragment, keys, attrs, assets, variables, promises, warnings, filters, translations, languages, append, options })
+      tags.script({ tree, fragment, keys, attrs, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options })
     } else if (tag === 'template') {
       tags.template({ tree, fragment, options })
     } else if (tag === 'data') {
