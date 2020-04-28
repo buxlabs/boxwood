@@ -9,6 +9,7 @@ const { findAsset } = require('../utilities/files')
 const { isCurlyTag } = require('../utilities/string')
 const { convertAttribute } = require('../utilities/convert')
 let asyncCounter = 0
+let scopeCounter = 0
 
 module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
   if (keys.includes('inline') || options.inline.includes('scripts')) {
@@ -50,8 +51,11 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     const properties = getScopeProperties(scope)
     leaf.used = true
     tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
+    let scopeName = ''
     if (properties.length > 0) {
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('const scope = ')))
+      scopeCounter++
+      scopeName = `__scope_${scopeCounter}__`
+      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`const ${scopeName} = `)))
       tree.append(getTemplateAssignmentExpression(options.variables.template, {
         type: 'CallExpression',
         callee: {
@@ -82,13 +86,26 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     const promise = bundler.bundle(leaf.content, { paths: options.script.paths, resolve: options.script.resolve })
     promises.push(promise)
     const result = await promise
+    let output = result
+    if (scopeName) {
+      const newTree = new AbstractSyntaxTree(result)
+      newTree.walk(node => {
+        // TODO do not replace scope inside of member expressions, e.g.
+        // foo.scope
+        // foo.bar.scope
+        if (node.type === 'Identifier' && node.name === 'scope') {
+          node.name = scopeName
+        }
+      })
+      output = newTree.source
+    }
     tree.walk((node, parent) => {
       if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
         const index = parent.body.findIndex(element => {
           return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
         })
         parent.body.splice(index, 1)
-        parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${result}</script>`)))
+        parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${output}</script>`)))
       }
     })
   } else if (keys.includes('compiler')) {
