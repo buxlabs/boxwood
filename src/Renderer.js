@@ -106,10 +106,21 @@ class Renderer {
       if (style) {
         tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
       }
-      const script = unique(scripts).join(' ')
-      if (script) {
-        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<script>${script}</script>`)))
+      // TODO check if this is slow, unique on objects
+      if (scripts.length > 0) {
+        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral('<script>')))
+        unique(scripts).forEach(script => {
+          if (typeof script === 'string') {
+            tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(script)))
+          } else if (Array.isArray(script)) {
+            script.forEach(node => {
+              tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, node))
+            })
+          }
+        })
+        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral('</script>')))
       }
+
       const used = []
       unique(filters).forEach(name => {
         const filter = getFilter(name, translations, options)

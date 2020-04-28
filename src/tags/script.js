@@ -50,13 +50,13 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     const scope = new AbstractSyntaxTree(leaf.content)
     const properties = getScopeProperties(scope)
     leaf.used = true
-    tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral('<script>')))
+    const script = []
     let scopeName = ''
     if (properties.length > 0) {
       scopeCounter++
       scopeName = `__scope_${scopeCounter}__`
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`const ${scopeName} = `)))
-      tree.append(getTemplateAssignmentExpression(options.variables.template, {
+      script.push(getLiteral(`const ${scopeName} = `))
+      script.push({
         type: 'CallExpression',
         callee: {
           type: 'MemberExpression',
@@ -76,12 +76,10 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
             properties
           }
         ]
-      }))
-      tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(';')))
+      })
+      script.push(getLiteral(';'))
     }
     asyncCounter += 1
-    const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
-    tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
     const bundler = new Bundler()
     const promise = bundler.bundle(leaf.content, { paths: options.script.paths, resolve: options.script.resolve })
     promises.push(promise)
@@ -99,15 +97,8 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       })
       output = newTree.source
     }
-    tree.walk((node, parent) => {
-      if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
-        const index = parent.body.findIndex(element => {
-          return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
-        })
-        parent.body.splice(index, 1)
-        parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`\n${output}</script>`)))
-      }
-    })
+    script.push(getLiteral(`\n${output}`))
+    scripts.push(script)
   } else if (keys.includes('compiler')) {
     const { value } = attrs.find(attr => attr.key === 'compiler')
     const compiler = options.compilers[value]
