@@ -16,5 +16,5 @@ test('script: compiler="async"', async assert => {
       }
     }
   })
-  assert.deepEqual(template({}, escape), '<div>foo</div><script>const qux = 42</script><div>baz</div>')
+  assert.deepEqual(template({}, escape), '<div>foo</div><div>baz</div><script>const qux = 42</script>')
 })
