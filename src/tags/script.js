@@ -3,12 +3,10 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Bundler = require('../Bundler')
 const { getLiteral } = require('../utilities/ast')
-const { getTemplateAssignmentExpression } = require('../utilities/factory')
 const { getScopeProperties } = require('../utilities/scope')
 const { findAsset } = require('../utilities/files')
 const { isCurlyTag } = require('../utilities/string')
 const { convertAttribute } = require('../utilities/convert')
-let asyncCounter = 0
 let scopeCounter = 0
 
 module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
@@ -79,7 +77,6 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       })
       script.push(getLiteral(';'))
     }
-    asyncCounter += 1
     const bundler = new Bundler()
     const promise = bundler.bundle(leaf.content, { paths: options.script.paths, resolve: options.script.resolve })
     promises.push(promise)
@@ -102,32 +99,19 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
   } else if (keys.includes('compiler')) {
     const { value } = attrs.find(attr => attr.key === 'compiler')
     const compiler = options.compilers[value]
+    // TODO errors.push when given compiler is not available
     if (typeof compiler === 'function') {
       const attr = attrs.find(attr => attr.key === 'options')
-      let params
-      if (attr && attr.value) {
-        params = JSON.parse(attr.value)
-      }
+      const params = attr && attr.value && JSON.parse(attr.value)
       const leaf = fragment.children[0]
       leaf.used = true
-      const result = compiler(leaf.content, params)
-      if (typeof result === 'string') {
-        tree.append(getTemplateAssignmentExpression(options.variables.template, getLiteral(`<script>${result}</script>`)))
-      } else if (result instanceof Promise) {
-        asyncCounter += 1
-        const ASYNC_PLACEHOLDER_TEXT = `ASYNC_PLACEHOLDER_${asyncCounter}`
-        tree.append(getLiteral(ASYNC_PLACEHOLDER_TEXT))
-        promises.push(result)
-        const source = await result
-        tree.walk((node, parent) => {
-          if (node.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT) {
-            const index = parent.body.findIndex(element => {
-              return element.type === 'Literal' && node.value === ASYNC_PLACEHOLDER_TEXT
-            })
-            parent.body.splice(index, 1)
-            parent.body.splice(index + 0, 0, getTemplateAssignmentExpression(options.variables.template, getLiteral(`<script>${source}</script>`)))
-          }
-        })
+      const output = compiler(leaf.content, params)
+      if (typeof output === 'string') {
+        scripts.push(output)
+      } else if (output instanceof Promise) {
+        promises.push(output)
+        const source = await output
+        scripts.push(source)
       }
     }
   } else if (keys.includes('src')) {
