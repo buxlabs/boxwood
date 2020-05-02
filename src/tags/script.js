@@ -5,7 +5,7 @@ const Bundler = require('../Bundler')
 const { getLiteral } = require('../utilities/ast')
 const { getScopeProperties } = require('../utilities/scope')
 const { findAsset } = require('../utilities/files')
-const { isCurlyTag } = require('../utilities/string')
+const { containsCurlyTag } = require('../utilities/string')
 const { convertAttribute } = require('../utilities/convert')
 let scopeCounter = 0
 
@@ -117,7 +117,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
   } else if (keys.includes('src')) {
     append(getLiteral('<script'))
     fragment.attributes.forEach(attribute => {
-      if (isCurlyTag(attribute.value)) {
+      if (containsCurlyTag(attribute.value)) {
         append(getLiteral(` ${attribute.key}="`))
         append(convertAttribute(attribute.key, attribute.value, variables, filters, translations, languages))
         append(getLiteral('"'))
