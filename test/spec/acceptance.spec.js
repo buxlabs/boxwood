@@ -211,6 +211,15 @@ test('acceptance: accordion', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: translation-missing', async assert => {
+  const { actual, expected, errors } = await suite('translation-missing')
+  assert.deepEqual(actual, expected)
+  const { type, message, stack } = errors[0]
+  assert.deepEqual(type, 'TranslationError')
+  assert.deepEqual(message, "There is no translation for the bar___scope_1935881905 key")
+  assert.truthy(stack.includes('components/foo.html'))
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
