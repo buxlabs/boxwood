@@ -66,7 +66,7 @@ class Renderer {
       new CurlyStylesPlugin(),
       new ScopedStylesPlugin(),
       new SwappedStylesPlugin(),
-      new InternationalizationPlugin({ translations, filters })
+      new InternationalizationPlugin({ translations, filters, errors })
     ]
     const depth = 0
     tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
