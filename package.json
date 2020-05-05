@@ -77,7 +77,7 @@
     "yaml-js": "^0.2.3"
   },
   "devDependencies": {
-    "ava": "^3.7.1",
+    "ava": "^3.8.1",
     "benchmark": "^2.1.4",
     "express": "^4.17.1",
     "handlebars": "^4.7.6",
