@@ -9,41 +9,48 @@ const { escape } = require('../..')
 const readFile = util.promisify(fs.readFile)
 
 test('example: fizzbuzz', async assert => {
-  await suite('fizzbuzz', {}, assert)
+  const { actual, expected } = await suite('fizzbuzz')
+  assert.deepEqual(actual, expected)
 })
 
 test('example: grid', async assert => {
-  await suite('grid', {
+  const { actual, expected } = await suite('grid', {
     collection: {
       each: callback => {
         const elements = [1, 2, 3, 4]
         elements.forEach(callback)
       }
     }
-  }, assert)
+  })
+  assert.deepEqual(actual, expected)
 })
 
 test('example: home', async assert => {
-  await suite('home', {}, assert)
+  const { actual, expected } = await suite('home')
+  assert.deepEqual(actual, expected)
 })
 
 test('example: scope', async assert => {
-  await suite('scope', {}, assert)
+  const { actual, expected } = await suite('scope')
+  assert.deepEqual(actual, expected)
 })
 
 test('example: slots', async assert => {
-  await suite('slots', {}, assert)
+  const { actual, expected } = await suite('slots')
+  assert.deepEqual(actual, expected)
 })
 
 test('example: theme', async assert => {
-  await suite('theme', {}, assert)
+  const { actual, expected } = await suite('theme')
+  assert.deepEqual(actual, expected)
 })
 
 test('example: inlining', async assert => {
-  await suite('inlining', {}, assert)
+  const { actual, expected } = await suite('inlining')
+  assert.deepEqual(actual, expected)
 })
 
-async function suite (name, data = {}, assert) {
+async function suite (name, data = {}) {
   const dir = join(__dirname, '../fixtures/examples', name)
   const path1 = join(dir, 'actual.html')
   const path2 = join(dir, 'expected.html')
@@ -55,5 +62,5 @@ async function suite (name, data = {}, assert) {
   })
   const actual = normalize(template(data, escape))
   const expected = normalize(content2)
-  assert.deepEqual(actual, expected)
+  return { actual, expected }
 }
