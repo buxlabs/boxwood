@@ -10,6 +10,7 @@ module.exports = {
       inline: [],
       compilers: {},
       paths: [],
+      path: '.',
       languages: [],
       cache: false,
       compact: false,

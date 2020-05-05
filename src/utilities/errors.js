@@ -1,6 +1,13 @@
 'use strict'
 
 class BaseError extends Error {
+  constructor (type, message) {
+    super(message)
+    this.type = type
+    this.name = type
+    Error.captureStackTrace(this, this.constructor)
+  }
+
   get stack () {
     return this._stack
   }
@@ -13,27 +20,21 @@ class BaseError extends Error {
 class CompilerError extends BaseError {
   constructor (option, message) {
     message = `Compiler option "${option}" ${message}`
-    super(message)
-    this.type = 'CompilerError'
-    this.name = this.constructor.name
+    super('CompilerError', message)
     Error.captureStackTrace(this, this.constructor)
   }
 }
 
 class SVGError extends BaseError {
   constructor (message) {
-    super(message)
-    this.type = 'SVGError'
-    this.name = this.constructor.name
+    super('SVGError', message)
     Error.captureStackTrace(this, this.constructor)
   }
 }
 
 class TranslationError extends BaseError {
   constructor (message) {
-    super(message)
-    this.type = 'TranslationError'
-    this.name = this.constructor.name
+    super('TranslationError', message)
     Error.captureStackTrace(this, this.constructor)
   }
 }
@@ -41,9 +42,7 @@ class TranslationError extends BaseError {
 class ExpressionError extends BaseError {
   constructor (type) {
     const message = `Expression type: ${type} isn't supported yet.`
-    super(message)
-    this.type = 'ExpressionError'
-    this.name = this.constructor.name
+    super('ExpressionError', message)
     Error.captureStackTrace(this, this.constructor)
   }
 }
@@ -58,10 +57,19 @@ function normalizeError (error) {
   }
 }
 
+function createError (type, message, stack) {
+  const error = new BaseError(type, message)
+  const lines = error.stack.split('\n')
+  stack.reverse().forEach(path => lines.splice(1, 0, `    at ${path}`))
+  error.stack = lines.join('\n')
+  return error
+}
+
 module.exports = {
   CompilerError,
   SVGError,
   TranslationError,
   ExpressionError,
-  normalizeError
+  normalizeError,
+  createError
 }

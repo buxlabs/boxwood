@@ -211,7 +211,7 @@ test('acceptance: accordion', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: translation-missing', async assert => {
+test('acceptance: translation-missing', async assert => {
   const { actual, expected, errors } = await suite('translation-missing')
   assert.deepEqual(actual, expected)
   const { type, message, stack } = errors[0]
@@ -239,6 +239,7 @@ async function suite (name, compilerOptions = {}) {
   const content2 = await readFile(path2, 'utf8')
   const content3 = await readFile(path3, 'utf8')
   const { template, warnings, errors } = await compile(content1, {
+    path: path1,
     paths: [dir],
     languages: ['pl', 'en'],
     ...compilerOptions

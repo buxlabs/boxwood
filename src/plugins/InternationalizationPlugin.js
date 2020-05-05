@@ -4,20 +4,20 @@ const { findAsset } = require('../utilities/files')
 const Plugin = require('./Plugin')
 const hash = require('string-hash')
 const { parseData, getDataFormat } = require('../utilities/data')
-const { TranslationError } = require('../utilities/errors')
+const { createError } = require('../utilities/errors')
 
-function merge (value, translations, languages, errors) {
+function createTranslationError (message, stack) {
+  return createError('TranslationError', message, stack)
+}
+
+function merge (value, translations, languages, errors, stack) {
   if (value.includes('{') && value.includes('}')) return translations
   if (!translations[value]) {
-    const error = new TranslationError(`There is no translation for the ${value} key`)
-    const lines = error.stack.split('\n')
-    // lines.splice(1, 0, '    at components/foo.html')
-    error.stack = lines.join('\n')
-    errors.push(error)
+    errors.push(createTranslationError(`There is no translation for the ${value} key`, stack))
     return translations
   }
   languages.forEach((language, index) => {
-    if (!translations[value][index] && !translations[value][language]) errors.push(new TranslationError(`There is no translation for the ${value} key in ${language} language.`))
+    if (!translations[value][index] && !translations[value][language]) errors.push(createTranslationError(`There is no translation for the ${value} key in ${language} language.`, stack))
   })
   return translations
 }
@@ -47,7 +47,7 @@ class InternationalizationPlugin extends Plugin {
     this.errors = errors
   }
 
-  prerun ({ source, tag, attrs, keys, fragment, assets, options }) {
+  prerun ({ source, tag, attrs, keys, fragment, assets, stack, options }) {
     const id = `__scope_${hash(source)}`
     if (isI18nTag(tag, keys)) {
       fragment.used = true
@@ -60,13 +60,13 @@ class InternationalizationPlugin extends Plugin {
         leaf.used = true
         keys.push(getExtension(path))
       } else if (!leaf || !leaf.content || !leaf.content.trim()) {
-        return this.errors.push(new TranslationError('The translation script cannot be empty'))
+        return this.errors.push(createTranslationError('The translation script cannot be empty', stack))
       }
       leaf.used = true
       const format = getDataFormat(keys)
       const data = parseData(format, leaf.content)
       for (const key in data) {
-        if (this.translations[key]) { return this.errors.push(new TranslationError('Translation already exists')) }
+        if (this.translations[key]) { return this.errors.push(createTranslationError('Translation already exists', stack)) }
         this.translations[`${key}_${id}`] = data[key]
       }
     } else if (isDataTag(tag)) {
@@ -75,7 +75,7 @@ class InternationalizationPlugin extends Plugin {
       const data = parseData(format, leaf.content)
       const { i18n } = data
       for (const key in i18n) {
-        if (this.translations[key]) { return this.errors.push(new TranslationError('Translation already exists')) }
+        if (this.translations[key]) { return this.errors.push(createTranslationError('Translation already exists', stack)) }
         this.translations[`${key}_${id}`] = i18n[key]
       }
     }
@@ -87,7 +87,7 @@ class InternationalizationPlugin extends Plugin {
     })
   }
 
-  run ({ source, tag, attrs, options, fragment }) {
+  run ({ source, tag, attrs, options, stack, fragment }) {
     const id = `__scope_${hash(source)}`
     if (tag === 'translate' && !fragment.scopedTranslations) {
       fragment.scopedTranslations = true
@@ -96,10 +96,10 @@ class InternationalizationPlugin extends Plugin {
       if (attribute) {
         const { key } = attribute
         this.filters.push('translate')
-        this.translations = merge(`${key.split('|')[0]}_${id}`, this.translations, languages, this.errors)
+        this.translations = merge(`${key.split('|')[0]}_${id}`, this.translations, languages, this.errors, stack)
         attribute.key = `${key}_${id}`
       } else {
-        this.errors.push(new TranslationError('Translate tag must define a key'))
+        this.errors.push(createTranslationError('Translate tag must define a key', stack))
       }
     }
   }

@@ -53,6 +53,7 @@ class Renderer {
       }
     })
     const scripts = []
+    const stack = [options.path]
     const styles = []
     const store = {}
     const translations = {}
@@ -86,6 +87,7 @@ class Renderer {
             fragment,
             options,
             assets,
+            stack,
             ...fragment,
             pass: 'renderer'
           })
@@ -99,7 +101,7 @@ class Renderer {
     const severities = warnings.map(warning => warning.severity)
     if (!severities.includes('critical')) {
       walk(htmltree, async fragment => {
-        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, store, depth, options, promises, errors, warnings })
+        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, stack, store, depth, options, promises, errors, warnings })
       })
       await Promise.all(promises)
       const style = unique(styles).join(' ')

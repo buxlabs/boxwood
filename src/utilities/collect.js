@@ -56,7 +56,7 @@ function collectComponent (name, path, components, context, assets, options) {
   components.push({ name, content, files, path: asset.path })
 }
 
-function runPlugins (htmlTree, content, plugins, assets, errors, options) {
+function runPlugins (htmlTree, content, plugins, assets, errors, options, stack) {
   plugins.forEach(plugin => {
     plugin.depth += 1
     plugin.beforeprerun()
@@ -74,6 +74,7 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options) {
           fragment: leaf,
           options,
           assets,
+          stack,
           ...leaf
         })
       })
@@ -96,6 +97,7 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options) {
           fragment: leaf,
           assets,
           options,
+          stack,
           ...leaf
         })
       })
@@ -109,30 +111,32 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options) {
   })
 }
 
-function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, warnings, errors, options) {
+function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, warnings, errors, options, stack) {
   const path = fragment.attributes[0].value
-  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options)
+  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options, stack)
 }
 
-function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, warnings, errors, options) {
+function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, warnings, errors, options, stack) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (!attr) { return null }
   const path = attr.value
-  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options)
+  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options, stack)
   fragment.attributes = []
 }
 
-function collectComponentFromPath (path, fragment, assets, context, plugins, warnings, errors, options) {
+function collectComponentFromPath (path, fragment, assets, context, plugins, warnings, errors, options, stack) {
   let paths = [].concat(options.paths)
   if (context) {
     paths = [dirname(context)].concat(paths)
   }
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
-  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, warnings, errors, assets, options)
+  stack.push(asset.path)
+  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, warnings, errors, assets, options, stack)
+  stack.pop()
 }
 
-function inlineData (htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options) {
+function inlineData (htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, stack) {
   walk(htmlTree, leaf => {
     leaf.context = path
     inlineLocalVariables(leaf, localVariables, warnings)
@@ -140,7 +144,7 @@ function inlineData (htmlTree, content, path, assets, plugins, warnings, errors,
   walk(htmlTree, leaf => {
     inlineExpressions(leaf, localVariables)
   })
-  runPlugins(htmlTree, content, plugins, assets, errors, options)
+  runPlugins(htmlTree, content, plugins, assets, errors, options, stack)
   return htmlTree
 }
 
@@ -157,10 +161,10 @@ function isSlotOrYield (node) {
   return node.tagName === 'slot' || node.tagName === 'yield'
 }
 
-function resolveComponent (content, path, component, fragment, queue, plugins, warnings, errors, assets, options) {
+function resolveComponent (content, path, component, fragment, queue, plugins, warnings, errors, assets, options, stack) {
   const localVariables = normalizeAttributes(fragment.attributes)
   let htmlTree = parse(optimize(content, localVariables, warnings))
-  htmlTree = inlineData(htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options)
+  htmlTree = inlineData(htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, stack)
   walk(htmlTree, current => {
     if (component) { current.imported = true }
   })
@@ -173,9 +177,9 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
     if (isImportTag(current.tagName)) {
       collectComponentsFromImport(current, currentComponents, path, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, assets, path, plugins, warnings, errors, options)
+      collectComponentsFromPartialOrRender(current, assets, path, plugins, warnings, errors, options, stack)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, assets, path, plugins, warnings, errors, options)
+      collectComponentsFromPartialAttribute(current, assets, path, plugins, warnings, errors, options, stack)
     } else if (current.tagName === 'template' && keys.length > 0) {
       collectInlineComponents(current, attrs, currentComponents)
     }
@@ -184,7 +188,9 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
     if (unresolvable) { current.unresolvable = true }
     if (currentComponent && !current.unresolvable) {
       queue.push(children)
-      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, queue, plugins, warnings, errors, assets, options)
+      stack.push(currentComponent.path)
+      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, queue, plugins, warnings, errors, assets, options, stack)
+      stack.pop()
       current.used = true
     }
     if (isSlotOrYield(current) && current.children.length === 0 && !current.yielded) {
@@ -234,10 +240,10 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
   return { fragment, localVariables }
 }
 
-async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, store, depth, options, promises, errors, warnings }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, store, depth, options, promises, errors, warnings })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings })
     })
   }
   function append (node) {
@@ -262,11 +268,14 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
         fragment,
         assets,
         options,
+        stack,
         ...fragment
       })
     })
     if (component && !fragment.imported) {
-      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, [], plugins, warnings, errors, assets, options)
+      stack.push(component.path)
+      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, [], plugins, warnings, errors, assets, options, stack)
+      stack.pop()
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
@@ -342,7 +351,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
       }
-      collectComponentsFromPartialAttribute(fragment, assets, null, plugins, warnings, errors, options)
+      collectComponentsFromPartialAttribute(fragment, assets, null, plugins, warnings, errors, options, stack)
       const nodes = convertTag(fragment, variables, filters, translations, languages, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
@@ -395,7 +404,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (isImportTag(tag)) {
       collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
-      collectComponentsFromPartialOrRender(fragment, assets, null, plugins, warnings, errors, options)
+      collectComponentsFromPartialOrRender(fragment, assets, null, plugins, warnings, errors, options, stack)
     } else if (tag === 'markdown') {
       tags.markdown({ fragment, tree })
     } else if (tag === 'font') {
