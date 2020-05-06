@@ -221,8 +221,9 @@ test('acceptance: translation-missing', async assert => {
 })
 
 test('acceptance: class-square-tag', async assert => {
-  const { actual, expected } = await suite('class-square-tag')
+  const { actual, expected, errors } = await suite('class-square-tag')
   assert.deepEqual(actual, expected)
+  assert.deepEqual(errors.length, 0)
 })
 
 test.skip('acceptance: slot as a variable', async assert => {
