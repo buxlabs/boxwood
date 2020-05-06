@@ -220,6 +220,11 @@ test('acceptance: translation-missing', async assert => {
   assert.truthy(stack.includes('components/foo.html'))
 })
 
+test('acceptance: class-square-tag', async assert => {
+  const { actual, expected } = await suite('class-square-tag')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
