@@ -1,9 +1,17 @@
 <import layout from="components/layout.html"/>
 <import sidebar from="components/sidebar.html"/>
+<import logo from="components/logo.html"/>
 <import input from="components/input.html"/>
 
 <layout>
   <sidebar>
-    <input class="foo" monospaced/>
+    <logo/>
+    <input type="text" id="filter" placeholder|translate="search" class="foo" monospaced/>
   </sidebar>
 </layout>
+<data yaml>
+i18n:
+  search:
+    pl: Szukaj
+    en: Search
+</data>
