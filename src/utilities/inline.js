@@ -44,7 +44,7 @@ function inlineLocalVariablesInAttributes (node, variables) {
               }
               return { type: 'Literal', value: variable.value }
             } else {
-              return { type: 'Literal', value: undefined }
+              return { type: 'Identifier', name: undefined }
             }
           }
           return node
@@ -52,7 +52,7 @@ function inlineLocalVariablesInAttributes (node, variables) {
 
         const { expression } = tree.body[0]
         expression.elements = expression.elements.filter(element => {
-          if (element.type === 'Literal' && element.value === undefined) {
+          if (element.type === 'Identifier' && element.name === undefined) {
             return false
           }
           return true
