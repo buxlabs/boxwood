@@ -37,19 +37,28 @@ function inlineLocalVariablesInAttributes (node, variables) {
         const tree = new AbstractSyntaxTree(source)
         tree.replace((node, parent) => {
           if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
-            const variable = variables.find(localVariable => localVariable.key === node.name || localVariable.key === placeholderName(node.name))
+            const variable = variables.find(localVariable => localVariable.key === node.name || placeholderName(localVariable.key) === node.name)
             if (variable) {
-              // TODO inline values here
-              // have a look at inlineExpressions
+              if (isCurlyTag(variable.value)) {
+                return convertToExpression(getTagValue(variable.value))
+              }
+              return { type: 'Literal', value: variable.value }
             } else {
               return { type: 'Literal', value: undefined }
             }
           }
           return node
         })
-        // TODO optimize, this ast should be simplified, e.g. filter falsy items from the array
-        // add unit tests
-        attribute.value = tree.source.replace(/;\n$/, '')
+
+        const { expression } = tree.body[0]
+        if (expression.elements.every(element => element.type === 'Literal' && typeof element.value === 'string')) {
+          const array = AbstractSyntaxTree.serialize(expression)
+          attribute.value = array.map(string => string.trim()).join(' ')
+        } else {
+          // TODO optimize, this ast should be simplified, e.g. filter falsy items from the array
+          // add unit tests
+          attribute.value = tree.source.replace(/;\n$/, '')
+        }
       }
     })
   }
@@ -169,6 +178,7 @@ function inlineExpressions (leaf, localVariables) {
 
 module.exports = {
   inlineLocalVariablesInTags,
+  inlineLocalVariablesInAttributes,
   inlineLocalVariables,
   inlineExpressions
 }
