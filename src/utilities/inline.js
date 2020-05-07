@@ -52,6 +52,7 @@ function inlineLocalVariablesInAttributes (node, variables) {
 
         const { expression } = tree.body[0]
         expression.elements = expression.elements.filter(element => {
+          // TODO improve and reuse astoptech logicalExpressionReduction
           if (element.type === 'Identifier' && element.name === 'undefined') {
             return false
           } else if (element.type === 'LogicalExpression' && element.operator === '&&' && element.left.type === 'Identifier' && element.left.name === 'undefined') {
@@ -59,12 +60,11 @@ function inlineLocalVariablesInAttributes (node, variables) {
           }
           return true
         })
+
         if (expression.elements.every(element => element.type === 'Literal' && typeof element.value === 'string')) {
           const array = AbstractSyntaxTree.serialize(expression)
           attribute.value = array.map(string => string.trim()).join(' ')
         } else {
-          // TODO optimize, this ast should be simplified, e.g. filter falsy items from the array
-          // add unit tests
           attribute.value = tree.source.replace(/;\n$/, '')
         }
       }
