@@ -17,17 +17,39 @@ function inlineLocalVariablesInText (node, variables) {
   }
 }
 
+// TODO add unit tests
+// this method should ideally replace/simplify inlineExpressions
 function inlineLocalVariablesInAttributes (node, variables) {
   if (node.attributes && node.attributes.length > 0) {
     node.attributes.forEach(attribute => {
       if (isCurlyTag(attribute.value)) {
+        // should create a proper syntax tree here
+        // also, should use containsCurlyTag and use extract
+        // after that, maybe we can remove the inlineExpressions method
+        // should use `addPlaceholders` here too
         const key = getTagValue(attribute.value)
-        const variable = variables.find(localVariable => {
-          return localVariable.key === key
-        })
+        const variable = variables.find(localVariable => localVariable.key === key)
         if (variable) {
           attribute.value = variable.value
         }
+      } else if (isSquareTag(attribute.value)) {
+        const source = addPlaceholders(attribute.value)
+        const tree = new AbstractSyntaxTree(source)
+        tree.replace((node, parent) => {
+          if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
+            const variable = variables.find(localVariable => localVariable.key === node.name || localVariable.key === placeholderName(node.name))
+            if (variable) {
+              // TODO inline values here
+              // have a look at inlineExpressions
+            } else {
+              return { type: 'Literal', value: undefined }
+            }
+          }
+          return node
+        })
+        // TODO optimize, this ast should be simplified, e.g. filter falsy items from the array
+        // add unit tests
+        attribute.value = tree.source.replace(/;\n$/, '')
       }
     })
   }
