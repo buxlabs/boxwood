@@ -44,7 +44,7 @@ function inlineLocalVariablesInAttributes (node, variables) {
               }
               return { type: 'Literal', value: variable.value }
             } else {
-              return { type: 'Identifier', name: undefined }
+              return { type: 'Identifier', name: 'undefined' }
             }
           }
           return node
@@ -52,7 +52,9 @@ function inlineLocalVariablesInAttributes (node, variables) {
 
         const { expression } = tree.body[0]
         expression.elements = expression.elements.filter(element => {
-          if (element.type === 'Identifier' && element.name === undefined) {
+          if (element.type === 'Identifier' && element.name === 'undefined') {
+            return false
+          } else if (element.type === 'LogicalExpression' && element.operator === '&&' && element.left.type === 'Identifier' && element.left.name === 'undefined') {
             return false
           }
           return true
