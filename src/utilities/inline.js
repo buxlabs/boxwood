@@ -51,6 +51,12 @@ function inlineLocalVariablesInAttributes (node, variables) {
         })
 
         const { expression } = tree.body[0]
+        expression.elements = expression.elements.filter(element => {
+          if (element.type === 'Literal' && element.value === undefined) {
+            return false
+          }
+          return true
+        })
         if (expression.elements.every(element => element.type === 'Literal' && typeof element.value === 'string')) {
           const array = AbstractSyntaxTree.serialize(expression)
           attribute.value = array.map(string => string.trim()).join(' ')
