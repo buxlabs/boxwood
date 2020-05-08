@@ -1,6 +1,7 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { logicalExpressionReduction } = require('astoptech')
 const { extract, isCurlyTag, isSquareTag, getTagValue } = require('./string')
 const { addPlaceholders, placeholderName } = require('./keywords')
 const { convertToExpression } = require('./convert')
@@ -51,15 +52,24 @@ function inlineLocalVariablesInAttributes (node, variables) {
         })
 
         const { expression } = tree.body[0]
-        expression.elements = expression.elements.filter(element => {
-          // TODO improve and reuse astoptech logicalExpressionReduction
-          if (element.type === 'Identifier' && element.name === 'undefined') {
-            return false
-          } else if (element.type === 'LogicalExpression' && element.operator === '&&' && element.left.type === 'Identifier' && element.left.name === 'undefined') {
-            return false
-          }
-          return true
-        })
+
+        expression.elements = expression.elements
+          .map(element => {
+            if (element.type === 'LogicalExpression') {
+              return logicalExpressionReduction(element)
+            }
+            return element
+          })
+          .filter(element => {
+            if (element.type === 'Identifier' && element.name === 'undefined') {
+              return false
+            } else if (element.type === 'Literal' && element.value === false) {
+              return false
+            } else if (element.type === 'LogicalExpression' && element.operator === '&&' && element.left.type === 'Identifier' && element.left.name === 'undefined') {
+              return false
+            }
+            return true
+          })
 
         if (expression.elements.every(element => element.type === 'Literal' && typeof element.value === 'string')) {
           const array = AbstractSyntaxTree.serialize(expression)
