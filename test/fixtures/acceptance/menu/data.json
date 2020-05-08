@@ -1,0 +1,7 @@
+{
+  "menu": [
+    { "url": "/", "name": "start" },
+    { "url": "/blog", "name": "blog" }
+  ],
+  "current": "start"
+}
