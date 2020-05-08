@@ -45,6 +45,9 @@ function inlineLocalVariablesInAttributes (node, variables) {
               }
               return { type: 'Literal', value: variable.value }
             } else {
+              // TODO acceptance menu spec
+              // we should not set the value to undefined
+              // if we know that it's being used at runtime
               return { type: 'Identifier', name: 'undefined' }
             }
           }
