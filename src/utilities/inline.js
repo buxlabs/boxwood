@@ -137,10 +137,10 @@ function inlineLocalVariablesInTags (node, localVariables, warnings, remove) {
   }
 }
 
-function inlineLocalVariables (node, variables, warnings) {
-  inlineLocalVariablesInText(node, variables)
-  inlineLocalVariablesInAttributes(node, variables)
-  inlineLocalVariablesInTags(node, variables, warnings)
+function inlineLocalVariables (node, localVariables, variables, warnings) {
+  inlineLocalVariablesInText(node, localVariables)
+  inlineLocalVariablesInAttributes(node, localVariables)
+  inlineLocalVariablesInTags(node, localVariables, warnings)
 }
 
 function inlineExpressions (leaf, localVariables) {

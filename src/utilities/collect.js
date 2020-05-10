@@ -136,10 +136,10 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, war
   stack.pop()
 }
 
-function inlineData (htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, stack) {
+function inlineData (htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, variables, stack) {
   walk(htmlTree, leaf => {
     leaf.context = path
-    inlineLocalVariables(leaf, localVariables, warnings)
+    inlineLocalVariables(leaf, localVariables, variables, warnings)
   })
   walk(htmlTree, leaf => {
     inlineExpressions(leaf, localVariables)
@@ -164,7 +164,7 @@ function isSlotOrYield (node) {
 function resolveComponent (content, path, component, fragment, queue, plugins, warnings, errors, assets, options, variables, stack) {
   const localVariables = normalizeAttributes(fragment.attributes)
   let htmlTree = parse(optimize(content, localVariables, warnings))
-  htmlTree = inlineData(htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, stack)
+  htmlTree = inlineData(htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, variables, stack)
   walk(htmlTree, current => {
     if (component) { current.imported = true }
   })
