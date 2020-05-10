@@ -111,20 +111,20 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options, stack)
   })
 }
 
-function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, warnings, errors, options, stack) {
+function collectComponentsFromPartialOrRender (fragment, assets, context, plugins, warnings, errors, options, variables, stack) {
   const path = fragment.attributes[0].value
-  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options, stack)
+  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options, variables, stack)
 }
 
-function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, warnings, errors, options, stack) {
+function collectComponentsFromPartialAttribute (fragment, assets, context, plugins, warnings, errors, options, variables, stack) {
   const attr = fragment.attributes.find(attr => attr.key === 'partial')
   if (!attr) { return null }
   const path = attr.value
-  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options, stack)
+  collectComponentFromPath(path, fragment, assets, context, plugins, warnings, errors, options, variables, stack)
   fragment.attributes = []
 }
 
-function collectComponentFromPath (path, fragment, assets, context, plugins, warnings, errors, options, stack) {
+function collectComponentFromPath (path, fragment, assets, context, plugins, warnings, errors, options, variables, stack) {
   let paths = [].concat(options.paths)
   if (context) {
     paths = [dirname(context)].concat(paths)
@@ -132,7 +132,7 @@ function collectComponentFromPath (path, fragment, assets, context, plugins, war
   const asset = findAsset(path, assets, { paths, aliases: options.aliases })
   if (!asset) return
   stack.push(asset.path)
-  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, warnings, errors, assets, options, stack)
+  resolveComponent(asset.source, asset.path, null, fragment, [], plugins, warnings, errors, assets, options, variables, stack)
   stack.pop()
 }
 
@@ -161,7 +161,7 @@ function isSlotOrYield (node) {
   return node.tagName === 'slot' || node.tagName === 'yield'
 }
 
-function resolveComponent (content, path, component, fragment, queue, plugins, warnings, errors, assets, options, stack) {
+function resolveComponent (content, path, component, fragment, queue, plugins, warnings, errors, assets, options, variables, stack) {
   const localVariables = normalizeAttributes(fragment.attributes)
   let htmlTree = parse(optimize(content, localVariables, warnings))
   htmlTree = inlineData(htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, stack)
@@ -177,9 +177,9 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
     if (isImportTag(current.tagName)) {
       collectComponentsFromImport(current, currentComponents, path, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
-      collectComponentsFromPartialOrRender(current, assets, path, plugins, warnings, errors, options, stack)
+      collectComponentsFromPartialOrRender(current, assets, path, plugins, warnings, errors, options, variables, stack)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
-      collectComponentsFromPartialAttribute(current, assets, path, plugins, warnings, errors, options, stack)
+      collectComponentsFromPartialAttribute(current, assets, path, plugins, warnings, errors, options, variables, stack)
     } else if (current.tagName === 'template' && keys.length > 0) {
       collectInlineComponents(current, attrs, currentComponents)
     }
@@ -189,7 +189,7 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
     if (currentComponent && !current.unresolvable) {
       queue.push(children)
       stack.push(currentComponent.path)
-      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, queue, plugins, warnings, errors, assets, options, stack)
+      resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, queue, plugins, warnings, errors, assets, options, variables, stack)
       stack.pop()
       current.used = true
     }
@@ -274,7 +274,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     })
     if (component && !fragment.imported) {
       stack.push(component.path)
-      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, [], plugins, warnings, errors, assets, options, stack)
+      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, [], plugins, warnings, errors, assets, options, variables, stack)
       stack.pop()
       localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
@@ -351,7 +351,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
         }
       }
-      collectComponentsFromPartialAttribute(fragment, assets, null, plugins, warnings, errors, options, stack)
+      collectComponentsFromPartialAttribute(fragment, assets, null, plugins, warnings, errors, options, variables, stack)
       const nodes = convertTag(fragment, variables, filters, translations, languages, options)
       nodes.forEach(node => {
         if (node.type === 'IfStatement') {
@@ -404,7 +404,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (isImportTag(tag)) {
       collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
-      collectComponentsFromPartialOrRender(fragment, assets, null, plugins, warnings, errors, options, stack)
+      collectComponentsFromPartialOrRender(fragment, assets, null, plugins, warnings, errors, options, variables, stack)
     } else if (tag === 'markdown') {
       tags.markdown({ fragment, tree })
     } else if (tag === 'font') {
