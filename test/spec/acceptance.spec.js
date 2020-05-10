@@ -226,7 +226,7 @@ test('acceptance: class-square-tag', async assert => {
   assert.deepEqual(errors.length, 0)
 })
 
-test.skip('acceptance: menu', async assert => {
+test('acceptance: menu', async assert => {
   const { actual, expected } = await suite('menu')
   assert.deepEqual(actual, expected)
 })

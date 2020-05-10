@@ -1,4 +1,4 @@
-<a {href} class="['link', class, active && 'active']"><slot/></a>
+<a {href} class="['link', class, active ? 'active' : '']"><slot/></a>
 <style scoped>
 .link.active {
   text-decoration: underline;

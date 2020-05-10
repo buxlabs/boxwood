@@ -164,6 +164,29 @@ function isSlotOrYield (node) {
 function resolveComponent (content, path, component, fragment, queue, plugins, warnings, errors, assets, options, variables, stack) {
   const localVariables = normalizeAttributes(fragment.attributes)
   let htmlTree = parse(optimize(content, localVariables, warnings))
+  let newVariablesCount = 0
+  walk(htmlTree, current => {
+    // TODO add foreach and other tags (data, var etc.)
+    if (current.tagName === 'for') {
+      if (current.attributes.length <= 3) {
+        variables.push(current.attributes[0].key)
+        newVariablesCount++
+        if (current.attributes[2]) {
+          variables.push(current.attributes[2].key)
+          newVariablesCount++
+        }
+      } else if (current.attributes.length <= 5) {
+        variables.push(current.attributes[0].key)
+        newVariablesCount++
+        variables.push(current.attributes[2].key)
+        newVariablesCount++
+        if (current.attributes[4]) {
+          variables.push(current.attributes[4].key)
+          newVariablesCount++
+        }
+      }
+    }
+  })
   htmlTree = inlineData(htmlTree, content, path, assets, plugins, warnings, errors, localVariables, options, variables, stack)
   walk(htmlTree, current => {
     if (component) { current.imported = true }
@@ -237,6 +260,10 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
   // but we can't ignore children nodes
   // can we do it better than marking the node as a slot?
   if (component) { fragment.tagName = 'slot' }
+  while (newVariablesCount) {
+    variables.pop()
+    newVariablesCount--
+  }
   return { fragment, localVariables }
 }
 

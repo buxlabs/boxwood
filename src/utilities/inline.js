@@ -4,7 +4,7 @@ const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { logicalExpressionReduction } = require('astoptech')
 const { extract, isCurlyTag, isSquareTag, getTagValue } = require('./string')
 const { addPlaceholders, placeholderName } = require('./keywords')
-const { convertToExpression } = require('./convert')
+const { convertToExpression, convertText } = require('./convert')
 const { normalize } = require('./array')
 const { GLOBAL_VARIABLE } = require('./enum')
 
@@ -20,7 +20,7 @@ function inlineLocalVariablesInText (node, variables) {
 
 // TODO add unit tests
 // this method should ideally replace/simplify inlineExpressions
-function inlineLocalVariablesInAttributes (node, variables) {
+function inlineLocalVariablesInAttributes (node, localVariables, variables) {
   if (node.attributes && node.attributes.length > 0) {
     node.attributes.forEach(attribute => {
       if (isCurlyTag(attribute.value)) {
@@ -28,8 +28,8 @@ function inlineLocalVariablesInAttributes (node, variables) {
         // also, should use containsCurlyTag and use extract
         // after that, maybe we can remove the inlineExpressions method
         // should use `addPlaceholders` here too
-        const key = getTagValue(attribute.value)
-        const variable = variables.find(localVariable => localVariable.key === key)
+        const source = getTagValue(attribute.value)
+        const variable = localVariables.find(localVariable => localVariable.key === source)
         if (variable) {
           attribute.value = variable.value
         }
@@ -38,16 +38,19 @@ function inlineLocalVariablesInAttributes (node, variables) {
         const tree = new AbstractSyntaxTree(source)
         tree.replace((node, parent) => {
           if (node.type === 'Identifier' && (!parent || parent.type !== 'MemberExpression')) {
-            const variable = variables.find(localVariable => localVariable.key === node.name || placeholderName(localVariable.key) === node.name)
+            const variable = localVariables.find(localVariable => localVariable.key === node.name || placeholderName(localVariable.key) === node.name)
             if (variable) {
               if (isCurlyTag(variable.value)) {
-                return convertToExpression(getTagValue(variable.value))
+                // TODO handle this case correctly in convertText
+                if (variable.value === '{false}') {
+                  return { type: 'Literal', value: false }
+                } else if (variable.value === '{true}') {
+                  return { type: 'Literal', value: true }
+                }
+                return convertText(variable.value, variables, [], [], [], true)[0]
               }
               return { type: 'Literal', value: variable.value }
-            } else {
-              // TODO acceptance menu spec
-              // we should not set the value to undefined
-              // if we know that it's being used at runtime
+            } else if (!variables.includes(node.name)) {
               return { type: 'Identifier', name: 'undefined' }
             }
           }
@@ -139,7 +142,7 @@ function inlineLocalVariablesInTags (node, localVariables, warnings, remove) {
 
 function inlineLocalVariables (node, localVariables, variables, warnings) {
   inlineLocalVariablesInText(node, localVariables)
-  inlineLocalVariablesInAttributes(node, localVariables)
+  inlineLocalVariablesInAttributes(node, localVariables, variables)
   inlineLocalVariablesInTags(node, localVariables, warnings)
 }
 
