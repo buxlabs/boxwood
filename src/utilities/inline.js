@@ -3,7 +3,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { logicalExpressionReduction } = require('astoptech')
 const { extract, isCurlyTag, isSquareTag, getTagValue } = require('./string')
-const { addPlaceholders, placeholderName } = require('./keywords')
+const { addPlaceholders, removePlaceholders, placeholderName } = require('./keywords')
 const { convertToExpression, convertText } = require('./convert')
 const { normalize } = require('./array')
 const { GLOBAL_VARIABLE } = require('./enum')
@@ -50,12 +50,13 @@ function inlineLocalVariablesInAttributes (node, localVariables, variables) {
                 return convertText(variable.value, variables, [], [], [], true)[0]
               }
               return { type: 'Literal', value: variable.value }
-            } else if (!variables.includes(node.name)) {
+            } else if (!variables.includes(node.name) && !variables.map(placeholderName).includes(node.name)) {
               return { type: 'Identifier', name: 'undefined' }
             }
           }
           return node
         })
+        tree.replace(removePlaceholders)
 
         const { expression } = tree.body[0]
 
@@ -181,6 +182,7 @@ function inlineExpressions (leaf, localVariables) {
               return node
             }
           })
+          // ast.replace(removePlaceholders)
           if (replaced) {
             if (isSquareTag(value)) {
               return accumulator + ast.source.replace(/;\n$/, '')
