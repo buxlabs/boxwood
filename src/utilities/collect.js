@@ -8,7 +8,7 @@ const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
 const { join, dirname } = require('path')
 const { parse } = require('./html')
-const { inlineLocalVariables, inlineExpressions } = require('./inline')
+const { inlineLocalVariables } = require('./inline')
 const { clone } = require('./object')
 const { isImportTag } = require('./string')
 const { optimize } = require('./optimize')
@@ -140,9 +140,6 @@ function inlineData (htmlTree, content, path, assets, plugins, warnings, errors,
   walk(htmlTree, leaf => {
     leaf.context = path
     inlineLocalVariables(leaf, localVariables, variables, warnings)
-  })
-  walk(htmlTree, leaf => {
-    inlineExpressions(leaf, localVariables)
   })
   runPlugins(htmlTree, content, plugins, assets, errors, options, stack)
   return htmlTree
