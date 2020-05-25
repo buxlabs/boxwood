@@ -66,9 +66,9 @@
     "negate-sentence": "^0.2.0",
     "normalize-newline": "^3.0.0",
     "path-to-regexp": "^6.1.0",
-    "pure-conditions": "^1.0.5",
+    "pure-conditions": "^1.1.0",
     "pure-utilities": "^1.2.0",
-    "rollup": "^2.6.1",
+    "rollup": "^2.10.9",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.2.0",
@@ -86,7 +86,7 @@
     "mustache": "^4.0.1",
     "nyc": "^15.0.1",
     "puppeteer": "^2.1.1",
-    "standard": "^14.3.3",
+    "standard": "^14.3.4",
     "underscore": "^1.10.2"
   },
   "standard": {

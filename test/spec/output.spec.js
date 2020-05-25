@@ -33,7 +33,7 @@ test('output: truthy condition with strict inequality operator', async assert =>
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
-      if (__o.foo !== void 0) {
+      if (__o.foo !== undefined) {
         __t += __e(__o.foo);
       }
       return __t;
@@ -46,7 +46,7 @@ test('output: falsy condition with strict equality operator', async assert => {
   assert.deepEqual(normalize(template.toString()), normalize(`
     function render(__o, __e) {
       var __t = "";
-      if (__o.foo === void 0) {
+      if (__o.foo === undefined) {
         __t += __e(__o.foo);
       }
       return __t;
