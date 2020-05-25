@@ -1,7 +1,7 @@
 const test = require('ava')
 const { inlineLocalVariablesInAttributes } = require('./inline')
 
-test('it inlines curly tags', assert => {
+test('curly tags: it inlines strings', assert => {
   const attribute = { key: 'class', value: '{class}' }
   const node = { attributes: [attribute] }
   const localVariables = [{ key: 'class', value: 'foo' }]
@@ -10,12 +10,48 @@ test('it inlines curly tags', assert => {
   assert.deepEqual(attribute.value, 'foo')
 })
 
+test('curly tags: it inlines truthy booleans', assert => {
+  const attribute = { key: 'class', value: '{foo && "foo"}' }
+  const node = { attributes: [attribute] }
+  const localVariables = [{ key: 'foo', value: '{true}' }]
+  const variables = []
+  inlineLocalVariablesInAttributes(node, localVariables, variables)
+  assert.deepEqual(attribute.value, 'foo')
+})
+
+test('curly tags: it inlines falsy booleans in', assert => {
+  const attribute = { key: 'class', value: '{foo || "bar"}' }
+  const node = { attributes: [attribute] }
+  const localVariables = [{ key: 'foo', value: '{false}' }]
+  const variables = []
+  inlineLocalVariablesInAttributes(node, localVariables, variables)
+  assert.deepEqual(attribute.value, 'bar')
+})
+
+test.skip('curly tags: it inlines truthy booleans in a ternary if', assert => {
+  const attribute = { key: 'class', value: '{foo ? "foo" : "bar"}' }
+  const node = { attributes: [attribute] }
+  const localVariables = [{ key: 'foo', value: '{true}' }]
+  const variables = []
+  inlineLocalVariablesInAttributes(node, localVariables, variables)
+  assert.deepEqual(attribute.value, 'foo')
+})
+
+test.skip('curly tags: it inlines falsy booleans in a ternary if', assert => {
+  const attribute = { key: 'class', value: '{foo ? "foo" : "bar"}' }
+  const node = { attributes: [attribute] }
+  const localVariables = [{ key: 'foo', value: '{false}' }]
+  const variables = []
+  inlineLocalVariablesInAttributes(node, localVariables, variables)
+  assert.deepEqual(attribute.value, 'bar')
+})
+
 // TODO add specs for booleans in curly tags
 // TODO add specs for empty curly tag value
 // TODO add specs for if/else etc.
 // TODO add specs for for/foreach/each
 
-test('it inlines curly tags with ', assert => {
+test('it inlines curly tags with strings', assert => {
   const attribute = { key: 'class', value: '{class + "-bar"}' }
   const node = { attributes: [attribute] }
   const localVariables = [{ key: 'class', value: 'foo' }]
