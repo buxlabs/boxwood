@@ -20,13 +20,7 @@ module.exports = {
         escape: ESCAPE_VARIABLE
       },
       aliases: [],
-      styles: {
-        spacing: {
-          small: '5px',
-          medium: '15px',
-          large: '60px'
-        }
-      },
+      styles: {},
       script: {
         paths: []
       },
@@ -109,11 +103,7 @@ function areAliasesValid (aliases) {
 }
 
 function areStylesValid (styles) {
-  const { colors, spacing } = styles
-  const SPACING_KEYS = ['small', 'medium', 'large']
+  const { colors } = styles
   if (!isPlainObject(styles)) return new CompilerError('styles', 'must be an object')
   if (colors && !isPlainObject(colors)) return new CompilerError('styles.colors', 'must be an object')
-  if (!spacing || !isPlainObject(spacing)) return new CompilerError('styles.spacing', 'must be an object')
-  const invalidKey = Object.keys(spacing).find(key => !SPACING_KEYS.includes(key))
-  if (invalidKey) return new CompilerError(`styles.spacing.${invalidKey}`, 'allowed options: small, medium, large')
 }

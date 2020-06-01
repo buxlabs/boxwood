@@ -13,7 +13,6 @@ const defaultTag = require('./default')
 const doctypeTag = require('./doctype')
 const markdownTag = require('./markdown')
 const fontTag = require('./font')
-const spacingTag = require('./spacing')
 const ifTag = require('./if')
 const elseifTag = require('./elseif')
 const elseTag = require('./else')
@@ -40,7 +39,6 @@ module.exports = {
   doctype: doctypeTag,
   markdown: markdownTag,
   font: fontTag,
-  spacing: spacingTag,
   if: ifTag,
   elseif: elseifTag,
   else: elseTag,

@@ -433,8 +433,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tags.markdown({ fragment, tree })
     } else if (tag === 'font') {
       tags.font({ fragment, tree, options })
-    } else if (tag === 'spacing') {
-      tags.spacing({ fragment, tree, options })
     } else if (tag === 'var') {
       tags.var({ tree, attrs, variables })
     }
