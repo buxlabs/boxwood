@@ -77,7 +77,6 @@ module.exports = {
     'font',
     'spacing',
     'space',
-    'entity',
     'var'
   ],
   UNESCAPED_NAMES: [

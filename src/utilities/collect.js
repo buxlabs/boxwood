@@ -437,8 +437,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tags.spacing({ fragment, tree, options })
     } else if (tag === 'space') {
       tags.space({ tree, attrs })
-    } else if (tag === 'entity') {
-      tags.entity({ tree, options, attrs })
     } else if (tag === 'var') {
       tags.var({ tree, attrs, variables })
     }

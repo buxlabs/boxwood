@@ -15,7 +15,6 @@ const markdownTag = require('./markdown')
 const fontTag = require('./font')
 const spacingTag = require('./spacing')
 const spaceTag = require('./space')
-const entityTag = require('./entity')
 const ifTag = require('./if')
 const elseifTag = require('./elseif')
 const elseTag = require('./else')
@@ -44,7 +43,6 @@ module.exports = {
   font: fontTag,
   spacing: spacingTag,
   space: spaceTag,
-  entity: entityTag,
   if: ifTag,
   elseif: elseifTag,
   else: elseTag,

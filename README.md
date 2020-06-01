@@ -219,22 +219,6 @@ You can add a space explicitly if needed.
 <space repeat="{5}"/>
 ```
 
-#### entity
-
-Always forgetting how to write html entities? Maybe this helps:
-
-```html
-<entity lt>
-<entity gt>
-<entity amp>
-```
-
-```html
-<entity less than>
-<entity greater than>
-<entity ampersand>
-```
-
 #### template
 
 You can define local components as well. It can be useful for tiny bits of html. Don't forget to specify the name of the component.
