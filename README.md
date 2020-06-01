@@ -210,15 +210,6 @@ const { template } = await compile(`<spacing medium>`, {
 })
 ```
 
-#### space
-
-You can add a space explicitly if needed.
-
-```html
-<space/>
-<space repeat="{5}"/>
-```
-
 #### template
 
 You can define local components as well. It can be useful for tiny bits of html. Don't forget to specify the name of the component.

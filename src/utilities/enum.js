@@ -76,7 +76,6 @@ module.exports = {
     'markdown',
     'font',
     'spacing',
-    'space',
     'var'
   ],
   UNESCAPED_NAMES: [
