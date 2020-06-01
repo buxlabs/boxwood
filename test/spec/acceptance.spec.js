@@ -33,11 +33,6 @@ test('acceptance: import-multiple-components', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: markdown', async assert => {
-  const { actual, expected } = await suite('markdown')
-  assert.deepEqual(actual, expected)
-})
-
 test('acceptance: inline-classes', async assert => {
   const { actual, expected } = await suite('inline-classes')
   assert.deepEqual(actual, expected)

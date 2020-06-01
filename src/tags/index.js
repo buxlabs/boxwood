@@ -11,7 +11,6 @@ const caseTag = require('./case')
 const dataTag = require('./data')
 const defaultTag = require('./default')
 const doctypeTag = require('./doctype')
-const markdownTag = require('./markdown')
 const fontTag = require('./font')
 const ifTag = require('./if')
 const elseifTag = require('./elseif')
@@ -37,7 +36,6 @@ module.exports = {
   data: dataTag,
   default: defaultTag,
   doctype: doctypeTag,
-  markdown: markdownTag,
   font: fontTag,
   if: ifTag,
   elseif: elseifTag,

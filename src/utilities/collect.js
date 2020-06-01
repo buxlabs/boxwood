@@ -429,8 +429,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       collectComponentsFromImport(fragment, components, null, assets, options)
     } else if (tag === 'partial' || tag === 'render' || tag === 'include') {
       collectComponentsFromPartialOrRender(fragment, assets, null, plugins, warnings, errors, options, variables, stack)
-    } else if (tag === 'markdown') {
-      tags.markdown({ fragment, tree })
     } else if (tag === 'font') {
       tags.font({ fragment, tree, options })
     } else if (tag === 'var') {

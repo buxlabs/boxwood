@@ -73,7 +73,6 @@ module.exports = {
     'include',
     'content',
     'translate',
-    'markdown',
     'font',
     'var'
   ],
