@@ -188,28 +188,6 @@ subtitle: Hey!
 </layout>
 ```
 
-#### spacing
-
-Custom spacing can be tough. You can use a spacing tag, which can be used to define it per app basis.
-
-```html
-<spacing medium/>
-```
-
-You need to specify the heights as a part of the compiler's options.
-
-```js
-const { template } = await compile(`<spacing medium>`, {
-  styles: {
-    spacing: {
-      small: '25px',
-      medium: '50px',
-      big: '100px'
-    }
-  }
-})
-```
-
 #### template
 
 You can define local components as well. It can be useful for tiny bits of html. Don't forget to specify the name of the component.
