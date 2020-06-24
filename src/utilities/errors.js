@@ -39,6 +39,27 @@ class TranslationError extends BaseError {
   }
 }
 
+class YAMLTranslationError extends BaseError {
+  constructor (message) {
+    super('YAMLTranslationError', message)
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class JSONTranslationError extends BaseError {
+  constructor (message) {
+    super('JSONTranslationError', message)
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class JavaScriptTranslationError extends BaseError {
+  constructor (message) {
+    super('JavaScriptTranslationError', message)
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
 class ExpressionError extends BaseError {
   constructor (type) {
     const message = `Expression type: ${type} isn't supported yet.`
@@ -70,6 +91,9 @@ module.exports = {
   SVGError,
   TranslationError,
   ExpressionError,
+  YAMLTranslationError,
+  JSONTranslationError,
+  JavaScriptTranslationError,
   normalizeError,
   createError
 }

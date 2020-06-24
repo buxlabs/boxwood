@@ -73,7 +73,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "string-hash": "^1.1.3",
     "words-to-numbers": "^1.5.1",
-    "yaml-js": "^0.2.3"
+    "yaml": "^1.10.0"
   },
   "devDependencies": {
     "ava": "^3.9.0",

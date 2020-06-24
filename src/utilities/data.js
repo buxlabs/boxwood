@@ -1,12 +1,14 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { load } = require('yaml-js')
-const { TranslationError } = require('./errors')
+const YAML = require('yaml')
+const { YAMLTranslationError, JSONTranslationError, JavaScriptTranslationError } = require('./errors')
 
 function parseYAML (content) {
   try {
-    return load(content)
+    return YAML.parse(content)
   } catch (exception) {
-    throw new TranslationError('YAML translation is unparseable')
+    const error = new YAMLTranslationError('YAML translation is unparseable')
+    error.message = exception.message
+    throw error
   }
 }
 
@@ -14,7 +16,9 @@ function parseJSON (content) {
   try {
     return JSON.parse(content)
   } catch (exception) {
-    throw new TranslationError('JSON translation is unparseable')
+    const error = new JSONTranslationError('JSON translation is unparseable')
+    error.message = exception.message
+    throw error
   }
 }
 
@@ -24,7 +28,9 @@ function parseJS (content) {
     const node = tree.first('ExportDefaultDeclaration')
     return AbstractSyntaxTree.serialize(node.declaration)
   } catch (exception) {
-    throw new TranslationError('JS translation is unparseable')
+    const error = new JavaScriptTranslationError('JS translation is unparseable')
+    error.message = exception.message
+    return error
   }
 }
 

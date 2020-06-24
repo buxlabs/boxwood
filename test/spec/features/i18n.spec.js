@@ -69,11 +69,11 @@ test('i18n: translations in yaml - format validation', async assert => {
     </script>
     <div><translate foo/></div>
   `, { languages: ['pl', 'en'] })
-  
+
   assert.truthy(errors.length)
   var [error1, error2] = errors
-  assert.deepEqual(error1.type, 'TranslationError')
-  assert.deepEqual(error1.message, 'YAML translation is unparseable')
+  assert.deepEqual(error1.type, 'YAMLTranslationError')
+  assert.deepEqual(error1.message, 'Implicit map keys need to be followed by map values')
   assert.deepEqual(error2.type, 'TranslationError')
   assert.deepEqual(error2.message, 'There is no translation for the foo___scope_746128617 key')
   assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
@@ -89,11 +89,11 @@ test('i18n: translations in yaml - format validation', async assert => {
     </template>
     <foo/>
   `, { languages: ['pl', 'en'] })
-  
+
   assert.truthy(errors.length)
   var [error1, error2] = errors
-  assert.deepEqual(error1.type, 'TranslationError')
-  assert.deepEqual(error1.message, 'YAML translation is unparseable')
+  assert.deepEqual(error1.type, 'YAMLTranslationError')
+  assert.deepEqual(error1.message, 'Implicit map keys need to be followed by map values')
   assert.deepEqual(error2.type, 'TranslationError')
   assert.deepEqual(error2.message, 'There is no translation for the foo___scope_196157161 key')
   assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
@@ -109,12 +109,12 @@ test('i18n: translations in yaml - format validation', async assert => {
     </template>
     <foo/>
   `, { languages: ['pl', 'en'] })
-  
+
   assert.truthy(errors.length)
   var [error1] = errors
-  assert.deepEqual(error1.type, 'TranslationError')
-  assert.deepEqual(error1.message, 'YAML translation is unparseable')
-  assert.deepEqual(template({ language: 'pl', bar: 'bar' }, escape), '<div></div>')  
+  assert.deepEqual(error1.type, 'YAMLTranslationError')
+  assert.deepEqual(error1.message, 'Implicit map keys need to be followed by map values')
+  assert.deepEqual(template({ language: 'pl', bar: 'bar' }, escape), '<div></div>')
 })
 
 test('i18n: translations in yaml and a translate tag with dot notation', async assert => {
@@ -218,7 +218,7 @@ test('i18n: throws if the yaml file is corrupt', async assert => {
     paths: [__dirname],
     languages: ['pl', 'en']
   })
-  assert.regex(errors[0].message, /YAML translation is unparseable/)
+  assert.deepEqual(errors[0].message, 'A collection cannot be both a mapping and a sequence')
 })
 
 test('i18n: throws if the json file is corrupt', async assert => {
@@ -230,7 +230,7 @@ test('i18n: throws if the json file is corrupt', async assert => {
       paths: [__dirname],
       languages: ['pl', 'en']
     })
-  assert.deepEqual(errors[0].message, 'JSON translation is unparseable')
+  assert.deepEqual(errors[0].message, 'Unexpected token } in JSON at position 39')
 })
 
 test('i18n: throws if the js file is corrupt', async assert => {
@@ -242,7 +242,31 @@ test('i18n: throws if the js file is corrupt', async assert => {
       paths: [__dirname],
       languages: ['pl', 'en']
     })
-  assert.deepEqual(errors[0].message, 'JS translation is unparseable')
+  assert.deepEqual(errors[0].message, 'There is no translation for the button.submit___scope_1314535266 key')
+})
+
+test('i18n: throws if the data tag in yaml format has invalid format', async assert => {
+  const { errors } = await compile(`
+    <data yaml>
+    i18n:
+      foo:
+        pl: bar
+        en:baz
+    </data>
+  `)
+  assert.deepEqual(errors[0].message, 'Implicit map keys need to be followed by map values')
+})
+
+test('i18n: throws if the data tag in yaml format has invalid characters', async assert => {
+  const { errors } = await compile(`
+    <data yaml>
+    i18n:
+      foo:
+        pl: bar
+        en: baz:
+    </data>
+  `)
+  assert.deepEqual(errors[0].message, 'Nested mappings are not allowed in compact mappings')
 })
 
 test('i18n: multiple translations', async assert => {
@@ -375,9 +399,9 @@ test('i18n: dynamic scoped translations in conditions', async assert => {
     - 'bar'
     </i18n>
     <import ban from="./attributes/ban.html">
-    <ban 
-      foo|translate="foo" 
-      bar|translate="bar" 
+    <ban
+      foo|translate="foo"
+      bar|translate="bar"
     />`, {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
@@ -419,8 +443,8 @@ test('i18n: dynamic translations', async assert => {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
   })
-  assert.deepEqual(template({ language: 'pl', foo: 'foo' }, escape), '<div>Czytaj więcej foo</div>')  
-  
+  assert.deepEqual(template({ language: 'pl', foo: 'foo' }, escape), '<div>Czytaj więcej foo</div>')
+
   var { template } = await compile(`
     <i18n yaml>
     read_more:
@@ -446,7 +470,7 @@ test('i18n: dynamic translations', async assert => {
     languages: ['pl', 'en']
   })
   assert.deepEqual(template({ language: 'en', price: '10000', currency: '$' }, escape), '<div>Estimated budget of my project 10000$</div>')
-  
+
   var { template } = await compile(`
     <i18n yaml>
     total_price:
@@ -465,7 +489,7 @@ test('i18n: dynamic translations', async assert => {
       <script i18n yaml>
         contact:
         - 'Skontaktuj się z nami. BUXLABS. Na rynku od {year}. Wszelkie prawa zastrzeżone.'
-        - 'Contact us. BUXLABS. Since {year}. All rights reserved.'     
+        - 'Contact us. BUXLABS. Since {year}. All rights reserved.'
       </script>
       <footer>
         <translate contact year="{year}"/>
@@ -480,11 +504,11 @@ test('i18n: dynamic translations', async assert => {
       <p><translate hello name="{name}"/></p>
       <footer year="{year}"/>
     </main>
-    `, { 
-      paths: [path.join(__dirname, '../../fixtures/translations')], 
+    `, {
+      paths: [path.join(__dirname, '../../fixtures/translations')],
       languages: ['pl', 'en']
     })
-  assert.deepEqual(template({ language: 'en', year: 2019, name: 'World' }, escape), '<main><p>Hello World!</p><footer>Contact us. BUXLABS. Since 2019. All rights reserved.</footer></main>')   
+  assert.deepEqual(template({ language: 'en', year: 2019, name: 'World' }, escape), '<main><p>Hello World!</p><footer>Contact us. BUXLABS. Since 2019. All rights reserved.</footer></main>')
 })
 
 test('i18n: loading translations from files', async assert => {
