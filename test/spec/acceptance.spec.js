@@ -226,6 +226,11 @@ test('acceptance: menu', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: translation-tag', async assert => {
+  const { actual, expected } = await suite('translation-tag')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)

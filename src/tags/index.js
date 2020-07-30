@@ -22,6 +22,7 @@ const styleTag = require('./style')
 const svgTag = require('./svg')
 const templateTag = require('./template')
 const translateTag = require('./translate')
+const translationTag = require('./translation')
 const varTag = require('./var')
 
 module.exports = {
@@ -47,5 +48,6 @@ module.exports = {
   svg: svgTag,
   template: templateTag,
   translate: translateTag,
+  translation: translationTag,
   var: varTag
 }
