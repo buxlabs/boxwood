@@ -1,5 +1,6 @@
 'use strict'
 
+const { IfStatement, BinaryExpression, MemberExpression, Identifier, Literal, BlockStatement } = require('abstract-syntax-tree')
 const { OBJECT_VARIABLE } = require('../utilities/enum')
 const { getTemplateAssignmentExpression } = require('../utilities/factory')
 const walk = require('himalaya-walk')
@@ -11,31 +12,23 @@ module.exports = function translation ({ tree, fragment, attrs, options }) {
   walk(fragment.children, node => {
     node.used = true
   })
-  const text = fragment.children[0]
-  if (text && language) {
-    const statement = {
-      type: 'IfStatement',
-      test: {
-        type: 'BinaryExpression',
-        left: {
-          type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: OBJECT_VARIABLE
-          },
-          property: { type: 'Identifier', name: 'language' }
-        },
-        right: { type: 'Literal', value: language },
+  const leaf = fragment.children[0]
+  if (language && leaf) {
+    const statement = new IfStatement({
+      test: new BinaryExpression({
+        left: new MemberExpression({
+          object: new Identifier({ name: OBJECT_VARIABLE }),
+          property: new Identifier({ name: 'language' })
+        }),
+        right: new Literal({ value: language }),
         operator: '==='
-      },
-      consequent: {
-        type: 'BlockStatement',
+      }),
+      consequent: new BlockStatement({
         body: [
-          getTemplateAssignmentExpression(options.variables.template, { type: 'Literal', value: text.content })
+          getTemplateAssignmentExpression(options.variables.template, new Literal({ value: leaf.content }))
         ]
-      },
-      alternate: null
-    }
+      })
+    })
     tree.append(statement)
   }
 }
