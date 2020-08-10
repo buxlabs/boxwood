@@ -211,7 +211,7 @@ test('acceptance: translation-missing', async assert => {
   assert.deepEqual(actual, expected)
   const { type, message, stack } = errors[0]
   assert.deepEqual(type, 'TranslationError')
-  assert.deepEqual(message, "There is no translation for the bar___scope_1935881905 key")
+  assert.deepEqual(message, "There is no translation for the foo___scope_1935881905 key in de language.")
   assert.truthy(stack.includes('components/foo.html'))
 })
 
@@ -252,7 +252,7 @@ async function suite (name, compilerOptions = {}) {
   const { template, warnings, errors } = await compile(content1, {
     path: path1,
     paths: [dir],
-    languages: ['pl', 'en'],
+    languages: ['pl', 'en', 'de'],
     ...compilerOptions
   })
   const data = JSON.parse(content3)

@@ -9,7 +9,8 @@
     "coverage": "nyc npm test",
     "benchmark": "ava test/benchmark.spec.js --verbose",
     "watch": "npm test -- --watch",
-    "build": "node website/build.js"
+    "build": "node website/build.js",
+    "prepush": "npm run lint && npm test"
   },
   "ava": {
     "files": [

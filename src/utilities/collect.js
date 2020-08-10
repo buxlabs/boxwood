@@ -334,7 +334,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'translate') {
       tags.translate({ tree, fragment, attrs, options, filters, variables, translations, languages })
     } else if (tag === 'translation') {
-      tags.translation({ tree, fragment, attrs, options })
+      tags.translation({ tree, fragment, attrs, options, languages, stack, errors, collectChildren })
     } else if (tag === 'content') {
       const { key } = attrs[1]
       store[key] = fragment

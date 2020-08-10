@@ -86,6 +86,10 @@ function createError (type, message, stack) {
   return error
 }
 
+function createTranslationError (message, stack) {
+  return createError('TranslationError', message, stack)
+}
+
 module.exports = {
   CompilerError,
   SVGError,
@@ -95,5 +99,6 @@ module.exports = {
   JSONTranslationError,
   JavaScriptTranslationError,
   normalizeError,
-  createError
+  createError,
+  createTranslationError
 }

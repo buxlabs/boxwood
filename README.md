@@ -326,9 +326,9 @@ You can reference the parameters that were passed to the template via the `globa
 
 ### Internationalization
 
-#### data tag
+#### translate tag
 
-You can keep translations in every file. They're scoped so you can use same names in multiple files.
+You can keep translations in every file. They're scoped so you can use same names in multiple files. Translations can be kept in `data` tags.
 
 ```html
 <h1><translate hello/></h1>
@@ -349,10 +349,17 @@ const html = template({ language: 'en' }, escape)
 // ...
 ```
 
-Translations can also use filters:
+#### translation tag
+
+For more complicated texts, you can also use inline translations.
 
 ```html
-<translate title|capitalize/>
+<translation pl>
+  <p>Hej! Lorem ipsum dolor <span>sit amet</span>.</p>
+</translation>
+<translation en>
+  <p>Hello! Lorem ipsum dolor <span>sit amet</span>.</p>
+</translation>
 ```
 
 ## Examples

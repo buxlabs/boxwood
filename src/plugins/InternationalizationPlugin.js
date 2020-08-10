@@ -4,11 +4,7 @@ const { findAsset } = require('../utilities/files')
 const Plugin = require('./Plugin')
 const hash = require('string-hash')
 const { parseData, getDataFormat } = require('../utilities/data')
-const { createError } = require('../utilities/errors')
-
-function createTranslationError (message, stack) {
-  return createError('TranslationError', message, stack)
-}
+const { createTranslationError } = require('../utilities/errors')
 
 function merge (value, translations, languages, errors, stack) {
   if (value.includes('{') && value.includes('}')) return translations
