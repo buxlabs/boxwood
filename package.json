@@ -68,7 +68,7 @@
     "path-to-regexp": "^6.1.0",
     "pure-conditions": "^1.1.0",
     "pure-utilities": "^1.2.0",
-    "rollup": "^2.23.0",
+    "rollup": "^2.23.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.3",
     "rollup-plugin-node-resolve": "^5.2.0",
@@ -77,7 +77,7 @@
     "yaml": "^1.10.0"
   },
   "devDependencies": {
-    "ava": "^3.11.0",
+    "ava": "^3.11.1",
     "benchmark": "^2.1.4",
     "express": "^4.17.1",
     "handlebars": "^4.7.6",
