@@ -1,5 +1,5 @@
 module.exports = {
   normalize (string) {
-    return string.replace(/\s+/g, '')
+    return string.replace(/[\n+|\s+]/g, '')
   }
 }

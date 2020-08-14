@@ -196,7 +196,7 @@ test(`output: variables inside conditions shouldn't be escaped`, async assert =>
       }
       return __t;
     }
-  `))  
+  `))
 })
 
 test('output: for loop', async assert => {

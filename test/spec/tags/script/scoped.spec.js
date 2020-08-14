@@ -19,11 +19,11 @@ test('script[scoped]: access to passed variables through scope variable', async 
 })
 
 test('script[scoped]: only used properties from scope variable should be inlined', async assert => {
-  const { template } = await compile('<script scoped>scope.ban.forEach(element => console.log(element))</script>')  
-  assert.truthy(template({ 
-    foo: 2, 
+  const { template } = await compile('<script scoped>scope.ban.forEach(element => console.log(element))</script>')
+  assert.truthy(template({
+    foo: 2,
     bar: 'bar',
-    ban: [{ one: 1, two: 2, three: 3, four: 4 }] 
+    ban: [{ one: 1, two: 2, three: 3, four: 4 }]
   }, escape).includes('{"ban":[{"one":1,"two":2,"three":3,"four":4}]}'))
 })
 
