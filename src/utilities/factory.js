@@ -231,18 +231,5 @@ module.exports = {
         body
       }
     }
-  },
-  getCatchClause (body) {
-    return {
-      type: 'CatchClause',
-      param: {
-        type: 'Identifier',
-        name: 'exception'
-      },
-      body: {
-        type: 'BlockStatement',
-        body
-      }
-    }
   }
 }

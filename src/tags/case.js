@@ -4,6 +4,8 @@ const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { OPERATORS } = require('../utilities/enum')
 const { getCondition } = require('../utilities/conditions')
 
+const { BreakStatement, SwitchCase } = AbstractSyntaxTree
+
 module.exports = function ({ fragment, tree, attrs, variables, collectChildren }) {
   const leaf = tree.last('SwitchStatement')
   if (leaf) {
@@ -17,14 +19,10 @@ module.exports = function ({ fragment, tree, attrs, variables, collectChildren }
     const condition = getCondition(attributes, variables)
     const ast = new AbstractSyntaxTree('')
     collectChildren(fragment, ast)
-    ast.append({
-      type: 'BreakStatement',
-      label: null
-    })
-    leaf.cases.push({
-      type: 'SwitchCase',
+    ast.append(new BreakStatement())
+    leaf.cases.push(new SwitchCase({
       consequent: ast.body,
       test: condition
-    })
+    }))
   }
 }
