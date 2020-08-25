@@ -74,8 +74,18 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     return Promise.all(assetPaths.map(async assetPath => {
       const { source, path, base64, remote, url, buffer, id } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
-        return {
-          warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
+        const isNodeStylesheet = 
+          node.attributes.some(({ key, value }) => key === 'rel' && value === 'stylesheet') 
+            && node.attributes.some(({ key }) => key === 'inline');
+
+        if (isNodeStylesheet) {
+          return {
+            warnings: [{ type: 'STYLESHEET_NOT_FOUND', message: `Stylesheet not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
+          }
+        } else {
+          return {
+            warnings: [{ type: 'COMPONENT_NOT_FOUND', message: `Component not found: ${isRemotePath(assetPath) ? assetPath : name}` }]
+          }
         }
       }
       const tree = parse(source)

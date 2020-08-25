@@ -158,6 +158,15 @@ test('Importer: template has unknown asset', async assert => {
   assert.deepEqual(warnings[0].type, 'COMPONENT_NOT_FOUND')
 })
 
+test('Importer: template has unknown stylesheet', async assert => {
+  const source = '<link rel="stylesheet" href="./main.css" inline>'
+  const importer = new Importer(source, { paths: [fixtures], hooks })
+  const { warnings } = await importer.import()
+  assert.deepEqual(warnings.length, 1)
+  assert.deepEqual(warnings[0].message, 'Stylesheet not found: ')
+  assert.deepEqual(warnings[0].type, 'STYLESHEET_NOT_FOUND')
+})
+
 test('Importer: templates reuse same assets', async assert => {
   const source = '<import pages1 from="./pages1.html"><pages1/>'
   const importer = new Importer(source, { paths: [fixtures], hooks })
