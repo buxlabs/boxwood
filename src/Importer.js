@@ -1,7 +1,6 @@
 'use strict'
 
 const { join, dirname } = require('path')
-const sharp = require('sharp')
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
 const Transpiler = require('./Transpiler')
@@ -12,13 +11,15 @@ const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
 const { getComponentNames } = require('./utilities/attributes')
 const { getAssetPaths, getImportNodes } = require('./utilities/node')
 const { parse } = require('./utilities/html')
+const { convertImageToProgressiveBase64 } = require('./utilities/image')
 const transpiler = new Transpiler()
 const linter = new Linter()
 
 let id = 1
 
-async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
+async function loadComponent (node, path, isRemote, remoteUrl, options, paths = []) {
   path = resolveAlias(path, options.aliases)
+  const keys = node.attributes.map(attribute => attribute.key)
   if (isRemotePath(path) || isRemote) {
     try {
       const url = getFullRemoteUrl(remoteUrl, path)
@@ -29,12 +30,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
       if (response.status === 200) {
         const buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
         const base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
-        let progressiveBase64 = null
-        if (url.includes('.jpg') || url.includes('.jpeg')) {
-          progressiveBase64 = (await sharp(buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
-        } else if (url.includes('.png')) {
-          progressiveBase64 = (await sharp(buffer).png({ progressive: true }).toBuffer()).toString('base64')
-        }
+        const progressiveBase64 = await convertImageToProgressiveBase64(keys, buffer, url)
         id += 1
         return {
           path,
@@ -58,12 +54,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         file.path = location
         file.buffer = await read(location)
         file.base64 = await read(location, 'base64')
-        file.progressiveBase64 = null
-        if (path.includes('.jpg') || path.includes('.jpeg')) {
-          file.progressiveBase64 = (await sharp(file.buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
-        } else if (path.includes('.png')) {
-          file.progressiveBase64 = (await sharp(file.buffer).png({ progressive: true }).toBuffer()).toString('base64')
-        }
+        file.progressiveBase64 = await convertImageToProgressiveBase64(keys, file.buffer, path)
         // TODO: Read once convert base64
         const source = await read(location, 'utf8')
         file.source = transpiler.transpile(source)
@@ -86,7 +77,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     const dir = dirname(context)
     const assetPaths = getAssetPaths(node, name)
     return Promise.all(assetPaths.map(async assetPath => {
-      const { source, path, base64, remote, url, buffer, id, progressiveBase64 } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
+      const { source, path, base64, remote, url, buffer, id, progressiveBase64 } = await loadComponent(node, assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
         const isNodeStylesheet = node.attributes.some(({ key, value }) => key === 'rel' && value === 'stylesheet') && node.attributes.some(({ key }) => key === 'inline')
 
