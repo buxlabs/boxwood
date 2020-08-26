@@ -1,7 +1,7 @@
 'use strict'
 
 const { join, dirname } = require('path')
-const sharp = require('sharp');
+const sharp = require('sharp')
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
 const Transpiler = require('./Transpiler')
@@ -29,11 +29,11 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
       if (response.status === 200) {
         const buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
         const base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
-        let progressiveBase64 = null;
+        let progressiveBase64 = null
         if (url.includes('.jpg') || url.includes('.jpeg')) {
-          progressiveBase64 = (await sharp(file.buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
+          progressiveBase64 = (await sharp(buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
         } else if (url.includes('.png')) {
-          progressiveBase64 = (await sharp(file.buffer).png({ progressive: true }).toBuffer()).toString('base64')
+          progressiveBase64 = (await sharp(buffer).png({ progressive: true }).toBuffer()).toString('base64')
         }
         id += 1
         return {
@@ -58,7 +58,7 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         file.path = location
         file.buffer = await read(location)
         file.base64 = await read(location, 'base64')
-        file.progressiveBase64 = null;
+        file.progressiveBase64 = null
         if (path.includes('.jpg') || path.includes('.jpeg')) {
           file.progressiveBase64 = (await sharp(file.buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
         } else if (path.includes('.png')) {
