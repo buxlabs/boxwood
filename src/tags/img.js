@@ -22,7 +22,7 @@ module.exports = function ({ fragment, attrs, keys, assets, options }) {
           const path = attr.value
           const asset = findAsset(path, assets, options)
           if (!asset) return
-          const string = keys.includes('progressive') ? asset.progressiveBase64 : asset.base64;
+          const string = keys.includes('progressive') ? asset.progressiveBase64 : asset.base64
           const content = normalizeNewline(string).trim()
           attr.value = `data:image/${getBase64Extension(extension)};base64,${content}`
         }
