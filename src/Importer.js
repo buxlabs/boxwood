@@ -74,9 +74,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     return Promise.all(assetPaths.map(async assetPath => {
       const { source, path, base64, remote, url, buffer, id } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
-        const isNodeStylesheet = 
-          node.attributes.some(({ key, value }) => key === 'rel' && value === 'stylesheet') 
-            && node.attributes.some(({ key }) => key === 'inline');
+        const isNodeStylesheet = node.attributes.some(({ key, value }) => key === 'rel' && value === 'stylesheet') && node.attributes.some(({ key }) => key === 'inline')
 
         if (isNodeStylesheet) {
           return {
