@@ -17,9 +17,22 @@ const linter = new Linter()
 
 let id = 1
 
+async function getOptimizedBase64Data (node, buffer, url) {
+  const keys = node.attributes.map(attribute => attribute.key)
+  if (node.tagName === 'img' && keys.includes('progressive')) {
+    const data = await convertImageToProgressiveBase64(keys, buffer, url)
+    return data
+  }
+  return null
+}
+
+async function getBase64Data (node, buffer, url) {
+  const data = await getOptimizedBase64Data(node, buffer, url)
+  return data || buffer.toString('base64')
+}
+
 async function loadComponent (node, path, isRemote, remoteUrl, options, paths = []) {
   path = resolveAlias(path, options.aliases)
-  const keys = node.attributes.map(attribute => attribute.key)
   if (isRemotePath(path) || isRemote) {
     try {
       const url = getFullRemoteUrl(remoteUrl, path)
@@ -29,8 +42,7 @@ async function loadComponent (node, path, isRemote, remoteUrl, options, paths = 
       })
       if (response.status === 200) {
         const buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
-        const base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
-        const progressiveBase64 = await convertImageToProgressiveBase64(keys, buffer, url)
+        const base64 = await getBase64Data(node, buffer, url)
         id += 1
         return {
           path,
@@ -39,8 +51,7 @@ async function loadComponent (node, path, isRemote, remoteUrl, options, paths = 
           base64,
           remote: true,
           url,
-          id,
-          progressiveBase64
+          id
         }
       }
     } catch (exception) {}
@@ -53,8 +64,7 @@ async function loadComponent (node, path, isRemote, remoteUrl, options, paths = 
         const file = {}
         file.path = location
         file.buffer = await read(location)
-        file.base64 = await read(location, 'base64')
-        file.progressiveBase64 = await convertImageToProgressiveBase64(keys, file.buffer, path)
+        file.base64 = await getBase64Data(node, file.buffer, file.path)
         // TODO: Read once convert base64
         const source = await read(location, 'utf8')
         file.source = transpiler.transpile(source)
@@ -77,7 +87,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     const dir = dirname(context)
     const assetPaths = getAssetPaths(node, name)
     return Promise.all(assetPaths.map(async assetPath => {
-      const { source, path, base64, remote, url, buffer, id, progressiveBase64 } = await loadComponent(node, assetPath, isRemote, remoteUrl, options, [dir, ...paths])
+      const { source, path, base64, remote, url, buffer, id } = await loadComponent(node, assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
         const isNodeStylesheet = node.attributes.some(({ key, value }) => key === 'rel' && value === 'stylesheet') && node.attributes.some(({ key }) => key === 'inline')
 
@@ -94,7 +104,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
       const tree = parse(source)
       const files = [context]
       const warnings = []
-      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type, id, progressiveBase64 }
+      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type, id }
     }))
   }))
 }

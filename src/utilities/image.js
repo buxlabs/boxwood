@@ -6,7 +6,6 @@ async function optimizeImageByProgressiveScan (buffer, type) {
 }
 
 async function convertImageToProgressiveBase64 (keys, buffer, url) {
-  if (!keys.includes('progressive')) { return null }
   if (url.includes('.jpg') || url.includes('.jpeg')) {
     return (await optimizeImageByProgressiveScan(buffer, 'jpg')).toString('base64')
   } else if (url.includes('.png')) {
