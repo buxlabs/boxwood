@@ -1,6 +1,7 @@
 'use strict'
 
 const { join, dirname } = require('path')
+const sharp = require('sharp');
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
 const Transpiler = require('./Transpiler')
@@ -28,6 +29,12 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
       if (response.status === 200) {
         const buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
         const base64 = buffer.toString('base64') // TODO: find a good way to change data to base64, like readFile
+        let progressiveBase64 = null;
+        if (url.includes('.jpg') || url.includes('.jpeg')) {
+          progressiveBase64 = (await sharp(file.buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
+        } else if (url.includes('.png')) {
+          progressiveBase64 = (await sharp(file.buffer).png({ progressive: true }).toBuffer()).toString('base64')
+        }
         id += 1
         return {
           path,
@@ -36,7 +43,8 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
           base64,
           remote: true,
           url,
-          id
+          id,
+          progressiveBase64
         }
       }
     } catch (exception) {}
@@ -50,6 +58,12 @@ async function loadComponent (path, isRemote, remoteUrl, options, paths = []) {
         file.path = location
         file.buffer = await read(location)
         file.base64 = await read(location, 'base64')
+        file.progressiveBase64 = null;
+        if (path.includes('.jpg') || path.includes('.jpeg')) {
+          file.progressiveBase64 = (await sharp(file.buffer).jpeg({ progressive: true }).toBuffer()).toString('base64')
+        } else if (path.includes('.png')) {
+          file.progressiveBase64 = (await sharp(file.buffer).png({ progressive: true }).toBuffer()).toString('base64')
+        }
         // TODO: Read once convert base64
         const source = await read(location, 'utf8')
         file.source = transpiler.transpile(source)
@@ -72,7 +86,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
     const dir = dirname(context)
     const assetPaths = getAssetPaths(node, name)
     return Promise.all(assetPaths.map(async assetPath => {
-      const { source, path, base64, remote, url, buffer, id } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
+      const { source, path, base64, remote, url, buffer, id, progressiveBase64 } = await loadComponent(assetPath, isRemote, remoteUrl, options, [dir, ...paths])
       if (!path) {
         const isNodeStylesheet = node.attributes.some(({ key, value }) => key === 'rel' && value === 'stylesheet') && node.attributes.some(({ key }) => key === 'inline')
 
@@ -89,7 +103,7 @@ async function fetch (node, kind, context, isRemote, remoteUrl, options) {
       const tree = parse(source)
       const files = [context]
       const warnings = []
-      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type, id }
+      return { name, source, base64, remote, url, buffer, path, files, warnings, tree, type, id, progressiveBase64 }
     }))
   }))
 }
