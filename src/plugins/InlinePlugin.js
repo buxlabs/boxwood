@@ -5,7 +5,6 @@ const { parse, walk, generate } = require('css-tree')
 const { findAsset, isFileSupported } = require('../utilities/files')
 const { getExtension, getBase64Extension } = require('../utilities/string')
 const { whitespacestrip } = require('pure-utilities/string')
-const normalizeNewline = require('normalize-newline')
 
 class InlinePlugin extends Plugin {
   constructor () {
@@ -52,7 +51,7 @@ class InlinePlugin extends Plugin {
     }
   }
 
-  encodeValueToBase64({ element, value, assets, options, font }) {
+  encodeValueToBase64 ({ element, value, assets, options, font }) {
     if (isFileSupported(value)) {
       const asset = findAsset(value, assets, options)
       if (!asset) return
@@ -81,7 +80,7 @@ class InlinePlugin extends Plugin {
       fragment.children[0].content = generate(tree)
     }
     if (fragment.tagName === 'font' && keys.includes('inline')) {
-      const fromKey = fragment.attributes.find(attribute => attribute.key === 'from');
+      const fromKey = fragment.attributes.find(attribute => attribute.key === 'from')
       this.encodeValueToBase64({ element: fromKey, value: fromKey.value, assets, options, font: true })
     }
     if (fragment.type === 'element' && fragment.tagName !== 'style' && this.classes.length) {
