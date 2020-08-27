@@ -5,6 +5,7 @@ const { parse, walk, generate } = require('css-tree')
 const { findAsset, isFileSupported } = require('../utilities/files')
 const { getExtension, getBase64Extension } = require('../utilities/string')
 const { whitespacestrip } = require('pure-utilities/string')
+const normalizeNewline = require('normalize-newline')
 
 class InlinePlugin extends Plugin {
   constructor () {
@@ -51,6 +52,21 @@ class InlinePlugin extends Plugin {
     }
   }
 
+  encodeValueToBase64({ element, value, assets, options, font }) {
+    if (isFileSupported(value)) {
+      const asset = findAsset(value, assets, options)
+      if (!asset) return
+      const { path, base64 } = asset
+      const extension = getExtension(path)
+      const dataType = font ? 'data:application/font-' : 'data:image/'
+      element.value = [
+        `${dataType}${getBase64Extension(extension)}`,
+        font && 'charset=utf-8',
+        `base64,${base64}`
+      ].filter(Boolean).join(';')
+    }
+  }
+
   run ({ fragment, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
       const { content } = fragment.children[0]
@@ -59,22 +75,14 @@ class InlinePlugin extends Plugin {
         if (node.type === 'Url') {
           let { type, value } = node.value
           value = value.replace(/'|"/g, '')
-          if (isFileSupported(value)) {
-            const asset = findAsset(value, assets, options)
-            if (!asset) return
-            const path = asset.path
-            const extension = getExtension(path)
-            const font = type === 'Raw'
-            const dataType = font ? 'data:application/font-' : 'data:image/'
-            node.value.value = [
-              `${dataType}${getBase64Extension(extension)}`,
-              font && 'charset=utf-8',
-              `base64,${asset.base64}`
-            ].filter(Boolean).join(';')
-          }
+          this.encodeValueToBase64({ element: node.value, value, assets, options, font: type === 'Raw' })
         }
       })
       fragment.children[0].content = generate(tree)
+    }
+    if (fragment.tagName === 'font' && keys.includes('inline')) {
+      const fromKey = fragment.attributes.find(attribute => attribute.key === 'from');
+      this.encodeValueToBase64({ element: fromKey, value: fromKey.value, assets, options, font: true })
     }
     if (fragment.type === 'element' && fragment.tagName !== 'style' && this.classes.length) {
       const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')

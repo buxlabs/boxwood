@@ -80,6 +80,10 @@ function isStyleWithInlineAttribute (node) {
   return node.tagName === 'style' && node.attributes.find(attribute => attribute.key === 'inline')
 }
 
+function isFontWithInlineAttribute (node) {
+  return node.tagName === 'font' && node.attributes.find(attribute => attribute.key === 'inline')
+}
+
 function isGlobalInlineLink (node, options) {
   return node.tagName === 'link' && options.inline.includes('stylesheets')
 }
@@ -139,7 +143,7 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'PARTIAL' })
     } else if (isScriptWithInlineAttribute(node) || isGlobalInlineScript(node, options) || isScriptWithPolyfillsAttribute(node)) {
       nodes.push({ node, kind: 'SCRIPT' })
-    } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options) || isStyleWithInlineAttribute(node)) {
+    } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options) || isStyleWithInlineAttribute(node) || isFontWithInlineAttribute(node)) {
       nodes.push({ node, kind: 'STYLESHEET' })
     } else if (isSvgTagWithFromAttribute(node)) {
       nodes.push({ node, kind: 'SVG' })
