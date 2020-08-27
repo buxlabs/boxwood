@@ -7,7 +7,6 @@ test('font: ttfs fonts', async assert => {
   assert.deepEqual(template({}, escape), '<style>@font-face { font-family: "NunitoRegular"; src: local("NunitoRegular"), url(/fonts/NunitoRegular.ttf) format("truetype"); }</style>')
 
   var { template } = await compile('<font NunitoBold from="/fonts/NunitoBold.ttf" inline />', { paths: [__dirname] })
-  console.log(template({}, escape))
   assert.truthy(template({}, escape).includes('base64'))
   assert.truthy(template({}, escape).includes('EAAQAEAAQAfgDuAXA='))
 
