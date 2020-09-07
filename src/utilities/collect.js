@@ -75,6 +75,7 @@ function runPlugins (htmlTree, content, plugins, assets, errors, options, stack)
           options,
           assets,
           stack,
+          errors,
           ...leaf
         })
       })

@@ -88,6 +88,7 @@ class Renderer {
             options,
             assets,
             stack,
+            errors,
             ...fragment,
             pass: 'renderer'
           })

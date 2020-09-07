@@ -21,3 +21,17 @@ test('data: duplicate translation', async assert => {
   assert.deepEqual(errors[0].type, 'YAMLTranslationError')
   assert.deepEqual(errors[0].message, 'Map keys must be unique; "buy_now" is repeated')
 })
+
+test('data: missing format attribute', async assert => {
+  const { errors } = await compile(`
+    <data>
+    i18n:
+      read_more:
+        pl: Czytaj więcej
+        en: Read more
+    </data>
+  `)
+  assert.deepEqual(errors.length, 1)
+  assert.deepEqual(errors[0].type, 'TranslationError')
+  assert.deepEqual(errors[0].message, 'Data tag must specify a format (js, json or yaml).')
+})
