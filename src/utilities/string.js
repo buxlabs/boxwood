@@ -93,4 +93,29 @@ function getBase64Extension (extension) {
   return extension === 'svg' ? 'svg+xml' : extension
 }
 
-module.exports = { extract, extractValues, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue, curlyTag, isImportTag, isPartialTag, getExtension, getBase64Extension }
+function dasherize (string) {
+  return string.replace(/\./g, '-')
+}
+
+function hyphenate (string) {
+  return string.replace(/([A-Z])/g, character => {
+    return '-' + character.toLowerCase()
+  })
+}
+
+module.exports = {
+  extract,
+  extractValues,
+  getName,
+  isCurlyTag,
+  isSquareTag,
+  containsCurlyTag,
+  getTagValue,
+  curlyTag,
+  isImportTag,
+  isPartialTag,
+  getExtension,
+  getBase64Extension,
+  dasherize,
+  hyphenate
+}

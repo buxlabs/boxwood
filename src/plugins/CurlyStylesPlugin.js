@@ -1,27 +1,9 @@
 'use strict'
 
-const { isCurlyTag, getTagValue } = require('../utilities/string')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { flatten } = require('pure-utilities/collection')
 const Plugin = require('./Plugin')
-
-function dasherize (string) {
-  return string.replace(/\./g, '-')
-}
-
-function hyphenate (string) {
-  return string.replace(/([A-Z])/g, character => {
-    return '-' + character.toLowerCase()
-  })
-}
-
-function stringify (object) {
-  object = flatten(object)
-  const array = Object.keys(object).map(attribute => {
-    return hyphenate(dasherize(attribute)) + ':' + object[attribute] + ';'
-  })
-  return array.join('')
-}
+const { isCurlyTag, getTagValue } = require('../utilities/string')
+const { convertObjectToStyleString } = require('../utilities/style')
 
 class CurlyStylesPlugin extends Plugin {
   constructor () {
@@ -39,7 +21,7 @@ class CurlyStylesPlugin extends Plugin {
             const tree = new AbstractSyntaxTree(`(${expression})`)
             const object = AbstractSyntaxTree.serialize(tree.first('ObjectExpression'))
             attr.key = 'style'
-            attr.value = stringify(object)
+            attr.value = convertObjectToStyleString(object)
           } catch (exception) {
             // TODO implement
           }

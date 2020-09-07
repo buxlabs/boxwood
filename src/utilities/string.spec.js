@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const { extract } = require('./string')
+const { extract, dasherize, hyphenate } = require('./string')
 
 test('extract: extracts from tokens filters and values', assert => {
   assert.deepEqual(extract('foo'), [{ type: 'text', value: 'foo' }])
@@ -27,4 +27,12 @@ test('extract: extracts from tokens filters and values', assert => {
   assert.deepEqual(extract('{foo | bar({baz: 25}) | monetize({ currency: "$", ending: false, space: false })}'), [{ type: 'expression', value: '{foo}', original: '{foo | bar({baz: 25}) | monetize({ currency: "$", ending: false, space: false })}', filters: ['bar({baz: 25})', 'monetize({ currency: "$", ending: false, space: false })'] }])
   assert.deepEqual(extract('/foo/{bar | first}'), [{ type: 'text', value: '/foo/' }, { type: 'expression', value: '{bar}', original: '{bar | first}', filters: ['first'] }])
   assert.deepEqual(extract('{foo || bar}'), [{ type: 'expression', value: '{foo || bar}' }])
+})
+
+test('dasherize: replaces dots with dashes', assert => {
+  assert.deepEqual(dasherize('foo.bar'), 'foo-bar')
+})
+
+test('hyphenate: converts characters to lowercase and prepends a dash', assert => {
+  assert.deepEqual(hyphenate('fooBar'), 'foo-bar')
 })

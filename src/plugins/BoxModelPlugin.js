@@ -26,8 +26,7 @@ function convert (value) {
     value = getTagValue(value)
     const { expression } = new AbstractSyntaxTree(`(${value})`).body[0]
     if (expression.type === 'ObjectExpression') {
-      const object = AbstractSyntaxTree.serialize(expression)
-      return object
+      return AbstractSyntaxTree.serialize(expression)
     }
     return expression.value
   }
