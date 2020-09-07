@@ -47,6 +47,9 @@ function getDataFormat (keys) {
 }
 
 module.exports = {
+  parseYAML,
+  parseJSON,
+  parseJS,
   parseData,
   getDataFormat
 }
