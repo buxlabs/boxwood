@@ -1,6 +1,5 @@
-const sharp = require('sharp')
-
 async function optimizeImageByProgressiveScan (buffer, type) {
+  const sharp = require('sharp')
   const method = type === 'png' ? 'png' : 'jpeg'
   return await sharp(buffer)[method]({ progressive: true }).toBuffer()
 }
