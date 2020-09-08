@@ -113,7 +113,7 @@ You can import components and use them.
 
 It's possible to import multiple components from a given directory. Curly brackets within the import tag are optional.
 
-You can use the special `<slot/>` tag if you want to render children nodes.
+You can use the special `<slot/>` tag if you want to render child nodes.
 
 #### render/partial/include
 
@@ -237,6 +237,7 @@ You can define styles as objects too.
 ```html
 <div css="{{ padding: { bottom: '1rem', top: '2rem' } }}"></div>
 ```
+
 #### element[partial]
 
 Partial attribute will load the html file and include as the children of given node. The tag will be preserved.
