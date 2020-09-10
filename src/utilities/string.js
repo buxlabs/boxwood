@@ -30,10 +30,16 @@ function getTagValue (value) {
   return value.substring(1, value.length - 1).trim()
 }
 
+function getOptimizedValue (value, compact) {
+  if (typeof compact === 'function') { return compact(value) }
+  if (compact === 'collapsed') { return value.trim().replace(/\n/g, '') }
+  return compact ? value.replace(/\s+/g, ' ') : value
+}
+
 function extract (value, compact) {
   // is this the best way? should the lexer handle it?
   if (isSquareTag(value)) { return [{ type: 'expression', value }] }
-  const text = compact ? value.trim().replace(/\n/g, '') : value
+  const text = getOptimizedValue(value, compact)
   const tokens = lexer(text)
   const objects = tokens.map((token, index) => {
     if (token.type === 'expression') {
