@@ -230,13 +230,13 @@ test('for', async assert => {
 
   var { template } = await compile(`<for key and value in="{foo}">{key}{value}</for>`)
   assert.deepEqual(template({ foo: { bar: 'baz', ban: 'qux' } }, escape), 'barbazbanqux')
-  
+
   var { template } = await compile(`<for key and value in foo>{key}</for>`)
   assert.deepEqual(template({ foo: { a: 1, b: 2, c: 3 } }, escape), 'abc')
 
   var { template } = await compile(`<for key and value in foo>{foo[key]}</for>`)
   assert.deepEqual(template({ foo: { a: 1, b: 2, c: 3 } }, escape), '123')
-  
+
   var { template } = await compile(`
     <for key and value in objects>
       <for key and value in value>
@@ -244,13 +244,13 @@ test('for', async assert => {
       </for>
     </for>
   `)
-  assert.deepEqual(template({ 
-    objects: { 
+  assert.deepEqual(template({
+    objects: {
       a: { foo: 'foo' },
-      b: { bar: 'bar' }, 
+      b: { bar: 'bar' },
       c: { baz: 'baz' }
-    } 
-  }, escape), 'foobarbaz')   
+    }
+  }, escape), 'foobarbaz')
 })
 
 test('for: dynamic range', async assert => {
@@ -274,43 +274,43 @@ test('for: dynamic range', async assert => {
 
   var { template } = await compile(`<for number in range="[foo.bar, foo.baz]">{number}</for>`)
   assert.deepEqual(template({ foo: { bar: 0, baz: 3 } }, escape), '012')
-  
+
   var { template } = await compile(`<for number in range="[foo[0], foo[1]]">{number}</for>`)
-  assert.deepEqual(template({ foo: [0, 3]}, escape), '012')    
+  assert.deepEqual(template({ foo: [0, 3]}, escape), '012')
 
   var { template } = await compile(`<for number in range="[foo[bar], foo[baz]]">{number}</for>`)
   assert.deepEqual(template({ foo: { bar: 5, baz: 8 }, bar: 'bar', baz: 'baz' }, escape), '567')
 
   var { template } = await compile(`<for number in range="[foo['bar'], foo['baz']]">{number}</for>`)
-  assert.deepEqual(template({ foo: { bar: 5, baz: 8 } }, escape), '567')  
+  assert.deepEqual(template({ foo: { bar: 5, baz: 8 } }, escape), '567')
 
   var { template } = await compile(`<for number in range="[foo[bar.baz], foo[bar.ban]]">{number}</for>`)
-  assert.deepEqual(template({ 
-    foo: { 
-      baz: 5, 
-      ban: 8 
-    }, 
+  assert.deepEqual(template({
+    foo: {
+      baz: 5,
+      ban: 8
+    },
     bar: {
       baz: 'baz',
       ban: 'ban',
     }
   }, escape), '567')
-  
+
   var { template } = await compile(`<for number in range="[foo.bar[bar.baz.ban], foo.bar[bar.baz.qux]]">{number}</for>`)
-  assert.deepEqual(template({ 
-    foo: { 
+  assert.deepEqual(template({
+    foo: {
       bar: {
-        ban: 1, 
-        qux: 5 
+        ban: 1,
+        qux: 5
       }
-    }, 
+    },
     bar: {
       baz: {
         ban: 'ban',
         qux: 'qux'
       }
     }
-  }, escape), '1234')  
+  }, escape), '1234')
 })
 
 test('for: dynamic range with passed attribute', async assert => {
@@ -391,4 +391,13 @@ test('for: short syntax inside of the loop', async assert => {
     </for>
   `)
   assert.deepEqual(template({ id: "pages", pages: { home: '/' } }, escape), '<h1 id="pages">Pages</h1><a href="/">home</a>')
+})
+
+test('for: computed member expressions', async assert => {
+  const { template } = await compile(`
+    <for section of pages[name].sections>
+      {section}
+    </for>
+  `)
+  assert.deepEqual(template({ name: 'foo', pages: { foo: { sections: ['bar', 'baz'] } } }, escape), 'barbaz')
 })
