@@ -1,17 +1,12 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { match } = require('abstract-syntax-tree')
 const { dig } = require('pure-utilities/object')
 const { parse } = require('path-to-regexp')
 
 function transform (source, routes, errors) {
   const tree = new AbstractSyntaxTree(source)
   tree.replace(node => {
-    if (node.type === 'CallExpression' &&
-      node.callee &&
-      node.callee.type === 'MemberExpression' &&
-      node.callee.object.type === 'Identifier' &&
-      node.callee.object.name === 'routes' &&
-      node.callee.property.type === 'Identifier' &&
-      node.callee.property.name === 'get') {
+    if (match(node, 'CallExpression[callee.type="MemberExpression"][callee.object.name="routes"][callee.property.name="get"]')) {
       const params = node.arguments
       if (params.length === 0) {
         errors.push({ type: 'ROUTE_INVALID', message: 'routes.get requires a string literal as the first parameter.' })

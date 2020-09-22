@@ -17,6 +17,7 @@ const { addPlaceholders, removePlaceholders } = require('./keywords')
 const { parseData, getDataFormat } = require('./data')
 const { isGlobalVariable } = require('./globals')
 const { isPlainObject } = require('pure-conditions')
+const { match } = AbstractSyntaxTree
 
 function canInlineTree ({ body }) {
   const statement = body[0]
@@ -90,14 +91,12 @@ function falsyCodeRemoval (node) {
 }
 
 function isMemberExpression (node) {
-  return node.type === 'ExpressionStatement' && node.expression.type === 'MemberExpression'
+  return match(node, 'ExpressionStatement[expression.type="MemberExpression"]')
 }
 
 function isUndefinedMemberExpression (node) {
   return node.type === 'ExpressionStatement' &&
-    node.expression.type === 'MemberExpression' &&
-    node.expression.object.type === 'Identifier' &&
-    node.expression.object.name === 'undefined'
+    match(node.expression, 'MemberExpression[object.type="Identifier"][object.name="undefined"]')
 }
 
 function isComplexUndefinedMemberExpression (node) {

@@ -8,15 +8,14 @@ const {
   ifStatementRemoval
 } = require('astoptech')
 const { TEMPLATE_VARIABLE } = require('./utilities/enum')
+const { match } = require('abstract-syntax-tree')
 
 function isAssignmentExpressionWithLiteral (node) {
-  return isAssignmentExpression(node) &&
-    node.expression.right.type === 'Literal'
+  return isAssignmentExpression(node) && node.expression.right.type === 'Literal'
 }
 
 function isAssignmentExpression (node) {
-  return node && node.type === 'ExpressionStatement' &&
-    node.expression.type === 'AssignmentExpression'
+  return node && match(node, 'ExpressionStatement[expression.type="AssignmentExpression"]')
 }
 
 function isTemplateVariableDeclaration (node) {
