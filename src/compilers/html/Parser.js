@@ -1,6 +1,6 @@
 'use strict'
 
-const { parse } = require('./utilities/html')
+const { parse } = require('../../utilities/html')
 
 class Parser {
   parse (source) {

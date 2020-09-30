@@ -3,7 +3,7 @@
 const { join, dirname } = require('path')
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
-const Transpiler = require('./Transpiler')
+const Transpiler = require('./compilers/html/Transpiler')
 const Linter = require('./Linter')
 const request = require('./utilities/request')
 const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')

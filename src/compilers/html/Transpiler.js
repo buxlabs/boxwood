@@ -1,8 +1,8 @@
 'use strict'
 
 const Lexer = require('html-lexer')
-const { isCurlyTag, getTagValue } = require('./utilities/string')
-const { SPECIAL_TAGS } = require('./utilities/enum')
+const { isCurlyTag, getTagValue } = require('../../utilities/string')
+const { SPECIAL_TAGS } = require('../../utilities/enum')
 
 const tokenize = (source) => {
   const tokens = []
