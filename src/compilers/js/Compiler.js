@@ -12,15 +12,18 @@ class Compiler {
     const tree = new AbstractSyntaxTree(input)
 
     const features = {
-      tag: false
+      tag: false,
+      text: false
     }
 
     tree.walk(node => {
       if (match(node, 'ImportDeclaration[source.type="Literal"][source.value="boxwood"]')) {
         node.specifiers.forEach(specifier => {
-          if (match(specifier, 'ImportSpecifier[imported.type="Identifier"][imported.name="tag"]')) {
-            features.tag = true
-          }
+          Object.keys(features).forEach(feature => {
+            if (match(specifier, `ImportSpecifier[imported.type="Identifier"][imported.name="${feature}"]`)) {
+              features[feature] = true
+            }
+          })
         })
       }
 
@@ -38,6 +41,8 @@ class Compiler {
         } else {
           tree.append({ type: 'Literal', value: `<${tag}></${tag}>` })
         }
+      } else if (features.text && match(node, 'CallExpression[callee.type="Identifier"][callee.name="text"]')) {
+        tree.append(node.arguments[0])
       }
     })
 

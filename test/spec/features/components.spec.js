@@ -4,7 +4,7 @@ const path = require('path')
 const { escape } = require('../../..')
 
 test('components: tag', async assert => {
-  var { template } = await compile(`
+  const { template } = await compile(`
     import { tag } from 'boxwood'
 
     export default function () {
@@ -18,7 +18,7 @@ test('components: tag', async assert => {
 })
 
 test('components: tag with an attribute', async assert => {
-  var { template } = await compile(`
+  const { template } = await compile(`
     import { tag } from 'boxwood'
 
     export default function () {
@@ -29,4 +29,18 @@ test('components: tag with an attribute', async assert => {
     path: 'app.js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a href="#foo"></a>')
+})
+
+test('components: text', async assert => {
+  const { template } = await compile(`
+    import { text } from 'boxwood'
+
+    export default function () {
+      return text("foo")
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), 'foo')
 })
