@@ -44,3 +44,17 @@ test('components: text', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), 'foo')
 })
+
+test('components: tag and text', async assert => {
+  const { template } = await compile(`
+    import { tag, text } from 'boxwood'
+
+    export default function () {
+      return tag("a") + text("foo")
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a></a>foo')
+})
