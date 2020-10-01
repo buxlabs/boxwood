@@ -26,7 +26,9 @@ class Compiler {
           })
         })
       }
+    })
 
+    tree.replace(node => {
       if (features.tag && match(node, 'CallExpression[callee.type="Identifier"][callee.name="tag"]')) {
         const literal = node.arguments[0]
         const tag = literal.value
@@ -37,27 +39,32 @@ class Compiler {
               return property.key.name + '=' + `"${property.value.value}"`
             })
             .join(' ')
-          tree.append({ type: 'Literal', value: `<${tag} ${attributes}></${tag}>` })
+          return { type: 'Literal', value: `<${tag} ${attributes}></${tag}>` }
         } else {
-          tree.append({ type: 'Literal', value: `<${tag}></${tag}>` })
+          return { type: 'Literal', value: `<${tag}></${tag}>` }
         }
       } else if (features.text && match(node, 'CallExpression[callee.type="Identifier"][callee.name="text"]')) {
-        tree.append(node.arguments[0])
-      }
-    })
-
-    tree.remove(node => {
-      if (node.type === 'ImportDeclaration' || node.type === 'ExportDefaultDeclaration') {
-        return null
+        return node.arguments[0]
+      } else if (node.type === 'ExportDefaultDeclaration') {
+        const { declaration } = node
+        declaration.type = 'FunctionExpression'
+        return {
+          type: 'ReturnStatement',
+          argument: {
+            type: 'CallExpression',
+            callee: declaration,
+            arguments: []
+          }
+        }
       }
       return node
     })
 
-    tree.wrap(body => {
-      return [{
-        type: 'ReturnStatement',
-        argument: body[0]
-      }]
+    tree.remove(node => {
+      if (node.type === 'ImportDeclaration' && node.source.type === 'Literal' && node.source.value === 'boxwood') {
+        return null
+      }
+      return node
     })
 
     const generator = new Generator()
