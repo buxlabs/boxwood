@@ -16,7 +16,7 @@ class Compiler {
       text: false
     }
 
-    tree.walk(node => {
+    tree.replace(node => {
       if (match(node, 'ImportDeclaration[source.type="Literal"][source.value="boxwood"]')) {
         node.specifiers.forEach(specifier => {
           Object.keys(features).forEach(feature => {
@@ -26,9 +26,6 @@ class Compiler {
           })
         })
       }
-    })
-
-    tree.replace(node => {
       if (features.tag && match(node, 'CallExpression[callee.type="Identifier"][callee.name="tag"]')) {
         const literal = node.arguments[0]
         const tag = literal.value
