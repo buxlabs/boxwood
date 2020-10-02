@@ -8,38 +8,66 @@ function isTag (node) {
 }
 
 function convertTag (node) {
-  const literal = node.arguments[0]
-  const tag = literal.value
-  const object = node.arguments[1]
-  if (object && object.type === 'ArrayExpression') {
-    const nodes = object.elements.map(element => {
-      if (isTag(element)) {
-        return convertTag(element)
-      }
-      return element
-    })
-    const content = nodes.map(node => node.value).join('')
-    return { type: 'Literal', value: `<${tag}>${content}</${tag}>` }
-  } else if (object && object.type === 'ObjectExpression') {
-    return convertObjectExpression(tag, object)
-  } else if (object && object.type === 'Literal') {
-    return convertLiteral(tag, object)
-  } else {
+  if (node.arguments.length === 1) {
+    const literal = node.arguments[0]
+    const tag = literal.value
     return { type: 'Literal', value: `<${tag}></${tag}>` }
+  } else if (node.arguments.length === 2) {
+    const literal = node.arguments[0]
+    const tag = literal.value
+    const second = node.arguments[1]
+    if (second && second.type === 'ArrayExpression') {
+      const nodes = second.elements.map(element => {
+        if (isTag(element)) {
+          return convertTag(element)
+        }
+        return element
+      })
+      const content = nodes.map(node => node.value).join('')
+      return { type: 'Literal', value: `<${tag}>${content}</${tag}>` }
+    } else if (second && second.type === 'ObjectExpression') {
+      return convertObjectExpression(tag, second)
+    } else if (second && second.type === 'Literal') {
+      return convertLiteral(tag, second)
+    }
+    return { type: 'Literal', value: `<${tag}></${tag}>` }
+  } else if (node.arguments.length === 3) {
+    const literal = node.arguments[0]
+    const tag = literal.value
+    const second = node.arguments[1]
+    const attributes = getAttributes(second)
+    const third = node.arguments[2]
+    if (third && third.type === 'ArrayExpression') {
+      const nodes = third.elements.map(element => {
+        if (isTag(element)) {
+          return convertTag(element)
+        }
+        return element
+      })
+      const content = nodes.map(node => node.value).join('')
+      return { type: 'Literal', value: `<${tag} ${attributes}>${content}</${tag}>` }
+    } else if (third && third.type === 'Literal') {
+      return convertLiteral(tag, third)
+    }
+    return { type: 'Literal', value: `<${tag} ${attributes}></${tag}>` }
   }
 }
 
 function convertObjectExpression (tag, object) {
-  const attributes = object.properties
-    .map(property => {
-      return property.key.name + '=' + `"${property.value.value}"`
-    })
-    .join(' ')
+  const attributes = getAttributes(object)
   return { type: 'Literal', value: `<${tag} ${attributes}></${tag}>` }
 }
 
 function convertLiteral (tag, object) {
   return { type: 'Literal', value: `<${tag}>${object.value}</${tag}>` }
+}
+
+function getAttributes (object) {
+  return object.properties
+    .map(property => {
+      return property.key.name + '=' + `"${property.value.value}"`
+    })
+    .join(' ')
 }
 
 class Compiler {
