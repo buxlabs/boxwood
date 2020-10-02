@@ -37,6 +37,8 @@ class Compiler {
             })
             .join(' ')
           return { type: 'Literal', value: `<${tag} ${attributes}></${tag}>` }
+        } else if (object && object.type === 'Literal') {
+          return { type: 'Literal', value: `<${tag}>${object.value}</${tag}>` }
         } else {
           return { type: 'Literal', value: `<${tag}></${tag}>` }
         }
