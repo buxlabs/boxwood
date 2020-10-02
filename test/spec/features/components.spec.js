@@ -72,3 +72,21 @@ test('components: tag with a child', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a>foo</a>')
 })
+
+test('components: tag with children', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    export default function () {
+      return tag("a", [
+        tag("strong", "foo"),
+        "bar"
+      ])
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a><strong>foo</strong>bar</a>')
+})
+
