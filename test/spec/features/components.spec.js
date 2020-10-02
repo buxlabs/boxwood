@@ -17,6 +17,20 @@ test('components: tag', async assert => {
   assert.deepEqual(template({ title: 'foo' }, escape), '<a></a>')
 })
 
+test('components: tag in an array', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    export default function () {
+      return tag("a")
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a></a>')
+})
+
 test('components: tag with an attribute', async assert => {
   const { template } = await compile(`
     import { tag } from 'boxwood'
@@ -57,6 +71,40 @@ test('components: tag and text', async assert => {
     path: 'app.js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a></a>foo')
+})
+
+test('components: two tags in an array', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    export default function () {
+      return [
+        tag("a"),
+        tag("a")
+      ]
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a></a><a></a>')
+})
+
+test('components: three tags in an array', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    export default function () {
+      return [
+        tag("a"),
+        tag("a")
+      ]
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a></a><a></a>')
 })
 
 test('components: tag with a child', async assert => {

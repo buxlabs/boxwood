@@ -100,6 +100,18 @@ class Compiler {
       } else if (node.type === 'ExportDefaultDeclaration') {
         const { declaration } = node
         declaration.type = 'FunctionExpression'
+        const { body } = declaration.body
+        const last = body[body.length - 1]
+        if (last.type === 'ReturnStatement' && last.argument.type === 'ArrayExpression') {
+          const { elements } = last.argument
+          if (elements.length === 1) { last.argument = elements[0] }
+          if (elements.length === 2) { last.argument = { type: 'BinaryExpression', left: elements[0], right: elements[1], operator: '+' } }
+          let expression = { type: 'BinaryExpression', left: elements[0], right: elements[1], operator: '+' }
+          for (let i = 2, ilen = elements.length; i < ilen; i += 1) {
+            expression = { type: 'BinaryExpression', left: expression, right: elements[i], operator: '+' }
+          }
+          last.argument = expression
+        }
         return {
           type: 'ReturnStatement',
           argument: {
