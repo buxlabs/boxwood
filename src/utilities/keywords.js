@@ -6,9 +6,13 @@ function placeholderName (keyword) {
   return `__${keyword.toUpperCase()}_PLACEHOLDER__`
 }
 
+// it would be a bit safer to traverse over html tree
+// and convert attribute names that match reserved keywords
+// the following regexp is a dirty solution
+
 function addPlaceholders (string) {
   RESERVED_KEYWORDS.forEach(keyword => {
-    string = string.replace(new RegExp(`\\b${keyword}\\b`, 'g'), placeholderName(keyword))
+    string = string.replace(new RegExp(`(?<!-)${keyword}\\b`, 'g'), placeholderName(keyword))
   })
   return string
 }

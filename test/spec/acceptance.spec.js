@@ -89,7 +89,8 @@ test('acceptance: event listeners', async assert => {
 })
 
 test('acceptance: shorthand-attribute-syntax', async assert => {
-  const { actual, expected } = await suite('shorthand-attribute-syntax')
+  const { actual, expected, errors } = await suite('shorthand-attribute-syntax')
+  assert.deepEqual(errors.length, 0)
   assert.deepEqual(actual, expected)
 })
 
