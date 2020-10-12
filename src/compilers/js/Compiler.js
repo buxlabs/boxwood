@@ -29,6 +29,25 @@ function convertTag (node) {
       return convertObjectExpression(tag, second)
     } else if (second && second.type === 'Literal') {
       return convertLiteral(tag, second)
+    } else if (second && second.type === 'BinaryExpression') {
+      let leaf = second.left
+      if (leaf.left.type === 'BinaryExpression') {
+        while (leaf.left.type === 'BinaryExpression') {
+          leaf = leaf.left
+        }
+      }
+      leaf.left = {
+        type: 'BinaryExpression',
+        left: { type: 'Literal', value: `<${tag}>` },
+        right: leaf.left,
+        operator: '+'
+      }
+      return {
+        type: 'BinaryExpression',
+        left: second,
+        right: { type: 'Literal', value: `</${tag}>` },
+        operator: '+'
+      }
     }
     return { type: 'Literal', value: `<${tag}></${tag}>` }
   } else if (node.arguments.length === 3) {

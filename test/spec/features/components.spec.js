@@ -173,3 +173,19 @@ test('components: tag with attributes and children', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a href="#foo"><strong>bar</strong>baz</a>')
 })
+
+test('components: binary expression as a child', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    const name = "world"
+
+    export default function () {
+      return tag("p", "Hello, " + name + "!")
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<p>Hello, world!</p>')
+})
