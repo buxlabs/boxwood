@@ -7,68 +7,74 @@ function isTag (node) {
   return match(node, 'CallExpression[callee.type="Identifier"][callee.name="tag"]')
 }
 
-function convertTag (node) {
-  if (node.arguments.length === 1) {
-    const literal = node.arguments[0]
-    const tag = literal.value
-    return { type: 'Literal', value: `<${tag}></${tag}>` }
-  } else if (node.arguments.length === 2) {
-    const literal = node.arguments[0]
-    const tag = literal.value
-    const second = node.arguments[1]
-    if (second && second.type === 'ArrayExpression') {
-      const nodes = second.elements.map(element => {
-        if (isTag(element)) {
-          return convertTag(element)
-        }
-        return element
-      })
-      const content = nodes.map(node => node.value).join('')
-      return { type: 'Literal', value: `<${tag}>${content}</${tag}>` }
-    } else if (second && second.type === 'ObjectExpression') {
-      return convertObjectExpression(tag, second)
-    } else if (second && second.type === 'Literal') {
-      return convertLiteral(tag, second)
-    } else if (second && second.type === 'BinaryExpression') {
-      return convertBinaryExpression(tag, second)
-    } else if (second && second.type === 'TemplateLiteral') {
-      return wrapNode(tag, second)
-    } else if (second && second.type === 'Identifier') {
-      return wrapNode(tag, second)
-    }
-    return second
-  } else if (node.arguments.length === 3) {
-    const literal = node.arguments[0]
-    const tag = literal.value
-    const second = node.arguments[1]
-    const attributes = getAttributes(second)
-    const third = node.arguments[2]
-    if (third && third.type === 'ArrayExpression') {
-      const nodes = third.elements.map(element => {
-        if (isTag(element)) {
-          return convertTag(element)
-        }
-        return element
-      })
-      const content = nodes.map(node => node.value).join('')
-      return { type: 'Literal', value: `<${tag} ${attributes}>${content}</${tag}>` }
-    } else if (third && third.type === 'Literal') {
-      return convertLiteral(tag, third)
-    }
-    return { type: 'Literal', value: `<${tag} ${attributes}></${tag}>` }
+function convertLastNode (tag, node, attributes) {
+  if (node.type === 'ArrayExpression') {
+    const nodes = node.elements.map(element => {
+      if (isTag(element)) {
+        return convertTag(element)
+      }
+      return element
+    })
+    const content = nodes.map(node => node.value).join('')
+    return { type: 'Literal', value: `${startTag(tag, attributes)}${content}${endTag(tag)}` }
+  } else if (node.type === 'Literal') {
+    return convertLiteral(tag, node, attributes)
+  } else if (node.type === 'BinaryExpression') {
+    return convertBinaryExpression(tag, node, attributes)
+  } else if (node.type === 'TemplateLiteral') {
+    return wrapNode(tag, node, attributes)
+  } else if (node.type === 'Identifier') {
+    return wrapNode(tag, node, attributes)
+  } else if (node.type === 'ObjectExpression') {
+    return convertObjectExpression(tag, attributes)
   }
 }
 
-function convertObjectExpression (tag, object) {
-  const attributes = getAttributes(object)
-  return { type: 'Literal', value: `<${tag} ${attributes}></${tag}>` }
+function convertTag (node) {
+  if (node.arguments.length === 1) {
+    const first = node.arguments[0]
+    const tag = first.value
+    return { type: 'Literal', value: startTag(tag) + endTag(tag) }
+  } else if (node.arguments.length === 2) {
+    const first = node.arguments[0]
+    const tag = first.value
+    const last = node.arguments[1]
+    if (last) {
+      const attributes = last.type === 'ObjectExpression' ? getAttributes(last) : null
+      return convertLastNode(tag, last, attributes)
+    }
+  } else if (node.arguments.length === 3) {
+    const first = node.arguments[0]
+    const tag = first.value
+    const middle = node.arguments[1]
+    const last = node.arguments[2]
+    if (last) {
+      const attributes = middle.type === 'ObjectExpression' ? getAttributes(middle) : null
+      return convertLastNode(tag, last, attributes)
+    }
+  }
 }
 
-function convertLiteral (tag, object) {
-  return { type: 'Literal', value: `<${tag}>${object.value}</${tag}>` }
+function convertObjectExpression (tag, attributes) {
+  return { type: 'Literal', value: startTag(tag, attributes) + endTag(tag) }
 }
 
-function convertBinaryExpression (tag, object) {
+function convertLiteral (tag, object, attributes) {
+  return { type: 'Literal', value: `${startTag(tag, attributes)}${object.value}${endTag(tag)}` }
+}
+
+function startTag (tag, attributes) {
+  if (attributes) {
+    return `<${tag} ${attributes}>`
+  }
+  return `<${tag}>`
+}
+
+function endTag (tag) {
+  return `</${tag}>`
+}
+
+function convertBinaryExpression (tag, object, attributes) {
   let leaf = object.left
   if (leaf.left.type === 'BinaryExpression') {
     while (leaf.left.type === 'BinaryExpression') {
@@ -77,29 +83,29 @@ function convertBinaryExpression (tag, object) {
   }
   leaf.left = {
     type: 'BinaryExpression',
-    left: { type: 'Literal', value: `<${tag}>` },
+    left: { type: 'Literal', value: startTag(tag, attributes) },
     right: leaf.left,
     operator: '+'
   }
   return {
     type: 'BinaryExpression',
     left: object,
-    right: { type: 'Literal', value: `</${tag}>` },
+    right: { type: 'Literal', value: endTag(tag) },
     operator: '+'
   }
 }
 
-function wrapNode (tag, object) {
+function wrapNode (tag, object, attributes) {
   return {
     type: 'BinaryExpression',
     operator: '+',
     left: {
       type: 'BinaryExpression',
       operator: '+',
-      left: { type: 'Literal', value: `<${tag}>` },
+      left: { type: 'Literal', value: startTag(tag, attributes) },
       right: object
     },
-    right: { type: 'Literal', value: `</${tag}>` }
+    right: { type: 'Literal', value: endTag(tag) }
   }
 }
 

@@ -221,3 +221,35 @@ test('component: identifier as a child', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<p>Hello, world!</p>')
 })
+
+test('components: tag with an attribute and template literal as a child', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    const name = "world"
+
+    export default function () {
+      return tag("a", { href: "#foo" }, \`Hello, \${name}!\`)
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a href="#foo">Hello, world!</a>')
+})
+
+test('components: tag with an attribute and identifier as a child', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    const name = "Hello, world!"
+
+    export default function () {
+      return tag("a", { href: "#foo" }, name)
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a href="#foo">Hello, world!</a>')
+})
