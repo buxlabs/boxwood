@@ -32,8 +32,11 @@ function convertTag (node) {
     } else if (second && second.type === 'BinaryExpression') {
       return convertBinaryExpression(tag, second)
     } else if (second && second.type === 'TemplateLiteral') {
-      return convertTemplateLiteral(tag, second)
+      return wrapNode(tag, second)
+    } else if (second && second.type === 'Identifier') {
+      return wrapNode(tag, second)
     }
+    return second
   } else if (node.arguments.length === 3) {
     const literal = node.arguments[0]
     const tag = literal.value
@@ -86,7 +89,7 @@ function convertBinaryExpression (tag, object) {
   }
 }
 
-function convertTemplateLiteral (tag, object) {
+function wrapNode (tag, object) {
   return {
     type: 'BinaryExpression',
     operator: '+',

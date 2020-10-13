@@ -205,3 +205,19 @@ test('component: template literal as a child', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<p>Hello, world!</p>')
 })
+
+test('component: identifier as a child', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+
+    const name = "Hello, world!"
+
+    export default function () {
+      return tag("p", name)
+    }
+  `, {
+    paths: [ path.join(__dirname, '../../fixtures/partial') ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<p>Hello, world!</p>')
+})
