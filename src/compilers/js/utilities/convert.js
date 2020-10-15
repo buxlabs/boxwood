@@ -16,6 +16,10 @@ function isInternalImportDeclaration (node) {
   return match(node, 'ImportDeclaration[source.type="Literal"][source.value="boxwood"]')
 }
 
+function isFeatureImportSpecifier (specifier, feature) {
+  return match(specifier, `ImportSpecifier[imported.type="Identifier"][imported.name="${feature}"]`)
+}
+
 function convertLastNode (tag, node, attributes) {
   if (node.type === 'ArrayExpression') {
     const nodes = node.elements.map(element => {
@@ -138,5 +142,6 @@ module.exports = {
   endTag,
   isTag,
   isText,
-  isInternalImportDeclaration
+  isInternalImportDeclaration,
+  isFeatureImportSpecifier
 }

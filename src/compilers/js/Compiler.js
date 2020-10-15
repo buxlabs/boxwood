@@ -1,5 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Generator = require('../../Generator')
+const Features = require('./Features')
 const {
   isTag,
   isText,
@@ -12,36 +13,11 @@ const {
   getAttributes,
   startTag,
   endTag,
-  isInternalImportDeclaration
+  isInternalImportDeclaration,
+  isFeatureImportSpecifier
 } = require('./utilities/convert')
 
 const { match } = AbstractSyntaxTree
-
-function isFeatureImportSpecifier (specifier, feature) {
-  return match(specifier, `ImportSpecifier[imported.type="Identifier"][imported.name="${feature}"]`)
-}
-
-class Features {
-  constructor (options) {
-    this.options = options
-    Object.assign(this, options)
-  }
-  disable (feature) {
-    this[feature] = false
-  }
-  enable (feature) {
-    this[feature] = true
-  }
-  disabled (feature) {
-    return !this[feature]
-  }
-  enabled (feature) {
-    return this[feature]
-  }
-  each (callback) {
-    Object.keys(this.options).forEach(callback)
-  }
-}
 
 class Compiler {
   constructor (options) {
@@ -77,8 +53,7 @@ class Compiler {
         const last = body[body.length - 1]
         if (last.type === 'ReturnStatement' && last.argument.type === 'ArrayExpression') {
           const { elements } = last.argument
-          const containsTag = !!elements.find(node => match(node.callee, 'Identifier[name="tag"]'))
-          if (containsTag) {
+          if (elements.find(isTag)) {
             if (elements.length === 1) { last.argument = elements[0] }
             if (elements.length === 2) { last.argument = { type: 'BinaryExpression', left: elements[0], right: elements[1], operator: '+' } }
             let expression = { type: 'BinaryExpression', left: elements[0], right: elements[1], operator: '+' }
