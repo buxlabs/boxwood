@@ -10,7 +10,7 @@ function transform (input) {
   return generate(result)
 }
 
-test('convertTag: html tags', assert => {
+test('convertTag: html tag', assert => {
   assert.deepEqual(transform('tag("p")'), '"<p></p>"')
   assert.deepEqual(transform('tag("a")'), '"<a></a>"')
   assert.deepEqual(transform('tag("div")'), '"<div></div>"')
@@ -21,4 +21,41 @@ SELF_CLOSING_TAGS.forEach(tag => {
   test(`convertTag: self closing tag: ${tag}`, assert => {
     assert.deepEqual(transform(`tag("${tag}")`), `"<${tag} />"`)
   })
+})
+
+test('convertTag: html tag with text', assert => {
+  assert.deepEqual(
+    transform(`tag('p', 'Hello, world!')`),
+    '"<p>Hello, world!</p>"'
+  )
+})
+
+test('convertTag: html tag with an attribute', assert => {
+  assert.deepEqual(
+    transform(`tag('a', { href: '#foo' })`),
+    `"<a href=\\"#foo\\"></a>"`
+  )
+})
+
+test('convertTag: html tag with an attribute and text', assert => {
+  assert.deepEqual(
+    transform(`tag('a', { href: '#foo' }, 'bar')`),
+    `"<a href=\\"#foo\\">bar</a>"`
+  )
+})
+
+test.skip('convertTag: html page', assert => {
+  assert.deepEqual(
+    transform(`
+      tag('html', [
+        tag('head', [
+          tag('title', 'foo')
+        ]),
+        tag('body', [
+          tag('button', \`bar\`)
+        ])
+      ])
+    `),
+    `"<html><head><title>foo</title></head><body><button>bar</button></body></html>"`
+  )
 })
