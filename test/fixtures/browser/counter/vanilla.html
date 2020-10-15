@@ -1,0 +1,16 @@
+<html>
+<head>
+  <title>Counter Vanilla</title>
+</head>
+<body>
+  <button>Clicked 0 times</button>
+  <script>
+    let count = 0;
+    const element = document.querySelector("button")
+    element.addEventListener("click", () => {
+      count += 1
+      element.innerHTML = "Clicked " + count + " " + (count === 1 ? "time" : "times")
+    })
+  </script>
+</body>
+</html>
