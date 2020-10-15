@@ -1,7 +1,19 @@
 const { match } = require('abstract-syntax-tree')
 
+function isCallExpression (node, name) {
+  return match(node, `CallExpression[callee.type="Identifier"][callee.name="${name}"]`)
+}
+
 function isTag (node) {
-  return match(node, 'CallExpression[callee.type="Identifier"][callee.name="tag"]')
+  return isCallExpression(node, 'tag')
+}
+
+function isText (node) {
+  return isCallExpression(node, 'text')
+}
+
+function isInternalImportDeclaration (node) {
+  return match(node, 'ImportDeclaration[source.type="Literal"][source.value="boxwood"]')
 }
 
 function convertLastNode (tag, node, attributes) {
@@ -124,5 +136,7 @@ module.exports = {
   getAttributes,
   startTag,
   endTag,
-  isTag
+  isTag,
+  isText,
+  isInternalImportDeclaration
 }
