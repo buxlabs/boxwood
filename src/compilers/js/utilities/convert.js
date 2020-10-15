@@ -169,7 +169,6 @@ function enableUsedFeatures (node, features) {
   }
 }
 
-
 module.exports = {
   convertLastNode,
   convertLiteral,

@@ -4,17 +4,8 @@ const Features = require('./Features')
 const {
   isTag,
   isText,
-  convertLastNode,
-  convertLiteral,
   convertTag,
-  convertBinaryExpression,
-  convertObjectExpression,
-  wrapNode,
-  getAttributes,
-  startTag,
-  endTag,
   isInternalImportDeclaration,
-  isFeatureImportSpecifier,
   convertExportDefaultDeclarationToReturnStatement,
   enableUsedFeatures
 } = require('./utilities/convert')
