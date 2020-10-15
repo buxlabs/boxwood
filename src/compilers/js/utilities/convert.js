@@ -1,4 +1,5 @@
 const { match } = require('abstract-syntax-tree')
+const { SELF_CLOSING_TAGS } = require('../../../utilities/enum')
 
 function isCallExpression (node, name) {
   return match(node, `CallExpression[callee.type="Identifier"][callee.name="${name}"]`)
@@ -47,7 +48,7 @@ function convertTag (node) {
   if (node.arguments.length === 1) {
     const first = node.arguments[0]
     const tag = first.value
-    return { type: 'Literal', value: startTag(tag) + endTag(tag) }
+    return { type: 'Literal', value: getTag(tag) }
   } else if (node.arguments.length === 2) {
     const first = node.arguments[0]
     const tag = first.value
@@ -69,7 +70,7 @@ function convertTag (node) {
 }
 
 function convertObjectExpression (tag, attributes) {
-  return { type: 'Literal', value: startTag(tag, attributes) + endTag(tag) }
+  return { type: 'Literal', value: getTag(tag, attributes) }
 }
 
 function convertLiteral (tag, object, attributes) {
@@ -85,6 +86,20 @@ function startTag (tag, attributes) {
 
 function endTag (tag) {
   return `</${tag}>`
+}
+
+function selfClosingTag (tag, attributes) {
+  if (attributes) {
+    return `<${tag} ${attributes} />`
+  }
+  return `<${tag} />`
+}
+
+function getTag (tag, attributes) {
+  if (SELF_CLOSING_TAGS.includes(tag)) {
+    return selfClosingTag(tag, attributes)
+  }
+  return startTag(tag, attributes) + endTag(tag)
 }
 
 function convertBinaryExpression (tag, object, attributes) {
