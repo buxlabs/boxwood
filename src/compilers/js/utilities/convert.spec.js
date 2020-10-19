@@ -44,7 +44,24 @@ test('convertTag: html tag with an attribute and text', assert => {
   )
 })
 
-test.skip('convertTag: html page', assert => {
+test('convertTag: html tag with template literal', assert => {
+  assert.deepEqual(
+    transform(`tag('a', \`bar\`)`),
+    `"<a>" + \`bar\` + "</a>"`
+  )
+})
+
+test('convertTag: html tag with template literal in nested child', assert => {
+  assert.deepEqual(
+    transform(`tag('a', [
+        tag('span', \`bar\`)
+      ])`
+    ),
+    `"<a>" + ("<span>" + \`bar\` + "</span>") + "</a>"`
+  )
+})
+
+test('convertTag: html page', assert => {
   assert.deepEqual(
     transform(`
       tag('html', [
@@ -56,6 +73,6 @@ test.skip('convertTag: html page', assert => {
         ])
       ])
     `),
-    `"<html><head><title>foo</title></head><body><button>bar</button></body></html>"`
+    `"<html>" + ("<head><title>foo</title></head>" + ("<body>" + ("<button>" + \`bar\` + "</button>") + "</body>")) + "</html>"`
   )
 })
