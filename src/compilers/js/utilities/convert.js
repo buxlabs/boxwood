@@ -1,4 +1,4 @@
-const { match } = require('abstract-syntax-tree')
+const { match, toBinaryExpression } = require('abstract-syntax-tree')
 const { SELF_CLOSING_TAGS } = require('../../../utilities/enum')
 
 function isCallExpression (node, name) {
@@ -23,50 +23,32 @@ function isFeatureImportSpecifier (specifier, feature) {
 
 function convertLastNode (tag, node, attributes) {
   if (node.type === 'ArrayExpression') {
-    const nodes = node.elements.map(element => {
+    const elements = node.elements.map(element => {
       if (isTag(element)) {
         return convertTag(element)
       }
       return element
     })
-    if (nodes.length === 1) {
-      const child = nodes[0]
-      if (child.type === 'Literal') {
-        return { type: 'Literal', value: `${startTag(tag, attributes)}${child.value}${endTag(tag)}` }
-      }
-      return {
+    if (elements.length === 0) {
+      return { type: 'Literal', value: `${startTag(tag, attributes)}${endTag(tag)}` }
+    }
+    if (elements.length === 1 && elements[0].type === 'Literal') {
+      return { type: 'Literal', value: `${startTag(tag, attributes)}${elements[0].value}${endTag(tag)}` }
+    }
+    return {
+      type: 'BinaryExpression',
+      operator: '+',
+      left: {
         type: 'BinaryExpression',
         operator: '+',
-        left: {
-          type: 'BinaryExpression',
-          operator: '+',
-          left: { type: 'Literal', value: startTag(tag, attributes) },
-          right: child
-        },
-        right: { type: 'Literal', value: endTag(tag) }
-      }
+        left: { type: 'Literal', value: startTag(tag, attributes) },
+        right: toBinaryExpression({
+          type: 'ArrayExpression',
+          elements: elements
+        })
+      },
+      right: { type: 'Literal', value: endTag(tag) }
     }
-    if (nodes.length === 2) {
-      return {
-        type: 'BinaryExpression',
-        operator: '+',
-        left: {
-          type: 'BinaryExpression',
-          operator: '+',
-          left: { type: 'Literal', value: startTag(tag, attributes) },
-          right: {
-            type: 'BinaryExpression',
-            operator: '+',
-            left: nodes[0],
-            right: nodes[1]
-          }
-        },
-        right: { type: 'Literal', value: endTag(tag) }
-      }
-    }
-    // TODO refactor
-    const content = nodes.map(node => node.value).join('')
-    return { type: 'Literal', value: `${startTag(tag, attributes)}${content}${endTag(tag)}` }
   } else if (node.type === 'Literal') {
     return convertLiteral(tag, node, attributes)
   } else if (node.type === 'BinaryExpression') {

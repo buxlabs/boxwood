@@ -53,7 +53,7 @@
   },
   "homepage": "https://github.com/buxlabs/boxwood#readme",
   "dependencies": {
-    "abstract-syntax-tree": "^2.9.5",
+    "abstract-syntax-tree": "^2.10.0",
     "astoptech": "^1.0.6",
     "axios": "^0.19.2",
     "axios-extensions": "^3.1.3",

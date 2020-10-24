@@ -51,6 +51,13 @@ test('convertTag: html tag with template literal', assert => {
   )
 })
 
+test('convertTag: html tag with an empty array', assert => {
+  assert.deepEqual(
+    transform(`tag('a', [])`),
+    `"<a></a>"`
+  )
+})
+
 test('convertTag: html tag with template literal in nested child', assert => {
   assert.deepEqual(
     transform(`tag('a', [
