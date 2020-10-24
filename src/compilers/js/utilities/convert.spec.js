@@ -58,6 +58,48 @@ test('convertTag: html tag with an empty array', assert => {
   )
 })
 
+test('convertTag: html tag with one child', assert => {
+  assert.deepEqual(
+    transform(`tag('a', [
+      tag('span', 'foo')
+    ])`),
+    `"<a><span>foo</span></a>"`
+  )
+})
+
+test('convertTag: html tag with two children', assert => {
+  assert.deepEqual(
+    transform(`tag('a', [
+      tag('span', 'foo'),
+      tag('span', 'bar')
+    ])`),
+    `"<a>" + ("<span>foo</span>" + "<span>bar</span>") + "</a>"`
+  )
+})
+
+test('convertTag: html tag with three children', assert => {
+  assert.deepEqual(
+    transform(`tag('a', [
+      tag('span', 'foo'),
+      tag('span', 'bar'),
+      tag('span', 'baz')
+    ])`),
+    `"<a>" + ("<span>foo</span>" + "<span>bar</span>" + "<span>baz</span>") + "</a>"`
+  )
+})
+
+test('convertTag: html tag with four children', assert => {
+  assert.deepEqual(
+    transform(`tag('a', [
+      tag('span', 'foo'),
+      tag('span', 'bar'),
+      tag('span', 'baz'),
+      tag('span', 'qux')
+    ])`),
+    `"<a>" + ("<span>foo</span>" + "<span>bar</span>" + "<span>baz</span>" + "<span>qux</span>") + "</a>"`
+  )
+})
+
 test('convertTag: html tag with template literal in nested child', assert => {
   assert.deepEqual(
     transform(`tag('a', [
