@@ -68,7 +68,7 @@
     "path-to-regexp": "^6.2.0",
     "pure-conditions": "^1.1.0",
     "pure-utilities": "^1.2.0",
-    "rollup": "^2.29.0",
+    "rollup": "^2.32.1",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.4",
     "rollup-plugin-node-resolve": "^5.2.0",
