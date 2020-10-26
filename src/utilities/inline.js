@@ -1,12 +1,13 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { binaryExpressionReduction, logicalExpressionReduction } = require('astoptech')
 const { isCurlyTag, isSquareTag, getTagValue } = require('./string')
 const { addPlaceholders, removePlaceholders, placeholderName } = require('./keywords')
 const { convertToExpression, convertText } = require('./convert')
 const { normalize } = require('./array')
 const { GLOBAL_VARIABLE } = require('./enum')
+
+const { binaryExpressionReduction, logicalExpressionReduction } = AbstractSyntaxTree
 
 function inlineLocalVariablesInText (node, variables) {
   if (node.type === 'text') {

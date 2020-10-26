@@ -2,13 +2,6 @@
 
 const lexer = require('./lexer')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const {
-  logicalExpressionReduction,
-  binaryExpressionReduction,
-  ternaryOperatorReduction,
-  memberExpressionReduction,
-  ifStatementRemoval
-} = require('astoptech')
 const { isCurlyTag, getTagValue, curlyTag } = require('./string')
 const { parse, stringify } = require('./html')
 const { inlineLocalVariablesInTags } = require('./inline')
@@ -17,7 +10,15 @@ const { addPlaceholders, removePlaceholders } = require('./keywords')
 const { parseData, getDataFormat } = require('./data')
 const { isGlobalVariable } = require('./globals')
 const { isPlainObject } = require('pure-conditions')
-const { match } = AbstractSyntaxTree
+
+const {
+  match,
+  logicalExpressionReduction,
+  binaryExpressionReduction,
+  ternaryOperatorReduction,
+  memberExpressionReduction,
+  ifStatementRemoval
+} = AbstractSyntaxTree
 
 function canInlineTree ({ body }) {
   const statement = body[0]

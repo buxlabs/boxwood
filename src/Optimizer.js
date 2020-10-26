@@ -1,14 +1,14 @@
 'use strict'
 
+const { TEMPLATE_VARIABLE } = require('./utilities/enum')
 const {
+  match,
   memberExpressionReduction,
   logicalExpressionReduction,
   binaryExpressionReduction,
   ternaryOperatorReduction,
   ifStatementRemoval
-} = require('astoptech')
-const { TEMPLATE_VARIABLE } = require('./utilities/enum')
-const { match } = require('abstract-syntax-tree')
+} = require('abstract-syntax-tree')
 
 function isAssignmentExpressionWithLiteral (node) {
   return isAssignmentExpression(node) && node.expression.right.type === 'Literal'
