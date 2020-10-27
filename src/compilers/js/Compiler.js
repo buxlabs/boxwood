@@ -4,11 +4,14 @@ const Features = require('./Features')
 const {
   isTag,
   isText,
+  isState,
   convertTag,
   isInternalImportDeclaration,
   convertExportDefaultDeclarationToReturnStatement,
   enableUsedFeatures
 } = require('./utilities/convert')
+
+const { ObjectExpression } = AbstractSyntaxTree
 
 class Compiler {
   constructor (options) {
@@ -20,7 +23,8 @@ class Compiler {
 
     const features = new Features({
       tag: false,
-      text: false
+      text: false,
+      State: false
     })
 
     tree.replace(node => {
@@ -29,6 +33,8 @@ class Compiler {
         return convertTag(node)
       } else if (features.enabled('text') && isText(node)) {
         return node.arguments[0]
+      } else if (features.enabled('State') && isState(node)) {
+        return new ObjectExpression(node.arguments[0])
       } else if (node.type === 'ExportDefaultDeclaration') {
         return convertExportDefaultDeclarationToReturnStatement(node)
       }

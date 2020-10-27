@@ -232,6 +232,11 @@ test('acceptance: translation-tag', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: counter', async assert => {
+  const { actual, expected } = await suite('counter', {}, 'js')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: slot as a variable', async assert => {
   const { actual, expected } = await suite('slot-as-variable')
   assert.deepEqual(actual, expected)
@@ -242,9 +247,10 @@ test.skip('acceptance: variables', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-async function suite (name, compilerOptions = {}) {
+
+async function suite (name, compilerOptions = {}, extension = 'html') {
   const dir = join(__dirname, '../fixtures/acceptance', name)
-  const path1 = join(dir, 'actual.html')
+  const path1 = join(dir, `actual.${extension}`)
   const path2 = join(dir, 'expected.html')
   const path3 = join(dir, 'data.json')
   const content1 = await readFile(path1, 'utf8')

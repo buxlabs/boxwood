@@ -13,6 +13,10 @@ function isText (node) {
   return isCallExpression(node, 'text')
 }
 
+function isState (node) {
+  return match(node, 'NewExpression[callee.type="Identifier"][callee.name="State"]')
+}
+
 function isInternalImportDeclaration (node) {
   return match(node, 'ImportDeclaration[source.type="Literal"][source.value="boxwood"]')
 }
@@ -155,11 +159,17 @@ function wrapNode (tag, object, attributes) {
   }
 }
 
+function isEventHandler (name) {
+  return ['onclick'].includes(name)
+}
+
 function getAttributes (object) {
   return object.properties
     .map(property => {
+      if (isEventHandler(property.key.name)) { return null }
       return property.key.name + '=' + `"${property.value.value}"`
     })
+    .filter(Boolean)
     .join(' ')
 }
 
@@ -214,6 +224,7 @@ module.exports = {
   endTag,
   isTag,
   isText,
+  isState,
   isInternalImportDeclaration,
   isFeatureImportSpecifier,
   convertExportDefaultDeclarationToReturnStatement,
