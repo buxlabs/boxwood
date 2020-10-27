@@ -73,7 +73,7 @@ test('convertTag: html tag with two children', assert => {
       tag('span', 'foo'),
       tag('span', 'bar')
     ])`),
-    `"<a>" + ("<span>foo</span>" + "<span>bar</span>") + "</a>"`
+    `"<a><span>foo</span><span>bar</span></a>"`
   )
 })
 
@@ -84,7 +84,7 @@ test('convertTag: html tag with three children', assert => {
       tag('span', 'bar'),
       tag('span', 'baz')
     ])`),
-    `"<a>" + ("<span>foo</span>" + "<span>bar</span>" + "<span>baz</span>") + "</a>"`
+    `"<a><span>foo</span><span>bar</span><span>baz</span></a>"`
   )
 })
 
@@ -96,7 +96,7 @@ test('convertTag: html tag with four children', assert => {
       tag('span', 'baz'),
       tag('span', 'qux')
     ])`),
-    `"<a>" + ("<span>foo</span>" + "<span>bar</span>" + "<span>baz</span>" + "<span>qux</span>") + "</a>"`
+    `"<a><span>foo</span><span>bar</span><span>baz</span><span>qux</span></a>"`
   )
 })
 

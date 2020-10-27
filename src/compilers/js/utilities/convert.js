@@ -1,4 +1,4 @@
-const { match, toBinaryExpression } = require('abstract-syntax-tree')
+const { match, toBinaryExpression, binaryExpressionReduction } = require('abstract-syntax-tree')
 const { SELF_CLOSING_TAGS } = require('../../../utilities/enum')
 
 function isCallExpression (node, name) {
@@ -35,7 +35,7 @@ function convertLastNode (tag, node, attributes) {
     if (elements.length === 1 && elements[0].type === 'Literal') {
       return { type: 'Literal', value: `${startTag(tag, attributes)}${elements[0].value}${endTag(tag)}` }
     }
-    return {
+    return binaryExpressionReduction({
       type: 'BinaryExpression',
       operator: '+',
       left: {
@@ -48,7 +48,7 @@ function convertLastNode (tag, node, attributes) {
         })
       },
       right: { type: 'Literal', value: endTag(tag) }
-    }
+    })
   } else if (node.type === 'Literal') {
     return convertLiteral(tag, node, attributes)
   } else if (node.type === 'BinaryExpression') {
