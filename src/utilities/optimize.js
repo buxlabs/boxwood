@@ -224,7 +224,7 @@ function curlyTagReduction (string, variables, warnings) {
   return stringify(tree, string)
 }
 
-function optimizeNode (node, variables, newVariables = [], loose) {
+function optimizeNode (node, variables, newVariables = [], loose = false) {
   const { attributes } = node
   if (node.type === 'text') {
     node.content = optimizeText(node.content, variables, newVariables, loose)

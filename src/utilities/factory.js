@@ -183,12 +183,14 @@ module.exports = {
         {
           type: 'VariableDeclarator',
           id: getIdentifier(variable),
-          init: range ? getIdentifier(index) : {
-            type: 'MemberExpression',
-            object: name,
-            property: getIdentifier(index),
-            computed: true
-          }
+          init: range
+            ? getIdentifier(index)
+            : {
+                type: 'MemberExpression',
+                object: name,
+                property: getIdentifier(index),
+                computed: true
+              }
         }
       ],
       kind: 'var'

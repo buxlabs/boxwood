@@ -50,18 +50,24 @@ module.exports = function ({ fragment, tree, variables, attrs, collectChildren }
         {
           type: 'FunctionExpression',
           params: [
-            left ? {
-              type: 'Identifier',
-              name: left.key
-            } : null,
-            key ? {
-              type: 'Identifier',
-              name: key.key
-            } : null,
-            value ? {
-              type: 'Identifier',
-              name: value.key
-            } : null
+            left
+              ? {
+                  type: 'Identifier',
+                  name: left.key
+                }
+              : null,
+            key
+              ? {
+                  type: 'Identifier',
+                  name: key.key
+                }
+              : null,
+            value
+              ? {
+                  type: 'Identifier',
+                  name: value.key
+                }
+              : null
           ].filter(Boolean),
           body: {
             type: 'BlockStatement',

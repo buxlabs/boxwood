@@ -21,7 +21,7 @@ module.exports = function ({ fragment, attrs, keys, assets, options }) {
         if (extensions.includes(extension)) {
           const path = attr.value
           const asset = findAsset(path, assets, options)
-          if (!asset) return
+          if (!asset) return null
           const string = asset.base64
           const content = normalizeNewline(string).trim()
           attr.value = `data:image/${getBase64Extension(extension)};base64,${content}`
