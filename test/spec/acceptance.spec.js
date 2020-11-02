@@ -83,11 +83,6 @@ test('acceptance: template-literals', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: event listeners', async assert => {
-  const { actual, expected } = await suite('event-listeners')
-  assert.deepEqual(actual, expected)
-})
-
 test('acceptance: shorthand-attribute-syntax', async assert => {
   const { actual, expected, errors } = await suite('shorthand-attribute-syntax')
   assert.deepEqual(errors.length, 0)
