@@ -227,6 +227,11 @@ test('acceptance: translation-tag', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: price-calculator', async assert => {
+  const { actual, expected } = await suite('price-calculator')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: counter', async assert => {
   const { actual, expected } = await suite('counter', {}, 'js')
   assert.deepEqual(actual, expected)
