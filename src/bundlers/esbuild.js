@@ -34,7 +34,8 @@ const bundle = async (source, options = {}) => {
     entryPoints: [input],
     format: 'iife',
     minify: true,
-    write: false
+    write: false,
+    target: 'es2016'
   })
   const file = result.outputFiles[0]
   unlinkSync(input)
