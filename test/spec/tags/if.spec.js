@@ -1009,30 +1009,6 @@ test('if: conditions', async assert => {
   assert.deepEqual(template({ foo: {} }, escape), 'baz')
   assert.deepEqual(warnings, [])
 
-  var { template, warnings } = await compile('<if foo is a number>baz</if>')
-  assert.deepEqual(template({ foo: [] }, escape), '')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is a number>baz</if>')
-  assert.deepEqual(template({ foo: 13 }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is a number>baz</if>')
-  assert.deepEqual(template({ foo: {} }, escape), '')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is not a number>baz</if>')
-  assert.deepEqual(template({ foo: [] }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is not a number>baz</if>')
-  assert.deepEqual(template({ foo: 13 }, escape), '')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is not a number>baz</if>')
-  assert.deepEqual(template({ foo: {} }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
   var { template, warnings } = await compile('<if foo is a multiple of bar>baz</if>')
   assert.deepEqual(template({ foo: 100, bar: 10 }, escape), 'baz')
   assert.deepEqual(warnings, [])
@@ -1047,30 +1023,6 @@ test('if: conditions', async assert => {
 
   var { template, warnings } = await compile('<if foo is not a multiple of bar>baz</if>')
   assert.deepEqual(template({ foo: 42, bar: 9 }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is numeric>baz</if>')
-  assert.deepEqual(template({ foo: '-10' }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is numeric>baz</if>')
-  assert.deepEqual(template({ foo: '0' }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is numeric>baz</if>')
-  assert.deepEqual(template({ foo: '0xFF' }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is not numeric>baz</if>')
-  assert.deepEqual(template({ foo: true }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is not numeric>baz</if>')
-  assert.deepEqual(template({ foo: null }, escape), 'baz')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if foo is not numeric>baz</if>')
-  assert.deepEqual(template({ foo: undefined }, escape), 'baz')
   assert.deepEqual(warnings, [])
 
   var { template, warnings } = await compile('<if foo is a symbol>baz</if>')
@@ -3013,7 +2965,7 @@ test('if: warnings when invalid conditions', async assert => {
   assert.deepEqual(template({ foo: true }, escape), 'bar')
   assert.deepEqual(warnings[0].message, 'Invalid action name: foo if positive')
   assert.deepEqual(warnings[0].type, 'INVALID_ACTION')
-  
+
   var { template, warnings } = await compile('<if foo ist type of bar>bar</if>')
   assert.deepEqual(template({ foo: {}, bar: 'object' }, escape), 'bar')
   assert.deepEqual(warnings[0].message, 'Invalid action name: foo ist type of bar')
@@ -3027,7 +2979,7 @@ test('if: warnings when invalid conditions', async assert => {
   var { template, warnings } = await compile('<if foo is nul>baz</if>')
   assert.deepEqual(template({ foo: null, escape }), '')
   assert.deepEqual(warnings[0].message, 'Invalid action name: foo is nul')
-  assert.deepEqual(warnings[0].type, 'INVALID_ACTION')  
+  assert.deepEqual(warnings[0].type, 'INVALID_ACTION')
 })
 
 test('if: shorthand syntax inside of loops', async assert => {
@@ -3113,4 +3065,52 @@ test('if: false in a curly tag and else tag', async assert => {
 test('if: false without a tag and else tag', async assert => {
   const { template } = await compile(`<if false>foo<else>bar<end>`)
   assert.deepEqual(template({}, escape), 'bar')
+})
+
+test('if: is number', async assert => {
+  var { template, warnings } = await compile('<if foo is a number>baz</if>')
+  assert.deepEqual(template({ foo: [] }, escape), '')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is a number>baz</if>')
+  assert.deepEqual(template({ foo: 13 }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is a number>baz</if>')
+  assert.deepEqual(template({ foo: {} }, escape), '')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is not a number>baz</if>')
+  assert.deepEqual(template({ foo: [] }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is not a number>baz</if>')
+  assert.deepEqual(template({ foo: 13 }, escape), '')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is not a number>baz</if>')
+  assert.deepEqual(template({ foo: {} }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+})
+
+test('if: is numeric', async assert => {
+  var { template, warnings } = await compile('<if foo is numeric>baz</if>')
+  assert.deepEqual(template({ foo: '0' }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is numeric>baz</if>')
+  assert.deepEqual(template({ foo: '0xFF' }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is not numeric>baz</if>')
+  assert.deepEqual(template({ foo: true }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is not numeric>baz</if>')
+  assert.deepEqual(template({ foo: null }, escape), 'baz')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if foo is not numeric>baz</if>')
+  assert.deepEqual(template({ foo: undefined }, escape), 'baz')
+  assert.deepEqual(warnings, [])
 })

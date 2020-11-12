@@ -1,6 +1,7 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const Bundler = require('../Bundler')
 const { getLiteral } = require('../utilities/ast')
 const { findAsset } = require('../utilities/files')
 const { containsCurlyTag } = require('../utilities/string')
@@ -39,6 +40,18 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       content += node.content
     })
     scripts.push(content)
+  } else if (keys.includes('scoped')) {
+    const leaf = fragment.children[0]
+    if (!leaf) return
+    leaf.used = true
+    const script = []
+    const bundler = new Bundler()
+    const promise = bundler.bundle(leaf.content, { paths: options.script.paths })
+    promises.push(promise)
+    const result = await promise
+    const output = result
+    script.push(getLiteral(`\n${output}`))
+    scripts.push(script)
   } else if (keys.includes('compiler')) {
     const { value } = attrs.find(attr => attr.key === 'compiler')
     const compiler = options.compilers[value]

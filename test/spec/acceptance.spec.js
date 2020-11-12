@@ -258,8 +258,15 @@ async function suite (name, compilerOptions = {}, extension = 'html') {
   const content3 = await readFile(path3, 'utf8')
   const { template, warnings, errors } = await compile(content1, {
     path: path1,
-    paths: [dir],
+    paths: [
+      dir
+    ],
     languages: ['pl', 'en', 'de'],
+    script: {
+      paths: [
+        join(__dirname, '../../node_modules')
+      ]
+    },
     ...compilerOptions
   })
   const data = JSON.parse(content3)

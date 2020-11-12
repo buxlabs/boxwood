@@ -12,7 +12,9 @@ const negate = require('negate-sentence')
 
 function getCondition (name) {
   return function (...args) {
-    const source = 'function ' + conditions[name].toString()
+    const condition = conditions[name]
+    const fn = condition.toString()
+    const source = fn.startsWith('function ') ? fn : `function ${fn}`
     const tree = parse(source)
     const method = first(tree, 'FunctionDeclaration')
     const { body } = method.body

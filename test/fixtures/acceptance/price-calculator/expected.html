@@ -4,6 +4,13 @@
   <title>price calculator</title>
 </head>
 <body>
-
+  <form>
+    Price: $100,00
+    <input name="quantity">
+    <div id="price">0</div>
+  </form>
 </body>
 </html>
+<script>
+(()=>{var s=Object.create,i=Object.defineProperty,p=Object.getPrototypeOf,a=Object.prototype.hasOwnProperty,N=Object.getOwnPropertyNames,d=Object.getOwnPropertyDescriptor,y=e=>i(e,"__esModule",{value:!0}),f=(e,t)=>()=>(t||(t={exports:{}},e(t.exports,t)),t.exports),l=(e,t,u)=>{if(y(e),typeof t=="object"||typeof t=="function")for(let r of N(t))!a.call(e,r)&&r!=="default"&&i(e,r,{get:()=>t[r],enumerable:!(u=d(t,r))||u.enumerable});return e},b=e=>e&&e.__esModule?e:l(i(s(p(e)),"default",{value:e,enumerable:!0}),e),o=f((S,c)=>{function q(e){const t=typeof e;return(t==="string"||t==="number")&&!isNaN(Number(e))}c.exports=q});const m=b(o()),n=document.querySelector("input[name='quantity']"),v=document.querySelector("#price");n.addEventListener("change",()=>{m.default(n.value)&&(v.value=Number(n.value)*100)});})();
+</script>
