@@ -14,7 +14,7 @@ test('basic: it ignores comments', async assert => {
 
 test('basic: it handles doctype', async assert => {
   var { template } = await compile('<!DOCTYPE html>')
-  assert.deepEqual(template(), '<!doctype html>')
+  assert.deepEqual(template(), '<!DOCTYPE html>')
 })
 
 test('basic: it handles content', async assert => {
