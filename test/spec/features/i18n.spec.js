@@ -385,7 +385,7 @@ test('i18n: passing language attribute to the partial', async assert => {
     paths: [path.join(__dirname, '../../fixtures/translations')],
     languages: ['pl', 'en']
   })
-  assert.deepEqual(template({ language: 'pl' }, escape), '<!doctype html><html lang="pl"><body>foo</body></html>')
+  assert.deepEqual(template({ language: 'pl' }, escape), '<!DOCTYPE html><html lang="pl"><body>foo</body></html>')
 })
 
 test('i18n: dynamic scoped translations in conditions', async assert => {
