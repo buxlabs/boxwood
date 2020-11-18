@@ -220,16 +220,18 @@ test('style[inline|scoped]: inlined styles are scoped properly', async assert =>
 })
 
 test('style: does not produce errors', async assert => {
-  const { errors } = await compile(`<style>.foo { color: red; }</style>`)
+  const { errors, warnings } = await compile(`<style>.foo { color: red; }</style>`)
   assert.deepEqual(errors, [])
+  assert.deepEqual(warnings, [])
 })
 
 test('style: does not produce errors for an imported component', async assert => {
-  const { errors } = await compile(`
+  const { errors, warnings } = await compile(`
     <import tag from="tags/style/status-attribute.html" />
     <tag />
   `, {
     paths: [ join(__dirname, '../../fixtures') ]
   })
   assert.deepEqual(errors, [])
+  assert.deepEqual(warnings, [])
 })
