@@ -1,0 +1,28 @@
+<style>
+  div[class*="status-"]::after {
+    content: "";
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-repeat:  no-repeat;
+    background-position: bottom center;
+    background-size: contain;
+    opacity: 0.1;
+  }
+  .status-400::after {
+    background-image: url('/assets/images/400.svg');
+  }
+  .status-401::after {
+    background-image: url('/assets/images/401.svg');
+  }
+  .status-403::after {
+    background-image: url('/assets/images/403.svg');
+  }
+  .status-404::after {
+    background-image: url('/assets/images/404.svg');
+  }
+  .status-500::after {
+    background-image: url('/assets/images/500.svg');
+  }
+</style>
