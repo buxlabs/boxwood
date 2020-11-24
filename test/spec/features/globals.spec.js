@@ -1,4 +1,5 @@
 const test = require('ava')
+const path = require('path')
 const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 
@@ -58,4 +59,33 @@ test('globals: implicit variables', async assert => {
 
   var { template } = await compile('<if globals.foo>foo<end>')
   assert.deepEqual(template({ foo: true }, escape), 'foo')
+})
+
+test('globals: inside of call expressions', async assert => {
+  const { template } = await compile(`
+    {route(globals.page)}
+  `)
+  assert.deepEqual(
+    template({
+      route(page) { return page + 'bar' },
+      page: 'foo'
+    }, escape),
+    'foobar'
+  )
+})
+
+test('globals: inside of imported components', async assert => {
+  const { template } = await compile(`
+    <import foo from="./foo.html"/>
+    <foo {route} />
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/globals')]
+  })
+  assert.deepEqual(
+    template({
+      route(page) { return page + 'bar' },
+      page: 'foo'
+    }, escape),
+    '<a href="foobar">baz</a>'
+  )
 })

@@ -4,6 +4,7 @@ const lexer = require('./lexer')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { isCurlyTag, getTagValue, curlyTag } = require('./string')
 const { parse, stringify } = require('./html')
+const { GLOBAL_VARIABLE } = require('./enum')
 const { inlineLocalVariablesInTags } = require('./inline')
 const walk = require('himalaya-walk')
 const { addPlaceholders, removePlaceholders } = require('./keywords')
@@ -35,6 +36,7 @@ function inlineVariables (node, parent, variables, newVariables, loose) {
   // TODO foo.bar.baz should be optimized
   // right now it will just inject objects into the root key
   if (node.type === 'Identifier') {
+    if (node.name === GLOBAL_VARIABLE) { return node }
     const variable = variables.find(variable => variable.key === node.name)
     if (variable) {
       if (isCurlyTag(variable.value)) {
