@@ -29,6 +29,7 @@ function canInlineTree ({ body }) {
     typeof statement.expression.value === 'string'
 }
 
+// TODO unit tests
 function inlineVariables (node, parent, variables, newVariables, loose) {
   if (node.inlined) return node
   if (parent.type === 'MemberExpression' && node === parent.property) return node
