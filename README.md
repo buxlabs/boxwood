@@ -345,7 +345,7 @@ You also need to pass `languages` to the compiler. The template needs to get the
 
 ```js
 // ...
-const { template } = await compile(source, { languages: ['pl', 'en'])
+const { template } = await compile(source, { languages: ['pl', 'en'] })
 const html = template({ language: 'en' }, escape)
 // ...
 ```
