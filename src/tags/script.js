@@ -1,6 +1,7 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { join } = require('path')
 const Bundler = require('../Bundler')
 const { getLiteral } = require('../utilities/ast')
 const { findAsset } = require('../utilities/files')
@@ -45,8 +46,20 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     if (!leaf) return
     leaf.used = true
     const script = []
+    const leafTree = new AbstractSyntaxTree(leaf.content)
+    leafTree.replace(node => {
+      if (node.type === 'ImportDeclaration' && node.source.value === 'boxwood') {
+        node.source.value = '.'
+      }
+      return node
+    })
     const bundler = new Bundler()
-    const promise = bundler.bundle(leaf.content, { paths: options.script.paths })
+    const promise = bundler.bundle(leafTree.source, {
+      paths: [
+        join(__dirname, '../vdom'),
+        ...options.script.paths
+      ]
+    })
     promises.push(promise)
     const result = await promise
     const output = result
