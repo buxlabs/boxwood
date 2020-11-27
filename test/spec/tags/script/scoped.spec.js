@@ -1,9 +1,8 @@
 const test = require('ava')
 const compile = require('../../../helpers/compile')
-const { normalize } = require('../../../helpers/string')
 const { escape } = require('../../../..')
 
-test('script[scoped]: importing boxwood', async assert => {
+test.skip('script[scoped]: importing boxwood', async assert => {
   var { template } = await compile(`
     <script scoped>
       import { tag, render, mount } from "boxwood"
@@ -17,106 +16,151 @@ test('script[scoped]: importing boxwood', async assert => {
   assert.deepEqual(normalize(template({}, escape)), normalize(`
     <script>
       (() => {
-        var j = Object.create,
-            a = Object.defineProperty,
-            v = Object.getPrototypeOf,
-            O = Object.prototype.hasOwnProperty,
-            T = Object.getOwnPropertyNames,
-            k = Object.getOwnPropertyDescriptor,
-            A = e => a(e, "__esModule", {
+        var O = Object.create,
+            f = Object.defineProperty,
+            B = Object.getPrototypeOf,
+            I = Object.prototype.hasOwnProperty,
+            P = Object.getOwnPropertyNames,
+            W = Object.getOwnPropertyDescriptor,
+            z = t => f(t, "__esModule", {
                 value: !0
             }),
-            c = (e, t) => () => (t || (t = {
+            s = (t, e) => () => (e || (e = {
                 exports: {}
-            }, e(t.exports, t)), t.exports),
-            B = (e, t, r) => {
-                if (A(e), t && typeof t == "object" || typeof t == "function")
-                    for (let n of T(t)) !O.call(e, n) && n !== "default" && a(e, n, {
-                        get: () => t[n],
-                        enumerable: !(r = k(t, n)) || r.enumerable
+            }, t(e.exports, e)), e.exports),
+            D = (t, e, i) => {
+                if (z(t), e && typeof e == "object" || typeof e == "function")
+                    for (let n of P(e)) !I.call(t, n) && n !== "default" && f(t, n, {
+                        get: () => e[n],
+                        enumerable: !(i = W(e, n)) || i.enumerable
                     });
-                return e
+                return t
             },
-            C = e => e && e.__esModule ? e : B(a(e != null ? j(v(e)) : {}, "default", {
-                value: e,
+            F = t => t && t.__esModule ? t : D(f(t != null ? O(B(t)) : {}, "default", {
+                value: t,
                 enumerable: !0
-            }), e),
-            l = c((M, d) => {
+            }), t),
+            p = s((x, d) => {
                 "use strict";
 
-                function I(e) {
-                    return Object.assign(Object.create(null), e)
+                function G(t) {
+                    return Object.assign(Object.create(null), t)
                 }
-                d.exports = I
+                d.exports = G
             }),
-            p = c((P, m) => {
+            m = s((T, h) => {
                 "use strict";
-                const N = l();
+                const H = p();
 
-                function W(e, t = {}, r = []) {
-                    return N({
-                        name: e,
-                        attributes: t,
-                        children: r
+                function J(t, e = {}, i = []) {
+                    return H({
+                        name: t,
+                        attributes: e,
+                        children: i
                     })
                 }
-                m.exports = W
+                h.exports = J
             }),
-            g = c((Q, f) => {
+            a = s((tt, g) => {
                 "use strict";
 
-                function w(e, t) {
-                    return e.replaceWith(t)
+                function K(t, e) {
+                    return t.replaceWith(e)
                 }
-
-                function z(e, t) {
-                    return w(t, e), e
-                }
-                f.exports = z
+                g.exports = K
             }),
-            b = c((R, x) => {
+            q = s((et, b) => {
+                "use strict";
+                const M = a();
+
+                function Q(t, e) {
+                    return M(e, t), t
+                }
+                b.exports = Q
+            }),
+            l = s((rt, k) => {
                 "use strict";
 
-                function h(e) {
-                    return typeof e == "string" ? D(e) : F(e)
+                function y(t) {
+                    return typeof t == "string" ? R(t) : S(t)
                 }
 
-                function D(e) {
-                    return document.createTextNode(e)
+                function R(t) {
+                    return document.createTextNode(t)
                 }
 
-                function F(e) {
+                function S(t) {
                     const {
-                        name: t,
-                        attributes: r,
+                        name: e,
+                        attributes: i,
                         children: n
-                    } = e, i = document.createElement(t);
-                    for (const o in r) {
-                        const s = r[o];
-                        i.setAttribute(o, s)
+                    } = t, r = document.createElement(e);
+                    for (const c in i) {
+                        const u = i[c];
+                        c === "onclick" ? r.addEventListener("click", u) : r.setAttribute(c, u)
                     }
-                    for (let o = 0, s = n.length; o < s; o++) {
-                        const y = n[o];
-                        i.appendChild(h(y))
+                    for (let c = 0, u = n.length; c < u; c++) {
+                        const L = n[c];
+                        r.appendChild(y(L))
                     }
-                    return i
+                    return r
                 }
-                x.exports = h
+                k.exports = y
             }),
-            E = c((S, q) => {
+            v = s((nt, E) => {
                 "use strict";
-                const G = p(),
-                    H = g(),
-                    J = b();
-                q.exports = {
-                    tag: G,
-                    mount: H,
-                    render: J
+                const N = l(),
+                    A = a(),
+                    j = (t, e) => {
+                        const i = [];
+                        for (const n in e) {
+                            const r = e[n];
+                            i.push(c => {
+                                n === "onclick" ? c.addEventListener("click", r) : c.setAttribute(n, r)
+                            })
+                        }
+                        for (const n in t) e[n] || i.push(r => (r.removeAttribute(n), r));
+                        return n => {
+                            for (const r in i) r(n);
+                            return n
+                        }
+                    };
+
+                function U(t, e) {
+                    if (e === void 0) return r => {
+                        r.remove();
+                        return
+                    };
+                    if (typeof t == "string" || typeof e == "string") return t !== e ? r => {
+                        const c = N(e);
+                        return A(r, c), c
+                    } : r => r;
+                    if (t.tag !== e.tag) return r => {
+                        const c = N(e);
+                        return A(r, c), c
+                    };
+                    const i = j(t.attributes, e.attributes),
+                        n = j(t.children, e.children);
+                    return r => (i(r), n(r), r)
+                }
+                E.exports = U
+            }),
+            C = s((ct, w) => {
+                "use strict";
+                const V = m(),
+                    X = q(),
+                    Y = l(),
+                    Z = v();
+                w.exports = {
+                    tag: V,
+                    mount: X,
+                    render: Y,
+                    diff: Z
                 }
             });
-        const u = C(E()),
-            K = () => u.tag("div", {}, "foo");
-        u.mount(u.render(K()), document.getElementById("app"));
+        const o = F(C()),
+            _ = () => o.tag("div", {}, "foo");
+        o.mount(o.render(_()), document.getElementById("app"));
     })();
     </script>
   `))

@@ -1,11 +1,9 @@
 'use strict'
 
-function replaceElement (target, node) {
-  return target.replaceWith(node)
-}
+const replace = require('./replace')
 
 function mount (node, target) {
-  replaceElement(target, node)
+  replace(target, node)
   return node
 }
 
