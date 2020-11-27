@@ -38,26 +38,26 @@ test('counter: scoped', async assert => {
     const { template } = await compile(`
       <div id="app"></div>
       <script scoped>
-        import { tag, render, mount } from "boxwood"
-
-        let count = 0
+        import { tag, render, diff, mount } from "boxwood"
 
         const app = ({ count }) =>
           tag("div", { id: "app" }, [
-            tag("button", { onclick: rerender }, \`Clicked \${count} \${count === 1 ? "time" : "times"}\`)
+            tag("button", { onclick: rerender }, [\`Clicked \${count} \${count === 1 ? "time" : "times"}\`])
           ])
 
-        mount(
-          render(app({ count })),
+        let count = 0
+        let tree = app({ count })
+        let root = mount(
+          render(tree),
           document.getElementById("app")
         )
 
         function rerender () {
           count += 1
-          mount(
-            render(app({ count })),
-            document.getElementById("app")
-          )
+          const nextTree = app({ count })
+          const patch = diff(tree, nextTree)
+          root = patch(root)
+          tree = nextTree
         }
       </script>
     `, {})

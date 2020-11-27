@@ -31,7 +31,7 @@ const diffAttributes = (previousAttributes, nextAttributes) => {
   }
 
   return node => {
-    for (const patch in patches) {
+    for (const patch of patches) {
       patch(node)
     }
     return node
