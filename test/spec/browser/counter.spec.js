@@ -31,27 +31,42 @@ test('counter: vanilla', async assert => {
   await server.stop()
 })
 
-test.skip('counter: scoped', async assert => {
+test('counter: scoped', async assert => {
   const server = new Server()
   const { port } = await server.start()
   server.get('/', async (request, response) => {
     const { template } = await compile(`
-      <button onclick={onClick}>Clicked {count} {count === 1 ? 'time' : 'times'}</button>
+      <div id="app"></div>
       <script scoped>
-        let count = 0;
-        function onClick () {
+        import { tag, render, mount } from "boxwood"
+
+        let count = 0
+
+        const app = ({ count }) =>
+          tag("div", { id: "app" }, [
+            tag("button", { onclick: rerender }, \`Clicked \${count} \${count === 1 ? "time" : "times"}\`)
+          ])
+
+        mount(
+          render(app({ count })),
+          document.getElementById("app")
+        )
+
+        function rerender () {
           count += 1
+          mount(
+            render(app({ count })),
+            document.getElementById("app")
+          )
         }
       </script>
     `, {})
-    console.log(template.toString())
     response.send(template())
   })
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
   await page.goto(`http://localhost:${port}`)
   var content = await page.content()
-  console.log(content)
   assert.truthy(content.includes('Clicked 0 times'))
   await page.click("button")
   var content = await page.content()

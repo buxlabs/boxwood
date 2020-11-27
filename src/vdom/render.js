@@ -17,7 +17,14 @@ function renderElement (node) {
 
   for (const key in attributes) {
     const value = attributes[key]
-    element.setAttribute(key, value)
+    if (key === 'onclick') {
+      // setting event handlers like this is
+      // not efficient, e.g. for lists of items
+      // it would be better to have one global handler
+      element.addEventListener('click', value)
+    } else {
+      element.setAttribute(key, value)
+    }
   }
 
   for (let i = 0, ilen = children.length; i < ilen; i++) {
