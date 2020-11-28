@@ -236,7 +236,7 @@ test('style: does not produce errors for an imported component', async assert =>
   assert.deepEqual(warnings, [])
 })
 
-test.skip('style: does not produce errors when data tag is present', async assert => {
+test('style: does not produce errors when data tag is present', async assert => {
   const { errors, warnings } = await compile(`
     <import link from="components/link.html"/>
     <import layout from='layouts/default.html'/>
