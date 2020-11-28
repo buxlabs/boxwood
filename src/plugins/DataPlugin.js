@@ -3,6 +3,7 @@ const { parseData, getDataFormat } = require('../utilities/data')
 const { isPlainObject } = require('pure-conditions')
 const { optimizeNode } = require('../utilities/optimize')
 const { createTranslationError } = require('../utilities/errors')
+const CODE_TAGS = ['style', 'script']
 
 class DataPlugin extends Plugin {
   beforeprerun () {
@@ -32,7 +33,14 @@ class DataPlugin extends Plugin {
         errors.push(createTranslationError('Data tag must specify a format (js, json or yaml).', stack))
       }
     }
-    if (this.variables.length > 0) {
+
+    if (CODE_TAGS.includes(tag)) {
+      fragment.children.forEach(node => {
+        node.skipDataOptimization = true
+      })
+    }
+
+    if (this.variables.length > 0 && !fragment.skipDataOptimization) {
       optimizeNode(fragment, this.variables, [], true)
     }
   }
