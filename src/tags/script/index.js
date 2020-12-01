@@ -1,12 +1,13 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { join } = require('path')
-const Bundler = require('../../Bundler')
 const { getLiteral } = require('../../utilities/ast')
 const { findAsset } = require('../../utilities/files')
 const { containsCurlyTag } = require('../../utilities/string')
 const { convertAttribute } = require('../../utilities/convert')
+const scoped = require('./scoped')
+
+const script = { scoped }
 
 module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
   if (keys.includes('inline') || options.inline.includes('scripts')) {
@@ -45,26 +46,13 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     const leaf = fragment.children[0]
     if (!leaf) return
     leaf.used = true
-    const script = []
-    const leafTree = new AbstractSyntaxTree(leaf.content)
-    leafTree.replace(node => {
-      if (node.type === 'ImportDeclaration' && node.source.value === 'boxwood') {
-        node.source.value = '.'
-      }
-      return node
-    })
-    const bundler = new Bundler()
-    const promise = bundler.bundle(leafTree.source, {
-      paths: [
-        join(__dirname, '../../vdom'),
-        ...options.script.paths
-      ]
+    const promise = script.scoped({
+      source: leaf.content,
+      paths: options.script.paths
     })
     promises.push(promise)
-    const result = await promise
-    const output = result
-    script.push(getLiteral(`\n${output}`))
-    scripts.push(script)
+    const output = await promise
+    scripts.push([getLiteral(`\n${output}`)])
   } else if (keys.includes('compiler')) {
     const { value } = attrs.find(attr => attr.key === 'compiler')
     const compiler = options.compilers[value]
