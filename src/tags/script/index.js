@@ -2,11 +2,11 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { join } = require('path')
-const Bundler = require('../Bundler')
-const { getLiteral } = require('../utilities/ast')
-const { findAsset } = require('../utilities/files')
-const { containsCurlyTag } = require('../utilities/string')
-const { convertAttribute } = require('../utilities/convert')
+const Bundler = require('../../Bundler')
+const { getLiteral } = require('../../utilities/ast')
+const { findAsset } = require('../../utilities/files')
+const { containsCurlyTag } = require('../../utilities/string')
+const { convertAttribute } = require('../../utilities/convert')
 
 module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
   if (keys.includes('inline') || options.inline.includes('scripts')) {
@@ -56,7 +56,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     const bundler = new Bundler()
     const promise = bundler.bundle(leafTree.source, {
       paths: [
-        join(__dirname, '../vdom'),
+        join(__dirname, '../../vdom'),
         ...options.script.paths
       ]
     })
