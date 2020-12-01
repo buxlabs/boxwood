@@ -38,11 +38,11 @@ test('counter: scoped', async assert => {
     const { template } = await compile(`
       <div id="app"></div>
       <script scoped>
-        import { tag, render, diff, mount } from "boxwood"
+        import { div, button, render, diff, mount } from "boxwood"
 
         const app = ({ count }) =>
-          tag("div", { id: "app" }, [
-            tag("button", { onclick: rerender }, [\`Clicked \${count} \${count === 1 ? "time" : "times"}\`])
+          div({ id: "app" }, [
+            button({ onclick: rerender }, [\`Clicked \${count} \${count === 1 ? "time" : "times"}\`])
           ])
 
         let count = 0
