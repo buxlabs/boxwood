@@ -1,0 +1,15 @@
+<div id="app"></div>
+<script scoped>
+  import { div, button, app } from "boxwood"
+
+  const view = ({ count }) =>
+    button({
+      onclick: (state) => ({ ...state, count: state.count + 1 })
+    }, `Clicked ${count} ${count === 1 ? "time" : "times"}`)
+
+  app({
+    view,
+    state: { count: 0 },
+    root: document.getElementById("app")
+  })
+</script>
