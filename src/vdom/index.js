@@ -5,16 +5,13 @@ const mount = require('./mount')
 const render = require('./render')
 const diff = require('./diff')
 const app = require('./app')
-
-const div = (attributes, children) => tag('div', attributes, children)
-const button = (attributes, children) => tag('button', attributes, children)
+const nodes = require('./nodes')
 
 module.exports = {
+  ...nodes,
   app,
   mount,
   render,
   diff,
-  tag,
-  div,
-  button
+  tag
 }
