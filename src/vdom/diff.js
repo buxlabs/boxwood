@@ -3,19 +3,15 @@
 const render = require('./render')
 const replace = require('./replace')
 
+const events = ['onclick']
+
 const diffAttributes = (previousAttributes, nextAttributes) => {
   const patches = []
 
   for (const key in nextAttributes) {
     const value = nextAttributes[key]
     patches.push(node => {
-      // similar code is in the render method
-      if (key === 'onclick') {
-        // setting event handlers like this is
-        // not efficient, e.g. for lists of items
-        // it would be better to have one global handler
-        node.addEventListener('click', value)
-      } else {
+      if (!events.includes(key)) {
         node.setAttribute(key, value)
       }
     })

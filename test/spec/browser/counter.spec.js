@@ -27,6 +27,9 @@ test('counter: vanilla', async assert => {
   await page.click("button")
   var content = await page.content()
   assert.truthy(content.includes('Clicked 1 time'))
+  await page.click("button")
+  var content = await page.content()
+  assert.truthy(content.includes('Clicked 2 times'))
   await browser.close()
   await server.stop()
 })
@@ -38,27 +41,18 @@ test('counter: scoped', async assert => {
     const { template } = await compile(`
       <div id="app"></div>
       <script scoped>
-        import { div, button, render, diff, mount } from "boxwood"
+        import { div, button, app } from "boxwood"
 
-        const app = ({ count }) =>
-          div({ id: "app" }, [
-            button({ onclick: rerender }, [\`Clicked \${count} \${count === 1 ? "time" : "times"}\`])
-          ])
+        const view = ({ count }) =>
+          button({
+            onclick: (state) => ({ ...state, count: state.count + 1 })
+          }, \`Clicked \${count} \${count === 1 ? "time" : "times"}\`)
 
-        let count = 0
-        let tree = app({ count })
-        let root = mount(
-          render(tree),
-          document.getElementById("app")
-        )
-
-        function rerender () {
-          count += 1
-          const nextTree = app({ count })
-          const patch = diff(tree, nextTree)
-          root = patch(root)
-          tree = nextTree
-        }
+        app({
+          view,
+          state: { count: 0 },
+          root: document.getElementById("app")
+        })
       </script>
     `, {})
     response.send(template())
@@ -71,6 +65,9 @@ test('counter: scoped', async assert => {
   await page.click("button")
   var content = await page.content()
   assert.truthy(content.includes('Clicked 1 time'))
+  await page.click("button")
+  var content = await page.content()
+  assert.truthy(content.includes('Clicked 2 times'))
   await browser.close()
   await server.stop()
 })
