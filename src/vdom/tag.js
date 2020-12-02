@@ -3,35 +3,24 @@
 const node = require('./node')
 
 function toArray (children) {
-  if (Array.isArray(children)) {
-    return children
-  }
-  return [children]
+  return Array.isArray(children) ? children : [children]
 }
 
-function normalize (params) {
-  if (params.length === 3) {
-    const [name, attributes, children] = params
-    return [name, attributes, children]
-  }
-
+function deduceParams (params) {
+  if (params.length === 3) { return params }
   if (params.length === 2) {
     if (Array.isArray(params[1]) || typeof params[1] === 'string') {
       const [name, children] = params
       return [name, {}, children]
     }
-    const [name, attributes] = params
-    return [name, attributes, []]
+    return params
   }
-  if (params.length === 1) {
-    const [name] = params
-    return [name, {}, []]
-  }
-  return ['div', {}, []]
+  if (params.length === 1) { return params }
+  return ['div']
 }
 
 function tag () {
-  const [name, attributes, children] = normalize([...arguments])
+  const [name, attributes = {}, children = []] = deduceParams([...arguments])
   return node({
     name,
     attributes,
