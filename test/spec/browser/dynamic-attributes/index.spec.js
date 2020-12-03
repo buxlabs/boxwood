@@ -4,14 +4,8 @@ const suite = require('../../../helpers/feature/suite')
 const path = (example) => join(__dirname, `./examples/${example}.html`)
 
 const spec = (assert) => async ({ page }) => {
-  var content = await page.content()
-  assert.truthy(content.includes('Clicked 0 times'))
-  await page.click("button")
-  var content = await page.content()
-  assert.truthy(content.includes('Clicked 1 time'))
-  await page.click("button")
-  var content = await page.content()
-  assert.truthy(content.includes('Clicked 2 times'))
+  const img = await page.$("img[src='test.png'][alt='test']")
+  assert.truthy(img)
 }
 
 test('counter: vanilla', async assert => {

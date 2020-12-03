@@ -1,0 +1,9 @@
+<div id="app"></div>
+<script scoped>
+  import { app, img } from "boxwood"
+
+  app({
+    view: () => img({ src: "test.png", alt: "test" }),
+    root: document.getElementById("app")
+  })
+</script>
