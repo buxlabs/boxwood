@@ -15,7 +15,7 @@ function scoped ({ source, paths }) {
   const bundler = new Bundler()
   return bundler.bundle(tree.source, {
     paths: [
-      join(__dirname, '../../vdom'),
+      join(__dirname, '../../vdom/browser'),
       ...paths
     ]
   })
