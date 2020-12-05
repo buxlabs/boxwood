@@ -4,7 +4,7 @@ const test = require('ava')
 const env = require('browser-env')
 const mount = require('./mount')
 const render = require('./render')
-const tag = require('./tag')
+const tag = require('../tag')
 
 test.before(() => {
   env(['document'])

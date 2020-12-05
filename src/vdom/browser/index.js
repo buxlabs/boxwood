@@ -1,8 +1,8 @@
 'use strict'
 
-const tag = require('./tag')
 const app = require('./app')
-const nodes = require('./nodes')
+const nodes = require('../nodes')
+const tag = require('../tag')
 
 module.exports = {
   ...nodes,

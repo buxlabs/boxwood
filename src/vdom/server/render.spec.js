@@ -2,7 +2,7 @@
 
 const test = require('ava')
 const render = require('./render')
-const tag = require('./tag')
+const tag = require('../tag')
 
 test('#render: creates a dom node from a vdom node', assert => {
   const html = render(tag('div', { class: 'foo', id: 'bar' }))
