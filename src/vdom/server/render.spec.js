@@ -23,3 +23,14 @@ test('#render: creates children nodes (tag)', assert => {
   const html = render(tag('div', { class: 'foo' }, tag('p', 'bar')))
   assert.deepEqual(html, '<div class="foo"><p>bar</p></div>')
 })
+
+test('#render: self closing tags', assert => {
+  const html = render(tag('br'))
+  assert.deepEqual(html, '<br/>')
+})
+
+test('#render: self closing tags with attributes', assert => {
+  const html = render(tag('hr', { class: 'primary' }))
+  assert.deepEqual(html, '<hr class="primary"/>')
+})
+
