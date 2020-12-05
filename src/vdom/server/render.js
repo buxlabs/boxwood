@@ -11,7 +11,7 @@ function render (node, state, dispatch) {
 
 function renderElement (node, state, dispatch) {
   const { name, attributes, children } = node
-  const element = { name, attributes: [], children: '' }
+  const element = { attributes: [], children: '' }
 
   for (const key in attributes) {
     const value = attributes[key]
@@ -23,16 +23,11 @@ function renderElement (node, state, dispatch) {
     element.children += render(child, state, dispatch)
   }
 
-  if (element.attributes.length > 0) {
-    if (SELF_CLOSING_TAGS.includes(element.name)) {
-      return `<${element.name} ${element.attributes.join(' ')}/>`
-    }
-    return `<${element.name} ${element.attributes.join(' ')}>${element.children}</${element.name}>`
+  const attrs = element.attributes.length > 0 ? ` ${element.attributes.join(' ')}` : ''
+  if (SELF_CLOSING_TAGS.includes(name)) {
+    return `<${name}${attrs}/>`
   }
-  if (SELF_CLOSING_TAGS.includes(element.name)) {
-    return `<${element.name}/>`
-  }
-  return `<${element.name}>${element.children}</${element.name}>`
+  return `<${name}${attrs}>${element.children}</${name}>`
 }
 
 module.exports = render
