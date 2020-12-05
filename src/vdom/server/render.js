@@ -15,7 +15,11 @@ function renderElement (node, state, dispatch) {
 
   for (const key in attributes) {
     const value = attributes[key]
-    element.attributes.push(`${key}="${value}"`)
+    if (typeof value === 'boolean' && value) {
+      element.attributes.push(key)
+    } else {
+      element.attributes.push(`${key}="${value}"`)
+    }
   }
 
   for (let i = 0, ilen = children.length; i < ilen; i++) {
@@ -25,7 +29,7 @@ function renderElement (node, state, dispatch) {
 
   const attrs = element.attributes.length > 0 ? ` ${element.attributes.join(' ')}` : ''
   if (SELF_CLOSING_TAGS.includes(name)) {
-    return `<${name}${attrs}/>`
+    return `<${name}${attrs}>`
   }
   return `<${name}${attrs}>${element.children}</${name}>`
 }

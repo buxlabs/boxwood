@@ -93,7 +93,7 @@ module.exports = {
   article: node('article'),
   caption: node('caption'),
   details: node('details'),
-  doctype: node('!doctype'),
+  doctype: () => tag('!doctype', { html: true }),
   section: node('section'),
   summary: node('summary'),
   picture: node('picture'),

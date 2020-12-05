@@ -3,6 +3,7 @@
 const test = require('ava')
 const render = require('./render')
 const tag = require('../tag')
+const { doctype } = require('../nodes')
 
 test('#render: creates a dom node from a vdom node', assert => {
   const html = render(tag('div', { class: 'foo', id: 'bar' }))
@@ -26,11 +27,15 @@ test('#render: creates children nodes (tag)', assert => {
 
 test('#render: self closing tags', assert => {
   const html = render(tag('br'))
-  assert.deepEqual(html, '<br/>')
+  assert.deepEqual(html, '<br>')
 })
 
 test('#render: self closing tags with attributes', assert => {
   const html = render(tag('hr', { class: 'primary' }))
-  assert.deepEqual(html, '<hr class="primary"/>')
+  assert.deepEqual(html, '<hr class="primary">')
 })
 
+test('#render: doctype', assert => {
+  const html = render(doctype())
+  assert.deepEqual(html, '<!doctype html>')
+})
