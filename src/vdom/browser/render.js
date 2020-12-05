@@ -3,12 +3,23 @@
 function render (node, state, dispatch) {
   if (typeof node === 'string') {
     return renderText(node)
+  } else if (node.name === '!doctype') {
+    return renderDoctype()
+  } else if (Array.isArray(node)) {
+    const nodes = node.map(tag => render(tag, state, dispatch))
+    const fragment = document.createDocumentFragment()
+    nodes.forEach(element => fragment.appendChild(element))
+    return fragment
   }
   return renderElement(node, state, dispatch)
 }
 
 function renderText (node) {
   return document.createTextNode(node)
+}
+
+function renderDoctype (node) {
+  return document.createDocumentFragment()
 }
 
 function renderElement (node, state, dispatch) {

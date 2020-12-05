@@ -55,6 +55,7 @@ module.exports = {
   code: node('code'),
   data: node('data'),
   form: node('form'),
+  head: node('head'),
   html: node('html'),
   main: node('main'),
   mark: node('mark'),

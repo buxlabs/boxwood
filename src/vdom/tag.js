@@ -15,12 +15,14 @@ function deduceParams (params) {
     }
     return params
   }
-  if (params.length === 1) { return params }
+  if (params.length === 1) {
+    return params
+  }
   return ['div']
 }
 
 function tag () {
-  const [name, attributes = {}, children = []] = deduceParams([...arguments])
+  const [name, attributes = {}, children = []] = deduceParams([...arguments].filter(Boolean))
   return node({
     name,
     attributes,

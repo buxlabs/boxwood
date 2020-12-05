@@ -3,39 +3,54 @@
 const test = require('ava')
 const render = require('./render')
 const tag = require('../tag')
-const { doctype } = require('../nodes')
+const { doctype, html, head, body, header, main, footer } = require('../nodes')
 
 test('#render: creates a dom node from a vdom node', assert => {
-  const html = render(tag('div', { class: 'foo', id: 'bar' }))
-  assert.deepEqual(html, '<div class="foo" id="bar"></div>')
+  const result = render(tag('div', { class: 'foo', id: 'bar' }))
+  assert.deepEqual(result, '<div class="foo" id="bar"></div>')
 })
 
 test('#render: renders text nodes', assert => {
-  const html = render('foo')
-  assert.deepEqual(html, 'foo')
+  const result = render('foo')
+  assert.deepEqual(result, 'foo')
 })
 
 test('#render: creates children nodes (text)', assert => {
-  const html = render(tag('div', { class: 'foo' }, 'bar'))
-  assert.deepEqual(html, '<div class="foo">bar</div>')
+  const result = render(tag('div', { class: 'foo' }, 'bar'))
+  assert.deepEqual(result, '<div class="foo">bar</div>')
 })
 
 test('#render: creates children nodes (tag)', assert => {
-  const html = render(tag('div', { class: 'foo' }, tag('p', 'bar')))
-  assert.deepEqual(html, '<div class="foo"><p>bar</p></div>')
+  const result = render(tag('div', { class: 'foo' }, tag('p', 'bar')))
+  assert.deepEqual(result, '<div class="foo"><p>bar</p></div>')
 })
 
 test('#render: self closing tags', assert => {
-  const html = render(tag('br'))
-  assert.deepEqual(html, '<br>')
+  const result = render(tag('br'))
+  assert.deepEqual(result, '<br>')
 })
 
 test('#render: self closing tags with attributes', assert => {
-  const html = render(tag('hr', { class: 'primary' }))
-  assert.deepEqual(html, '<hr class="primary">')
+  const result = render(tag('hr', { class: 'primary' }))
+  assert.deepEqual(result, '<hr class="primary">')
 })
 
 test('#render: doctype', assert => {
-  const html = render(doctype())
-  assert.deepEqual(html, '<!doctype html>')
+  const result = render(doctype())
+  assert.deepEqual(result, '<!doctype html>')
+})
+
+test('#render: html page', assert => {
+  const result = render([
+    doctype(),
+    html([
+      head(),
+      body([
+        header('foo'),
+        main('bar'),
+        footer('baz')
+      ])
+    ])
+  ])
+  assert.deepEqual(result, '<!doctype html><html><head></head><body><header>foo</header><main>bar</main><footer>baz</footer></body></html>')
 })
