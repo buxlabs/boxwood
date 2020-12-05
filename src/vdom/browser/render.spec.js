@@ -10,9 +10,10 @@ test.before(() => {
 })
 
 test('#render: creates a dom node from a vdom node', assert => {
-  const node = render(tag('div', { class: 'foo' }))
+  const node = render(tag('div', { class: 'foo', id: 'bar' }))
   assert.deepEqual(node.tagName, 'DIV')
   assert.deepEqual(node.classList.contains('foo'), true)
+  assert.deepEqual(node.id, 'bar')
 })
 
 test('#render: renders text nodes', assert => {
