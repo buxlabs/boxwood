@@ -21,7 +21,7 @@ function renderElement (node, state, dispatch) {
     element.children += render(child, state, dispatch)
   }
 
-  if (element.attributes) {
+  if (element.attributes.length > 0) {
     return `<${element.name} ${element.attributes.join(' ')}>${element.children}</${element.name}>`
   }
   return `<${element.name}>${element.children}</${element.name}>`
