@@ -7,11 +7,11 @@ test('styles: works for simple objects', assert => {
     assert.deepEqual(styles({ color: 'red' }), 'color: red')
 })
 
-test.skip('styles: should transform border with numeric value', assert => {
+test.skip('styles: works for numbers', assert => {
   assert.deepEqual(styles({ border: 20 }), 'border-width: 20px')
 })
 
-test.skip('styles: should transform nested border', assert => {
+test.skip('styles: works for nested keys', assert => {
     assert.deepEqual(styles({
       border: {
         color: 'red',
@@ -25,7 +25,7 @@ test.skip('styles: should transform nested border', assert => {
     ].join(''))
 })
 
-test.skip('styles: should transform nested padding', assert => {
+test.skip('styles: works for nested padding', assert => {
     assert.deepEqual(styles({
       padding: {
         top: 3,
@@ -37,7 +37,7 @@ test.skip('styles: should transform nested padding', assert => {
     ].join(''))
 })
 
-test.skip('styles: should transform objects with multiple keys', assert => {
+test.skip('styles: works for multiple keys', assert => {
     assert.deepEqual(styles({
       padding: {
         top: 3,
@@ -53,7 +53,7 @@ test.skip('styles: should transform objects with multiple keys', assert => {
     ].join(''))
 })
 
-test.skip('styles: should transform objects with multiple keys - var 2', assert => {
+test.skip('styles: works for multiple keys (v2)', assert => {
     assert.deepEqual(styles({
       border: {
         width: 1,
