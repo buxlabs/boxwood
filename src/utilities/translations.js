@@ -47,13 +47,32 @@ function getTranslateCallExpression (key, variables, content, filters, translati
   const node = getTranslationNode(key, variables, filters, translations, languages)
   const objectMemberExpression = getObjectMemberExpression('language')
   objectMemberExpression.property.inlined = true
+
+  const isExpression = key.startsWith('{')
+  if (isExpression) {
+    return {
+      type: 'CallExpression',
+      callee: {
+        type: 'Identifier',
+        name: 'translate'
+      },
+      arguments: [
+        modify(node, variables, usedFilters),
+        objectMemberExpression
+      ]
+    }
+  }
   return modify({
     type: 'CallExpression',
     callee: {
       type: 'Identifier',
       name: 'translate'
     },
-    arguments: [node, objectMemberExpression]
+    arguments: [
+      node,
+      objectMemberExpression
+    ]
   }, variables, usedFilters)
 }
+
 module.exports = { getTranslateCallExpression }

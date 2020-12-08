@@ -2,7 +2,7 @@ const test = require('ava')
 const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 
-test('translation: dynamic key', async assert => {
+test('translate: dynamic key', async assert => {
   const { template } = await compile(`
     <translate {foo}/>
     <data yaml>
@@ -16,9 +16,9 @@ test('translation: dynamic key', async assert => {
   assert.deepEqual(template({ language: 'pl', foo: 'bar' }, escape), 'baz')
 })
 
-test.skip('translation: dynamic key with a filter', async assert => {
+test('translate: dynamic key with a filter', async assert => {
   const { template } = await compile(`
-    <translate {foo | underscore}/>
+    <translate {foo|underscore}/>
     <data yaml>
     i18n:
       bar_baz:
@@ -27,5 +27,37 @@ test.skip('translation: dynamic key with a filter', async assert => {
   `, {
     languages: ['pl']
   })
-  assert.deepEqual(template({ language: 'pl', foo: 'bar-baz' }, escape), 'baz')
+  assert.deepEqual(template({ language: 'pl', foo: 'bar-baz' }, escape), 'qux')
+})
+
+test('translate: filters', async assert => {
+  var { template } = await compile(`
+    <script i18n yaml>
+      foo:
+      - 'foo'
+      - 'foo'
+    </script>
+    <translate foo|uppercase/>
+  `, { languages: ['pl', 'en'] })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'FOO')
+
+  var { template } = await compile(`
+    <script i18n yaml>
+      foo:
+      - 'foo'
+      - 'foo'
+    </script>
+    <translate foo|uppercase|lowerfirst|reverse/>
+  `, { languages: ['pl', 'en'] })
+  assert.deepEqual(template({ language: 'pl' }, escape), 'OOf')
+
+  var { template } = await compile(`
+    <script i18n yaml>
+      foo:
+      - 'foo {bar}'
+      - 'foo {bar}'
+    </script>
+    <translate foo|uppercase|lowerfirst|reverse bar="{bar}" />
+  `, { languages: ['pl', 'en'] })
+  assert.deepEqual(template({ language: 'pl', bar: 'bar' }, escape), 'RAB OOf')
 })
