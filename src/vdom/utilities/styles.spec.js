@@ -3,6 +3,10 @@
 const test = require('ava')
 const styles = require('./styles')
 
+test('styles: works for simple objects', assert => {
+    assert.deepEqual(styles({ color: 'red' }), 'color: red')
+})
+
 test.skip('styles: should transform border with numeric value', assert => {
   assert.deepEqual(styles({ border: 20 }), 'border-width: 20px')
 })
