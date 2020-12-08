@@ -1,5 +1,7 @@
 'use strict'
 
+const styles = require('../utilities/styles')
+
 function render (node, state, dispatch) {
   if (typeof node === 'string') {
     return renderText(node)
@@ -39,6 +41,8 @@ function renderElement (node, state, dispatch) {
         state = newState
         dispatch(state)
       })
+    } else if (key === 'style') {
+      element.setAttribute(key, styles(value))
     } else {
       element.setAttribute(key, value)
     }

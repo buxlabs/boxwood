@@ -3,7 +3,7 @@
   import { app, p } from "boxwood"
 
   app({
-    view: () => p({ style: "color: red; font-weight: bold;" }, 'Hello, world!'),
+    view: () => p({ style: { color: 'red', 'font-weight': 'bold' } }, 'Hello, world!'),
     root: document.getElementById('app')
   })
 </script>

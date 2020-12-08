@@ -20,6 +20,11 @@ test('#render: creates children nodes (text)', assert => {
   assert.deepEqual(result, '<div class="foo">bar</div>')
 })
 
+test('#render: renders styles', assert => {
+  const result = render(tag('div', { style: { color: 'red' } }, 'bar'))
+  assert.deepEqual(result, '<div style="color: red">bar</div>')
+})
+
 test('#render: creates children nodes (tag)', assert => {
   const result = render(tag('div', { class: 'foo' }, tag('p', 'bar')))
   assert.deepEqual(result, '<div class="foo"><p>bar</p></div>')

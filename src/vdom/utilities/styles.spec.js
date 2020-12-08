@@ -3,8 +3,12 @@
 const test = require('ava')
 const styles = require('./styles')
 
+test('styles: returns a string if a string was passed', assert => {
+  assert.deepEqual(styles('color: red'), 'color: red')
+})
+
 test('styles: works for simple objects', assert => {
-    assert.deepEqual(styles({ color: 'red' }), 'color: red')
+  assert.deepEqual(styles({ color: 'red' }), 'color: red')
 })
 
 test.skip('styles: works for numbers', assert => {

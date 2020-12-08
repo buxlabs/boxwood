@@ -1,5 +1,6 @@
 'use strict'
 
+const styles = require('../utilities/styles')
 const { SELF_CLOSING_TAGS } = require('../../utilities/enum')
 
 function render (node) {
@@ -15,6 +16,13 @@ function render (node) {
   return renderElement(node)
 }
 
+function renderValue (key, value) {
+  if (key === 'style') {
+    return styles(value)
+  }
+  return value
+}
+
 function renderElement (node) {
   const { name, attributes, children } = node
   const element = { attributes: [], children: '' }
@@ -24,7 +32,7 @@ function renderElement (node) {
     if (typeof value === 'boolean' && value) {
       element.attributes.push(key)
     } else {
-      element.attributes.push(`${key}="${value}"`)
+      element.attributes.push(`${key}="${renderValue(key, value)}"`)
     }
   }
 

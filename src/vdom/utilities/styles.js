@@ -1,10 +1,13 @@
 'use strict'
 
-function styles (object) {
+function styles (input) {
+  if (typeof input === 'string') {
+    return input
+  }
   const result = []
-  for (const key in object) {
-    if (Object.prototype.hasOwnProperty.call(object, key)) {
-      const value = object[key]
+  for (const key in input) {
+    if (Object.prototype.hasOwnProperty.call(input, key)) {
+      const value = input[key]
       result.push(`${key}: ${value}`)
     }
   }
