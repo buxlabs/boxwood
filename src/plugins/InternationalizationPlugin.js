@@ -6,8 +6,8 @@ const hash = require('string-hash')
 const { parseData, getDataFormat } = require('../utilities/data')
 const { createTranslationError } = require('../utilities/errors')
 
-function merge (value, translations, languages, errors, stack) {
-  if (value.includes('{') && value.includes('}')) return translations
+function validateTranslations (value, translations, languages, errors, stack) {
+  if (value.includes('{') || value.includes('}')) return translations
   if (!translations[value]) {
     errors.push(createTranslationError(`There is no translation for the ${value} key`, stack))
     return translations
@@ -33,6 +33,13 @@ function isDataTag (tag) {
 
 function hasTranslateModifier (attribute) {
   return attribute.key.endsWith('|translate')
+}
+
+function getTranslationKey (key) {
+  if (key.includes('|')) {
+    return `${key.split('|')[0]}`
+  }
+  return key
 }
 
 class InternationalizationPlugin extends Plugin {
@@ -92,7 +99,7 @@ class InternationalizationPlugin extends Plugin {
       if (attribute) {
         const { key } = attribute
         this.filters.push('translate')
-        this.translations = merge(`${key.split('|')[0]}_${id}`, this.translations, languages, this.errors, stack)
+        this.translations = validateTranslations(`${getTranslationKey(key)}_${id}`, this.translations, languages, this.errors, stack)
         attribute.key = `${key}_${id}`
       } else {
         this.errors.push(createTranslationError('Translate tag must define a key', stack))

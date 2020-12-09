@@ -17,7 +17,7 @@ test('translate: dynamic key', async assert => {
 })
 
 test('translate: dynamic key with a filter', async assert => {
-  const { template } = await compile(`
+  const { template, warnings, errors } = await compile(`
     <translate {foo|underscore}/>
     <data yaml>
     i18n:
@@ -28,6 +28,8 @@ test('translate: dynamic key with a filter', async assert => {
     languages: ['pl']
   })
   assert.deepEqual(template({ language: 'pl', foo: 'bar-baz' }, escape), 'qux')
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
 })
 
 test('translate: filters', async assert => {
