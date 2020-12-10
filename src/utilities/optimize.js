@@ -10,6 +10,7 @@ const walk = require('himalaya-walk')
 const { addPlaceholders, removePlaceholders } = require('./keywords')
 const { parseData, getDataFormat } = require('./data')
 const { isGlobalVariable } = require('./globals')
+const { extract } = require('./string')
 const { isPlainObject } = require('pure-conditions')
 
 const {
@@ -30,14 +31,22 @@ function canInlineTree ({ body }) {
 }
 
 // TODO unit tests
-function inlineVariables (node, parent, variables, newVariables, loose) {
+function inlineVariables (value, node, parent, variables, newVariables, loose) {
+  const { filters = [] } = extract(`{${value}}`)[0]
   if (node.inlined) return node
   if (parent.type === 'MemberExpression' && node === parent.property) return node
   if (parent.type === 'Property') return node
   // TODO foo.bar.baz should be optimized
   // right now it will just inject objects into the root key
   if (node.type === 'Identifier') {
-    if (node.name === GLOBAL_VARIABLE) { return node }
+    const filterNames = filters.map(filter => {
+      const index = filter.indexOf('(')
+      if (index >= 0) {
+        return filter.substring(0, index)
+      }
+      return filter
+    })
+    if (node.name === GLOBAL_VARIABLE || filterNames.includes(node.name)) { return node }
     const variable = variables.find(variable => variable.key === node.name)
     if (variable) {
       if (isCurlyTag(variable.value)) {
@@ -128,7 +137,7 @@ function optimizeCurlyTag (value, variables, newVariables, loose) {
     return curlyTag(value)
   }
   tree.replace({ enter: removePlaceholders })
-  tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables, newVariables) })
+  tree.replace({ enter: (node, parent) => inlineVariables(value, node, parent, variables, newVariables) })
   tree.replace({ enter: memberExpressionReduction })
   tree.replace({ enter: logicalExpressionReduction })
   tree.replace({ enter: binaryExpressionReduction })
@@ -150,7 +159,7 @@ function looseOptimizeCurlyTag (value, variables) {
   if (isObject(value)) value = `(${value})`
   const tree = new AbstractSyntaxTree(value)
   if (isGlobalVariable(tree)) { return curlyTag(value) }
-  tree.replace({ enter: (node, parent) => inlineVariables(node, parent, variables, [], true) })
+  tree.replace({ enter: (node, parent) => inlineVariables(value, node, parent, variables, [], true) })
   if (canInlineTree(tree)) {
     const { value } = tree.body[0].expression
     return value

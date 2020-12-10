@@ -1,4 +1,5 @@
 const test = require('ava')
+const { join } = require('path')
 const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 
@@ -272,9 +273,6 @@ test('filters', async assert => {
   var { template } = await compile(`{foo | fixed(2)}`)
   assert.deepEqual(template({ foo: 100.521 }, escape), '100.52')
 
-  var { template } = await compile(`{foo | monetize(2)}`)
-  assert.deepEqual(template({ foo: 25 }, escape), '25,00 zł')
-
   var { template } = await compile(`{foo | reverse}`)
   assert.deepEqual(template({ foo: 'bar' }, escape), 'rab')
 
@@ -491,9 +489,6 @@ test('filters', async assert => {
   var { template } = await compile(`{foo | keys | last}`)
   assert.deepEqual(template({ foo: { bar: 1, baz: 2, ban: 'qux' } }, escape), 'ban')
 
-  var { template } = await compile(`{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}`)
-  assert.deepEqual(template({ foo: 100 }, escape), '$100.00')
-
   var { template } = await compile(`<img class="img-responsive" src="/assets/images/{photos | first}" alt="Photo">`)
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
 
@@ -591,13 +586,33 @@ test('filters: custom filters', async assert => {
     }
   })
   assert.deepEqual(template({ foo: 'bar' }, escape), 'BAR')
+})
 
-  // var { template } = await compile('{foo | myFilter}', {
-  //   filters: {
-  //     myFilter: (text) => {
-  //       return text.toUpperCase()
-  //     }
-  //   }
-  // })
-  // assert.deepEqual(template({ foo: 'bar' }, escape), 'BAR')
+test('filters: monetize', async assert => {
+  var { template } = await compile(`{foo | monetize(2)}`)
+  assert.deepEqual(template({ foo: 25 }, escape), '25,00 zł')
+
+  var { template } = await compile(`{foo | monetize({ symbol: "$", ending: false, space: false , separator: "."})}`)
+  assert.deepEqual(template({ foo: 100 }, escape), '$100.00')
+
+  var { template } = await compile(`
+    <import price from="components/price.html"/>
+    <price {product}/>
+  `, {
+    paths: [
+      join(__dirname, '../../fixtures')
+    ],
+    languages: ['pl', 'de', 'en']
+  })
+
+  const product = {
+    prices: {
+      PLN: 0.99,
+      EUR: 0.99,
+      GBP: 0.99
+    }
+  }
+  assert.deepEqual(template({ language: 'pl', product }), '0,99 zł')
+  assert.deepEqual(template({ language: 'de', product }), '€0.99')
+  assert.deepEqual(template({ language: 'en', product }), '£0.99')
 })
