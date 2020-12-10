@@ -1,4 +1,5 @@
 const test = require('ava')
+const { join } = require('path')
 const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 
@@ -401,3 +402,27 @@ test('for: computed member expressions', async assert => {
   `)
   assert.deepEqual(template({ name: 'foo', pages: { foo: { sections: ['bar', 'baz'] } } }, escape), 'barbaz')
 })
+
+test('for: components in a loop', async assert => {
+  const { template } = await compile(`
+    <import price from="components/price.html" />
+
+    <for product in products>
+      <price {product}/>
+    </for>
+  `, {
+    paths: [join(__dirname, '../../fixtures')],
+    languages: ['pl', 'en', 'de']
+  })
+  const products = [
+    {
+      prices: {
+        PLN: 0.99,
+        GBP: 0.99,
+        EUR: 0.99
+      }
+    }
+  ]
+  assert.deepEqual(template({ language: 'pl', products }, escape), '0,99 zł')
+})
+

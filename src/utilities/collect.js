@@ -262,7 +262,7 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
     variables.pop()
     newVariablesCount--
   }
-  return { fragment, localVariables }
+  return { fragment }
 }
 
 async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings }) {
@@ -299,39 +299,11 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     })
     if (component && !fragment.imported) {
       stack.push(component.path)
-      const { localVariables } = resolveComponent(component.content, component.path, component, fragment, [], plugins, warnings, errors, assets, options, variables, stack)
+      resolveComponent(component.content, component.path, component, fragment, [], plugins, warnings, errors, assets, options, variables, stack)
       stack.pop()
-      localVariables.forEach(variable => variables.push(variable.key))
       const ast = new AbstractSyntaxTree('')
       collectChildren(fragment, ast)
-      // TODO instead of doing this we could pass the variables down the road together
-      // with the values and set them there instead of replacing here
-      // if the passed value is an expression we could assign it to a free variable
-      // and then use inside of the template
-      // this would have a better performance than the current solution
-
-      // this part of the code also deserves to have more specs
-      // e.g. this possibly will cause issues if the identifier is a part of a more complex node
-
-      // similar code is in the getTemplateNode / convert.js
-      // we could consider changing the variables format and having info if it's a local or global
-      // variable and inline it there
-      // so that the replacement code is only in one place
-      ast.replace({
-        enter: (node, parent) => {
-          if (node.type === 'Identifier' && !node.inlined && !node.omit && parent.type !== 'VariableDeclarator') {
-            const localVariable = localVariables.find(variable => variable.key === node.name)
-            if (localVariable) {
-              const variablesExcludingLocalVariable = variables.filter(variable => variable !== localVariable.key)
-              const node = convertText(localVariable.value, variablesExcludingLocalVariable, filters, translations, languages, true)[0]
-              AbstractSyntaxTree.walk(node, leaf => { leaf.inlined = true })
-              return node
-            }
-          }
-        }
-      })
       ast.body.forEach(node => tree.append(node))
-      localVariables.forEach(() => variables.pop())
     } else if (tag === 'translate') {
       tags.translate({ tree, fragment, attrs, options, filters, variables, translations, languages })
     } else if (tag === 'translation') {
