@@ -72,7 +72,7 @@ function convertAttribute (name, value, variables, currentFilters, translations,
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages)
+      return modify(getTemplateNode(expression, variables, unescape), variables, filters)
     } else {
       const nodes = values.map(({ value, filters = [] }, index) => {
         filters.forEach(filter => currentFilters.push(filter))
@@ -87,9 +87,9 @@ function convertAttribute (name, value, variables, currentFilters, translations,
               }
             })
           }
-          return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages)
+          return modify(getTemplateNode(expression, variables, unescape), variables, filters)
         }
-        return modify(getLiteral(value), variables, filters, translations, languages)
+        return modify(getLiteral(value), variables, filters)
       })
       const expression = convertToBinaryExpression(nodes)
       return expression
@@ -263,7 +263,7 @@ function convertText (text, variables, currentFilters, translations, languages, 
           }
         })
       }
-      return modify(getTemplateNode(expression, variables, unescape), variables, filters, translations, languages)
+      return modify(getTemplateNode(expression, variables, unescape), variables, filters)
     }
     return getLiteral(value)
   })

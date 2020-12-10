@@ -51,6 +51,7 @@ function setAutoDimension (attrs, keys, dimension, assets, options) {
       const asset = findAsset(path, assets, options)
       if (!asset) return
       try {
+        // @ts-ignore
         const dimensions = size(asset.buffer)
         attr.value = dimensions[dimension].toString()
       } catch (exception) {

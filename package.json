@@ -10,7 +10,8 @@
     "benchmark": "ava test/benchmark.spec.js --verbose",
     "watch": "npm test -- --watch",
     "build": "node website/build.js",
-    "prepush": "npm run lint && npm test"
+    "prepush": "npm run lint && npm test",
+    "typecheck": "tsc --checkJs index.js --noEmit --esModuleInterop --target es5"
   },
   "ava": {
     "files": [

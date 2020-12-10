@@ -356,7 +356,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === 'template') {
       tags.template({ tree, fragment, options })
     } else if (tag === 'data') {
-      tags.data({ tree, fragment })
+      tags.data({ fragment })
     } else if (tag === '!doctype') {
       tags.doctype({ tree, options })
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {

@@ -1,18 +1,22 @@
 'use strict'
 
 class Plugin {
-  prerun () {}
-  run () {}
-  postrun () {}
+  constructor () {
+    this.depth = 0
+  }
 
-  beforeprerun () {}
-  afterprerun () {}
+  prerun (options) {}
+  run (options) {}
+  postrun (options) {}
 
-  beforerun () {}
-  afterrun () {}
+  beforeprerun (options) {}
+  afterprerun (options) {}
 
-  beforepostrun () {}
-  afterpostrun () {}
+  beforerun (options) {}
+  afterrun (options) {}
+
+  beforepostrun (options) {}
+  afterpostrun (options) {}
 }
 
 module.exports = Plugin

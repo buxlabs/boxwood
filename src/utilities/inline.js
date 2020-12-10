@@ -128,7 +128,7 @@ function inlineIn (attribute, property, localVariables, variables, isInCondition
       return node
     })
     tree.replace(removePlaceholders)
-    attribute[property] = getOptimizedSquareTagSource(tree, isInCondition)
+    attribute[property] = getOptimizedSquareTagSource(tree)
   }
 }
 

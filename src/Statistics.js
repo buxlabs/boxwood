@@ -2,6 +2,7 @@
 
 // TODO pure-utilities unique should work for objects
 function uniq (array) {
+  // @ts-ignore
   return Array.from(new Set(array.map(item => JSON.stringify(item)))).map(JSON.parse)
 }
 
