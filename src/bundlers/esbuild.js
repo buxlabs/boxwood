@@ -28,11 +28,11 @@ const bundle = async (source, options = {}) => {
 
   writeFileSync(input, source)
   const result = await esbuild.build({
-    platform: 'node',
+    platform: options.platform || 'node',
     bundle: true,
     plugins: [resolvePlugin],
     entryPoints: [input],
-    format: 'iife',
+    format: options.format || 'iife',
     minify: true,
     write: false,
     target: 'es2016'

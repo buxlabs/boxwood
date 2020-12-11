@@ -1,17 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const Generator = require('../../Generator')
-const Features = require('./Features')
-const {
-  isTag,
-  isText,
-  isState,
-  convertTag,
-  isInternalImportDeclaration,
-  convertExportDefaultDeclarationToReturnStatement,
-  enableUsedFeatures
-} = require('./utilities/convert')
-
-const { ObjectExpression } = AbstractSyntaxTree
+const { join } = require('path')
+const Bundler = require('../../Bundler')
 
 class Compiler {
   constructor (options) {
@@ -20,34 +9,53 @@ class Compiler {
 
   async compile (input) {
     const tree = new AbstractSyntaxTree(input)
-
-    const features = new Features({
-      tag: false,
-      text: false,
-      State: false
-    })
-
+    let scoped = false
     tree.replace(node => {
-      enableUsedFeatures(node, features)
-      if (features.enabled('tag') && isTag(node)) {
-        return convertTag(node)
-      } else if (features.enabled('text') && isText(node)) {
-        return node.arguments[0]
-      } else if (features.enabled('State') && isState(node)) {
-        return new ObjectExpression(node.arguments[0])
-      } else if (node.type === 'ExportDefaultDeclaration') {
-        return convertExportDefaultDeclarationToReturnStatement(node)
+      if (node.type === 'ImportDeclaration' && node.source.value === 'boxwood') {
+        scoped = true
+        node.source.value = '.'
+        node.specifiers.push({
+          type: 'ImportSpecifier',
+          local: { type: 'Identifier', name: 'render' },
+          imported: { type: 'Identifier', name: 'render' }
+        })
+      }
+      if (scoped && node.type === 'ExportDefaultDeclaration' && node.declaration.type === 'FunctionDeclaration') {
+        return {
+          type: 'ExpressionStatement',
+          expression: {
+            type: 'CallExpression',
+            callee: {
+              type: 'Identifier',
+              name: 'render'
+            },
+            arguments: [
+              {
+                type: 'CallExpression',
+                callee: { ...node.declaration, type: 'FunctionExpression' }
+              }
+            ]
+          }
+        }
       }
       return node
     })
-
-    tree.remove(node => {
-      if (isInternalImportDeclaration(node)) { return null }
-      return node
+    const bundler = new Bundler()
+    const bundle = await bundler.bundle(tree.source, {
+      platform: 'node',
+      format: 'iife',
+      paths: [
+        join(__dirname, '../../vdom/server'),
+        ...this.options.paths
+      ]
     })
-
-    const generator = new Generator()
-    return generator.generate(tree)
+    const bundledTree = new AbstractSyntaxTree(bundle)
+    const expression = bundledTree.first('CallExpression > ArrowFunctionExpression')
+    const { body } = expression.body
+    const lastNode = body.pop()
+    body.push({ type: 'ReturnStatement', argument: lastNode.expression })
+    const template = new Function(`return function render() {\nreturn ${bundledTree.source}}`)() // eslint-disable-line
+    return { template }
   }
 }
 
