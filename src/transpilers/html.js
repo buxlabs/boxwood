@@ -1,54 +1,18 @@
-const { parse } = require('../utilities/html')
+'use strict'
+
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { parse } = require('../utilities/html')
 
 const program = (body) => {
-  // TODO add `AbstractSyntaxTree.program`
-  // TODO improve `AbstractSyntaxTree.template() to support import/export`
-  return {
-    type: 'Program',
-    sourceType: 'module',
-    body: [
-      {
-        type: 'ImportDeclaration',
-        specifiers: [
-          {
-            type: 'ImportSpecifier',
-            local: {
-              type: 'Identifier',
-              name: 'tag'
-            },
-            imported: {
-              type: 'Identifier',
-              name: 'tag'
-            }
-          }
-        ],
-        source: {
-          type: 'Literal',
-          value: 'boxwood'
-        }
-      },
-      {
-        type: 'ExportDefaultDeclaration',
-        declaration: {
-          type: 'FunctionDeclaration',
-          id: null,
-          params: [],
-          body: {
-            type: 'BlockStatement',
-            body: [
-              {
-                type: 'ReturnStatement',
-                argument: body
-              }
-            ]
-          },
-          async: false,
-          generator: false
-        }
+  return AbstractSyntaxTree.program(
+    AbstractSyntaxTree.template(`
+      import { tag } from "boxwood"
+
+      export default function () {
+        return <%= body %>
       }
-    ]
-  }
+    `, { body })
+  )
 }
 
 function reduce (htmlNode) {
