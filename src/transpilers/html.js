@@ -67,10 +67,9 @@ function reduce (htmlNode) {
 
 function transpile (source, options) {
   const tree = parse(source)
+  const reducedTree = tree.length === 1 ? reduce(tree[0]) : { type: 'ArrayExpression', elements: tree.map(reduce) }
   return new AbstractSyntaxTree(
-    program(
-      reduce(tree[0])
-    )
+    program(reducedTree)
   ).source
 }
 

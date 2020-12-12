@@ -19,6 +19,14 @@ export default function () {
 `)
 })
 
+test('transpile: multiple html tags', assert => {
+  assert.deepEqual(transpile('<div></div><div></div>'), `import {tag} from "boxwood";
+export default function () {
+  return [tag("div"), tag("div")];
+}
+`)
+})
+
 test('transpile: html tag with an attribute', assert => {
   assert.deepEqual(transpile('<div class="foo"></div>'), `import {tag} from "boxwood";
 export default function () {
@@ -37,3 +45,10 @@ export default function () {
 `)
 })
 
+test('transpile: empty string', assert => {
+  assert.deepEqual(transpile(''), `import {tag} from "boxwood";
+export default function () {
+  return [];
+}
+`)
+})
