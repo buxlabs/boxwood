@@ -2,8 +2,8 @@
 
 const Transpiler = require('./Transpiler')
 const Parser = require('./Parser')
-const Renderer = require('../../Renderer')
-const Generator = require('../../Generator')
+const Renderer = require('./Renderer')
+const Generator = require('./Generator')
 const { validateOptions } = require('../../utilities/options')
 const { normalizeError } = require('../../utilities/errors')
 

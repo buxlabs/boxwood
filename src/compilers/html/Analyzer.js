@@ -1,6 +1,6 @@
 'use strict'
 
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./utilities/enum')
+const { OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('../../utilities/enum')
 
 class Analyzer {
   analyze (tree) {
