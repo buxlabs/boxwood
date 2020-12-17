@@ -60,7 +60,7 @@ export default function () {
     if (true) {
       return "foo";
     }
-  })();;
+  })();
 }
 `)
 })
@@ -72,7 +72,21 @@ export default function () {
     if (false) {
       return "foo";
     }
-  })();;
+  })();
+}
+`)
+})
+
+test('transpile: if/else statement with `true`', assert => {
+  assert.deepEqual(transpile('<if true>foo</if><else>bar</else>'), `import {tag} from "boxwood";
+export default function () {
+  return [(function () {
+    if (true) {
+      return "foo";
+    } else {
+      return "bar";
+    }
+  })()];
 }
 `)
 })
