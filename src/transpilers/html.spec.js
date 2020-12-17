@@ -53,6 +53,30 @@ export default function () {
 `)
 })
 
+test('transpile: if statement with `true`', assert => {
+  assert.deepEqual(transpile('<if true>foo</if>'), `import {tag} from "boxwood";
+export default function () {
+  return (function () {
+    if (true) {
+      return "foo";
+    }
+  })();;
+}
+`)
+})
+
+test('transpile: if statement with `false`', assert => {
+  assert.deepEqual(transpile('<if false>foo</if>'), `import {tag} from "boxwood";
+export default function () {
+  return (function () {
+    if (false) {
+      return "foo";
+    }
+  })();;
+}
+`)
+})
+
 test('transpile: empty string', assert => {
   assert.deepEqual(transpile(''), `import {tag} from "boxwood";
 export default function () {
