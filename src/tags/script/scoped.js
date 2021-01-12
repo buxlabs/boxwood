@@ -19,7 +19,7 @@ function scoped ({ source, paths, attrs }) {
       join(__dirname, '../../vdom/browser'),
       ...paths
     ],
-    bundler: bundlerAttr ? bundlerAttr.key : 'esbuild'
+    bundler: bundlerAttr ? bundlerAttr.value : 'esbuild'
   })
 }
 
