@@ -48,7 +48,8 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     leaf.used = true
     const promise = script.scoped({
       source: leaf.content,
-      paths: options.script.paths
+      paths: options.script.paths,
+      attrs
     })
     promises.push(promise)
     const output = await promise
