@@ -22,7 +22,7 @@ test('counter: scoped (esbuild)', async assert => {
   await suite(path('boxwood-esbuild'), spec(assert))
 })
 
-test.skip('counter: scoped (rollup)', async assert => {
+test('counter: scoped (rollup)', async assert => {
   await suite(path('boxwood-rollup'), spec(assert))
 })
 

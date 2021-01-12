@@ -73,6 +73,7 @@
     "yaml": "1.10.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^17.0.0",
     "ava": "3.15.0",
     "benchmark": "2.1.4",
     "browser-env": "3.3.0",
@@ -84,7 +85,6 @@
     "nyc": "15.1.0",
     "puppeteer": "5.5.0",
     "rollup": "^2.36.1",
-    "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-includepaths": "^0.2.4",
     "rollup-plugin-node-resolve": "^5.2.0",
     "standard": "16.0.3",
