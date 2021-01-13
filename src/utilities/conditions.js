@@ -1,12 +1,11 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { wordsToNumbers } = require('words-to-numbers')
 const { getAction } = require('./action')
 const { normalize } = require('./array')
 const { getLiteral, getIdentifier } = require('./ast')
 const { convertKey, convertToExpression } = require('./convert')
-const { isCurlyTag, getTagValue } = require('./string')
+const { isCurlyTag, getTagValue, wordsToNumbers } = require('./string')
 const { OBJECT_VARIABLE, OPERATORS } = require('./enum')
 
 function getLiteralOrIdentifier (attribute, variables) {

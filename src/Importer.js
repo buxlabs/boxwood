@@ -11,24 +11,13 @@ const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
 const { getComponentNames } = require('./utilities/attributes')
 const { getAssetPaths, getImportNodes } = require('./utilities/node')
 const { parse } = require('./utilities/html')
-const { convertImageToProgressiveBase64 } = require('./utilities/image')
 const transpiler = new Transpiler()
 const linter = new Linter()
 
 let id = 1
 
-async function getOptimizedBase64Data (node, buffer, url) {
-  const keys = node.attributes.map(attribute => attribute.key)
-  if (node.tagName === 'img' && keys.includes('progressive')) {
-    const data = await convertImageToProgressiveBase64(keys, buffer, url)
-    return data
-  }
-  return null
-}
-
-async function getBase64Data (node, buffer, url) {
-  const data = await getOptimizedBase64Data(node, buffer, url)
-  return data || buffer.toString('base64')
+function getBase64Data (buffer) {
+  return buffer.toString('base64')
 }
 
 async function loadComponent (node, path, isRemote, remoteUrl, options, paths = []) {
@@ -42,7 +31,7 @@ async function loadComponent (node, path, isRemote, remoteUrl, options, paths = 
       })
       if (response.status === 200) {
         const buffer = Buffer.from(response.data, 'binary') // TODO: parse response to the buffer
-        const base64 = await getBase64Data(node, buffer, url)
+        const base64 = getBase64Data(buffer)
         id += 1
         return {
           path,
@@ -64,7 +53,7 @@ async function loadComponent (node, path, isRemote, remoteUrl, options, paths = 
         const file = {}
         file.path = location
         file.buffer = await read(location)
-        file.base64 = await getBase64Data(node, file.buffer, file.path)
+        file.base64 = getBase64Data(file.buffer)
         // TODO: Read once convert base64
         const source = await read(location, 'utf8')
         file.source = transpiler.transpile(source)

@@ -2924,16 +2924,6 @@ test('if: words to numbers', async assert => {
   assert.deepEqual(template({ number: 11 }, escape), 'foo')
   assert.deepEqual(template({ number: 12 }, escape), 'bar')
   assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if number equals one-hundred>foo</if><else>bar</else>')
-  assert.deepEqual(template({ number: 100 }, escape), 'foo')
-  assert.deepEqual(template({ number: 101 }, escape), 'bar')
-  assert.deepEqual(warnings, [])
-
-  var { template, warnings } = await compile('<if number equals four-thousand>foo</if><else>bar</else>')
-  assert.deepEqual(template({ number: 4000 }, escape), 'foo')
-  assert.deepEqual(template({ number: 4001 }, escape), 'bar')
-  assert.deepEqual(warnings, [])
 })
 
 test('if: numbers', async assert => {

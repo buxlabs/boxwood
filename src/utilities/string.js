@@ -109,6 +109,18 @@ function hyphenate (string) {
   })
 }
 
+const WORDS = [
+  'zero', 'one', 'two', 'three', 'four', 'five',
+  'six', 'seven', 'eight', 'nine', 'ten',
+  'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
+  'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'
+]
+
+function wordsToNumbers (string) {
+  const index = WORDS.indexOf(string)
+  if (index >= 0) { return index }
+}
+
 module.exports = {
   extract,
   extractValues,
@@ -123,5 +135,6 @@ module.exports = {
   getExtension,
   getBase64Extension,
   dasherize,
-  hyphenate
+  hyphenate,
+  wordsToNumbers
 }
