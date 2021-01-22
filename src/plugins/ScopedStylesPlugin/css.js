@@ -4,9 +4,8 @@ const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')
 const normalize = require('normalize-newline')
 
-function addScopeToCssSelectors (node, scopes, attributes) {
-  const content = normalize(node.content).trim()
-  const scope = attributes.find(attribute => attribute.key === 'scoped')
+function addScopeToCssSelectors (input, scopes) {
+  const content = normalize(input).trim()
   const id = `scope-${hash(content)}`
   const tree = parse(content)
   const keyframes = {}
@@ -35,15 +34,6 @@ function addScopeToCssSelectors (node, scopes, attributes) {
             if (node.type === 'TypeSelector') { child.children.shift() }
             child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
             if (node.type === 'TypeSelector') { child.children.unshift(node) }
-            if (scope && scope.value) {
-              child.children.unshift(
-                {
-                  type: 'ClassSelector',
-                  loc: null,
-                  name: `${scope.value} `
-                }
-              )
-            }
           }
         }
       })
@@ -60,7 +50,7 @@ function addScopeToCssSelectors (node, scopes, attributes) {
       }
     }
   })
-  node.content = generate(tree)
+  return generate(tree)
 }
 
 module.exports = { addScopeToCssSelectors }

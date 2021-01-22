@@ -74,14 +74,6 @@ test('style[scoped]: type selectors', async assert => {
   assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>a.scope-504633481.foo::after{content:"⤴"}</style>')
 })
 
-test('style[scoped]: passing additional class to the scoped attribute', async assert => {
-  var { template } = await compile(`
-    <a class="foo">baz</a>
-    <style scoped="bar">a.foo::after{content:"⤴"}</style>
-  `)
-  assert.deepEqual(template({}, escape), '<a class="scope-504633481 foo">baz</a><style>.bar a.scope-504633481.foo::after{content:"⤴"}</style>')
-})
-
 test('style[scoped]: attribute selector', async assert => {
   var { template } = await compile(`
     <input type="checkbox">
@@ -97,7 +89,7 @@ test('style[scoped]: attribute selector', async assert => {
       input[type="checkbox"]:checked { display: block; }
     </style>
   `)
-  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-2503504746"><style>input.scope-2503504746[type="checkbox"]:checked{display:block}</style>')  
+  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-2503504746"><style>input.scope-2503504746[type="checkbox"]:checked{display:block}</style>')
 
   var { template } = await compile(`
     <input type="checkbox" checked>
@@ -106,7 +98,7 @@ test('style[scoped]: attribute selector', async assert => {
       input[type="checkbox"]:checked + label { display: block; }
     </style>
   `)
-  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-927980167"><label></label><style>input.scope-927980167[type="checkbox"]:checked+label{display:block}</style>')  
+  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-927980167"><label></label><style>input.scope-927980167[type="checkbox"]:checked+label{display:block}</style>')
 
   var { template } = await compile(`
     <input type="checkbox" checked>
@@ -116,7 +108,7 @@ test('style[scoped]: attribute selector', async assert => {
       input[type="checkbox"]:checked + label ~ p { display: block; }
     </style>
   `)
-  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-1434104905"><label></label><p></p><style>input.scope-1434104905[type="checkbox"]:checked+label~p{display:block}</style>')  
+  assert.deepEqual(template({}, escape), '<input type="checkbox" checked class="scope-1434104905"><label></label><p></p><style>input.scope-1434104905[type="checkbox"]:checked+label~p{display:block}</style>')
 })
 
 test('style[scoped]: keyframes', async assert => {

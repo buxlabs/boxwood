@@ -16,7 +16,9 @@ class ScopedStylesPlugin extends Plugin {
 
   prerun ({ tag, keys, children, attributes }) {
     if (tag === 'style' && keys.includes('scoped')) {
-      children.forEach(node => addScopeToCssSelectors(node, this.scopes[this.depth], attributes))
+      children.forEach(node => {
+        node.content = addScopeToCssSelectors(node.content, this.scopes[this.depth])
+      })
     }
   }
 
