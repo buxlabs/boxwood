@@ -10,21 +10,21 @@ test('ScopesStylesPlugin: it converts html and css', assert => {
   `
   const tree = parse(input)
   plugin.beforeprerun()
-  walk(tree, node => {
-    if (node.type === 'element') {
-      const tag = node.tagName
-      const { attributes = [], children = [] } = node
+  walk(tree, fragment => {
+    if (fragment.type === 'element') {
+      const tag = fragment.tagName
+      const { attributes = [], children = [] } = fragment
       const keys = attributes.map(attribute => attribute.key)
-      plugin.prerun({ tag, keys, children, attributes })
+      plugin.prerun({ tag, keys, children, attributes, fragment })
     }
   })
 
-  walk(tree, node => {
-    if (node.type === 'element') {
-      const tag = node.tagName
-      const { attributes = [], children = [] } = node
+  walk(tree, fragment => {
+    if (fragment.type === 'element') {
+      const tag = fragment.tagName
+      const { attributes = [], children = [] } = fragment
       const keys = attributes.map(attribute => attribute.key)
-      plugin.run({ tag, keys, children, attributes })
+      plugin.run({ tag, keys, children, attributes, fragment })
     }
   })
   const output = stringify(tree, input)

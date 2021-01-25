@@ -22,8 +22,9 @@ class ScopedStylesPlugin extends Plugin {
     }
   }
 
-  run ({ tag, keys, attributes }) {
+  run ({ tag, keys, attributes, fragment }) {
     if (this.scopes[this.depth].length > 0) {
+      if (fragment.imported && this.depth === 0) { return }
       if (keys && keys.includes('class')) {
         addScopeToHtmlClassAttribute(tag, attributes, this.scopes[this.depth])
       } else {
