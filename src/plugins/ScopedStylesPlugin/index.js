@@ -7,7 +7,7 @@ const { addScopeToHtmlClassAttribute, addClassAttributeWithScopeToHtmlTag } = re
 class ScopedStylesPlugin extends Plugin {
   constructor () {
     super()
-    this.scopes = {}
+    this.scopes = []
   }
 
   beforeprerun () {
