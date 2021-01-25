@@ -232,6 +232,11 @@ test('acceptance: price-calculator', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: same-classes-scoped', async assert => {
+  const { actual, expected } = await suite('same-classes-scoped')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: counter', async assert => {
   const { actual, expected } = await suite('counter', {}, 'js')
   assert.deepEqual(actual, expected)
