@@ -2,7 +2,7 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { rollup } = require('rollup')
-const resolve = require('@rollup/plugin-node-resolve')
+const { nodeResolve } = require('@rollup/plugin-node-resolve')
 const commonjs = require('@rollup/plugin-commonjs')
 const paths = require('rollup-plugin-includepaths')
 const { writeFileSync, unlinkSync } = require('fs')
@@ -20,7 +20,7 @@ const bundle = async (source, options = {}) => {
       plugins: [
         paths({ paths: options.paths }),
         // TODO we could try to find closest node_modules dir here via something like find-node-modules
-        resolve(options.resolve),
+        nodeResolve(options.resolve),
         commonjs()
       ]
     })
