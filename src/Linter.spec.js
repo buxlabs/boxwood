@@ -132,11 +132,11 @@ test('Linter: unclosed tags', async assert => {
 
 test('Linter: duplicate components', async assert => {
   const linter = new Linter()
-  var source = `
+  const source = `
     <link rel="stylesheet" type="text/css" href="/foo.css" inline>
     <link rel="stylesheet" type="text/css" href="/bar.css" inline>
   `
-  var tree = parse(source)
+  const tree = parse(source)
   assert.deepEqual(await linter.lint(tree, source, [
     { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] },
     { tagName: 'link', attributes: [{ key: 'href', value: './bar.css' }] }
@@ -146,4 +146,23 @@ test('Linter: duplicate components', async assert => {
     { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] },
     { tagName: 'link', attributes: [{ key: 'href', value: './foo.css' }] }
   ]), [{ message: 'Component path duplicate: ./foo.css', type: 'COMPONENT_PATH_DUPLICATE' }])
+})
+
+test('Linter: return a warning if rel attribute is not present for an external link', async assert => {
+  const linter = new Linter()
+  const source = `<a href="https://foo.bar">bar</a>`
+  const tree = parse(source)
+  assert.deepEqual(await linter.lint(tree, source, []), [
+    { message: 'a tag with external href should have a rel attribute', type: 'REL_ATTRIBUTE_MISSING' }
+  ])
+})
+
+test('Linter: does not return a warning for a component that uses the a tag name', async assert => {
+  const linter = new Linter()
+  const source = `
+    <import a from="components/a.html"/>
+    <a href="https://foo.bar">bar</a>
+  `
+  const tree = parse(source)
+  assert.deepEqual(await linter.lint(tree, source, []), [])
 })

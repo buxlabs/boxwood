@@ -17,11 +17,38 @@ function analyze (tree) {
   return { components: unique(components) }
 }
 
+function isExternalUrl (url) {
+  if (!url) { return false }
+  return url.startsWith('http://') || url.startsWith('https://')
+}
+
 module.exports = class Linter {
   lint (tree, source, imports = [], options = {}) {
-    const importsWarnings = this.verifyImports(imports, options)
-    const unusedComponentsWarnings = this.verifyComponents(tree)
-    const warnings = unusedComponentsWarnings.concat(importsWarnings)
+    return [
+      ...this.verifyTags(tree),
+      ...this.verifyComponents(tree),
+      ...this.verifyImports(imports, options)
+    ]
+  }
+
+  verifyTags (tree) {
+    const ANCHOR_TAG = "a"
+    const warnings = []
+    const data = analyze(tree)
+    if (data.components.includes(ANCHOR_TAG)) {
+      return []
+    }
+    walk(tree, node => {
+      if (node.tagName === ANCHOR_TAG) {
+        const href = node.attributes.find(attribute => attribute.key === 'href')
+        if (href && isExternalUrl(href.value)) {
+          const rel = node.attributes.find(attribute => attribute.key === 'rel')
+          if (!rel) {
+            warnings.push({ message: `${ANCHOR_TAG} tag with external href should have a rel attribute`, type: 'REL_ATTRIBUTE_MISSING' })
+          }
+        }
+      }
+    })
     return warnings
   }
 
