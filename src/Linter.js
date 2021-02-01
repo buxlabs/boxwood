@@ -32,7 +32,7 @@ module.exports = class Linter {
   }
 
   verifyTags (tree) {
-    const ANCHOR_TAG = "a"
+    const ANCHOR_TAG = 'a'
     const warnings = []
     const data = analyze(tree)
     if (data.components.includes(ANCHOR_TAG)) {
@@ -44,7 +44,7 @@ module.exports = class Linter {
         if (href && isExternalUrl(href.value)) {
           const rel = node.attributes.find(attribute => attribute.key === 'rel')
           if (!rel) {
-            warnings.push({ message: `${ANCHOR_TAG} tag with external href should have a rel attribute`, type: 'REL_ATTRIBUTE_MISSING' })
+            warnings.push({ message: `${ANCHOR_TAG} tag with external href should have a rel attribute (e.g. rel="noopener")`, type: 'REL_ATTRIBUTE_MISSING' })
           }
         }
       }

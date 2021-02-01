@@ -153,7 +153,7 @@ test('Linter: return a warning if rel attribute is not present for an external l
   const source = `<a href="https://foo.bar">bar</a>`
   const tree = parse(source)
   assert.deepEqual(await linter.lint(tree, source, []), [
-    { message: 'a tag with external href should have a rel attribute', type: 'REL_ATTRIBUTE_MISSING' }
+    { message: 'a tag with external href should have a rel attribute (e.g. rel="noopener")', type: 'REL_ATTRIBUTE_MISSING' }
   ])
 })
 
