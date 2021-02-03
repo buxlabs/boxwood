@@ -258,3 +258,20 @@ test('components: import local utilities', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a>Foo</a>')
 })
+
+test.skip('components: import local components', async assert => {
+  const { template } = await compile(`
+    import anchor from 'components/anchor'
+
+    export default function () {
+      return anchor()
+    }
+  `, {
+    paths: [
+      path.join(__dirname, '../../../node_modules'),
+      path.join(__dirname, '../../fixtures')
+    ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a>foo</a>')
+})
