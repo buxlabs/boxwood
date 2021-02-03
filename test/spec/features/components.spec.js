@@ -240,3 +240,21 @@ test('components: tag and an external dependency', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a>Foo</a>')
 })
+
+test('components: import local utilities', async assert => {
+  const { template } = await compile(`
+    import { tag } from 'boxwood'
+    import { capitalize } from 'utilities/string'
+
+    export default function () {
+      return tag('a', capitalize('foo'))
+    }
+  `, {
+    paths: [
+      path.join(__dirname, '../../../node_modules'),
+      path.join(__dirname, '../../fixtures')
+    ],
+    path: 'app.js'
+  })
+  assert.deepEqual(template({ title: 'foo' }, escape), '<a>Foo</a>')
+})
