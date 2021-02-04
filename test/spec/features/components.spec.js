@@ -259,7 +259,7 @@ test('components: import local utilities', async assert => {
   assert.deepEqual(template({ title: 'foo' }, escape), '<a>Foo</a>')
 })
 
-test.skip('components: import local components', async assert => {
+test('components: import local components', async assert => {
   const { template } = await compile(`
     import anchor from 'components/anchor'
 

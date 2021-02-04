@@ -13,13 +13,31 @@ class Compiler {
     tree.replace(node => {
       if (node.type === 'ImportDeclaration' && node.source.value === 'boxwood') {
         scoped = true
-        node.source.value = '.'
         node.specifiers.push({
           type: 'ImportSpecifier',
           local: { type: 'Identifier', name: 'render' },
           imported: { type: 'Identifier', name: 'render' }
         })
       }
+    })
+    if (!scoped) {
+      scoped = true
+      tree.prepend({
+        type: 'ImportDeclaration',
+        specifiers: [
+          {
+            type: 'ImportSpecifier',
+            local: { type: 'Identifier', name: 'render' },
+            imported: { type: 'Identifier', name: 'render' }
+          }
+        ],
+        source: {
+          type: 'Literal',
+          value: 'boxwood'
+        }
+      })
+    }
+    tree.replace(node => {
       if (scoped && node.type === 'ExportDefaultDeclaration' && node.declaration.type === 'FunctionDeclaration') {
         return {
           type: 'ExpressionStatement',
