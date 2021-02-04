@@ -237,6 +237,11 @@ test('acceptance: same-classes-scoped', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: landing-page', async assert => {
+  const { actual, expected } = await suite('landing-page', {}, 'js')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: counter', async assert => {
   const { actual, expected } = await suite('counter', {}, 'js')
   assert.deepEqual(actual, expected)

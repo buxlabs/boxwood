@@ -42,7 +42,7 @@ function renderElement (node) {
   }
 
   const attrs = element.attributes.length > 0 ? ` ${element.attributes.join(' ')}` : ''
-  if (SELF_CLOSING_TAGS.includes(name)) {
+  if (SELF_CLOSING_TAGS.includes(name.toLowerCase())) {
     return `<${name}${attrs}>`
   }
   return `<${name}${attrs}>${element.children}</${name}>`

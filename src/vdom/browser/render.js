@@ -5,7 +5,7 @@ const styles = require('../utilities/styles')
 function render (node, state, dispatch) {
   if (typeof node === 'string') {
     return renderText(node)
-  } else if (node.name === '!doctype') {
+  } else if (node.name === '!DOCTYPE') {
     return renderDoctype()
   } else if (Array.isArray(node)) {
     const nodes = node.map(tag => render(tag, state, dispatch))

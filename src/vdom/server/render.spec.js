@@ -42,7 +42,7 @@ test('#render: self closing tags with attributes', assert => {
 
 test('#render: doctype', assert => {
   const result = render(doctype())
-  assert.deepEqual(result, '<!doctype html>')
+  assert.deepEqual(result, '<!DOCTYPE html>')
 })
 
 test('#render: html page', assert => {
@@ -57,5 +57,5 @@ test('#render: html page', assert => {
       ])
     ])
   ])
-  assert.deepEqual(result, '<!doctype html><html><head></head><body><header>foo</header><main>bar</main><footer>baz</footer></body></html>')
+  assert.deepEqual(result, '<!DOCTYPE html><html><head></head><body><header>foo</header><main>bar</main><footer>baz</footer></body></html>')
 })
