@@ -3,11 +3,11 @@
 const app = require('./app')
 const nodes = require('../nodes')
 const tag = require('../tag')
-const styles = require('../utilities/styles')
+const css = require('../utilities/css')
 
 module.exports = {
   ...nodes,
   app,
   tag,
-  styles
+  css
 }

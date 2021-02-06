@@ -1,6 +1,6 @@
 'use strict'
 
-function styles (input) {
+function css (input) {
   if (typeof input === 'string') {
     return input
   }
@@ -14,4 +14,4 @@ function styles (input) {
   return result.join('; ')
 }
 
-module.exports = styles
+module.exports = css

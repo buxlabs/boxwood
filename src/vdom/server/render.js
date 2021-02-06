@@ -1,6 +1,6 @@
 'use strict'
 
-const styles = require('../utilities/styles')
+const css = require('../utilities/css')
 const { SELF_CLOSING_TAGS } = require('../../utilities/enum')
 
 function render (node) {
@@ -18,7 +18,7 @@ function render (node) {
 
 function renderValue (key, value) {
   if (key === 'style') {
-    return styles(value)
+    return css(value)
   }
   return value
 }

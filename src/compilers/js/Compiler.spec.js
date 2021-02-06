@@ -27,12 +27,12 @@ test('it works with a style attribute', async assert => {
   `), '<h1 style="color:red">Hello, world!</h1>')
 })
 
-test('it exposes a styles utility method', async assert => {
+test('it exposes a css utility method', async assert => {
   assert.deepEqual(await render(`
-    const { h1, styles } = require('boxwood')
+    const { h1, css } = require('boxwood')
 
     export default function () {
-      return h1({ style: styles({ color: 'red' }) }, 'Hello, world!')
+      return h1({ style: css({ color: 'red' }) }, 'Hello, world!')
     }
   `), '<h1 style="color: red">Hello, world!</h1>')
 })

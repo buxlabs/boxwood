@@ -1,6 +1,6 @@
 'use strict'
 
-const styles = require('../utilities/styles')
+const css = require('../utilities/css')
 
 function render (node, state, dispatch) {
   if (typeof node === 'string') {
@@ -42,7 +42,7 @@ function renderElement (node, state, dispatch) {
         dispatch(state)
       })
     } else if (key === 'style') {
-      element.setAttribute(key, styles(value))
+      element.setAttribute(key, css(value))
     } else {
       element.setAttribute(key, value)
     }

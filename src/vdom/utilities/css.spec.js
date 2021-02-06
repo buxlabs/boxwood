@@ -1,22 +1,22 @@
 'use strict'
 
 const test = require('ava')
-const styles = require('./styles')
+const css = require('./css')
 
-test('styles: returns a string if a string was passed', assert => {
-  assert.deepEqual(styles('color: red'), 'color: red')
+test('css: returns a string if a string was passed', assert => {
+  assert.deepEqual(css('color: red'), 'color: red')
 })
 
-test('styles: works for simple objects', assert => {
-  assert.deepEqual(styles({ color: 'red' }), 'color: red')
+test('css: works for simple objects', assert => {
+  assert.deepEqual(css({ color: 'red' }), 'color: red')
 })
 
-test.skip('styles: works for numbers', assert => {
-  assert.deepEqual(styles({ border: 20 }), 'border-width: 20px')
+test.skip('css: works for numbers', assert => {
+  assert.deepEqual(css({ border: 20 }), 'border-width: 20px')
 })
 
-test.skip('styles: works for nested keys', assert => {
-    assert.deepEqual(styles({
+test.skip('css: works for nested keys', assert => {
+    assert.deepEqual(css({
       border: {
         color: 'red',
         width: 2,
@@ -29,8 +29,8 @@ test.skip('styles: works for nested keys', assert => {
     ].join(''))
 })
 
-test.skip('styles: works for nested padding', assert => {
-    assert.deepEqual(styles({
+test.skip('css: works for nested padding', assert => {
+    assert.deepEqual(css({
       padding: {
         top: 3,
         bottom: 2
@@ -41,8 +41,8 @@ test.skip('styles: works for nested padding', assert => {
     ].join(''))
 })
 
-test.skip('styles: works for multiple keys', assert => {
-    assert.deepEqual(styles({
+test.skip('css: works for multiple keys', assert => {
+    assert.deepEqual(css({
       padding: {
         top: 3,
         bottom: 2
@@ -57,8 +57,8 @@ test.skip('styles: works for multiple keys', assert => {
     ].join(''))
 })
 
-test.skip('styles: works for multiple keys (v2)', assert => {
-    assert.deepEqual(styles({
+test.skip('css: works for multiple keys (v2)', assert => {
+    assert.deepEqual(css({
       border: {
         width: 1,
         color: 'red'
