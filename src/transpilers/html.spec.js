@@ -27,6 +27,14 @@ export default function () {
 `)
 })
 
+test('transpile: self closing html tags', assert => {
+  assert.deepEqual(transpile('<br><hr>'), `import {tag} from "boxwood";
+export default function () {
+  return [tag("br"), tag("hr")];
+}
+`)
+})
+
 test('transpile: nested html tags', assert => {
   assert.deepEqual(transpile('<div><div></div></div>'), `import {tag} from "boxwood";
 export default function () {
