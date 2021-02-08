@@ -89,7 +89,13 @@ function reduce ({ node: htmlNode, parent, index }) {
     })
   }
 
-  if (htmlNode.type === 'element' && htmlNode.tagName === 'div') {
+  if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
+    const statement = mapIfStatement(htmlNode, parent, index)
+    const { expression } = AbstractSyntaxTree.iife(statement)
+    return expression
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
+    return null
+  } else if (htmlNode.type === 'element') {
     const { tagName, attributes, children } = htmlNode
     const node = new CallExpression({
       callee: new Identifier({ name: 'tag' }),
@@ -100,12 +106,6 @@ function reduce ({ node: htmlNode, parent, index }) {
       ].filter(Boolean)
     })
     return node
-  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
-    const statement = mapIfStatement(htmlNode, parent, index)
-    const { expression } = AbstractSyntaxTree.iife(statement)
-    return expression
-  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
-    return null
   } else if (htmlNode.type === 'text') {
     const { content } = htmlNode
     return new Literal({ value: content })

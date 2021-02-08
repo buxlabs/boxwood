@@ -11,7 +11,7 @@ export default function () {
 `)
 })
 
-test('transpile: html tag', assert => {
+test('transpile: html div tag', assert => {
   assert.deepEqual(transpile('<div></div>'), `import {tag} from "boxwood";
 export default function () {
   return tag("div");
@@ -20,9 +20,9 @@ export default function () {
 })
 
 test('transpile: multiple html tags', assert => {
-  assert.deepEqual(transpile('<div></div><div></div>'), `import {tag} from "boxwood";
+  assert.deepEqual(transpile('<div></div><span></span>'), `import {tag} from "boxwood";
 export default function () {
-  return [tag("div"), tag("div")];
+  return [tag("div"), tag("span")];
 }
 `)
 })
