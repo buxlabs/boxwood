@@ -101,12 +101,9 @@ function reduce ({ node: htmlNode, parent, index }) {
     })
     return node
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
-    const [node] = AbstractSyntaxTree.template(`
-      (function () {
-        <%= body %>
-      }())
-    `, { body: mapIfStatement(htmlNode, parent, index) })
-    return node.expression
+    const statement = mapIfStatement(htmlNode, parent, index)
+    const { expression } = AbstractSyntaxTree.iife(statement)
+    return expression
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
     return null
   } else if (htmlNode.type === 'text') {
