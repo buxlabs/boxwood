@@ -1,26 +1,54 @@
 const esbuild = require('esbuild')
-const { writeFileSync, existsSync, unlinkSync } = require('fs')
+const { writeFileSync, existsSync, unlinkSync, promises: { readFile } } = require('fs')
 const { join } = require('path')
 const { tmpdir } = require('os')
 const { uid } = require('pure-utilities/string')
+const { transpile } = require('../transpilers/html')
 
 const bundle = async (source, options = {}) => {
   const paths = options.paths || []
   const input = join(tmpdir(), `${uid()}.js`)
 
+  function findFile (filepath, extension = 'js') {
+    for (let i = 0, ilen = paths.length; i < ilen; i += 1) {
+      const path = join(paths[i], `${filepath}.${extension}`)
+      const index = join(paths[i], filepath, `index.${extension}`)
+      if (existsSync(path)) {
+        return { path }
+      } else if (existsSync(index)) {
+        return { path: index }
+      }
+    }
+  }
+
   const resolvePlugin = {
-    name: 'example',
+    name: 'resolve',
     setup (build) {
       build.onResolve({ filter: /.*/ }, args => {
         // TODO handle libs from node_modules out of the box
-        for (let i = 0, ilen = paths.length; i < ilen; i += 1) {
-          const path = join(paths[i], `${args.path}.js`)
-          const index = join(paths[i], args.path, 'index.js')
-          if (existsSync(path)) {
-            return { path }
-          } else if (existsSync(index)) {
-            return { path: index }
-          }
+        return findFile(args.path)
+      })
+    }
+  }
+
+  const htmlPlugin = {
+    name: 'html',
+    setup (build) {
+      build.onResolve({ filter: /\.html?$/ }, args => ({
+        path: args.path.replace(/\.html$/, ''),
+        namespace: 'boxwood-html',
+      }))
+
+
+      build.onLoad({
+        filter: /.*/,
+        namespace: 'boxwood-html'
+      }, async (args) => {
+        const { path } = findFile(args.path, 'html')
+        const content = await readFile(path, "utf8")
+        return {
+          contents: transpile(content),
+          loader: "js"
         }
       })
     }
@@ -30,7 +58,7 @@ const bundle = async (source, options = {}) => {
   const result = await esbuild.build({
     platform: options.platform || 'node',
     bundle: true,
-    plugins: [resolvePlugin],
+    plugins: [resolvePlugin, htmlPlugin],
     entryPoints: [input],
     format: options.format || 'iife',
     minify: true,
