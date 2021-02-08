@@ -121,9 +121,10 @@ function transpile (source, options) {
         .map((node, index) => reduce({ node, parent: tree, index }))
         .filter(Boolean)
     })
-  return new AbstractSyntaxTree(
+  const output = new AbstractSyntaxTree(
     program(reducedTree)
   ).source
+  return output
 }
 
 module.exports = { transpile }

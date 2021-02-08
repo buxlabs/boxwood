@@ -1,15 +1,20 @@
 const test = require('ava')
 const Compiler = require('./Compiler')
+const { join } = require('path')
 
 async function render (input) {
-  const compiler = new Compiler({ paths: [] })
+  const compiler = new Compiler({
+    paths: [
+      join(__dirname, '../../../test/fixtures')
+    ]
+  })
   const { template } = await compiler.compile(input)
   return template()
 }
 
 test('it compiles js components', async assert => {
   assert.deepEqual(await render(`
-    const { h1 } = require('boxwood')
+    import { h1 } from 'boxwood'
 
     export default function () {
       return h1('Hello, world!')
@@ -19,7 +24,7 @@ test('it compiles js components', async assert => {
 
 test('it works with a style attribute', async assert => {
   assert.deepEqual(await render(`
-    const { h1 } = require('boxwood')
+    import { h1 } from 'boxwood'
 
     export default function () {
       return h1({ style: 'color:red' }, 'Hello, world!')
@@ -29,7 +34,7 @@ test('it works with a style attribute', async assert => {
 
 test('it exposes a css utility method', async assert => {
   assert.deepEqual(await render(`
-    const { h1, css } = require('boxwood')
+    import { h1, css } from 'boxwood'
 
     export default function () {
       return h1({ style: css({ color: 'red' }) }, 'Hello, world!')
@@ -39,7 +44,7 @@ test('it exposes a css utility method', async assert => {
 
 test('it exposes a style tag ', async assert => {
   assert.deepEqual(await render(`
-    const { h1, style } = require('boxwood')
+    import { h1, style } from 'boxwood'
 
     export default function () {
       return [
@@ -52,7 +57,7 @@ test('it exposes a style tag ', async assert => {
 
 test('it works with custom js to css fns', async assert => {
   assert.deepEqual(await render(`
-    const { h1 } = require('boxwood')
+    import { h1 } from 'boxwood'
 
     const css = (strings, ...values) => {
       const rules = strings.reduce((array, string, index) => {
@@ -72,4 +77,18 @@ test('it works with custom js to css fns', async assert => {
       return h1({ style: css\`color:red\` }, 'Hello, world!')
     }
   `), '<h1 style="color: red">Hello, world!</h1>')
+})
+
+test('it can import html components', async assert => {
+  assert.deepEqual(await render(`
+    import { h1 } from 'boxwood'
+    import nav from 'components/nav.html'
+
+    export default function () {
+      return [
+        h1('Hello, world!'),
+        nav()
+      ]
+    }
+  `), '<h1>Hello, world!</h1><div>foo</div>')
 })

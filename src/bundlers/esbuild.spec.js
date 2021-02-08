@@ -25,5 +25,5 @@ test('esbuild: can import html components', async assert => {
       join(__dirname, '../../test/fixtures')
     ]
   })
-  console.log(output)
+  assert.truthy(output)
 })

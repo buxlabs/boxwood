@@ -36,19 +36,21 @@ const bundle = async (source, options = {}) => {
     setup (build) {
       build.onResolve({ filter: /\.html?$/ }, args => ({
         path: args.path.replace(/\.html$/, ''),
-        namespace: 'boxwood-html',
+        namespace: 'boxwood-html'
       }))
-
 
       build.onLoad({
         filter: /.*/,
         namespace: 'boxwood-html'
       }, async (args) => {
-        const { path } = findFile(args.path, 'html')
-        const content = await readFile(path, "utf8")
+        const file = findFile(args.path, 'html')
+        if (!file) {
+          // throw with a nice error message and add specs
+        }
+        const content = await readFile(file.path, 'utf8')
         return {
-          contents: transpile(content),
-          loader: "js"
+          contents: transpile(content.trim()),
+          loader: 'js'
         }
       })
     }
