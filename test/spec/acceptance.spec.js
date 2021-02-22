@@ -197,8 +197,8 @@ test('acceptance: routes', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: accordion', async assert => {
-  const { actual, expected } = await suite('accordion')
+test('acceptance: accordion-html', async assert => {
+  const { actual, expected } = await suite('accordion-html')
   assert.deepEqual(actual, expected)
 })
 
