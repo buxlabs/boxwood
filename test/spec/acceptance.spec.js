@@ -202,6 +202,11 @@ test('acceptance: accordion-html', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: accordion-js', async assert => {
+  const { actual, expected } = await suite('accordion-js', {}, 'js')
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: translation-missing', async assert => {
   const { actual, expected, errors } = await suite('translation-missing')
   assert.deepEqual(actual, expected)
