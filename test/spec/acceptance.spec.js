@@ -114,6 +114,11 @@ test('acceptance: component-name-override', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: name-collision', async assert => {
+  const { actual, expected } = await suite('name-collision')
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: relative-paths', async assert => {
   const { actual, expected } = await suite('relative-paths')
   assert.deepEqual(actual, expected)
