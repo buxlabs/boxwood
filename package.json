@@ -11,19 +11,13 @@
     "watch": "npm test -- --watch",
     "build": "node website/build.js",
     "prepush": "npm run lint && npm test",
-    "typecheck": "tsc --checkJs index.js --noEmit --esModuleInterop --target es5",
-    "postinstall": "husky install"
+    "typecheck": "tsc --checkJs index.js --noEmit --esModuleInterop --target es5"
   },
   "ava": {
     "files": [
       "test/spec/**/*.js",
       "**/*.spec.js"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "npm run test && npm run lint"
-    }
   },
   "engines": {
     "node": ">= 12.20.1"
@@ -82,7 +76,6 @@
     "browser-env": "3.3.0",
     "express": "4.17.1",
     "handlebars": "^4.7.7",
-    "husky": "^5.1.1",
     "lodash.template": "4.5.0",
     "mustache": "4.1.0",
     "nyc": "15.1.0",
