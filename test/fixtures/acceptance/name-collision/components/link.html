@@ -1,1 +1,6 @@
-<a {href}><slot/></a>
+<a class="['link', bold && 'bold']" {href}><slot/></a>
+<style scoped>
+.link.bold {
+  font-weight: bold;
+}
+</style>
