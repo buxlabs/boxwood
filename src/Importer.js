@@ -7,6 +7,7 @@ const Transpiler = require('./compilers/html/Transpiler')
 const Linter = require('./Linter')
 const request = require('./utilities/request')
 const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
+const { mergeAssets } = require('./utilities/assets')
 
 const { getComponentNames } = require('./utilities/attributes')
 const { getAssetPaths, getImportNodes } = require('./utilities/node')
@@ -126,21 +127,6 @@ async function recursiveImport (tree, source, path, options, depth, remote, url)
       flatten(current.map(element => element.warnings))
     )
   }
-}
-
-function mergeAssets (assets) {
-  const object = {}
-  assets.forEach(component => {
-    const { path, files } = component
-    if (!path) return
-    if (!object[path]) {
-      object[path] = component
-    } else if (object[path].id < component.id) {
-      component.files = [...object[path].files, ...files]
-      object[path] = component
-    }
-  })
-  return Object.values(object)
 }
 
 module.exports = class Importer {
