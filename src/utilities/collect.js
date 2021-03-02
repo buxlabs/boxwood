@@ -149,7 +149,7 @@ function inlineData (htmlTree, content, path, assets, plugins, warnings, errors,
 function collectInlineComponents (fragment, attributes, components) {
   const { key } = attributes[attributes.length - 1]
   const { content } = fragment.children[0]
-  components.push({ name: key, files: ['.'], content, path: null })
+  components.push({ name: key, files: ['.'], content, path: null, type: 'template' })
   fragment.children.forEach(child => {
     child.used = true
   })
@@ -207,7 +207,8 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     const unresolvable = component && current.tagName === component.name && !currentComponent
     if (unresolvable) { current.unresolvable = true }
-    if (currentComponent && !current.unresolvable) {
+    const isInContext = currentComponent && (currentComponent.files.includes(current.context) || currentComponent.type === 'template')
+    if (currentComponent && !current.unresolvable && isInContext) {
       queue.push(children)
       stack.push(currentComponent.path)
       resolveComponent(currentComponent.content, currentComponent.path, currentComponent, current, queue, plugins, warnings, errors, assets, options, variables, stack)
