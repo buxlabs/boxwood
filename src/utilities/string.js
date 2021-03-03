@@ -1,5 +1,6 @@
 'use strict'
 
+const { extname } = require('path')
 const lexer = require('./lexer')
 
 function curlyTag (string) {
@@ -90,8 +91,7 @@ function isPartialTag (name) {
 }
 
 function getExtension (value) {
-  const parts = value.split('.')
-  return parts[parts.length - 1]
+  return extname(value).slice(1)
 }
 
 function getBase64Extension (extension) {
