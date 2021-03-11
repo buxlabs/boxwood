@@ -58,6 +58,11 @@ test('acceptance: admin-page', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: scoped-styles-head', async assert => {
+  const { actual, expected } = await suite('scoped-styles-head')
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: scoped-styles-are-not-shared', async assert => {
   const { actual, expected } = await suite('scoped-styles-are-not-shared')
   assert.deepEqual(actual, expected)
