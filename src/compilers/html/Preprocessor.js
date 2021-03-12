@@ -1,3 +1,6 @@
+const ScopedStylesPlugin = require('../../plugins/ScopedStylesPlugin')
+const plugin = new ScopedStylesPlugin()
+
 function walk (node, callback) {
   let children
   if (Array.isArray(node)) {
@@ -9,7 +12,7 @@ function walk (node, callback) {
   if (children) {
     let child = children[0]
     let i = 0
-    while(child) {
+    while (child) {
       walk(child, callback)
       child = children[++i]
     }
@@ -48,13 +51,31 @@ class Preprocessor {
     // it would be nicer to do this in a more functional way, like `abstract-syntax-tree` lib
     //
 
+    plugin.beforeprerun()
+
     walk(tree, node => {
       if (node.tagName === 'head') {
         references.head = node
       } else if (node.tagName === 'style') {
         styles.push(node)
+        plugin.prerun({
+          tag: node.tagName,
+          keys: node.attributes.map(leaf => leaf.key),
+          attributes: node.attributes,
+          children: node.children
+        })
       }
     })
+
+    walk(tree, node => {
+      plugin.run({
+        tag: node.tagName,
+        keys: node.attributes && node.attributes.map(leaf => leaf.key),
+        fragment: node,
+        attributes: node.attributes
+      })
+    })
+
     tree = remove(tree, node => {
       return node && node.tagName === 'style'
     })
