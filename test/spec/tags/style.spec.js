@@ -152,7 +152,7 @@ test('style[inline-classes]: rule with many ClassSelector', async assert => {
 })
 
 test('style[inline-classes]: rule with font-family declaration', async assert => {
-  var { template } = await compile(`
+  var { template, warnings, errors } = await compile(`
     <h1 class="foo"></h1>
     <style inline="classes">
       .foo {
@@ -160,6 +160,8 @@ test('style[inline-classes]: rule with font-family declaration', async assert =>
       }
     </style>
   `, {})
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
   assert.deepEqual(template({}, escape), '<h1 style="font-family:\'Nunito\'"></h1>')
 })
 

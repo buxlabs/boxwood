@@ -20,6 +20,7 @@ const Importer = require('../../Importer')
 const Optimizer = require('../../Optimizer')
 const Scope = require('../../Scope')
 const { getLiteral } = require('../../utilities/ast')
+const Preprocessor = require('./Preprocessor')
 
 class Renderer {
   async render (source, htmltree, options) {
@@ -54,7 +55,6 @@ class Renderer {
     })
     const scripts = []
     const stack = [options.path]
-    const styles = []
     const store = {}
     const translations = {}
     const promises = []
@@ -75,6 +75,12 @@ class Renderer {
       plugin.depth = 0
       plugin.beforeprerun()
     })
+    const preprocessor = new Preprocessor()
+    const output = preprocessor.preprocess(htmltree, assets, options)
+    htmltree = output.tree
+    const styles = output.styles
+      ? output.styles.map(style => style.children[0] && style.children[0].content).filter(Boolean)
+      : []
     walk(htmltree, async fragment => {
       try {
         const attrs = fragment.attributes || []

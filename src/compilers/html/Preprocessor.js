@@ -1,5 +1,12 @@
 const ScopedStylesPlugin = require('../../plugins/ScopedStylesPlugin')
-const plugin = new ScopedStylesPlugin()
+const InlinePlugin = require('../../plugins/InlinePlugin')
+const SwappedStylesPlugin = require('../../plugins/SwappedStylesPlugin')
+
+const plugins = [
+  new InlinePlugin(),
+  new ScopedStylesPlugin(),
+  new SwappedStylesPlugin()
+]
 
 function walk (node, callback) {
   let children
@@ -40,7 +47,7 @@ function remove (tree, callback) {
 }
 
 class Preprocessor {
-  preprocess (tree) {
+  preprocess (tree, assets, options) {
     const references = {}
     const styles = []
 
@@ -51,36 +58,55 @@ class Preprocessor {
     // it would be nicer to do this in a more functional way, like `abstract-syntax-tree` lib
     //
 
-    plugin.beforeprerun()
+    plugins.forEach(plugin => {
+      plugin.depth += 1
+      plugin.beforeprerun()
+    })
 
     walk(tree, node => {
       if (node.tagName === 'head') {
         references.head = node
       } else if (node.tagName === 'style') {
         styles.push(node)
-        plugin.prerun({
-          tag: node.tagName,
-          keys: node.attributes.map(leaf => leaf.key),
-          attributes: node.attributes,
-          children: node.children
+        plugins.forEach(plugin => {
+          plugin.prerun({
+            tag: node.tagName,
+            keys: node.attributes.map(leaf => leaf.key),
+            attributes: node.attributes,
+            attrs: node.attributes,
+            children: node.children || [],
+            fragment: node,
+            assets,
+            options
+          })
         })
       }
     })
-
+    plugins.forEach(plugin => { plugin.afterprerun() })
+    plugins.forEach(plugin => { plugin.beforerun() })
     walk(tree, node => {
-      plugin.run({
-        tag: node.tagName,
-        keys: node.attributes && node.attributes.map(leaf => leaf.key),
-        fragment: node,
-        attributes: node.attributes
+      plugins.forEach(plugin => {
+        plugin.run({
+          tag: node.tagName,
+          keys: node.attributes && node.attributes.map(leaf => leaf.key),
+          fragment: node,
+          attributes: node.attributes,
+          assets,
+          options,
+          children: node.children || []
+        })
       })
+    })
+    plugins.forEach(plugin => {
+      plugin.afterrun()
+      plugin.depth -= 1
     })
 
     tree = remove(tree, node => {
       return node && node.tagName === 'style'
     })
 
-    if (styles.length > 0) {
+    if (styles.length > 0 && references.head) {
       references.head.children.push({
         type: 'element',
         tagName: 'style',
@@ -97,7 +123,7 @@ class Preprocessor {
       })
     }
 
-    return tree
+    return { tree, styles }
   }
 }
 

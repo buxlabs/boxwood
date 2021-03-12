@@ -13,7 +13,7 @@
   <link rel="mask-icon" href="/favicons/favicon320x320.svg" color="#5bbad5">
   <meta name="msapplication-TileColor" content="#00aba9">
   <meta name="msapplication-config" content="/favicons/browserconfig.xml">
-  <link rel="stylesheet" type="text/css" href="/assets/css/design.min.css">  
+  <link rel="stylesheet" type="text/css" href="/assets/css/design.min.css">
 </head>
 <body class="white background">
   <aside class="sidebar with purple background">
@@ -23,14 +23,14 @@
     </ul>
     <div class="nano whitespace"></div>
     <div class="ui input">
-      <input 
-        type="search" 
-        id="filter" 
+      <input
+        type="search"
+        id="filter"
         placeholder="Search..."
       >
     </div>
     <div data-searchable="searchable">
-      <h2 class="white ui tiny header">String</h2>        
+      <h2 class="white ui tiny header">String</h2>
       <ul class="unstyled list">
         <li class="item">
           <a href="#uppercase">uppercase</a>
@@ -38,15 +38,15 @@
         <li class="item">
           <a href="#whitespacestrip">whitespacestrip</a>
         </li>
-      </ul>         
+      </ul>
     </div>
     <div data-searchable="searchable">
-      <h2 class="white ui tiny header">Array</h2>        
+      <h2 class="white ui tiny header">Array</h2>
       <ul class="unstyled list">
         <li class="item">
           <a href="#average">average</a>
         </li>
-      </ul>         
+      </ul>
     </div>
   </aside>
   <div class="content">
@@ -54,21 +54,21 @@
       <div class="scope-2508678226 ui white breadcrumb">
         <a class="white section" href="#">Start</a>
         <div class="white divider">&nbsp;/&nbsp;</div>
-        <a class="white section" href="/tools">Tools</a>      
+        <a class="white section" href="/tools">Tools</a>
         <div class="white divider">&nbsp;/&nbsp;</div>
-        <a class="white section" href="/tools/js">JS</a>        
+        <a class="white section" href="/tools/js">JS</a>
         <div class="white divider">&nbsp;/&nbsp;</div>
-        <a class="white active section" href="#">Pure Utilities</a>        
+        <a class="white active section" href="#">Pure Utilities</a>
       </div>
-    </div>  
+    </div>
     <h1 class="white ui header">Pure Utilities</h1>
     <p class="white">Library with helper methods.</p>
-    <h2 class="white ui header">Installation</h2>    
+    <h2 class="white ui header">Installation</h2>
     <div class="ui segment">
       <code>npm install pure-utilities</code>
     </div>
-    <h3 class="white ui tiny header">String</h3>        
-    <h4 class="white ui header" id="uppercase">uppercase&nbsp;<small>(string)</small></h4>      
+    <h3 class="white ui tiny header">String</h3>
+    <h4 class="white ui header" id="uppercase">uppercase&nbsp;<small>(string)</small></h4>
     <p class="white">Removes characters from the start and end of the string based on the passed values.</p>
     <div class="ui inverted segment">
       <code>
@@ -76,7 +76,7 @@
         <span class="light green"><=&nbsp;&quot;FOO&quot;</span>
       </code>
     </div>
-    <h4 class="white ui header" id="whitespacestrip">whitespacestrip&nbsp;<small>(string)</small></h4>      
+    <h4 class="white ui header" id="whitespacestrip">whitespacestrip&nbsp;<small>(string)</small></h4>
     <p class="white">Removes whitespaces from the string.</p>
     <div class="ui inverted segment">
       <code>
@@ -84,8 +84,8 @@
         <span class="light green"><=&nbsp;&quot;foo&quot;</span>
       </code>
     </div>
-    <h3 class="white ui tiny header">Array</h3>  
-    <h4 class="white ui header" id="average">average&nbsp;<small>(array)</small></h4>      
+    <h3 class="white ui tiny header">Array</h3>
+    <h4 class="white ui header" id="average">average&nbsp;<small>(array)</small></h4>
     <p class="white">Returns the average of the array elements.</p>
     <div class="ui inverted segment">
       <code>
@@ -97,6 +97,17 @@
 </body>
 </html>
 <style>
+  .content {
+    width: 550px;
+    margin: 40px 0 50px 260px;
+  }
+  .ui input[type="search"] {
+    padding: 3px 5px;
+    max-width: 80%;
+  }
+  .light.green {
+    color: #00ffa5;
+  }
   .sidebar {
     position: fixed;
     top: 0;
@@ -109,20 +120,9 @@
     border-right: 1px solid #bbb;
     box-shadow: 0 0 5px #ccc;
   }
-  .scope-2508678226.ui.white.breadcrumb.white.divider { 
+  .scope-2508678226.ui.white.breadcrumb.white.divider {
     color:#fff
   }
-  .content {
-    width: 550px;
-    margin: 40px 0 50px 260px;
-  }
-  .ui input[type="search"] {
-    padding: 3px 5px;
-    max-width: 80%;
-  }
-  .light.green {
-    color: #00ffa5;
-  }  
 </style>
 <script>
   const filter = document.getElementById('filter')

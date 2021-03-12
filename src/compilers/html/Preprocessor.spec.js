@@ -23,8 +23,8 @@ test('Preprocessor: puts scoped styles in the head tag', async assert => {
     </style>
   `
   const tree = parse(html)
-  const output = await preprocessor.preprocess(tree)
-  const code = stringify(output, html)
+  const output = await preprocessor.preprocess(tree, [], {})
+  const code = stringify(output.tree, html)
   assert.deepEqual(code.trim(), `
     <html>
       <head>
