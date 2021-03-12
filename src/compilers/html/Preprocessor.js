@@ -1,12 +1,45 @@
-const walk = require('himalaya-walk')
+function walk (node, callback) {
+  let children
+  if (Array.isArray(node)) {
+    children = node
+  } else {
+    callback(node)
+    children = node.children
+  }
+  if (children) {
+    let child = children[0]
+    let i = 0
+    while(child) {
+      walk(child, callback)
+      child = children[++i]
+    }
+  }
+}
+
+function remove (tree, callback) {
+  tree = tree.map(node => {
+    if (callback(node)) {
+      return null
+    }
+    return node
+  }).filter(Boolean)
+  walk(tree, node => {
+    if (node.children) {
+      for (let i = 0, ilen = node.children.length; i < ilen; i++) {
+        if (callback(node.children[i])) {
+          node.children[i] = null
+        }
+      }
+      node.children = node.children.filter(Boolean)
+    }
+  })
+  return tree
+}
 
 class Preprocessor {
   preprocess (tree) {
     const references = {}
     const styles = []
-
-    // 1. find style tags, collect and remove them
-    // 2. inject styles into the head
 
     // things that are missing
     // - use the scoped styles plugin first
@@ -15,27 +48,15 @@ class Preprocessor {
     // it would be nicer to do this in a more functional way, like `abstract-syntax-tree` lib
     //
 
-    tree = tree.map(node => {
-      if (node.tagName === 'style') {
-        styles.push(node)
-        return null
-      }
-      return node
-    }).filter(Boolean)
-    walk(tree, (node) => {
+    walk(tree, node => {
       if (node.tagName === 'head') {
         references.head = node
+      } else if (node.tagName === 'style') {
+        styles.push(node)
       }
-      if (node.children) {
-        for (let i = 0, ilen = node.children.length; i < ilen; i += 1) {
-          const leaf = node.children[i]
-          if (leaf.tagName === 'style') {
-            styles.push(leaf)
-            node.children[i] = null
-          }
-        }
-        node.children = node.children.filter(Boolean)
-      }
+    })
+    tree = remove(tree, node => {
+      return node && node.tagName === 'style'
     })
 
     if (styles.length > 0) {
