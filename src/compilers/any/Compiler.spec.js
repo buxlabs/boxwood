@@ -18,3 +18,13 @@ test('it compiles html components', async assert => {
     <h1>Hello, world!</h1>
   `, { format: 'html' }), '<h1>Hello, world!</h1>')
 })
+
+test.skip('it compiles js components', async assert => {
+  assert.deepEqual(await render(`
+    import { h1 } from 'boxwood'
+
+    export default function () {
+      return h1('Hello, world!')
+    }
+  `, { format: 'js' }), '<h1>Hello, world!</h1>')
+})
