@@ -2361,6 +2361,14 @@ test('if: conditions', async assert => {
   assert.deepEqual(template({ photos: [] }, escape), '')
   assert.deepEqual(warnings, [])
 
+  var { template, warnings } = await compile('<if items has one item>foo<end>')
+  assert.deepEqual(template({ items: ['bar'] }, escape), 'foo')
+  assert.deepEqual(warnings, [])
+
+  var { template, warnings } = await compile('<if items has at least one item>foo<end>')
+  assert.deepEqual(template({ items: ['bar', 'baz'] }, escape), 'foo')
+  assert.deepEqual(warnings, [])
+
   var { template, warnings } = await compile('<if photos does not have one element>baz</if>')
   assert.deepEqual(template({ photos: [] }, escape), 'baz')
   assert.deepEqual(warnings, [])
