@@ -148,12 +148,6 @@ test('basic: it handles two variables', async assert => {
 })
 
 test('basic', async assert => {
-  var { template } = await compile('<div html="foo"></div>')
-  assert.deepEqual(template(), '<div>foo</div>')
-
-  var { template } = await compile('<div text="foo"></div>')
-  assert.deepEqual(template({}, escape), '<div>foo</div>')
-
   var { template } = await compile('<div>{foo}</div>')
   assert.deepEqual(template({ foo: 'bar' }, escape), '<div>bar</div>')
 
@@ -199,12 +193,6 @@ test('basic', async assert => {
   var { template } = await compile('<div>hello {world}</div>')
   assert.deepEqual(template({ world: 'world' }, escape), '<div>hello world</div>')
 
-  var { template } = await compile('<div class="foo" html="{bar}"></div>')
-  assert.deepEqual(template({ bar: 'baz' }), '<div class="foo">baz</div>')
-
-  var { template } = await compile('<div class="foo" text="{bar}"></div>')
-  assert.deepEqual(template({ bar: 'baz' }, value => { return value }), '<div class="foo">baz</div>')
-
   var { template } = await compile('<div class="foo {bar}"></div>')
   assert.deepEqual(template({ bar: 'baz' }, value => { return value }), '<div class="foo baz"></div>')
 
@@ -237,30 +225,6 @@ test('basic', async assert => {
 
   var { template } = await compile('<h1>{title}</h1>')
   assert.deepEqual(template({ title: 'buxlabs' }, value => value), '<h1>buxlabs</h1>')
-
-  var { template } = await compile('<div html="{foo}"></div>')
-  assert.deepEqual(template({ foo: 'bar' }), '<div>bar</div>')
-
-  var { template } = await compile('<div html="foo"></div>')
-  assert.deepEqual(template({}), '<div>foo</div>')
-
-  var { template } = await compile('<div html="foo"></div>')
-  assert.deepEqual(template({}), '<div>foo</div>')
-
-  var { template } = await compile('<div html="{foo}">xxx</div>')
-  assert.deepEqual(template({ foo: 'bar' }), '<div>barxxx</div>')
-
-  var { template } = await compile('<div html="{foo}"></div>')
-  assert.deepEqual(template({ foo: '<div>baz</div>' }), '<div><div>baz</div></div>')
-
-  var { template } = await compile('<div text="{foo}"></div>')
-  assert.deepEqual(template({ foo: 'bar' }, escape), '<div>bar</div>')
-
-  var { template } = await compile('<div html={foo}></div>')
-  assert.deepEqual(template({ foo: 'bar' }), '<div>bar</div>')
-
-  var { template } = await compile('<div html="{ foo }"></div>')
-  assert.deepEqual(template({ foo: 'bar' }), '<div>bar</div>')
 
   var { template } = await compile('<input type="text" value="{foo.bar}">')
   assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '<input type="text" value="baz">')
@@ -327,12 +291,6 @@ test('basic', async assert => {
 
   var { template } = await compile('<div>1 + 2 = {1 + 2}</div>')
   assert.deepEqual(template({ foo: 'bar' }, escape), '<div>1 + 2 = 3</div>')
-
-  var { template } = await compile('<div html="{foo(bar())}"></div>')
-  assert.deepEqual(template({ foo: string => string, bar: () => 'bar' }, escape), '<div>bar</div>')
-
-  var { template } = await compile('<div text="{foo(bar())}"></div>')
-  assert.deepEqual(template({ foo: string => string, bar: () => 'bar' }, escape), '<div>bar</div>')
 
   var { template } = await compile('{foo + 1}')
   assert.deepEqual(template({ foo: 0 }, escape), '1')
