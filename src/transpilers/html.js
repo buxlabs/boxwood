@@ -2,6 +2,7 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse } = require('../utilities/html')
+const doctype = require('./tags/doctype')
 
 const {
   ArrayExpression,
@@ -96,6 +97,7 @@ function reduce ({ node: htmlNode, parent, index }) {
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
     return null
   } else if (htmlNode.type === 'element') {
+    if (htmlNode.tagName === '!doctype') { return doctype() }
     const { tagName, attributes, children } = htmlNode
     const node = new CallExpression({
       callee: new Identifier({ name: 'tag' }),
