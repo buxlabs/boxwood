@@ -7,11 +7,6 @@ test('basic: it returns nothing for no template', async assert => {
   assert.deepEqual(template(), '')
 })
 
-test('basic: it handles doctype', async assert => {
-  var { template } = await compile('<!DOCTYPE html>')
-  assert.deepEqual(template(), '<!DOCTYPE html>')
-})
-
 test('basic: it handles content', async assert => {
   var { template } = await compile('hello world')
   assert.deepEqual(template(), 'hello world')
