@@ -11,6 +11,14 @@ export default function () {
 `)
 })
 
+test('transpile: comment', assert => {
+  assert.deepEqual(transpile('<!-- foo -->'), `import {tag} from "boxwood";
+export default function () {
+  return "";
+}
+`)
+})
+
 test('transpile: html div tag', assert => {
   assert.deepEqual(transpile('<div></div>'), `import {tag} from "boxwood";
 export default function () {

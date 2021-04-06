@@ -109,6 +109,8 @@ function reduce ({ node: htmlNode, parent, index }) {
   } else if (htmlNode.type === 'text') {
     const { content } = htmlNode
     return new Literal({ value: content })
+  } else if (htmlNode.type === 'comment') {
+    return new Literal({ value: '' })
   }
 }
 
@@ -121,6 +123,7 @@ function transpile (source, options) {
         .map((node, index) => reduce({ node, parent: tree, index }))
         .filter(Boolean)
     })
+
   const output = new AbstractSyntaxTree(
     program(reducedTree)
   ).source
