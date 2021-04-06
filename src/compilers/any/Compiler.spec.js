@@ -19,7 +19,7 @@ test('it compiles html components', async assert => {
   `, { format: 'html' }), '<h1>Hello, world!</h1>')
 })
 
-test.skip('it compiles js components', async assert => {
+test('it compiles js components', async assert => {
   assert.deepEqual(await render(`
     import { h1 } from 'boxwood'
 
