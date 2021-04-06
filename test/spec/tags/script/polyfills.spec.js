@@ -1,6 +1,6 @@
 const test = require('ava')
 const { join } = require('path')
-const compile = require('../../../helpers/compile')
+const compile = require('../../../helpers/deprecated-compile')
 const { escape } = require('../../../..')
 
 test('script[polyfills]: includes the polyfills', async assert => {

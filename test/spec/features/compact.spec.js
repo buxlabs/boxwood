@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/compile')
+const compile = require('../../helpers/deprecated-compile')
 const { escape } = require('../../..')
 
 test('compact: when compact flag is set to true it minifies html and preserves relevant whitespace', async assert => {

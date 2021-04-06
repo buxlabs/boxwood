@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../helpers/compile')
+const compile = require('../helpers/deprecated-compile')
 
 test('compiler: returns errors for invalid paths option', async assert => {
   var { errors } = await compile('', { paths: 'foo' })

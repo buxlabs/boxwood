@@ -24,7 +24,8 @@ module.exports = {
       script: {
         paths: []
       },
-      routes: {}
+      routes: {},
+      compiler: null
     }, options)
     newOptions.hooks = Object.assign({
       onBeforeFile () {},

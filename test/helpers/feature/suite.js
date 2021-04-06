@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer')
 const { promises: fs } = require('fs')
 const Server = require('../Server')
-const compile = require('../compile')
+const compile = require('../deprecated-compile')
 
 async function suite (example, run) {
   const server = new Server()

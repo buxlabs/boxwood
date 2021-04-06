@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/compile')
+const compile = require('../../helpers/deprecated-compile')
 const path = require('path')
 const { escape } = require('../../..')
 const Server = require('../../helpers/Server')

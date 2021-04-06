@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/compile')
+const compile = require('../../helpers/deprecated-compile')
 const { escape } = require('../../..')
 const { join } = require('path')
 
@@ -86,12 +86,12 @@ test('attributes: shorthand syntax for passing data', async assert => {
     <foo {foo} {bar} {baz} {ban}>`
   )
   assert.deepEqual(template({ foo: 'foo', bar: 'bar', baz: 'baz', ban: 'ban' }, escape), 'foobarbazban')
-  
+
   var { template } = await compile(`
     <import foo from="./foo.html">
     <foo {foo}><div>{foo}</div></foo>`
   , { paths: [join(__dirname, '../../fixtures/attributes')] })
-  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>') 
+  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>')
 })
 
 test('attributes: shorthand syntax for passing data to the nested components', async assert => {
@@ -99,7 +99,7 @@ test('attributes: shorthand syntax for passing data to the nested components', a
     <import layout from="./layout.html"/>
     <layout picture="/foo.jpg"/>
   `, { paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
-  assert.deepEqual(template({}, escape), '<img src="/foo.jpg">')  
+  assert.deepEqual(template({}, escape), '<img src="/foo.jpg">')
 })
 
 test('attributes: shorthand syntax for passing data to the nested components with template data', async assert => {
@@ -107,7 +107,7 @@ test('attributes: shorthand syntax for passing data to the nested components wit
     <import layout from="./layout.html"/>
     <layout {picture}/>
   `, { paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
-  assert.deepEqual(template({ picture: "/foo.jpg" }, escape), '<img src="/foo.jpg">')  
+  assert.deepEqual(template({ picture: "/foo.jpg" }, escape), '<img src="/foo.jpg">')
 })
 
 test('attributes: shorthand syntax with translations', async assert => {
