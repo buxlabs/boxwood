@@ -3,6 +3,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse } = require('../utilities/html')
 const doctype = require('./tags/doctype')
+const { transpileExpression } = require('./expression')
 
 const {
   ArrayExpression,
@@ -108,7 +109,7 @@ function reduce ({ node: htmlNode, parent, index }) {
     return node
   } else if (htmlNode.type === 'text') {
     const { content } = htmlNode
-    return new Literal({ value: content })
+    return transpileExpression(content)
   } else if (htmlNode.type === 'comment') {
     return new Literal({ value: '' })
   }
