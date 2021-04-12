@@ -4,16 +4,14 @@ const test = require('ava')
 const { transpile } = require('./html')
 
 test('transpile: text', assert => {
-  assert.deepEqual(transpile('foo'), `import {tag} from "boxwood";
-export default function () {
+  assert.deepEqual(transpile('foo'), `export default function () {
   return "foo";
 }
 `)
 })
 
 test('transpile: comment', assert => {
-  assert.deepEqual(transpile('<!-- foo -->'), `import {tag} from "boxwood";
-export default function () {
+  assert.deepEqual(transpile('<!-- foo -->'), `export default function () {
   return "";
 }
 `)
@@ -70,8 +68,7 @@ export default function () {
 })
 
 test('transpile: if statement with `true`', assert => {
-  assert.deepEqual(transpile('<if true>foo</if>'), `import {tag} from "boxwood";
-export default function () {
+  assert.deepEqual(transpile('<if true>foo</if>'), `export default function () {
   return (function () {
     if (true) {
       return "foo";
@@ -82,8 +79,7 @@ export default function () {
 })
 
 test('transpile: if statement with `false`', assert => {
-  assert.deepEqual(transpile('<if false>foo</if>'), `import {tag} from "boxwood";
-export default function () {
+  assert.deepEqual(transpile('<if false>foo</if>'), `export default function () {
   return (function () {
     if (false) {
       return "foo";
@@ -94,8 +90,7 @@ export default function () {
 })
 
 test('transpile: if/else statement with `true`', assert => {
-  assert.deepEqual(transpile('<if true>foo</if><else>bar</else>'), `import {tag} from "boxwood";
-export default function () {
+  assert.deepEqual(transpile('<if true>foo</if><else>bar</else>'), `export default function () {
   return [(function () {
     if (true) {
       return "foo";
@@ -108,8 +103,7 @@ export default function () {
 })
 
 test('transpile: empty string', assert => {
-  assert.deepEqual(transpile(''), `import {tag} from "boxwood";
-export default function () {
+  assert.deepEqual(transpile(''), `export default function () {
   return [];
 }
 `)

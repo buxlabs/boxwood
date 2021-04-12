@@ -19,8 +19,6 @@ const {
 const program = (body) => {
   return AbstractSyntaxTree.program(
     AbstractSyntaxTree.template(`
-      import { tag } from "boxwood"
-
       export default function () {
         return <%= body %>
       }
@@ -116,6 +114,38 @@ function reduce ({ node: htmlNode, parent, index }) {
   }
 }
 
+function deduceImports (tree) {
+  const methods = ['tag', 'escape']
+  const imports = []
+  methods.forEach(method => {
+    if (tree.has(`CallExpression[callee.name="${method}"]`)) {
+      imports.push(method)
+    }
+  })
+  return imports
+}
+
+function createBoxwoodImportDeclaration (imports) {
+  return {
+    type: 'ImportDeclaration',
+    specifiers: imports.map(name => ({
+        type: 'ImportSpecifier',
+        local: {
+          type: 'Identifier',
+          name
+        },
+        imported: {
+          type: 'Identifier',
+          name
+        }
+      })),
+    source: {
+      type: 'Literal',
+      value: 'boxwood'
+    }
+  }
+}
+
 function transpile (source, options) {
   const tree = parse(source)
   const reducedTree = tree.length === 1
@@ -126,10 +156,16 @@ function transpile (source, options) {
         .filter(Boolean)
     })
 
-  const output = new AbstractSyntaxTree(
+  const outputTree = new AbstractSyntaxTree(
     program(reducedTree)
-  ).source
-  return output
+  )
+
+  const imports = deduceImports(outputTree)
+  if (imports.length > 0) {
+    outputTree.prepend(createBoxwoodImportDeclaration(imports))
+  }
+
+  return outputTree.source
 }
 
 module.exports = { transpile }
