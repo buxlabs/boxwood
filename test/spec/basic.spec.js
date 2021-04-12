@@ -87,11 +87,6 @@ test('basic: it works for a disabled attribute', async assert => {
   assert.deepEqual(template(), '<input disabled>')
 })
 
-test('basic: it handles variables', async assert => {
-  var { template } = await compile('{foo}')
-  assert.deepEqual(template({ foo: 'foo' }, escape), 'foo')
-})
-
 test('basic: it handles variables and content', async assert => {
   var { template } = await compile('{foo}, world!')
   assert.deepEqual(template({ foo: 'Hello' }, escape), 'Hello, world!')
