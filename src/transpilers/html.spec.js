@@ -114,3 +114,11 @@ export default function () {
 }
 `)
 })
+
+test.skip('transpile: expression', assert => {
+  assert.deepEqual(transpile('{foo}'), `import {tag,escape} from "boxwood";
+export default function () {
+  return escape(foo);
+}
+`)
+})
