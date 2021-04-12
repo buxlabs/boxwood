@@ -1,6 +1,7 @@
 'use strict'
 
 const css = require('../utilities/css')
+const escape = require('../utilities/escape')
 const { SELF_CLOSING_TAGS } = require('../../utilities/enum')
 
 function render (node) {
@@ -11,7 +12,7 @@ function render (node) {
     return children.join('')
   }
   if (typeof node === 'string') {
-    return node
+    return escape(node)
   }
   return renderElement(node)
 }

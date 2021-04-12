@@ -1,5 +1,5 @@
 const Compiler = require('./src/Compiler')
-const escape = require('./src/utilities/escape')
+const escape = require('./src/vdom/utilities/escape')
 
 module.exports = {
   async compile (source, options = {}) {

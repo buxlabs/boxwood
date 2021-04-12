@@ -22,6 +22,11 @@ test('#render: renders text nodes', assert => {
   assert.deepEqual(node.textContent, 'foo')
 })
 
+test('#render: escapes text nodes', assert => {
+  const node = render('<div>foo</div>')
+  assert.deepEqual(node.textContent, '&lt;div&gt;foo&lt;/div&gt;')
+})
+
 test('#render: creates children nodes (text)', assert => {
   const node = render(tag('div', { class: 'foo' }, 'bar'))
   assert.deepEqual(node.tagName, 'DIV')

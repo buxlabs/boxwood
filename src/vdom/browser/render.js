@@ -1,6 +1,7 @@
 'use strict'
 
 const css = require('../utilities/css')
+const escape = require('../utilities/escape')
 
 function render (node, state, dispatch) {
   if (typeof node === 'string') {
@@ -16,8 +17,8 @@ function render (node, state, dispatch) {
   return renderElement(node, state, dispatch)
 }
 
-function renderText (node) {
-  return document.createTextNode(node)
+function renderText (text) {
+  return document.createTextNode(escape(text))
 }
 
 function renderDoctype (node) {
