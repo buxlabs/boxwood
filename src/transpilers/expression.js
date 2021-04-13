@@ -18,7 +18,8 @@ function transpileExpression (source) {
     if (token.type === 'text') {
       return new Literal({ value: token.value })
     }
-  })
+    return null
+  }).filter(Boolean)
 
   return toBinaryExpression(new ArrayExpression({ elements: nodes }))
 }

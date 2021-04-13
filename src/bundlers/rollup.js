@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')

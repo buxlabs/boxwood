@@ -130,16 +130,16 @@ function createBoxwoodImportDeclaration (imports) {
   return {
     type: 'ImportDeclaration',
     specifiers: imports.map(name => ({
-        type: 'ImportSpecifier',
-        local: {
-          type: 'Identifier',
-          name
-        },
-        imported: {
-          type: 'Identifier',
-          name
-        }
-      })),
+      type: 'ImportSpecifier',
+      local: {
+        type: 'Identifier',
+        name
+      },
+      imported: {
+        type: 'Identifier',
+        name
+      }
+    })),
     source: {
       type: 'Literal',
       value: 'boxwood'
