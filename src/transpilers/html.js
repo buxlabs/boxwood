@@ -17,13 +17,13 @@ const {
   ReturnStatement
 } = AbstractSyntaxTree
 
-const program = (body) => {
+const program = (params, body) => {
   return AbstractSyntaxTree.program(
     AbstractSyntaxTree.template(`
-      export default function () {
+      export default function (%= params %) {
         return <%= body %>
       }
-    `, { body })
+    `, { params, body })
   )
 }
 
@@ -158,7 +158,7 @@ function transpile (source, options) {
     })
 
   const outputTree = new AbstractSyntaxTree(
-    program(reducedTree)
+    program([], reducedTree)
   )
 
   const imports = deduceImports(outputTree)
