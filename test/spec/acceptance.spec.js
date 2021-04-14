@@ -18,6 +18,11 @@ test('acceptance: same-attributes', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: aliased-attributes', async assert => {
+  const { actual, expected } = await suite('aliased-attributes')
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: objects-as-parameters', async assert => {
   const { actual, expected } = await suite('objects-as-parameters')
   assert.deepEqual(actual, expected)
