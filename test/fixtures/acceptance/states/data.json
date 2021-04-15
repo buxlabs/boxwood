@@ -1,0 +1,9 @@
+{
+  "states": [
+    {
+      "value": "received"
+    }, {
+      "value": "design"
+    }
+  ]
+}

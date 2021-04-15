@@ -262,6 +262,11 @@ test('acceptance: landing-page', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: states', async assert => {
+  const { actual, expected } = await suite('states')
+  assert.deepEqual(actual, expected)
+})
+
 test.skip('acceptance: counter', async assert => {
   const { actual, expected } = await suite('counter', {}, 'js')
   assert.deepEqual(actual, expected)
