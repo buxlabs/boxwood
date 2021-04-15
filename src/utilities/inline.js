@@ -178,6 +178,9 @@ function inlineLocalVariablesInTags (node, localVariables, warnings, remove) {
             previous.value = `{${string}}`
             node.attributes.pop()
           }
+        } else {
+          const last = node.attributes[node.attributes.length - 1]
+          last.key = value
         }
       }
     }
