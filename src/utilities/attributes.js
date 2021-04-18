@@ -6,6 +6,12 @@ function getComponentNames (attributes) {
   return keys.join('').replace('{', '').replace('}', '').split(/,/g).map(key => key.trim())
 }
 
+function findAttributeByKey (attributes, key) {
+  if (!attributes) { return }
+  return attributes.find(attr => attr.key === key)
+}
+
 module.exports = {
-  getComponentNames
+  getComponentNames,
+  findAttributeByKey
 }

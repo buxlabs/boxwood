@@ -1,6 +1,7 @@
 'use strict'
 
 const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../utilities/string')
+const { findAttributeByKey } = require('../utilities/attributes')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Plugin = require('./Plugin')
@@ -14,10 +15,6 @@ for (const attribute of ATTRIBUTES) {
     const boxModelAttribute = attribute.concat(capitalize(direction))
     BOX_MODEL_ATTRIBUTES.push(boxModelAttribute, hyphenate(boxModelAttribute))
   }
-}
-
-function findAttributeByKey (attributes, attribute) {
-  if (attributes) return attributes.find(attr => attr.key === attribute)
 }
 
 function convert (value) {
