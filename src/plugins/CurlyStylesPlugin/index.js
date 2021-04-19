@@ -34,10 +34,6 @@ class CurlyStylesPlugin extends Plugin {
     inline('style')
     inline('css')
   }
-
-  run () {
-
-  }
 }
 
 module.exports = CurlyStylesPlugin

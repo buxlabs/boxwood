@@ -5,6 +5,7 @@ const { parse, walk } = require('../utilities/html')
 const doctype = require('./tags/doctype')
 const { transpileExpression } = require('./expression')
 const BoxModelPlugin = require('../plugins/BoxModelPlugin')
+const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
 
 const {
   ArrayExpression,
@@ -155,6 +156,7 @@ function prerunPlugins (tree, plugins) {
       plugin.prerun({
         tag: node.tagName,
         keys: node.attributes ? node.attributes.map(attribute => attribute.key) : [],
+        attrs: node.attributes || [],
         fragment: node
       })
     })
@@ -165,7 +167,14 @@ function prerunPlugins (tree, plugins) {
 function transpile (source, options) {
   const tree = parse(source)
   const plugins = [
-    new BoxModelPlugin(options)
+    // new RoutesPlugin(options, errors),
+    // new DataPlugin(),
+    // new InlinePlugin(),
+    new BoxModelPlugin(options),
+    new CurlyStylesPlugin()
+    // new ScopedStylesPlugin(),
+    // new SwappedStylesPlugin(),
+    // new InternationalizationPlugin({ translations, filters, errors })
   ]
   prerunPlugins(tree, plugins)
   const reducedTree = tree.length === 1
