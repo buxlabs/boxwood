@@ -1,7 +1,7 @@
 'use strict'
 
 const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../utilities/string')
-const { findAttributeByKey } = require('../utilities/attributes')
+const { findAttributeByKey, removeAttributeByKey } = require('../utilities/attributes')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Plugin = require('./Plugin')
@@ -67,10 +67,6 @@ function appendStyles (attributes, value) {
   }
 }
 
-function removeAttribute (attributes, attribute) {
-  attributes.splice(attributes.findIndex(attr => attr.key === attribute), 1)
-}
-
 class BoxModelPlugin extends Plugin {
   constructor (options = {}) {
     super()
@@ -91,7 +87,7 @@ class BoxModelPlugin extends Plugin {
         attribute.value = convert(attribute.value)
         const inlineStyles = getStyles(key, attribute.key, attribute.value, variables)
         appendStyles(fragment.attributes, inlineStyles)
-        removeAttribute(fragment.attributes, key)
+        removeAttributeByKey(fragment.attributes, key)
       }
     }
     if (isImportTag(tag)) {
