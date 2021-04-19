@@ -20,7 +20,8 @@ const {
   ReturnStatement
 } = AbstractSyntaxTree
 
-const program = (params, body) => {
+const program = (body) => {
+  const params = deduceParams(body)
   return AbstractSyntaxTree.program(
     AbstractSyntaxTree.template(`
       export default function (%= params %) {
@@ -118,6 +119,26 @@ function reduce ({ node: htmlNode, parent, index }) {
   }
 }
 
+function deduceParams (body) {
+  const tree = new AbstractSyntaxTree(body)
+  const nodes = tree.find('[parameter=true]')
+  if (nodes.length === 0) {
+    return []
+  }
+  return {
+    type: 'ObjectPattern',
+    properties: nodes.map(node => ({
+      type: 'Property',
+      key: node,
+      value: node,
+      kind: 'init',
+      computed: false,
+      method: false,
+      shorthand: true
+    }))
+  }
+}
+
 function deduceImports (tree) {
   const methods = ['tag', 'escape']
   const imports = []
@@ -188,7 +209,7 @@ function transpile (source, options) {
     })
 
   const outputTree = new AbstractSyntaxTree(
-    program([], reducedTree)
+    program(reducedTree)
   )
 
   const imports = deduceImports(outputTree)

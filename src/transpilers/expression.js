@@ -10,6 +10,9 @@ function transpileExpression (source) {
     if (token.type === 'expression') {
       const tree = new AbstractSyntaxTree(token.value)
       const { expression } = tree.first('ExpressionStatement')
+      if (expression.type === 'Identifier') {
+        expression.parameter = true
+      }
       return new CallExpression({
         callee: new Identifier({ name: 'escape' }),
         arguments: [expression]
