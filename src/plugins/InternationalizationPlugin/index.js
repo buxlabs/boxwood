@@ -1,10 +1,10 @@
 'use strict'
 
-const { findAsset } = require('../utilities/files')
-const Plugin = require('./Plugin')
+const Plugin = require('../Plugin')
+const { findAsset } = require('../../utilities/files')
 const hash = require('string-hash')
-const { parseData, getDataFormat } = require('../utilities/data')
-const { createTranslationError } = require('../utilities/errors')
+const { parseData, getDataFormat } = require('../../utilities/data')
+const { createTranslationError } = require('../../utilities/errors')
 
 function validateTranslations (value, translations, languages, errors, stack) {
   if (value.includes('{') || value.includes('}')) return translations

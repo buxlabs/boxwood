@@ -1,9 +1,9 @@
 'use strict'
 
-const Plugin = require('./Plugin')
+const Plugin = require('../Plugin')
 const { parse, walk, generate } = require('css-tree')
-const { findAsset, isFileSupported } = require('../utilities/files')
-const { getExtension, getBase64Extension } = require('../utilities/string')
+const { findAsset, isFileSupported } = require('../../utilities/files')
+const { getExtension, getBase64Extension } = require('../../utilities/string')
 const { whitespacestrip } = require('pure-utilities/string')
 
 function getBase64String (asset, options, isFont) {

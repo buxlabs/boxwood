@@ -1,10 +1,10 @@
 'use strict'
 
-const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../utilities/string')
-const { findAttributeByKey, removeAttributeByKey } = require('../utilities/attributes')
+const { isCurlyTag, getTagValue, isImportTag, isPartialTag } = require('../../utilities/string')
+const { findAttributeByKey, removeAttributeByKey } = require('../../utilities/attributes')
 const { isNumeric } = require('pure-conditions')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const Plugin = require('./Plugin')
+const Plugin = require('../Plugin')
 const { hyphenate, capitalize } = require('pure-utilities/string')
 
 const ATTRIBUTES = ['padding', 'margin', 'border']

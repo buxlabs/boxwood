@@ -1,9 +1,9 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const Plugin = require('./Plugin')
-const { isCurlyTag, getTagValue } = require('../utilities/string')
-const { convertObjectToStyleString } = require('../utilities/style')
+const Plugin = require('../Plugin')
+const { isCurlyTag, getTagValue } = require('../../utilities/string')
+const { convertObjectToStyleString } = require('../../utilities/style')
 
 class CurlyStylesPlugin extends Plugin {
   constructor () {

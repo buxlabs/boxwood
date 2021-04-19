@@ -1,8 +1,8 @@
-const Plugin = require('./Plugin')
-const { parseData, getDataFormat } = require('../utilities/data')
+const Plugin = require('../Plugin')
+const { parseData, getDataFormat } = require('../../utilities/data')
 const { isPlainObject } = require('pure-conditions')
-const { optimizeNode } = require('../utilities/optimize')
-const { createTranslationError } = require('../utilities/errors')
+const { optimizeNode } = require('../../utilities/optimize')
+const { createTranslationError } = require('../../utilities/errors')
 const CODE_TAGS = ['style', 'script']
 
 class DataPlugin extends Plugin {

@@ -1,6 +1,6 @@
 'use strict'
 
-const Plugin = require('./Plugin')
+const Plugin = require('../Plugin')
 
 class SwappedStylesPlugin extends Plugin {
   run ({ children, options }) {

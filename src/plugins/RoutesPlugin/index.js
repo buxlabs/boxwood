@@ -1,6 +1,6 @@
-const Plugin = require('./Plugin')
+const Plugin = require('../Plugin')
 const { isEmptyObject } = require('pure-conditions')
-const { transform } = require('../utilities/routes')
+const { transform } = require('../../utilities/routes')
 
 class RoutesPlugin extends Plugin {
   constructor (options, errors) {
