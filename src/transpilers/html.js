@@ -6,6 +6,7 @@ const doctype = require('./tags/doctype')
 const { transpileExpression } = require('./expression')
 const BoxModelPlugin = require('../plugins/BoxModelPlugin')
 const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
+const TextPlugin = require('../plugins/TextPlugin')
 
 const {
   ArrayExpression,
@@ -171,10 +172,11 @@ function transpile (source, options) {
     // new DataPlugin(),
     // new InlinePlugin(),
     new BoxModelPlugin(options),
-    new CurlyStylesPlugin()
+    new CurlyStylesPlugin(),
     // new ScopedStylesPlugin(),
     // new SwappedStylesPlugin(),
     // new InternationalizationPlugin({ translations, filters, errors })
+    new TextPlugin()
   ]
   prerunPlugins(tree, plugins)
   const reducedTree = tree.length === 1

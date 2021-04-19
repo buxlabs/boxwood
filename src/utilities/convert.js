@@ -1,6 +1,6 @@
 'use strict'
 
-const { OBJECT_VARIABLE, ESCAPE_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
+const { OBJECT_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
 const {
   getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
@@ -111,21 +111,10 @@ function convertAttribute (name, value, variables, currentFilters, translations,
   return getLiteral(value)
 }
 
-function convertHtmlOrTextAttribute (fragment, variables, currentFilters, translations, languages) {
+function converHtmlAttribute (fragment, variables, currentFilters, translations, languages) {
   const html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html|bind')
   if (html) {
     return convertAttribute(html.key, html.value, variables, currentFilters, translations, languages)
-  } else {
-    const text = fragment.attributes.find(attr => attr.key === 'text' || attr.key === 'text|bind')
-    if (text) {
-      const argument = convertAttribute(text.key, text.value, variables, currentFilters, translations, languages)
-      return {
-        type: 'CallExpression',
-        callee: getIdentifier(ESCAPE_VARIABLE),
-        arguments: [argument.expression ? argument.expression : argument],
-        fragment
-      }
-    }
   }
   return null
 }
@@ -344,7 +333,7 @@ function convertTag (fragment, variables, currentFilters, translations, language
     })
   }
   parts.push(getLiteral('>'))
-  const leaf = convertHtmlOrTextAttribute(fragment, variables, currentFilters, translations, languages)
+  const leaf = converHtmlAttribute(fragment, variables, currentFilters, translations, languages)
   if (leaf) {
     parts.push(leaf)
   }
@@ -363,7 +352,6 @@ function convertKey (key, variables, filters = [], translations = [], languages 
 }
 
 module.exports = {
-  convertHtmlOrTextAttribute,
   convertAttribute,
   convertText,
   convertTag,
