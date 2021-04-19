@@ -3,6 +3,24 @@ const lexer = require('../utilities/lexer')
 
 const { ArrayExpression, CallExpression, Identifier, Literal, toBinaryExpression } = AbstractSyntaxTree
 
+function markNodes (expression) {
+  if (expression.type === 'Identifier') {
+    expression.parameter = true
+  }
+  AbstractSyntaxTree.walk(expression, node => {
+    if (node.type === 'CallExpression') {
+      if (node.callee.type === 'Identifier') {
+        node.callee.parameter = true
+      }
+      node.arguments.forEach(argument => {
+        if (argument.type === 'Identifier') {
+          argument.parameter = true
+        }
+      })
+    }
+  })
+}
+
 function transpileExpression (source) {
   const tokens = lexer(source)
 
@@ -10,9 +28,7 @@ function transpileExpression (source) {
     if (token.type === 'expression') {
       const tree = new AbstractSyntaxTree(token.value)
       const { expression } = tree.first('ExpressionStatement')
-      if (expression.type === 'Identifier') {
-        expression.parameter = true
-      }
+      markNodes(expression)
       return new CallExpression({
         callee: new Identifier({ name: 'escape' }),
         arguments: [expression]
