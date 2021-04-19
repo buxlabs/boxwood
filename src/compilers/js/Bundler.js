@@ -1,6 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { join } = require('path')
 const ESBundler = require('../../Bundler')
+const { OBJECT_VARIABLE } = require('../../utilities/enum')
 
 class Bundler {
   constructor (options) {
@@ -50,7 +51,8 @@ class Bundler {
             arguments: [
               {
                 type: 'CallExpression',
-                callee: { ...node.declaration, type: 'FunctionExpression' }
+                callee: { ...node.declaration, type: 'FunctionExpression' },
+                arguments: [{ type: 'Identifier', name: OBJECT_VARIABLE }]
               }
             ]
           }

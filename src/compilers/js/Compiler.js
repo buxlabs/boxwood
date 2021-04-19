@@ -1,5 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Bundler = require('./Bundler')
+const { OBJECT_VARIABLE } = require('../../utilities/enum')
 
 class Compiler {
   constructor (options) {
@@ -14,7 +15,7 @@ class Compiler {
     const { body } = expression.body
     const lastNode = body.pop()
     body.push({ type: 'ReturnStatement', argument: lastNode.expression })
-    const template = new Function(`return function render() {\nreturn ${tree.source}}`)() // eslint-disable-line
+    const template = new Function(`return function render(${OBJECT_VARIABLE}) {\nreturn ${tree.source}}`)() // eslint-disable-line
     return { template }
   }
 }
