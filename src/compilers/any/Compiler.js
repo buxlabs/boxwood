@@ -7,7 +7,7 @@ class Compiler {
   }
 
   async compile (input) {
-    const source = this.options.format === 'js' ? input : transpile(input)
+    const source = this.options.format === 'js' ? input : transpile(input, this.options)
     const compiler = new JSCompiler(this.options)
     return compiler.compile(source)
   }

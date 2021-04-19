@@ -1,9 +1,10 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { parse } = require('../utilities/html')
+const { parse, walk } = require('../utilities/html')
 const doctype = require('./tags/doctype')
 const { transpileExpression } = require('./expression')
+const BoxModelPlugin = require('../plugins/BoxModelPlugin')
 
 const {
   ArrayExpression,
@@ -147,8 +148,26 @@ function createBoxwoodImportDeclaration (imports) {
   }
 }
 
+function prerunPlugins (tree, plugins) {
+  plugins.forEach(plugin => plugin.beforeprerun())
+  walk(tree, node => {
+    plugins.forEach(plugin => {
+      plugin.prerun({
+        tag: node.tagName,
+        keys: node.attributes ? node.attributes.map(attribute => attribute.key) : [],
+        fragment: node
+      })
+    })
+  })
+  plugins.forEach(plugin => plugin.afterprerun())
+}
+
 function transpile (source, options) {
   const tree = parse(source)
+  const plugins = [
+    new BoxModelPlugin(options)
+  ]
+  prerunPlugins(tree, plugins)
   const reducedTree = tree.length === 1
     ? reduce({ node: tree[0], parent: tree, index: 0 })
     : new ArrayExpression({
