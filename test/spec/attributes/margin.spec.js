@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/deprecated-compile')
+const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 
 test('div[margin]: works with values', async assert => {
