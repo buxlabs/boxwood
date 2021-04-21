@@ -69,4 +69,4 @@ function transpileExpression (source) {
   return toBinaryExpression(new ArrayExpression(nodes))
 }
 
-module.exports = { transpileExpression, deduceParams }
+module.exports = { transpileExpression, findParams, markNodes, deduceParams }
