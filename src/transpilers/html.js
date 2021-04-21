@@ -3,7 +3,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse, walk } = require('../utilities/html')
 const doctype = require('./tags/doctype')
-const { transpileExpression } = require('./expression')
+const { transpileExpression, deduceParams } = require('./expression')
 const BoxModelPlugin = require('../plugins/BoxModelPlugin')
 const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
 const TextPlugin = require('../plugins/TextPlugin')
@@ -116,26 +116,6 @@ function reduce ({ node: htmlNode, parent, index }) {
     return transpileExpression(content)
   } else if (htmlNode.type === 'comment') {
     return new Literal({ value: '' })
-  }
-}
-
-function deduceParams (body) {
-  const tree = new AbstractSyntaxTree(body)
-  const nodes = tree.find('[parameter=true]')
-  if (nodes.length === 0) {
-    return []
-  }
-  return {
-    type: 'ObjectPattern',
-    properties: nodes.map(node => ({
-      type: 'Property',
-      key: node,
-      value: node,
-      kind: 'init',
-      computed: false,
-      method: false,
-      shorthand: true
-    }))
   }
 }
 

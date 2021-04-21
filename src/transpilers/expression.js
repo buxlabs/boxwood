@@ -21,6 +21,26 @@ function markNodes (expression) {
   })
 }
 
+function deduceParams (body) {
+  const tree = new AbstractSyntaxTree(body)
+  const nodes = tree.find('[parameter=true]')
+  if (nodes.length === 0) {
+    return []
+  }
+  return {
+    type: 'ObjectPattern',
+    properties: nodes.map(node => ({
+      type: 'Property',
+      key: node,
+      value: node,
+      kind: 'init',
+      computed: false,
+      method: false,
+      shorthand: true
+    }))
+  }
+}
+
 function transpileExpression (source) {
   const tokens = lexer(source)
 
@@ -43,4 +63,4 @@ function transpileExpression (source) {
   return toBinaryExpression(new ArrayExpression({ elements: nodes }))
 }
 
-module.exports = { transpileExpression }
+module.exports = { transpileExpression, deduceParams }
