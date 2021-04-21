@@ -23,7 +23,7 @@ function markNodes (expression) {
 
 function deduceParams (body) {
   const tree = new AbstractSyntaxTree(body)
-  const nodes = tree.find('[parameter=true]')
+  const nodes = tree.find('Identifier[parameter=true]')
   if (nodes.length === 0) {
     return []
   }
