@@ -1,7 +1,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const lexer = require('../utilities/lexer')
 
-const { ArrayExpression, CallExpression, Identifier, Literal, toBinaryExpression } = AbstractSyntaxTree
+const { ArrayExpression, CallExpression, Identifier, Literal, ObjectPattern, Property, toBinaryExpression } = AbstractSyntaxTree
 
 function markNodes (expression) {
   if (expression.type === 'Identifier') {
@@ -32,21 +32,19 @@ function deduceParams (body) {
   if (params.length === 0) {
     return []
   }
-  return {
-    type: 'ObjectPattern',
+  return new ObjectPattern({
     properties: params.map(param => {
       const node = new Identifier({ name: param })
-      return {
-        type: 'Property',
+      return new Property({
         key: node,
         value: node,
         kind: 'init',
         computed: false,
         method: false,
         shorthand: true
-      }
+      })
     })
-  }
+  })
 }
 
 function transpileExpression (source) {
@@ -68,7 +66,7 @@ function transpileExpression (source) {
     return null
   }).filter(Boolean)
 
-  return toBinaryExpression(new ArrayExpression({ elements: nodes }))
+  return toBinaryExpression(new ArrayExpression(nodes))
 }
 
 module.exports = { transpileExpression, deduceParams }
