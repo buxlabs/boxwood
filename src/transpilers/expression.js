@@ -21,23 +21,31 @@ function markNodes (expression) {
   })
 }
 
-function deduceParams (body) {
+function findParams (body) {
   const tree = new AbstractSyntaxTree(body)
   const nodes = tree.find('Identifier[parameter=true]')
-  if (nodes.length === 0) {
+  return nodes.map(node => node.name)
+}
+
+function deduceParams (body) {
+  const params = findParams(body)
+  if (params.length === 0) {
     return []
   }
   return {
     type: 'ObjectPattern',
-    properties: nodes.map(node => ({
-      type: 'Property',
-      key: node,
-      value: node,
-      kind: 'init',
-      computed: false,
-      method: false,
-      shorthand: true
-    }))
+    properties: params.map(param => {
+      const node = new Identifier({ name: param })
+      return {
+        type: 'Property',
+        key: node,
+        value: node,
+        kind: 'init',
+        computed: false,
+        method: false,
+        shorthand: true
+      }
+    })
   }
 }
 
