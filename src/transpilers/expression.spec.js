@@ -141,3 +141,8 @@ test('findParams: works for destructuring', assert => {
   const params = findParamsInSource('{foo({ bar: baz, qux })}')
   assert.deepEqual(params, ['foo', 'baz', 'qux'])
 })
+
+test('findParams: works for logical expressions', assert => {
+  const params = findParamsInSource('{foo && bar}')
+  assert.deepEqual(params, ['foo', 'bar'])
+})
