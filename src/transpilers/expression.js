@@ -10,18 +10,20 @@ function markNodes (expression) {
   if (expression.type === 'MemberExpression' && expression.object.type === 'Identifier') {
     expression.object.parameter = true
   }
-  AbstractSyntaxTree.walk(expression, node => {
-    if (node.type === 'CallExpression') {
-      if (node.callee.type === 'Identifier') {
-        node.callee.parameter = true
-      }
-      node.arguments.forEach(argument => {
-        if (argument.type === 'Identifier') {
-          argument.parameter = true
-        }
-      })
+  if (expression.type === 'CallExpression') {
+    if (expression.callee.type === 'Identifier') {
+      expression.callee.parameter = true
     }
-  })
+    expression.arguments.forEach(argument => {
+      markNodes(argument)
+    })
+  }
+  if (expression.type === 'CallExpression' && expression.callee.type === 'MemberExpression' && expression.callee.object.type === 'Identifier') {
+    expression.callee.object.parameter = true
+  }
+  if (expression.type === 'MemberExpression' && expression.object.type === 'CallExpression' && expression.object.callee.type === 'Identifier') {
+    expression.object.callee.parameter = true
+  }
 }
 
 function findParams (body) {

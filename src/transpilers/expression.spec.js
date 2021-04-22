@@ -21,12 +21,42 @@ test('findParams: works for multiple params', assert => {
   assert.deepEqual(params, ['foo', 'bar'])
 })
 
+test('findParams: works for member expressions', assert => {
+  const params = findParamsInSource(`{foo.bar}`)
+  assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: works for computed member expressions', assert => {
+  const params = findParamsInSource(`{foo[bar]}`)
+  assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: works for a member expression with call expression as the object', assert => {
+  const params = findParamsInSource(`{foo().bar}`)
+  assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: works for a member expression with call expression as the property', assert => {
+  const params = findParamsInSource(`{foo.bar()}`)
+  assert.deepEqual(params, ['foo'])
+})
+
 test('findParams: works for call expressions', assert => {
   const params = findParamsInSource(`{bar(baz())}`)
   assert.deepEqual(params, ['bar', 'baz'])
 })
 
-test('findParams: works for member expressions', assert => {
-  const params = findParamsInSource(`{foo.bar}`)
+test('findParams: works for call expressions with member expressions', assert => {
+  const params = findParamsInSource(`{bar(baz.qux())}`)
+  assert.deepEqual(params, ['bar', 'baz'])
+})
+
+test('findParams: works for complex call expressions', assert => {
+  const params = findParamsInSource(`{foo.bar(baz.qux())}`)
+  assert.deepEqual(params, ['foo', 'baz'])
+})
+
+test.skip('findParams: works for deeply nested expressions', assert => {
+  const params = findParamsInSource(`{foo.bar().baz}`)
   assert.deepEqual(params, ['foo'])
 })
