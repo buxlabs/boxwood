@@ -17,7 +17,7 @@ test('[partial]: passes attributes', async assert => {
   assert.deepEqual(template({}, escape), '<div>quxquux</div>')
 })
 
-test('partial: passes attributes and handles expressions', async assert => {
+test('[partial]: passes attributes and handles expressions', async assert => {
   const { template } = await compile(`<div partial="./bar.html" foo qux="{qux}"></div>`, {
     paths: [ path.join(__dirname, '../../fixtures/partial/attributes') ]
   })
