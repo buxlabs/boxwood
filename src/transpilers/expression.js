@@ -3,9 +3,15 @@ const lexer = require('../utilities/lexer')
 
 const { ArrayExpression, CallExpression, Identifier, Literal, ObjectPattern, Property, toBinaryExpression } = AbstractSyntaxTree
 
+function isIdentifierGlobal (name) {
+  return name === 'undefined'
+}
+
 function markNodes (expression) {
   if (expression.type === 'Identifier') {
-    expression.parameter = true
+    if (!isIdentifierGlobal(expression.name)) {
+      expression.parameter = true
+    }
   }
   if (expression.type === 'MemberExpression') {
     markNodes(expression.object)
@@ -25,6 +31,11 @@ function markNodes (expression) {
   }
   if (expression.type === 'ChainExpression') {
     markNodes(expression.expression)
+  }
+  if (expression.type === 'ConditionalExpression') {
+    markNodes(expression.test)
+    markNodes(expression.consequent)
+    markNodes(expression.alternate)
   }
 }
 

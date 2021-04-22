@@ -105,3 +105,18 @@ test('findParams: works for nested chain expressions', assert => {
   const params = findParamsInSource('{qux.baz?.bar}')
   assert.deepEqual(params, ['qux'])
 })
+
+test('findParams: works for conditional expressions', assert => {
+  const params = findParamsInSource('{foo ? bar : baz}')
+  assert.deepEqual(params, ['foo', 'bar', 'baz'])
+})
+
+test('findParams: works for complex conditional expressions', assert => {
+  const params = findParamsInSource('{foo.bar ? baz.qux : quux?.quuux}')
+  assert.deepEqual(params, ['foo', 'baz', 'quux'])
+})
+
+test('findParams: works for undefined', assert => {
+  const params = findParamsInSource('{undefined}')
+  assert.deepEqual(params, [])
+})
