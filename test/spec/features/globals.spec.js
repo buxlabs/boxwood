@@ -3,7 +3,7 @@ const path = require('path')
 const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 
-test.skip('globals: Math', async assert => {
+test('globals: Math', async assert => {
   var { template } = await compile('{Math.abs(foo)}')
   assert.deepEqual(template({ foo: -1 }, escape), '1')
 
@@ -23,12 +23,20 @@ test.skip('globals: Math', async assert => {
   assert.deepEqual(template({ foo: 2 }, escape), '8')
 })
 
-test.skip('globals: Number', async assert => {
+test('globals: Number', async assert => {
   var { template } = await compile('{Number.isFinite(foo)}')
   assert.deepEqual(template({ foo: 42 }, escape), 'true')
 
   var { template } = await compile('{Number.isFinite(foo)}')
   assert.deepEqual(template({ foo: Infinity }, escape), 'false')
+})
+
+test('globals: Date', async assert => {
+  var { template } = await compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')
+  assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '0')
+
+  var { template } = await compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')
+  assert.deepEqual(template({}, escape), '818035920000')
 })
 
 test.skip('globals: JSON', async assert => {
@@ -37,14 +45,6 @@ test.skip('globals: JSON', async assert => {
 
   var { template } = await compile('{JSON.stringify(foo, null, 4)}')
   assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '{\n    &quot;bar&quot;: &quot;baz&quot;\n}')
-})
-
-test.skip('globals: Date', async assert => {
-  var { template } = await compile('{Date.parse("01 Jan 1970 00:00:00 GMT")}')
-  assert.deepEqual(template({ foo: { bar: 'baz' } }, escape), '0')
-
-  var { template } = await compile('{Date.parse("04 Dec 1995 00:12:00 GMT")}')
-  assert.deepEqual(template({}, escape), '818035920000')
 })
 
 test.skip('globals: implicit variables', async assert => {
