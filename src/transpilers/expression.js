@@ -7,22 +7,21 @@ function markNodes (expression) {
   if (expression.type === 'Identifier') {
     expression.parameter = true
   }
-  if (expression.type === 'MemberExpression' && expression.object.type === 'Identifier') {
-    expression.object.parameter = true
+  if (expression.type === 'MemberExpression') {
+    markNodes(expression.object)
   }
   if (expression.type === 'CallExpression') {
-    if (expression.callee.type === 'Identifier') {
-      expression.callee.parameter = true
-    }
+    markNodes(expression.callee)
     expression.arguments.forEach(argument => {
       markNodes(argument)
     })
   }
-  if (expression.type === 'CallExpression' && expression.callee.type === 'MemberExpression' && expression.callee.object.type === 'Identifier') {
-    expression.callee.object.parameter = true
+  if (expression.type === 'BinaryExpression') {
+    markNodes(expression.left)
+    markNodes(expression.right)
   }
-  if (expression.type === 'MemberExpression' && expression.object.type === 'CallExpression' && expression.object.callee.type === 'Identifier') {
-    expression.object.callee.parameter = true
+  if (expression.type === 'UnaryExpression') {
+    markNodes(expression.argument)
   }
 }
 
