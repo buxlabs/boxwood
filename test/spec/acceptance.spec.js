@@ -1,5 +1,6 @@
 const test = require('ava')
-const compile = require('../helpers/deprecated-compile')
+const deprecatedCompile = require('../helpers/deprecated-compile')
+const compile = require('../helpers/compile')
 const { normalize } = require('../helpers/string')
 const { join } = require('path')
 const { escape } = require('../..')
@@ -165,7 +166,7 @@ test('acceptance: styleguide', async assert => {
 })
 
 test('acceptance: invoice', async assert => {
-  const { actual, expected } = await suite('invoice', { compact: false })
+  const { actual, expected } = await suite('invoice', { compilerOptions: { compact: false } })
   assert.deepEqual(actual, expected)
 })
 
@@ -203,9 +204,11 @@ test('acceptance: booleans', async assert => {
 
 test('acceptance: routes', async assert => {
   const { actual, expected } = await suite('routes', {
-    routes: {
-      Users: {
-        browse: '/rest/users'
+    compilerOptions: {
+      routes: {
+        Users: {
+          browse: '/rest/users'
+        }
       }
     }
   })
@@ -218,7 +221,7 @@ test('acceptance: accordion-html', async assert => {
 })
 
 test('acceptance: accordion-js', async assert => {
-  const { actual, expected } = await suite('accordion-js', {}, 'js')
+  const { actual, expected } = await suite('accordion-js', { extension: 'js' })
   assert.deepEqual(actual, expected)
 })
 
@@ -258,7 +261,7 @@ test('acceptance: same-classes-scoped', async assert => {
 })
 
 test('acceptance: landing-page', async assert => {
-  const { actual, expected } = await suite('landing-page', {}, 'js')
+  const { actual, expected } = await suite('landing-page', { extension: 'js' })
   assert.deepEqual(actual, expected)
 })
 
@@ -268,7 +271,7 @@ test('acceptance: states', async assert => {
 })
 
 test.skip('acceptance: counter', async assert => {
-  const { actual, expected } = await suite('counter', {}, 'js')
+  const { actual, expected } = await suite('counter', { extension: 'js' })
   assert.deepEqual(actual, expected)
 })
 
@@ -283,7 +286,7 @@ test.skip('acceptance: variables', async assert => {
 })
 
 
-async function suite (name, compilerOptions = {}, extension = 'html') {
+async function suite (name, { compilerOptions = {} , extension = 'html', compiler = 'deprecated' } = {}) {
   const dir = join(__dirname, '../fixtures/acceptance', name)
   const path1 = join(dir, `actual.${extension}`)
   const path2 = join(dir, 'expected.html')
@@ -291,7 +294,11 @@ async function suite (name, compilerOptions = {}, extension = 'html') {
   const content1 = await readFile(path1, 'utf8')
   const content2 = await readFile(path2, 'utf8')
   const content3 = await readFile(path3, 'utf8')
-  const { template, warnings, errors } = await compile(content1, {
+  const compilers = {
+    deprecated: deprecatedCompile,
+    new: compile
+  }
+  const { template, warnings, errors } = await compilers[compiler](content1, {
     path: path1,
     paths: [
       dir

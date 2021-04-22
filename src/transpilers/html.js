@@ -1,9 +1,10 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { camelize } = require('pure-utilities/string')
 const { parse, walk } = require('../utilities/html')
-const doctype = require('./tags/doctype')
-const partial = require('./tags/partial')
+const { findAttributeByKey } = require('../utilities/attributes')
+const tags = require('./tags')
 const { transpileExpression, deduceParams } = require('./expression')
 const BoxModelPlugin = require('../plugins/BoxModelPlugin')
 const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
@@ -101,8 +102,9 @@ function reduce ({ node: htmlNode, parent, index }) {
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
     return null
   } else if (htmlNode.type === 'element') {
-    if (htmlNode.tagName === '!doctype') { return doctype() }
-    if (htmlNode.tagName === 'partial') { return partial(htmlNode) }
+    if (htmlNode.tagName === 'import') { return tags.import(htmlNode) }
+    if (htmlNode.tagName === '!doctype') { return tags.doctype() }
+    if (htmlNode.tagName === 'partial') { return tags.partial(htmlNode) }
     const { tagName, attributes, children } = htmlNode
     const node = new CallExpression({
       callee: new Identifier({ name: 'tag' }),
@@ -119,6 +121,28 @@ function reduce ({ node: htmlNode, parent, index }) {
   } else if (htmlNode.type === 'comment') {
     return new Literal({ value: '' })
   }
+}
+
+function createComponentImportDeclarations (imports) {
+  return imports.map(node => {
+    const { path } = node
+    return {
+      type: 'ImportDeclaration',
+      specifiers: [
+        {
+          type: 'ImportDefaultSpecifier',
+          local: {
+            type: 'Identifier',
+            name: `__${camelize(path)}__`
+          }
+        }
+      ],
+      source: {
+        type: 'Literal',
+        value: path
+      }
+    }
+  })
 }
 
 function deducePartials (tree) {
@@ -145,6 +169,19 @@ function createPartialImportDeclarations (imports) {
       }
     }
   })
+}
+
+function deduceComponents (htmlTree) {
+  const nodes = []
+  walk(htmlTree, node => {
+    if (node.tagName === 'import') {
+      nodes.push({
+        tag: node.attributes[0].key,
+        path: findAttributeByKey(node.attributes, 'from').value
+      })
+    }
+  })
+  return nodes
 }
 
 function deduceBoxwoodImports (tree) {
@@ -221,6 +258,23 @@ function transpile (source, options) {
   )
 
   let imports
+
+  imports = deduceComponents(tree)
+  if (imports.length > 0) {
+    outputTree.prepend(createComponentImportDeclarations(imports))
+
+    outputTree.replace(node => {
+      if (node.type === 'CallExpression' && node.callee.name === 'tag') {
+        imports.forEach(leaf => {
+          if (node.arguments[0].value === leaf.tag) {
+            node.callee.name = `__${camelize(leaf.path)}__`
+            node.arguments.shift()
+          }
+        })
+      }
+    })
+  }
+
   imports = deducePartials(outputTree)
   if (imports.length > 0) {
     outputTree.prepend(createPartialImportDeclarations(imports))
@@ -231,6 +285,19 @@ function transpile (source, options) {
     outputTree.prepend(createBoxwoodImportDeclaration(imports))
   }
 
+  const block = outputTree.first('ExportDefaultDeclaration > FunctionDeclaration > BlockStatement')
+  const statement = block.body.find(node => node.type === 'ReturnStatement')
+  if (statement.argument.type === 'ArrayExpression') {
+    statement.argument.elements = statement.argument.elements.filter(element => {
+      if (element.type === 'Literal' && element.value === null) {
+        return false
+      }
+      return true
+    })
+    if (statement.argument.elements.length === 1) {
+      statement.argument = statement.argument.elements[0]
+    }
+  }
   return outputTree.source
 }
 

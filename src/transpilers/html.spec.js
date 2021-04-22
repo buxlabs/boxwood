@@ -91,13 +91,13 @@ test('transpile: if statement with `false`', assert => {
 
 test('transpile: if/else statement with `true`', assert => {
   assert.deepEqual(transpile('<if true>foo</if><else>bar</else>'), `export default function () {
-  return [(function () {
+  return (function () {
     if (true) {
       return "foo";
     } else {
       return "bar";
     }
-  })()];
+  })();
 }
 `)
 })
@@ -130,6 +130,14 @@ test('transpile: two partials', assert => {
 import __partialsBarHtml__ from "partials/bar.html";
 export default function () {
   return [__partialsFooHtml__(), " ", __partialsBarHtml__()];
+}
+`)
+})
+
+test('transpile: import', assert => {
+  assert.deepEqual(transpile('<import foo from="components/foo.html"/><foo/>'), `import __componentsFooHtml__ from "components/foo.html";
+export default function () {
+  return __componentsFooHtml__();
 }
 `)
 })
