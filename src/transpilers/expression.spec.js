@@ -25,3 +25,8 @@ test('findParams: works for call expressions', assert => {
   const params = findParamsInSource(`{bar(baz())}`)
   assert.deepEqual(params, ['bar', 'baz'])
 })
+
+test('findParams: works for member expressions', assert => {
+  const params = findParamsInSource(`{foo.bar}`)
+  assert.deepEqual(params, ['foo'])
+})

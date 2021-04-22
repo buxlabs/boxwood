@@ -7,6 +7,9 @@ function markNodes (expression) {
   if (expression.type === 'Identifier') {
     expression.parameter = true
   }
+  if (expression.type === 'MemberExpression' && expression.object.type === 'Identifier') {
+    expression.object.parameter = true
+  }
   AbstractSyntaxTree.walk(expression, node => {
     if (node.type === 'CallExpression') {
       if (node.callee.type === 'Identifier') {
