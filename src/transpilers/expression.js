@@ -1,42 +1,28 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const lexer = require('../utilities/lexer')
+const { BUILT_IN_VARIABLES } = require('../utilities/enum')
 
 const { ArrayExpression, CallExpression, Identifier, Literal, ObjectPattern, Property, toBinaryExpression } = AbstractSyntaxTree
 
 function isIdentifierGlobal (name) {
-  return name === 'undefined'
+  return name === 'undefined' || BUILT_IN_VARIABLES.includes(name)
 }
 
 function markNodes (expression) {
-  if (expression.type === 'Identifier') {
-    if (!isIdentifierGlobal(expression.name)) {
-      expression.parameter = true
-    }
+  if (!expression) { return }
+  if (expression.type === 'Identifier' && !isIdentifierGlobal(expression.name)) {
+    expression.parameter = true
   }
-  if (expression.type === 'MemberExpression') {
-    markNodes(expression.object)
-  }
-  if (expression.type === 'CallExpression') {
-    markNodes(expression.callee)
-    expression.arguments.forEach(argument => {
-      markNodes(argument)
-    })
-  }
-  if (expression.type === 'BinaryExpression') {
-    markNodes(expression.left)
-    markNodes(expression.right)
-  }
-  if (expression.type === 'UnaryExpression' || expression.type === 'UpdateExpression') {
-    markNodes(expression.argument)
-  }
-  if (expression.type === 'ChainExpression') {
-    markNodes(expression.expression)
-  }
-  if (expression.type === 'ConditionalExpression') {
-    markNodes(expression.test)
-    markNodes(expression.consequent)
-    markNodes(expression.alternate)
-  }
+  markNodes(expression.object)
+  markNodes(expression.left)
+  markNodes(expression.right)
+  markNodes(expression.argument)
+  markNodes(expression.expression)
+  markNodes(expression.test)
+  markNodes(expression.consequent)
+  markNodes(expression.alternate)
+  markNodes(expression.callee)
+  expression.arguments?.forEach(markNodes)
 }
 
 function findParams (body) {

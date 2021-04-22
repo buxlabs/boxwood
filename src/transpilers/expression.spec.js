@@ -120,3 +120,8 @@ test('findParams: works for undefined', assert => {
   const params = findParamsInSource('{undefined}')
   assert.deepEqual(params, [])
 })
+
+test('findParams: works for built-ins', assert => {
+  const params = findParamsInSource('{Math.abs(foo)} {JSON.parse(bar)} {Number.finite(baz)} {console.log(qux)} {new Date(quux)}')
+  assert.deepEqual(params, ['foo', 'bar', 'baz', 'qux', 'quux'])
+})

@@ -2,7 +2,7 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const walk = require('himalaya-walk')
-const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, GLOBAL_VARIABLES } = require('../../utilities/enum')
+const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, BUILT_IN_VARIABLES } = require('../../utilities/enum')
 const { getTemplateVariableDeclaration, getTemplateReturnStatement, getTemplateAssignmentExpression } = require('../../utilities/factory')
 const collect = require('../../utilities/collect')
 const { getFilter } = require('../../utilities/filters')
@@ -31,7 +31,7 @@ class Renderer {
       TEMPLATE_VARIABLE,
       OBJECT_VARIABLE,
       ESCAPE_VARIABLE
-    ].concat(GLOBAL_VARIABLES)
+    ].concat(BUILT_IN_VARIABLES)
     const filters = []
     const components = []
     const statistics = new Statistics()

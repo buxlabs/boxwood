@@ -1,6 +1,6 @@
 'use strict'
 
-const { OBJECT_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, GLOBAL_VARIABLES } = require('./enum')
+const { OBJECT_VARIABLE, BOOLEAN_ATTRIBUTES, UNESCAPED_NAMES, BUILT_IN_VARIABLES } = require('./enum')
 const {
   getObjectMemberExpression,
   getTemplateAssignmentExpression, getEscapeCallExpression
@@ -163,7 +163,7 @@ function isPropertyPrependCandidate (node) {
 }
 
 function isIdentifierPrependCandidate (node) {
-  return node.type === 'Identifier' && !node.omit && !GLOBAL_VARIABLES.includes(node.name)
+  return node.type === 'Identifier' && !node.omit && !BUILT_IN_VARIABLES.includes(node.name)
 }
 
 function isMemberExpression (node) {
