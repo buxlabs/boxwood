@@ -14,7 +14,6 @@ function markNodes (expression) {
   if (expression.type === 'Identifier' && !isIdentifierGlobal(expression.name)) {
     expression.parameter = true
   }
-  markNodes(expression.object)
   markNodes(expression.left)
   markNodes(expression.right)
   markNodes(expression.argument)
@@ -24,8 +23,11 @@ function markNodes (expression) {
   markNodes(expression.alternate)
   markNodes(expression.callee)
   markNodes(expression.value)
+  markNodes(expression.object)
+  expression.computed && markNodes(expression.property)
   expression.arguments?.forEach(markNodes)
   expression.properties?.forEach(markNodes)
+  expression.elements?.forEach(markNodes)
 }
 
 function findParams (body) {
@@ -56,7 +58,6 @@ function deduceParams (body) {
 
 function transpileExpression (source) {
   const tokens = lexer(source)
-
   const nodes = tokens.map(token => {
     if (token.type === 'expression') {
       const tree = new AbstractSyntaxTree(token.value)

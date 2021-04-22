@@ -39,7 +39,12 @@ test('findParams: works for member expressions', assert => {
 
 test('findParams: works for computed member expressions', assert => {
   const params = findParamsInSource(`{foo[bar]}`)
-  assert.deepEqual(params, ['foo'])
+  assert.deepEqual(params, ['foo', 'bar'])
+})
+
+test('findParams: works for nested computed member expressions', assert => {
+  const params = findParamsInSource(`{foo[bar][baz]}`)
+  assert.deepEqual(params, ['foo', 'bar', 'baz'])
 })
 
 test('findParams: works for a member expression with call expression as the object', assert => {
@@ -145,4 +150,14 @@ test('findParams: works for destructuring', assert => {
 test('findParams: works for logical expressions', assert => {
   const params = findParamsInSource('{foo && bar}')
   assert.deepEqual(params, ['foo', 'bar'])
+})
+
+test('findParams: works for arrays', assert => {
+  const params = findParamsInSource('{[foo, bar][index]}')
+  assert.deepEqual(params, ['foo', 'bar', 'index'])
+})
+
+test.skip('findParams: works for array syntax', assert => {
+  const params = findParamsInSource('[foo]')
+  assert.deepEqual(params, ['foo'])
 })
