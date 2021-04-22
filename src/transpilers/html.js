@@ -3,6 +3,7 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { parse, walk } = require('../utilities/html')
 const doctype = require('./tags/doctype')
+const partial = require('./tags/partial')
 const { transpileExpression, deduceParams } = require('./expression')
 const BoxModelPlugin = require('../plugins/BoxModelPlugin')
 const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
@@ -101,6 +102,7 @@ function reduce ({ node: htmlNode, parent, index }) {
     return null
   } else if (htmlNode.type === 'element') {
     if (htmlNode.tagName === '!doctype') { return doctype() }
+    if (htmlNode.tagName === 'partial') { return partial(htmlNode) }
     const { tagName, attributes, children } = htmlNode
     const node = new CallExpression({
       callee: new Identifier({ name: 'tag' }),
@@ -119,7 +121,33 @@ function reduce ({ node: htmlNode, parent, index }) {
   }
 }
 
-function deduceImports (tree) {
+function deducePartials (tree) {
+  return tree.find('Identifier[partial=true]')
+}
+
+function createPartialImportDeclarations (imports) {
+  return imports.map(node => {
+    const { name, path } = node
+    return {
+      type: 'ImportDeclaration',
+      specifiers: [
+        {
+          type: 'ImportDefaultSpecifier',
+          local: {
+            type: 'Identifier',
+            name
+          }
+        }
+      ],
+      source: {
+        type: 'Literal',
+        value: path
+      }
+    }
+  })
+}
+
+function deduceBoxwoodImports (tree) {
   const methods = ['tag', 'escape']
   const imports = []
   methods.forEach(method => {
@@ -192,7 +220,13 @@ function transpile (source, options) {
     program(reducedTree)
   )
 
-  const imports = deduceImports(outputTree)
+  let imports
+  imports = deducePartials(outputTree)
+  if (imports.length > 0) {
+    outputTree.prepend(createPartialImportDeclarations(imports))
+  }
+
+  imports = deduceBoxwoodImports(outputTree)
   if (imports.length > 0) {
     outputTree.prepend(createBoxwoodImportDeclaration(imports))
   }

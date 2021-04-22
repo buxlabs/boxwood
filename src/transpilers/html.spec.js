@@ -116,3 +116,20 @@ export default function ({foo}) {
 }
 `)
 })
+
+test('transpile: partial', assert => {
+  assert.deepEqual(transpile('<partial from="partials/foo.html"/>'), `import __partialsFooHtml__ from "partials/foo.html";
+export default function () {
+  return __partialsFooHtml__();
+}
+`)
+})
+
+test('transpile: two partials', assert => {
+  assert.deepEqual(transpile('<partial from="partials/foo.html"/> <partial from="partials/bar.html"/>'), `import __partialsFooHtml__ from "partials/foo.html";
+import __partialsBarHtml__ from "partials/bar.html";
+export default function () {
+  return [__partialsFooHtml__(), " ", __partialsBarHtml__()];
+}
+`)
+})
