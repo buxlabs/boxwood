@@ -1,4 +1,5 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { unique } = require('pure-utilities/array')
 const lexer = require('../utilities/lexer')
 const { BUILT_IN_VARIABLES } = require('../utilities/enum')
 
@@ -22,13 +23,15 @@ function markNodes (expression) {
   markNodes(expression.consequent)
   markNodes(expression.alternate)
   markNodes(expression.callee)
+  markNodes(expression.value)
   expression.arguments?.forEach(markNodes)
+  expression.properties?.forEach(markNodes)
 }
 
 function findParams (body) {
   const tree = new AbstractSyntaxTree(body)
   const nodes = tree.find('Identifier[parameter=true]')
-  return nodes.map(node => node.name)
+  return unique(nodes.map(node => node.name))
 }
 
 function deduceParams (body) {
@@ -38,7 +41,7 @@ function deduceParams (body) {
   }
   return new ObjectPattern({
     properties: params.map(param => {
-      const node = new Identifier({ name: param })
+      const node = new Identifier(param)
       return new Property({
         key: node,
         value: node,

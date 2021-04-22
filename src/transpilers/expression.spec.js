@@ -1,5 +1,6 @@
 const test = require('ava')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { unique } = require('pure-utilities/array')
 const { markNodes, findParams } = require('./expression')
 const lexer = require('../utilities/lexer')
 
@@ -10,11 +11,21 @@ function findParamsInSource (source) {
       const tree = new AbstractSyntaxTree(token.value)
       const { expression } = tree.first('ExpressionStatement')
       markNodes(expression)
-      return [...result, ...findParams(expression)]
+      return unique([...result, ...findParams(expression)])
     }
     return result
   }, [])
 }
+
+test('findParams: works for a single param', assert => {
+  const params = findParamsInSource(`{foo}`)
+  assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: makes for a params unique', assert => {
+  const params = findParamsInSource(`{foo} {foo}`)
+  assert.deepEqual(params, ['foo'])
+})
 
 test('findParams: works for multiple params', assert => {
   const params = findParamsInSource(`{foo} {bar}`)
@@ -124,4 +135,9 @@ test('findParams: works for undefined', assert => {
 test('findParams: works for built-ins', assert => {
   const params = findParamsInSource('{Math.abs(foo)} {JSON.parse(bar)} {Number.finite(baz)} {console.log(qux)} {new Date(quux)}')
   assert.deepEqual(params, ['foo', 'bar', 'baz', 'qux', 'quux'])
+})
+
+test('findParams: works for destructuring', assert => {
+  const params = findParamsInSource('{foo({ bar: baz, qux })}')
+  assert.deepEqual(params, ['foo', 'baz', 'qux'])
 })
