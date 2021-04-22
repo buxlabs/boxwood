@@ -20,8 +20,11 @@ function markNodes (expression) {
     markNodes(expression.left)
     markNodes(expression.right)
   }
-  if (expression.type === 'UnaryExpression') {
+  if (expression.type === 'UnaryExpression' || expression.type === 'UpdateExpression') {
     markNodes(expression.argument)
+  }
+  if (expression.type === 'ChainExpression') {
+    markNodes(expression.expression)
   }
 }
 

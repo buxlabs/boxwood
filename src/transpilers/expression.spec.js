@@ -61,6 +61,11 @@ test('findParams: works for deeply nested expressions', assert => {
   assert.deepEqual(params, ['foo'])
 })
 
+test('findParams: works for deeply nested expressions with params', assert => {
+  const params = findParamsInSource(`{foo.bar(qux, quux).baz}`)
+  assert.deepEqual(params, ['foo', 'qux', 'quux'])
+})
+
 test('findParams: works for binary expressions', assert => {
   const params = findParamsInSource(`{foo + bar}`)
   assert.deepEqual(params, ['foo', 'bar'])
@@ -79,4 +84,24 @@ test('findParams: works for unary expressions', assert => {
 test('findParams: works for complex unary expressions', assert => {
   const params = findParamsInSource(`{!foo.bar}`)
   assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: works for update expressions', assert => {
+  const params = findParamsInSource(`{++foo}`)
+  assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: works for nested update expressions', assert => {
+  const params = findParamsInSource(`{foo.bar++}`)
+  assert.deepEqual(params, ['foo'])
+})
+
+test('findParams: works for chain expressions', assert => {
+  const params = findParamsInSource('{bar?.qux}')
+  assert.deepEqual(params, ['bar'])
+})
+
+test('findParams: works for nested chain expressions', assert => {
+  const params = findParamsInSource('{qux.baz?.bar}')
+  assert.deepEqual(params, ['qux'])
 })
