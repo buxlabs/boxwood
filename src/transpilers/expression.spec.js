@@ -152,6 +152,11 @@ test('findParams: works for destructuring', assert => {
   assert.deepEqual(params, ['foo', 'baz', 'qux'])
 })
 
+test('findParams: works for spread elements', assert => {
+  const params = findParamsInSource('{foo({ ...bar, ...baz })}')
+  assert.deepEqual(params, ['foo', 'bar', 'baz'])
+})
+
 test('findParams: works for logical expressions', assert => {
   const params = findParamsInSource('{foo && bar}')
   assert.deepEqual(params, ['foo', 'bar'])
