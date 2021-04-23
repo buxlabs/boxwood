@@ -141,3 +141,15 @@ export default function () {
 }
 `)
 })
+
+test('transpile: simple component with a script', assert => {
+  assert.deepEqual(transpile(`
+    <div class="foo"></div><script>console.log("bar")</script>
+`.trim()), `import {tag} from "boxwood";
+export default function () {
+  return [tag("div", {
+    class: "foo"
+  }), tag("script", ["console.log(\\"bar\\")"])];
+}
+`)
+})
