@@ -221,7 +221,7 @@ test('acceptance: accordion-html', async assert => {
 })
 
 test('acceptance: accordion-js', async assert => {
-  const { actual, expected } = await suite('accordion-js', { extension: 'js' })
+  const { actual, expected } = await suite('accordion-js', { compiler: 'new', extension: 'js' })
   assert.deepEqual(actual, expected)
 })
 
@@ -309,6 +309,7 @@ async function suite (name, { compilerOptions = {} , extension = 'html', compile
         join(__dirname, '../../node_modules')
       ]
     },
+    format: extension,
     ...compilerOptions
   })
   const data = JSON.parse(content3)
