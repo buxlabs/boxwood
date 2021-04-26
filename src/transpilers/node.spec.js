@@ -31,3 +31,7 @@ test('transpileNode: multiple divs', assert => {
 test('transpileNode: br', assert => {
   assert.deepEqual(transpile('<br/>'), 'tag("br")')
 })
+
+test('transpileNode: if', assert => {
+  assert.deepEqual(transpile('<if foo></if>').replace(/\n/g, ""), '(function () {  if (foo) {    return;  }})()')
+})
