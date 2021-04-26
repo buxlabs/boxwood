@@ -231,8 +231,7 @@ function prerunPlugins (tree, plugins) {
   plugins.forEach(plugin => plugin.afterprerun())
 }
 
-function transpile (source, options) {
-  const tree = parse(source)
+function body (tree, options) {
   const plugins = [
     // new RoutesPlugin(options, errors),
     // new DataPlugin(),
@@ -245,16 +244,19 @@ function transpile (source, options) {
     new TextPlugin()
   ]
   prerunPlugins(tree, plugins)
-  const reducedTree = tree.length === 1
+  return tree.length === 1
     ? reduce({ node: tree[0], parent: tree, index: 0 })
     : new ArrayExpression({
       elements: tree
         .map((node, index) => reduce({ node, parent: tree, index }))
         .filter(Boolean)
     })
+}
 
+function transpile (source, options) {
+  const tree = parse(source)
   const outputTree = new AbstractSyntaxTree(
-    program(reducedTree)
+    program(body(tree, options))
   )
 
   let imports
