@@ -4,22 +4,19 @@ const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { camelize } = require('pure-utilities/string')
 const { parse, walk } = require('../utilities/html')
 const { findAttributeByKey } = require('../utilities/attributes')
-const tags = require('./tags')
-const { transpileExpression, deduceParams } = require('./expression')
+const { deduceParams } = require('./expression')
 const BoxModelPlugin = require('../plugins/BoxModelPlugin')
 const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
 const TextPlugin = require('../plugins/TextPlugin')
+const { transpileNode } = require('./node')
 
 const {
   ArrayExpression,
-  BlockStatement,
-  CallExpression,
   Identifier,
-  IfStatement,
-  Literal,
-  ObjectExpression,
-  Property,
-  ReturnStatement
+  ImportDeclaration,
+  ImportDefaultSpecifier,
+  ImportSpecifier,
+  Literal
 } = AbstractSyntaxTree
 
 const program = (body) => {
@@ -33,115 +30,17 @@ const program = (body) => {
   )
 }
 
-function reduce ({ node: htmlNode, parent, index }) {
-  function mapAttributes (attributes) {
-    return attributes.length > 0 && new ObjectExpression({
-      properties: attributes.map(attribute => {
-        return new Property({
-          key: new Identifier({
-            name: attribute.key
-          }),
-          value: new Literal({
-            value: attribute.value
-          }),
-          kind: 'init',
-          computed: false,
-          method: false,
-          shorthand: false
-        })
-      })
-    })
-  }
-  function mapChildren (children) {
-    return children.length > 0 && new ArrayExpression({
-      elements: children.map((childNode, index) => {
-        return reduce({ node: childNode, parent: children, index })
-      }).filter(Boolean)
-    })
-  }
-  function mapIfStatement (htmlNode, parent, index) {
-    function mapAttributesToTest ({ attributes }) {
-      if (attributes.length === 1) {
-        if (attributes[0].key === 'true') {
-          return new Literal({ value: true })
-        } else if (attributes[0].key === 'false') {
-          return new Literal({ value: false })
-        }
-      }
-      throw new Error('unsupported')
-    }
-
-    function mapCurrentNodeToConsequent (htmlNode) {
-      const body = htmlNode.children.map((node, index) => reduce({ node, parent: htmlNode.children, index })).filter(Boolean)
-      const argument = body.pop()
-      body.push(new ReturnStatement({ argument }))
-      return new BlockStatement({ body })
-    }
-
-    function mapNextNodeToAlternate (nextNode) {
-      if (nextNode && nextNode.tagName === 'else') {
-        const body = nextNode.children.map((node, index) => reduce({ node, parent: nextNode.children, index })).filter(Boolean)
-        const argument = body.pop()
-        body.push(new ReturnStatement({ argument }))
-        return new BlockStatement({ body })
-      }
-      return null
-    }
-
-    return new IfStatement({
-      test: mapAttributesToTest(htmlNode),
-      consequent: mapCurrentNodeToConsequent(htmlNode),
-      alternate: mapNextNodeToAlternate(parent[index + 1])
-    })
-  }
-
-  if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
-    const statement = mapIfStatement(htmlNode, parent, index)
-    const { expression } = AbstractSyntaxTree.iife(statement)
-    return expression
-  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
-    return null
-  } else if (htmlNode.type === 'element') {
-    if (htmlNode.tagName === 'import') { return tags.import(htmlNode) }
-    if (htmlNode.tagName === '!doctype') { return tags.doctype() }
-    if (htmlNode.tagName === 'partial') { return tags.partial(htmlNode) }
-    const { tagName, attributes, children } = htmlNode
-    const node = new CallExpression({
-      callee: new Identifier({ name: 'tag' }),
-      arguments: [
-        new Literal({ value: tagName }),
-        mapAttributes(attributes),
-        mapChildren(children)
-      ].filter(Boolean)
-    })
-    return node
-  } else if (htmlNode.type === 'text') {
-    const { content } = htmlNode
-    return transpileExpression(content)
-  } else if (htmlNode.type === 'comment') {
-    return new Literal({ value: '' })
-  }
-}
-
 function createComponentImportDeclarations (imports) {
   return imports.map(node => {
     const { path } = node
-    return {
-      type: 'ImportDeclaration',
+    return new ImportDeclaration({
       specifiers: [
-        {
-          type: 'ImportDefaultSpecifier',
-          local: {
-            type: 'Identifier',
-            name: `__${camelize(path)}__`
-          }
-        }
+        new ImportDefaultSpecifier({
+          local: new Identifier(`__${camelize(path)}__`)
+        })
       ],
-      source: {
-        type: 'Literal',
-        value: path
-      }
-    }
+      source: new Literal(path)
+    })
   })
 }
 
@@ -152,22 +51,14 @@ function deducePartials (tree) {
 function createPartialImportDeclarations (imports) {
   return imports.map(node => {
     const { name, path } = node
-    return {
-      type: 'ImportDeclaration',
+    return new ImportDeclaration({
       specifiers: [
-        {
-          type: 'ImportDefaultSpecifier',
-          local: {
-            type: 'Identifier',
-            name
-          }
-        }
+        new ImportDefaultSpecifier({
+          local: new Identifier(name)
+        })
       ],
-      source: {
-        type: 'Literal',
-        value: path
-      }
-    }
+      source: new Literal(path)
+    })
   })
 }
 
@@ -196,24 +87,13 @@ function deduceBoxwoodImports (tree) {
 }
 
 function createBoxwoodImportDeclaration (imports) {
-  return {
-    type: 'ImportDeclaration',
-    specifiers: imports.map(name => ({
-      type: 'ImportSpecifier',
-      local: {
-        type: 'Identifier',
-        name
-      },
-      imported: {
-        type: 'Identifier',
-        name
-      }
-    })),
-    source: {
-      type: 'Literal',
-      value: 'boxwood'
-    }
-  }
+  return new ImportDeclaration({
+    specifiers: imports.map(name => (new ImportSpecifier({
+      local: new Identifier(name),
+      imported: new Identifier(name)
+    }))),
+    source: new Literal('boxwood')
+  })
 }
 
 function prerunPlugins (tree, plugins) {
@@ -245,12 +125,12 @@ function body (tree, options) {
   ]
   prerunPlugins(tree, plugins)
   return tree.length === 1
-    ? reduce({ node: tree[0], parent: tree, index: 0 })
-    : new ArrayExpression({
-      elements: tree
-        .map((node, index) => reduce({ node, parent: tree, index }))
+    ? transpileNode({ node: tree[0], parent: tree, index: 0 })
+    : new ArrayExpression(
+      tree
+        .map((node, index) => transpileNode({ node, parent: tree, index }))
         .filter(Boolean)
-    })
+    )
 }
 
 function transpile (source, options) {
