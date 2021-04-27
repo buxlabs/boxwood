@@ -35,3 +35,7 @@ test('transpileNode: br', assert => {
 test('transpileNode: if', assert => {
   assert.deepEqual(transpile('<if foo></if>').replace(/\n/g, ""), '(function () {  if (foo) {    return;  }})()')
 })
+
+test.skip('transpileNode: for', assert => {
+  assert.deepEqual(transpile('<for car in cars>{car}</for>'), '(function () {})')
+})

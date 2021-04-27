@@ -6,14 +6,20 @@ const tags = require('./tags')
 
 const {
   ArrayExpression,
+  AssignmentExpression,
+  BinaryExpression,
   BlockStatement,
   CallExpression,
   Identifier,
   IfStatement,
   Literal,
+  MemberExpression,
   ObjectExpression,
   Property,
-  ReturnStatement
+  ReturnStatement,
+  ForStatement,
+  VariableDeclaration,
+  VariableDeclarator
 } = AbstractSyntaxTree
 
 function transpileNode ({ node: htmlNode, parent, index }) {
@@ -80,12 +86,50 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     })
   }
 
+  function mapForStatement (htmlNode, parent, index) {
+    return new ForStatement({
+      init: new VariableDeclaration({
+        kind: 'var',
+        declarations: [
+          new VariableDeclarator({
+            id: new Identifier("i"),
+            init: new Literal(0)
+          }),
+          new VariableDeclarator({
+            id: new Identifier("ilen"),
+            init: new MemberExpression({
+              object: new Identifier("foo"),
+              property: new Identifier("length")
+            })
+          })
+        ]
+      }),
+      test: new BinaryExpression({
+        left: new Identifier("i"),
+        right: new Identifier("ilen"),
+        operator: "<"
+      }),
+      update: new AssignmentExpression({
+        left: new Identifier("i"),
+        right: new Literal(1),
+        operator: "+="
+      }),
+      body: new BlockStatement({
+        body: []
+      })
+    })
+  }
+
   if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
     const statement = mapIfStatement(htmlNode, parent, index)
     const { expression } = AbstractSyntaxTree.iife(statement)
     return expression
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
     return null
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'for') {
+    const statement = mapForStatement(htmlNode, parent, index)
+    const { expression } = AbstractSyntaxTree.iife(statement)
+    return expression
   } else if (htmlNode.type === 'element') {
     if (htmlNode.tagName === 'import') { return tags.import(htmlNode) }
     if (htmlNode.tagName === '!doctype') { return tags.doctype() }
