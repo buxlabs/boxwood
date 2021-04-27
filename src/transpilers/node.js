@@ -83,37 +83,72 @@ function transpileNode ({ node: htmlNode, parent, index }) {
   }
 
   function mapForStatement (htmlNode, parent, index) {
-    return new ForStatement({
-      init: new VariableDeclaration({
+    const item = htmlNode.attributes[0]
+    const array = htmlNode.attributes[2]
+    const outputIdentifier = new Identifier('__output__')
+    return [
+      new VariableDeclaration({
         kind: 'var',
         declarations: [
           new VariableDeclarator({
-            id: new Identifier('i'),
-            init: new Literal(0)
-          }),
-          new VariableDeclarator({
-            id: new Identifier('ilen'),
-            init: new MemberExpression({
-              object: new Identifier('foo'),
-              property: new Identifier('length')
-            })
+            id: outputIdentifier,
+            init: new ArrayExpression([])
           })
         ]
       }),
-      test: new BinaryExpression({
-        left: new Identifier('i'),
-        right: new Identifier('ilen'),
-        operator: '<'
+      new ForStatement({
+        init: new VariableDeclaration({
+          kind: 'var',
+          declarations: [
+            new VariableDeclarator({
+              id: new Identifier('i'),
+              init: new Literal(0)
+            }),
+            new VariableDeclarator({
+              id: new Identifier('ilen'),
+              init: new MemberExpression({
+                object: new Identifier(array.key),
+                property: new Identifier('length')
+              })
+            })
+          ]
+        }),
+        test: new BinaryExpression({
+          left: new Identifier('i'),
+          right: new Identifier('ilen'),
+          operator: '<'
+        }),
+        update: new AssignmentExpression({
+          left: new Identifier('i'),
+          right: new Literal(1),
+          operator: '+='
+        }),
+        body: new BlockStatement({
+          body: [
+            new VariableDeclarator({
+              id: new Identifier(item.key),
+              init: {
+                type: 'MemberExpression',
+                object: new Identifier(array.key),
+                computed: true,
+                property: new Identifier('i')
+              }
+            }),
+            new CallExpression({
+              callee: new MemberExpression({
+                object: outputIdentifier,
+                property: new Identifier('push')
+              }),
+              arguments:
+                htmlNode.children.map((child, index) =>
+                  transpileNode({ node: child, parent: htmlNode, index: index })
+                )
+            })
+          ]
+        })
       }),
-      update: new AssignmentExpression({
-        left: new Identifier('i'),
-        right: new Literal(1),
-        operator: '+='
-      }),
-      body: new BlockStatement({
-        body: []
-      })
-    })
+      new ReturnStatement({ argument: outputIdentifier })
+    ]
   }
 
   if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
