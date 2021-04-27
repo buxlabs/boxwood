@@ -27,12 +27,8 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     return attributes.length > 0 && new ObjectExpression({
       properties: attributes.map(attribute => {
         return new Property({
-          key: new Identifier({
-            name: attribute.key
-          }),
-          value: new Literal({
-            value: attribute.value
-          }),
+          key: new Identifier(attribute.key),
+          value: new Literal(attribute.value),
           kind: 'init',
           computed: false,
           method: false,
@@ -52,9 +48,9 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     function mapAttributesToTest ({ attributes }) {
       if (attributes.length === 1) {
         if (attributes[0].key === 'true') {
-          return new Literal({ value: true })
+          return new Literal(true)
         } else if (attributes[0].key === 'false') {
-          return new Literal({ value: false })
+          return new Literal(false)
         } else {
           return new Identifier(attributes[0].key)
         }
@@ -92,27 +88,27 @@ function transpileNode ({ node: htmlNode, parent, index }) {
         kind: 'var',
         declarations: [
           new VariableDeclarator({
-            id: new Identifier("i"),
+            id: new Identifier('i'),
             init: new Literal(0)
           }),
           new VariableDeclarator({
-            id: new Identifier("ilen"),
+            id: new Identifier('ilen'),
             init: new MemberExpression({
-              object: new Identifier("foo"),
-              property: new Identifier("length")
+              object: new Identifier('foo'),
+              property: new Identifier('length')
             })
           })
         ]
       }),
       test: new BinaryExpression({
-        left: new Identifier("i"),
-        right: new Identifier("ilen"),
-        operator: "<"
+        left: new Identifier('i'),
+        right: new Identifier('ilen'),
+        operator: '<'
       }),
       update: new AssignmentExpression({
-        left: new Identifier("i"),
+        left: new Identifier('i'),
         right: new Literal(1),
-        operator: "+="
+        operator: '+='
       }),
       body: new BlockStatement({
         body: []
@@ -138,7 +134,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     const node = new CallExpression({
       callee: new Identifier({ name: 'tag' }),
       arguments: [
-        new Literal({ value: tagName }),
+        new Literal(tagName),
         mapAttributes(attributes),
         mapChildren(children)
       ].filter(Boolean)
@@ -148,7 +144,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     const { content } = htmlNode
     return transpileExpression(content)
   } else if (htmlNode.type === 'comment') {
-    return new Literal({ value: '' })
+    return new Literal('')
   }
 }
 
