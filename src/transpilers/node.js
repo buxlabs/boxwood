@@ -132,7 +132,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     if (htmlNode.tagName === 'partial') { return tags.partial(htmlNode) }
     const { tagName, attributes, children } = htmlNode
     const node = new CallExpression({
-      callee: new Identifier({ name: 'tag' }),
+      callee: new Identifier('tag'),
       arguments: [
         new Literal(tagName),
         mapAttributes(attributes),
