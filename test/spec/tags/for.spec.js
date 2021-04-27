@@ -3,6 +3,7 @@ const { join } = require('path')
 const compile = require('../../helpers/deprecated-compile')
 const { escape } = require('../../..')
 
+
 test('for', async assert => {
   var { template } = await compile('<ul><for todo in todos><li html="{todo.description}"></li></for></ul>')
   assert.deepEqual(template({
