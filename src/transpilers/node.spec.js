@@ -37,5 +37,5 @@ test('transpileNode: if', assert => {
 })
 
 test('transpileNode: for', assert => {
-  assert.deepEqual(transpile('<for car in cars>{car}</for>').replace(/\n/g, ""), '(function () {  var __output__ = [];  for (var i = 0, ilen = cars.length; i < ilen; i += 1) {    car = cars[i]    __output__.push(escape(car))  }  return __output__;})()')
+  assert.deepEqual(transpile('<for car in cars>{car}</for>').replace(/\n/g, ""), '(function () {  var __output__ = [];  for (var i = 0, ilen = cars.length; i < ilen; i++) {    var car = cars[i];    __output__.push(escape(car));  }  return __output__;})()')
 })
