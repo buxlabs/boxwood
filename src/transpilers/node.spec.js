@@ -31,11 +31,3 @@ test('transpileNode: multiple divs', assert => {
 test('transpileNode: br', assert => {
   assert.deepEqual(transpile('<br/>'), 'tag("br")')
 })
-
-test('transpileNode: if', assert => {
-  assert.deepEqual(transpile('<if foo></if>').replace(/\n/g, ""), '(function () {  if (foo) {    return;  }})()')
-})
-
-test('transpileNode: for', assert => {
-  assert.deepEqual(transpile('<for car in cars>{car}</for>').replace(/\n/g, ""), '(function () {  var __output__ = [];  for (var i = 0, ilen = cars.length; i < ilen; i++) {    var car = cars[i];    __output__.push(escape(car));  }  return __output__;})()')
-})

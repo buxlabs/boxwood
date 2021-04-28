@@ -22,3 +22,13 @@ test('for: simple loop with html tags', async assert => {
     ]
   }), '<ul><li>Audi</li><li>BMW</li><li>Hyundai</li></ul>')
 })
+
+test('for: nested loops', async assert => {
+  var { template } = await compile(`<for cars in groups><for car in cars>{car}</for></for>`)
+  assert.deepEqual(template({
+    groups: [
+      ['Audi', 'BMW'],
+      ['Hyundai', 'Toyota']
+    ]
+  }), 'AudiBMWHyundaiToyota')
+})
