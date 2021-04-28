@@ -113,6 +113,49 @@ test('transpile: if statement with a variable', assert => {
 `)
 })
 
+test('transpile: if/elseif statement with a variable', assert => {
+  assert.deepEqual(transpile('<if foo>foo</if><elseif bar>bar</elseif>'), `export default function ({foo, bar}) {
+  return (function () {
+    if (foo) {
+      return "foo";
+    } else if (bar) {
+      return "bar";
+    }
+  })();
+}
+`)
+})
+
+test('transpile: if/elseif/else statement with a variable', assert => {
+  assert.deepEqual(transpile('<if foo>foo</if><elseif bar>bar</elseif><else>baz</else>'), `export default function ({foo, bar}) {
+  return (function () {
+    if (foo) {
+      return "foo";
+    } else if (bar) {
+      return "bar";
+    } else {
+      return "baz";
+    }
+  })();
+}
+`)
+})
+
+test('transpile: if/elseif/elseif statement with a variable', assert => {
+  assert.deepEqual(transpile('<if foo>foo</if><elseif bar>bar</elseif><elseif baz>baz</elseif>'), `export default function ({foo, bar, baz}) {
+  return (function () {
+    if (foo) {
+      return "foo";
+    } else if (bar) {
+      return "bar";
+    } else if (baz) {
+      return "baz";
+    }
+  })();
+}
+`)
+})
+
 test('transpile: empty string', assert => {
   assert.deepEqual(transpile(''), `export default function () {
   return [];

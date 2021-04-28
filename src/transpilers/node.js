@@ -91,6 +91,8 @@ function transpileNode ({ node: htmlNode, parent, index }) {
         const argument = body.pop()
         body.push(new ReturnStatement({ argument }))
         return new BlockStatement({ body })
+      } else if (nextNode && nextNode.tagName === 'elseif') {
+        return mapIfStatement(nextNode, parent, index + 1)
       }
       return null
     }
@@ -107,6 +109,8 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     const { expression } = AbstractSyntaxTree.iife(statement)
     return expression
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
+    return null
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'elseif') {
     return null
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'for') {
     return mapForStatement(htmlNode, parent, index)
