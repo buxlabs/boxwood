@@ -72,7 +72,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
         } else if (attributes[0].key === 'false') {
           return new Literal(false)
         } else {
-          return new Identifier(attributes[0].key)
+          return new Identifier({ name: attributes[0].key, parameter: true })
         }
       }
       throw new Error('unsupported')

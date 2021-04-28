@@ -102,6 +102,17 @@ test('transpile: if/else statement with `true`', assert => {
 `)
 })
 
+test('transpile: if statement with a variable', assert => {
+  assert.deepEqual(transpile('<if foo>foo</if>'), `export default function ({foo}) {
+  return (function () {
+    if (foo) {
+      return "foo";
+    }
+  })();
+}
+`)
+})
+
 test('transpile: empty string', assert => {
   assert.deepEqual(transpile(''), `export default function () {
   return [];
