@@ -5,7 +5,7 @@ const { escape } = require('../../..')
 
 
 test('for', async assert => {
-  var { template } = await compile('<ul><for todo in todos><li html="{todo.description}"></li></for></ul>')
+  var { template } = await compile('<ul><for todo in todos><li>{todo.description}</li></for></ul>')
   assert.deepEqual(template({
     todos: [
       { description: 'foo' },
@@ -13,9 +13,9 @@ test('for', async assert => {
       { description: 'baz' },
       { description: 'qux' }
     ]
-  }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-  var { template } = await compile('<ul><for foo in bar><li html="{foo.baz}"></li></for></ul>')
+  var { template } = await compile('<ul><for foo in bar><li>{foo.baz}</li></for></ul>')
   assert.deepEqual(template({
     bar: [
       { baz: 'foo' },
@@ -23,66 +23,66 @@ test('for', async assert => {
       { baz: 'baz' },
       { baz: 'qux' }
     ]
-  }), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-  var { template } = await compile('<ul><for foo in bar><for baz in foo><li html="{baz.qux}"></li></for></for></ul>')
+  var { template } = await compile('<ul><for foo in bar><for baz in foo><li>{baz.qux}</li></for></for></ul>')
   assert.deepEqual(template({
     bar: [
       [ { qux: 1 }, { qux: 2 } ],
       [ { qux: 3 }, { qux: 4 } ],
       [ { qux: 5 }, { qux: 6 } ]
     ]
-  }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
+  }, escape), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-  var { template } = await compile('<ul><for foo in bar><for baz in foo.qux><li html="{baz}"></li></for></for></ul>')
+  var { template } = await compile('<ul><for foo in bar><for baz in foo.qux><li>{baz}</li></for></for></ul>')
   assert.deepEqual(template({
     bar: [
       { qux: [1, 2] },
       { qux: [3, 4] },
       { qux: [5, 6] }
     ]
-  }), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
+  }, escape), '<ul><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li></ul>')
 
-  var { template } = await compile('<ul><for todo in todos><li html="{todo.text}"></li></for></ul>')
+  var { template } = await compile('<ul><for todo in todos><li>{todo.text}</li></for></ul>')
   assert.deepEqual(template({
     todos: [
       { text: 'foo' },
       { text: 'bar' },
       { text: 'baz' }
     ]
-  }), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li><li>baz</li></ul>')
 
-  var { template } = await compile('<ul><for a in b><li html="{a.b}"></li></for></ul>')
+  var { template } = await compile('<ul><for a in b><li>{a.b}</li></for></ul>')
   assert.deepEqual(template({
     b: [
       { b: 'foo' },
       { b: 'bar' }
     ]
-  }), '<ul><li>foo</li><li>bar</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li></ul>')
 
-  var { template } = await compile('<ul><for t in b><li html="{t.b}"></li></for></ul>')
+  var { template } = await compile('<ul><for t in b><li>{t.b}</li></for></ul>')
   assert.deepEqual(template({
     b: [
       { b: 'foo' },
       { b: 'bar' }
     ]
-  }), '<ul><li>foo</li><li>bar</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li></ul>')
 
-  var { template } = await compile('<ul><for o in b><li html="{o.b}"></li></for></ul>')
+  var { template } = await compile('<ul><for o in b><li>{o.b}</li></for></ul>')
   assert.deepEqual(template({
     b: [
       { b: 'foo' },
       { b: 'bar' }
     ]
-  }), '<ul><li>foo</li><li>bar</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li></ul>')
 
-  var { template } = await compile('<ul><for e in b><li html="{e.b}"></li></for></ul>')
+  var { template } = await compile('<ul><for e in b><li>{e.b}</li></for></ul>')
   assert.deepEqual(template({
     b: [
       { b: 'foo' },
       { b: 'bar' }
     ]
-  }), '<ul><li>foo</li><li>bar</li></ul>')
+  }, escape), '<ul><li>foo</li><li>bar</li></ul>')
 
   var { template } = await compile('<for foo in foos><img src="{foo.src}"></for>')
   assert.deepEqual(template({
@@ -157,7 +157,7 @@ test('for', async assert => {
     ]
   }, escape), '<div>qux</div><div>quux</div><div>quuux</div><div>bar</div>')
 
-  var { template } = await compile('<ul><for todo in="{todos}"><li html="{todo.description}"></li></for></ul>')
+  var { template } = await compile('<ul><for todo in="{todos}"><li>{todo.description}</li></for></ul>')
   assert.deepEqual(template({
     todos: [
       { description: 'foo' },
@@ -167,7 +167,7 @@ test('for', async assert => {
     ]
   }, escape), '<ul><li>foo</li><li>bar</li><li>baz</li><li>qux</li></ul>')
 
-  var { template } = await compile('<ul><for foo in="{bar}"><for baz in="{foo.qux}"><li html="{baz}"></li></for></for></ul>')
+  var { template } = await compile('<ul><for foo in="{bar}"><for baz in="{foo.qux}"><li>{baz}</li></for></for></ul>')
   assert.deepEqual(template({
     bar: [
       { qux: [1, 2] },
