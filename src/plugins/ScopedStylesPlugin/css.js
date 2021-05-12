@@ -2,10 +2,10 @@
 
 const { parse, walk, generate } = require('css-tree')
 const hash = require('string-hash')
-const normalize = require('normalize-newline')
+const { normalizeNewline } = require('../../utilities/string')
 
 function addScopeToCssSelectors (input, scopes) {
-  const content = normalize(input).trim()
+  const content = normalizeNewline(input).trim()
   const id = `scope-${hash(content)}`
   const tree = parse(content)
   const keyframes = {}

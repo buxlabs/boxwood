@@ -109,6 +109,10 @@ function hyphenate (string) {
   })
 }
 
+function normalizeNewline (string) {
+  return string.replace(/\r\n/g, '\n')
+}
+
 const WORDS = [
   'zero', 'one', 'two', 'three', 'four', 'five',
   'six', 'seven', 'eight', 'nine', 'ten',
@@ -136,5 +140,6 @@ module.exports = {
   getBase64Extension,
   dasherize,
   hyphenate,
-  wordsToNumbers
+  wordsToNumbers,
+  normalizeNewline
 }

@@ -1,6 +1,6 @@
 'use strict'
 
-const normalizeNewline = require('normalize-newline')
+const { normalizeNewline } = require('../utilities/string')
 const { SVGError } = require('../utilities/errors')
 const { findAsset } = require('../utilities/files')
 const { parse } = require('../utilities/html')

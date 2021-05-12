@@ -2,8 +2,7 @@
 
 const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('../utilities/css')
 const { findAsset } = require('../utilities/files')
-const normalizeNewline = require('normalize-newline')
-const { getExtension, getBase64Extension } = require('../utilities/string')
+const { getExtension, getBase64Extension, normalizeNewline } = require('../utilities/string')
 
 module.exports = function ({ fragment, attrs, keys, assets, options }) {
   convertAttributeToInlineStyle(attrs, ['fluid', 'responsive'], 'max-width: 100%; height: auto;')
