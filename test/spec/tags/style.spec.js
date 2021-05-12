@@ -20,7 +20,8 @@ test('style[inline]: inline fonts', async assert => {
 })
 
 test('style[inline]: background image', async assert => {
-  var { template } = await compile(`
+  var { template, warnings, errors } = await compile(`
+    <div class="foo"></div>
     <style inline>
       .foo {
         background: url("./images/placeholder.jpg");
@@ -30,18 +31,20 @@ test('style[inline]: background image', async assert => {
     paths: [ join(__dirname, '../../fixtures') ]
   })
   const output = template({}, escape)
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
   assert.truthy(output.includes('url(data:image/jpg;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
 })
 
 test('style[inline]: multiple background images', async assert => {
   var { template } = await compile(`
+    <div class="foo"></div>
+    <div class="bar"></div>
     <style inline>
       .foo {
         background: url("./images/placeholder.jpg");
       }
-    </style>
-    <style inline>
       .bar {
         background: url("./images/placeholder.png");
       }
@@ -50,7 +53,6 @@ test('style[inline]: multiple background images', async assert => {
     paths: [ join(__dirname, '../../fixtures') ]
   })
   const output = template({}, escape)
-  assert.truthy(output.match(/<style>/g).length === 1)
   assert.truthy(output.includes('url(data:image/jpg;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
 })
@@ -72,10 +74,10 @@ test('style[colors]: mixed colors', async assert => {
   assert.deepEqual(template({}, escape), `<style>.button { color: #FF6347; } .blue.button { color: #6495ED; } .yellow.button { color: yellow }</style>`)
 })
 
-test('style[inline-classes]: one class declaration', async assert => {
+test('style[inline]: one class declaration', async assert => {
   var { template } = await compile(`
     <div class="foo"></div>
-    <style inline="classes">
+    <style inline>
       .foo {
         background: #000;
       }
@@ -84,10 +86,10 @@ test('style[inline-classes]: one class declaration', async assert => {
   assert.deepEqual(template({}, escape), '<div style="background:#000"></div>')
 })
 
-test('style[inline-classes]: many class declaration', async assert => {
+test('style[inline]: many class declaration', async assert => {
   var { template } = await compile(`
     <div class="foo"></div>
-    <style inline="classes">
+    <style inline>
       .foo {
         background: #000;
         color: #000;
@@ -98,10 +100,10 @@ test('style[inline-classes]: many class declaration', async assert => {
   assert.deepEqual(template({}, escape), '<div style="background:#000;color:#000;padding:100px"></div>')
 })
 
-test('style[inline-classes]: two classes on the element', async assert => {
+test('style[inline]: two classes on the element', async assert => {
   var { template } = await compile(`
     <div class="foo bar"></div>
-    <style inline="classes">
+    <style inline>
       .foo {
         background: #000;
       }
@@ -113,10 +115,10 @@ test('style[inline-classes]: two classes on the element', async assert => {
   assert.deepEqual(template({}, escape), '<div style="background:#000;color:#f0f"></div>')
 })
 
-test('style[inline-classes]: one class used on the element', async assert => {
+test('style[inline]: one class used on the element', async assert => {
   var { template } = await compile(`
     <div class="foo"></div>
-    <style inline="classes">
+    <style inline>
       .foo {
         background: #000;
       }
@@ -128,10 +130,10 @@ test('style[inline-classes]: one class used on the element', async assert => {
   assert.deepEqual(template({}, escape), '<div style="background:#000"></div>')
 })
 
-test('style[inline-classes]: only classes should be inlined', async assert => {
+test('style[inline]: only classes should be inlined', async assert => {
   var { template } = await compile(`
     <h1 class="foo"></h1>
-    <style inline="classes">
+    <style inline>
       .foo { color: white }
       #bar { color: red }
     </style>
@@ -139,10 +141,10 @@ test('style[inline-classes]: only classes should be inlined', async assert => {
   assert.deepEqual(template({}, escape), '<h1 style="color:white"></h1><style>#bar{color:red}</style>')
 })
 
-test('style[inline-classes]: rule with many ClassSelector', async assert => {
+test('style[inline]: rule with many ClassSelector', async assert => {
   var { template } = await compile(`
     <h1 class="foo bar baz"></h1>
-    <style inline="classes">
+    <style inline>
       .foo.bar.baz {
         color: white
       }
@@ -151,10 +153,10 @@ test('style[inline-classes]: rule with many ClassSelector', async assert => {
   assert.deepEqual(template({}, escape), '<h1 style="color:white"></h1>')
 })
 
-test('style[inline-classes]: rule with font-family declaration', async assert => {
+test('style[inline]: rule with font-family declaration', async assert => {
   var { template, warnings, errors } = await compile(`
     <h1 class="foo"></h1>
-    <style inline="classes">
+    <style inline>
       .foo {
         font-family: "Nunito"
       }
@@ -165,14 +167,14 @@ test('style[inline-classes]: rule with font-family declaration', async assert =>
   assert.deepEqual(template({}, escape), '<h1 style="font-family:\'Nunito\'"></h1>')
 })
 
-test('style[inline-classes]: parent and child should be inlined', async assert => {
+test('style[inline]: parent and child should be inlined', async assert => {
   var { template } = await compile(`
     <p class="m-0">
       <span class="bold">
         <i class="italic"></i>
       </span>
     </p>
-    <style inline="classes">
+    <style inline>
       .m-0 {
         margin: 0;
       }
@@ -187,12 +189,12 @@ test('style[inline-classes]: parent and child should be inlined', async assert =
   assert.deepEqual(template({}, escape), '<p style="margin:0"><span style="font-weight:bold"><i style="font-style:italic"></i></span></p>')
 })
 
-test.skip('style[inline-classes]: nested classes', async assert => {
+test.skip('style[inline]: nested classes', async assert => {
   var { template } = await compile(`
     <div class="foo">
       <div class="bar"></div>
     </div>
-    <style inline="classes">
+    <style inline>
       .foo .bar {
         color: white;
       }
@@ -201,10 +203,10 @@ test.skip('style[inline-classes]: nested classes', async assert => {
   assert.deepEqual(template({}, escape), '<div><div style="color:white;"></div></div>')
 })
 
-test('style[inline|scoped]: inlined styles are scoped properly', async assert => {
+test('style[inline]: inlining few styles', async assert => {
   const { template } = await compile(`
     <div class="logo"></div>
-    <style scoped inline>
+    <style inline>
     .logo {
       background: url("./images/placeholder.jpg");
       height: 33px;
@@ -217,8 +219,6 @@ test('style[inline|scoped]: inlined styles are scoped properly', async assert =>
   const output = template({}, escape)
   assert.truthy(output.includes('url(data:image/jpg;base64'))
   assert.truthy(output.includes('FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q=='))
-  assert.truthy(output.includes('<div class="scope-2021582627 logo">'))
-  assert.truthy(output.includes('.scope-2021582627.logo'))
 })
 
 test('style: does not produce errors', async assert => {
