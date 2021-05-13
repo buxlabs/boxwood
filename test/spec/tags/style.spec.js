@@ -38,7 +38,7 @@ test('style[inline]: background image', async assert => {
 })
 
 test('style[inline]: multiple background images', async assert => {
-  var { template } = await compile(`
+  var { template, warnings, errors } = await compile(`
     <div class="foo"></div>
     <div class="bar"></div>
     <style inline>

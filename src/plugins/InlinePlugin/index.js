@@ -2,26 +2,7 @@
 
 const Plugin = require('../Plugin')
 const { parse, walk, generate } = require('css-tree')
-const { findAsset, isFileSupported } = require('../../utilities/files')
-const { getExtension, getBase64Extension } = require('../../utilities/string')
-
-function getBase64String (asset, options, isFont) {
-  const { path, base64 } = asset
-  const extension = getExtension(path)
-  const dataType = isFont ? 'data:application/font-' : 'data:image/'
-  return [
-    `${dataType}${getBase64Extension(extension)}`,
-    isFont && 'charset=utf-8',
-    `base64,${base64}`
-  ].filter(Boolean).join(';')
-}
-
-function convertElementValueToBase64 ({ element, value, assets, options, isFont }) {
-  if (!isFileSupported(value)) return
-  const asset = findAsset(value, assets, options)
-  if (!asset) return
-  element.value = getBase64String(asset, options, isFont)
-}
+const { convertElementValueToBase64, inlineUrls } = require('./css')
 
 class InlinePlugin extends Plugin {
   constructor () {
@@ -35,16 +16,7 @@ class InlinePlugin extends Plugin {
 
   prerun ({ fragment, attrs, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
-      const { content } = fragment.children[0]
-      const tree = parse(content)
-      walk(tree, node => {
-        if (node.type === 'Url') {
-          let { type, value } = node.value
-          value = value.replace(/'|"/g, '')
-          convertElementValueToBase64({ element: node.value, value, assets, options, isFont: type === 'Raw' })
-        }
-      })
-      fragment.children[0].content = generate(tree)
+      fragment.children[0].content = inlineUrls(fragment.children[0].content, assets, options)
     }
     if (fragment.tagName === 'style' && keys.includes('inline')) {
       const { content } = fragment.children[0]
@@ -121,12 +93,13 @@ class InlinePlugin extends Plugin {
     }
     if (fragment.tagName === 'style' &&
       keys.includes('inline') &&
+      fragment.children &&
       fragment.children.length === 1 &&
       fragment.children[0].content === ''
     ) {
       fragment.type = 'text'
       fragment.content = ''
-      fragment.children = null
+      fragment.children = []
     }
   }
 }
