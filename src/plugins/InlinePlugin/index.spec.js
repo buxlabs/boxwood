@@ -2,12 +2,8 @@ const test = require('ava')
 const InlinePlugin = require('.')
 const { parse, stringify, walk } = require('../../utilities/html')
 
-test('InlinePlugin: it converts html and css', assert => {
+function transform (input) {
   const plugin = new InlinePlugin()
-  const input = `
-    <div class="foo"></div>
-    <style inline>.foo { color: red }</style>
-  `
   const tree = parse(input)
   plugin.beforeprerun()
   const assets = []
@@ -29,6 +25,12 @@ test('InlinePlugin: it converts html and css', assert => {
       plugin.run({ tag, keys, children, attributes, fragment, assets, options })
     }
   })
-  const output = stringify(tree, input)
-  assert.deepEqual(output.trim(), `<div style='color:red'></div>`)
+  return stringify(tree, input).trim()
+}
+
+test('InlinePlugin: it inlines classes', assert => {
+  assert.deepEqual(transform(`
+    <div class="foo"></div>
+    <style inline>.foo { color: red }</style>
+  `), `<div style='color:red'></div>`)
 })
