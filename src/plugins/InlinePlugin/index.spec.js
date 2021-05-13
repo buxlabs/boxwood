@@ -30,8 +30,5 @@ test('InlinePlugin: it converts html and css', assert => {
     }
   })
   const output = stringify(tree, input)
-  assert.deepEqual(output, `
-    <div style='color:red'></div>
-    <style inline></style>
-  `)
+  assert.deepEqual(output.trim(), `<div style='color:red'></div>`)
 })

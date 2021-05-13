@@ -119,6 +119,15 @@ class InlinePlugin extends Plugin {
           })
       }
     }
+    if (fragment.tagName === 'style' &&
+      keys.includes('inline') &&
+      fragment.children.length === 1 &&
+      fragment.children[0].content === ''
+    ) {
+      fragment.type = 'text'
+      fragment.content = ''
+      fragment.children = null
+    }
   }
 }
 
