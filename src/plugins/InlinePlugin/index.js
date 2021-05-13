@@ -26,11 +26,11 @@ function convertElementValueToBase64 ({ element, value, assets, options, isFont 
 class InlinePlugin extends Plugin {
   constructor () {
     super()
-    this.classes = []
+    this.styles = []
   }
 
   beforeprerun () {
-    this.classes = []
+    this.styles = []
   }
 
   prerun ({ fragment, attrs, keys, assets, options }) {
@@ -61,7 +61,7 @@ class InlinePlugin extends Plugin {
                 const declaration = block
                   .replace(/{|}/g, '')
                   .replace(/"/g, "'")
-                this.classes.push({ className: leaf.name, declaration })
+                this.styles.push({ type: 'ClassSelector', className: leaf.name, declaration })
                 node.used = true
               }
             }
@@ -84,14 +84,14 @@ class InlinePlugin extends Plugin {
       const attribute = fragment.attributes.find(attribute => attribute.key === 'from')
       convertElementValueToBase64({ element: attribute, value: attribute.value, assets, options, isFont: true })
     }
-    if (fragment.type === 'element' && fragment.tagName !== 'style' && this.classes.length) {
+    if (fragment.type === 'element' && fragment.tagName !== 'style' && this.styles.length) {
       const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
       if (classAttribute) {
-        const classes = classAttribute.value.split(/\s/).filter(Boolean) || []
+        const styles = classAttribute.value.split(/\s/).filter(Boolean) || []
         fragment.attributes = fragment.attributes
           .map(attribute => {
             if (attribute.key === 'class') {
-              this.classes.forEach(({ className }) => {
+              this.styles.filter(({ type }) => type === 'ClassSelector').forEach(({ className }) => {
                 attribute.value = attribute.value.replace(className, '')
                 attribute.value = attribute.value.replace(/\s+/, '')
                 return attribute.value ? attribute : null
@@ -100,8 +100,8 @@ class InlinePlugin extends Plugin {
             return attribute
           })
           .filter(attribute => attribute.value)
-        this.classes
-          .filter(({ className }) => classes.includes(className))
+        this.styles
+          .filter(({ className, type }) => type === 'ClassSelector' && styles.includes(className))
           .forEach(({ declaration }) => {
             const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
             if (styleAttribute) {
