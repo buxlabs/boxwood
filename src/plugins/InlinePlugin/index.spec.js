@@ -28,9 +28,16 @@ function transform (input) {
   return stringify(tree, input).trim()
 }
 
-test('InlinePlugin: it inlines classes', assert => {
+test('InlinePlugin: it inlines styles based on classes', assert => {
   assert.deepEqual(transform(`
     <div class="foo"></div>
     <style inline>.foo { color: red }</style>
   `), `<div style='color:red'></div>`)
+})
+
+test.skip('InlinePlugin: it inlines styles based on tags', assert => {
+  assert.deepEqual(transform(`
+    <h1></h1>
+    <style inline>h1 { margin: 0 }</style>
+  `), `<h1 style='margin: 0'></h1>`)
 })
