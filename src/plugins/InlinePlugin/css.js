@@ -32,4 +32,37 @@ function inlineUrls (css, assets, options) {
   return generate(tree)
 }
 
-module.exports = { inlineUrls, convertElementValueToBase64 }
+function cutStyles (css) {
+  const styles = []
+  const tree = parse(css)
+  walk(tree, {
+    visit: 'Rule',
+    enter: node => {
+      walk(node.prelude, {
+        visit: 'ClassSelector',
+        enter: leaf => {
+          const { name } = leaf
+          const block = generate(node.block)
+          if (name && block) {
+            const declaration = block
+              .replace(/{|}/g, '')
+              .replace(/"/g, "'")
+            styles.push({ type: 'ClassSelector', className: leaf.name, declaration })
+            node.used = true
+          }
+        }
+      })
+    }
+  })
+  walk(tree, {
+    enter: (node, item, list) => {
+      if (item && item.data && item.data.used) {
+        list.remove(item)
+      }
+    }
+  })
+  const output = generate(tree)
+  return { styles, output }
+}
+
+module.exports = { inlineUrls, cutStyles, convertElementValueToBase64 }

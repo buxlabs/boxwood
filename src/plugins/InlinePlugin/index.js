@@ -1,8 +1,7 @@
 'use strict'
 
 const Plugin = require('../Plugin')
-const { parse, walk, generate } = require('css-tree')
-const { convertElementValueToBase64, inlineUrls } = require('./css')
+const { convertElementValueToBase64, inlineUrls, cutStyles } = require('./css')
 
 class InlinePlugin extends Plugin {
   constructor () {
@@ -19,35 +18,9 @@ class InlinePlugin extends Plugin {
       fragment.children[0].content = inlineUrls(fragment.children[0].content, assets, options)
     }
     if (fragment.tagName === 'style' && keys.includes('inline')) {
-      const { content } = fragment.children[0]
-      const tree = parse(content)
-      walk(tree, {
-        visit: 'Rule',
-        enter: node => {
-          walk(node.prelude, {
-            visit: 'ClassSelector',
-            enter: leaf => {
-              const { name } = leaf
-              const block = generate(node.block)
-              if (name && block) {
-                const declaration = block
-                  .replace(/{|}/g, '')
-                  .replace(/"/g, "'")
-                this.styles.push({ type: 'ClassSelector', className: leaf.name, declaration })
-                node.used = true
-              }
-            }
-          })
-        }
-      })
-      walk(tree, {
-        enter: (node, item, list) => {
-          if (item && item.data && item.data.used) {
-            list.remove(item)
-          }
-        }
-      })
-      fragment.children[0].content = generate(tree)
+      const { styles, output } = cutStyles(fragment.children[0].content)
+      styles.forEach(style => this.styles.push(style))
+      fragment.children[0].content = output
     }
   }
 

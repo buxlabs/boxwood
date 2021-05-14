@@ -150,7 +150,7 @@ test('style[inline]: one class used on the element', async assert => {
   assert.deepEqual(template({}, escape), '<div style="background:#000"></div>')
 })
 
-test('style[inline]: only classes should be inlined', async assert => {
+test('style[inline]: keeps unused classes', async assert => {
   var { template } = await compile(`
     <h1 class="foo"></h1>
     <style inline>
