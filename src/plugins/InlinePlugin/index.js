@@ -13,11 +13,12 @@ class InlinePlugin extends Plugin {
     this.styles = []
   }
 
-  prerun ({ fragment, attrs, keys, assets, options }) {
+  prerun ({ fragment, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
-      const { styles, output } = prepareStyles(fragment.children[0].content, assets, options)
+      const child = fragment.children[0]
+      const { styles, output } = prepareStyles(child.content, assets, options)
       styles.forEach(style => this.styles.push(style))
-      fragment.children[0].content = output
+      child.content = output
     }
   }
 
