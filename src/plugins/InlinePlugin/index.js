@@ -1,7 +1,7 @@
 'use strict'
 
 const Plugin = require('../Plugin')
-const { convertElementValueToBase64, inlineUrls, cutStyles } = require('./css')
+const { convertElementValueToBase64, prepareStyles } = require('./css')
 
 class InlinePlugin extends Plugin {
   constructor () {
@@ -15,10 +15,7 @@ class InlinePlugin extends Plugin {
 
   prerun ({ fragment, attrs, keys, assets, options }) {
     if (fragment.tagName === 'style' && keys.includes('inline')) {
-      fragment.children[0].content = inlineUrls(fragment.children[0].content, assets, options)
-    }
-    if (fragment.tagName === 'style' && keys.includes('inline')) {
-      const { styles, output } = cutStyles(fragment.children[0].content)
+      const { styles, output } = prepareStyles(fragment.children[0].content, assets, options)
       styles.forEach(style => this.styles.push(style))
       fragment.children[0].content = output
     }

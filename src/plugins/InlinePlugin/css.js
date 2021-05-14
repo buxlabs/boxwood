@@ -20,8 +20,7 @@ function convertElementValueToBase64 ({ element, value, assets, options, isFont 
   element.value = getBase64String(asset, options, isFont)
 }
 
-function inlineUrls (css, assets, options) {
-  const tree = parse(css)
+function inlineUrls (tree, assets, options) {
   walk(tree, node => {
     if (node.type === 'Url') {
       let { type, value } = node.value
@@ -29,12 +28,11 @@ function inlineUrls (css, assets, options) {
       convertElementValueToBase64({ element: node.value, value, assets, options, isFont: type === 'Raw' })
     }
   })
-  return generate(tree)
+  return tree
 }
 
-function cutStyles (css) {
+function cutStyles (tree) {
   const styles = []
-  const tree = parse(css)
   walk(tree, {
     visit: 'Rule',
     enter: node => {
@@ -61,8 +59,14 @@ function cutStyles (css) {
       }
     }
   })
-  const output = generate(tree)
-  return { styles, output }
+  return { styles, tree }
 }
 
-module.exports = { inlineUrls, cutStyles, convertElementValueToBase64 }
+function prepareStyles (css, assets, options) {
+  let tree = parse(css)
+  tree = inlineUrls(tree, assets, options)
+  const result = cutStyles(tree)
+  return { styles: result.styles, output: generate(result.tree) }
+}
+
+module.exports = { prepareStyles, convertElementValueToBase64 }
