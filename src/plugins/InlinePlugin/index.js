@@ -1,7 +1,7 @@
 'use strict'
 
 const Plugin = require('../Plugin')
-const { convertElementValueToBase64, prepareStyles } = require('./css')
+const { convertElementValueToBase64, prepareStyles, applyStylesInFragment, removeEmptyStyleTag } = require('./css')
 
 class InlinePlugin extends Plugin {
   constructor () {
@@ -27,49 +27,10 @@ class InlinePlugin extends Plugin {
       convertElementValueToBase64({ element: attribute, value: attribute.value, assets, options, isFont: true })
     }
     if (fragment.type === 'element' && fragment.tagName !== 'style' && this.styles.length) {
-      const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
-      if (classAttribute) {
-        const styles = classAttribute.value.split(/\s/).filter(Boolean) || []
-        fragment.attributes = fragment.attributes
-          .map(attribute => {
-            if (attribute.key === 'class') {
-              this.styles.filter(({ type }) => type === 'ClassSelector').forEach(({ className }) => {
-                attribute.value = attribute.value.replace(className, '')
-                attribute.value = attribute.value.replace(/\s+/, '')
-                return attribute.value ? attribute : null
-              })
-            }
-            return attribute
-          })
-          .filter(attribute => attribute.value)
-        this.styles
-          .filter(({ className, type }) => type === 'ClassSelector' && styles.includes(className))
-          .forEach(({ declaration }) => {
-            const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
-            if (styleAttribute) {
-              if (!styleAttribute.value.includes(declaration)) {
-                fragment.attributes = fragment.attributes.map(attribute => {
-                  if (attribute.key === 'style') {
-                    attribute.value += ';'.concat(declaration)
-                  }
-                  return attribute
-                })
-              }
-            } else {
-              fragment.attributes.push({ key: 'style', value: declaration })
-            }
-          })
-      }
+      applyStylesInFragment(fragment, this.styles)
     }
-    if (fragment.tagName === 'style' &&
-      keys.includes('inline') &&
-      fragment.children &&
-      fragment.children.length === 1 &&
-      fragment.children[0].content === ''
-    ) {
-      fragment.type = 'text'
-      fragment.content = ''
-      fragment.children = []
+    if (fragment.tagName === 'style') {
+      removeEmptyStyleTag(fragment)
     }
   }
 }

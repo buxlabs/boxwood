@@ -62,6 +62,42 @@ function cutStyles (tree) {
   return { styles, tree }
 }
 
+function applyStylesInFragment (fragment, styles) {
+  const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
+  if (classAttribute) {
+    const localStyles = classAttribute.value.split(/\s/).filter(Boolean) || []
+    fragment.attributes = fragment.attributes
+      .map(attribute => {
+        if (attribute.key === 'class') {
+          styles.filter(({ type }) => type === 'ClassSelector').forEach(({ className }) => {
+            attribute.value = attribute.value.replace(className, '')
+            attribute.value = attribute.value.replace(/\s+/, '')
+            return attribute.value ? attribute : null
+          })
+        }
+        return attribute
+      })
+      .filter(attribute => attribute.value)
+    styles
+      .filter(({ className, type }) => type === 'ClassSelector' && localStyles.includes(className))
+      .forEach(({ declaration }) => {
+        const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
+        if (styleAttribute) {
+          if (!styleAttribute.value.includes(declaration)) {
+            fragment.attributes = fragment.attributes.map(attribute => {
+              if (attribute.key === 'style') {
+                attribute.value += ';'.concat(declaration)
+              }
+              return attribute
+            })
+          }
+        } else {
+          fragment.attributes.push({ key: 'style', value: declaration })
+        }
+      })
+  }
+}
+
 function prepareStyles (css, assets, options) {
   let tree = parse(css)
   tree = inlineUrls(tree, assets, options)
@@ -69,4 +105,17 @@ function prepareStyles (css, assets, options) {
   return { styles: result.styles, output: generate(result.tree) }
 }
 
-module.exports = { prepareStyles, convertElementValueToBase64 }
+function removeEmptyStyleTag (fragment) {
+  if (fragment.tagName === 'style' &&
+    fragment.attributes.find(({ key }) => key === 'inline') &&
+    fragment.children &&
+    fragment.children.length === 1 &&
+    fragment.children[0].content === ''
+  ) {
+    fragment.type = 'text'
+    fragment.content = ''
+    fragment.children = []
+  }
+}
+
+module.exports = { prepareStyles, applyStylesInFragment, removeEmptyStyleTag, convertElementValueToBase64 }
