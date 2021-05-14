@@ -37,14 +37,15 @@ function cutStyles (tree) {
     visit: 'Rule',
     enter: node => {
       walk(node.prelude, leaf => {
-        if (leaf.type === 'ClassSelector') {
+        if (leaf.type === 'TypeSelector' || leaf.type === 'ClassSelector') {
           const { name } = leaf
           const block = generate(node.block)
           if (name && block) {
             const declaration = block
-              .replace(/{|}/g, '')
+              .replace(/^{/, '')
+              .replace(/}$/, '')
               .replace(/"/g, "'")
-            styles.push({ type: 'ClassSelector', className: leaf.name, declaration })
+            styles.push({ type: leaf.type, name: leaf.name, declaration })
             node.used = true
           }
         }
@@ -61,15 +62,38 @@ function cutStyles (tree) {
   return { styles, tree }
 }
 
+function updateStyleAttribute (fragment, declaration) {
+  const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
+  if (styleAttribute) {
+    if (!styleAttribute.value.includes(declaration)) {
+      fragment.attributes = fragment.attributes.map(attribute => {
+        if (attribute.key === 'style') {
+          attribute.value += ';'.concat(declaration)
+        }
+        return attribute
+      })
+    }
+  } else {
+    fragment.attributes.push({ key: 'style', value: declaration })
+  }
+}
+
 function applyStylesInFragment (fragment, styles) {
+  styles.filter(({ type }) => type === 'TypeSelector').forEach(style => {
+    if (style.name === fragment.tagName) {
+      const { declaration } = style
+      updateStyleAttribute(fragment, declaration)
+    }
+  })
+
   const classAttribute = fragment.attributes.find(attribute => attribute.key === 'class')
   if (classAttribute) {
     const localStyles = classAttribute.value.split(/\s/).filter(Boolean) || []
     fragment.attributes = fragment.attributes
       .map(attribute => {
         if (attribute.key === 'class') {
-          styles.filter(({ type }) => type === 'ClassSelector').forEach(({ className }) => {
-            attribute.value = attribute.value.replace(className, '')
+          styles.filter(({ type }) => type === 'ClassSelector').forEach(({ name }) => {
+            attribute.value = attribute.value.replace(name, '')
             attribute.value = attribute.value.replace(/\s+/, '')
             return attribute.value ? attribute : null
           })
@@ -78,21 +102,9 @@ function applyStylesInFragment (fragment, styles) {
       })
       .filter(attribute => attribute.value)
     styles
-      .filter(({ className, type }) => type === 'ClassSelector' && localStyles.includes(className))
+      .filter(({ name, type }) => type === 'ClassSelector' && localStyles.includes(name))
       .forEach(({ declaration }) => {
-        const styleAttribute = fragment.attributes.find(attribute => attribute.key === 'style')
-        if (styleAttribute) {
-          if (!styleAttribute.value.includes(declaration)) {
-            fragment.attributes = fragment.attributes.map(attribute => {
-              if (attribute.key === 'style') {
-                attribute.value += ';'.concat(declaration)
-              }
-              return attribute
-            })
-          }
-        } else {
-          fragment.attributes.push({ key: 'style', value: declaration })
-        }
+        updateStyleAttribute(fragment, declaration)
       })
   }
 }
