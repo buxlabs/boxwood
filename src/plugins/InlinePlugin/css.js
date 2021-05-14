@@ -36,9 +36,8 @@ function cutStyles (tree) {
   walk(tree, {
     visit: 'Rule',
     enter: node => {
-      walk(node.prelude, {
-        visit: 'ClassSelector',
-        enter: leaf => {
+      walk(node.prelude, leaf => {
+        if (leaf.type === 'ClassSelector') {
           const { name } = leaf
           const block = generate(node.block)
           if (name && block) {
