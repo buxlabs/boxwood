@@ -64,6 +64,13 @@ test('acceptance: admin-page', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: email', async assert => {
+  const { actual, expected, warnings, errors } = await suite('email')
+  assert.deepEqual(actual, expected)
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
+})
+
 test.skip('acceptance: scoped-styles-head', async assert => {
   const { actual, expected } = await suite('scoped-styles-head')
   assert.deepEqual(actual, expected)
