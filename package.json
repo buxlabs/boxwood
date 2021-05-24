@@ -49,7 +49,7 @@
   "dependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",
     "@rollup/plugin-node-resolve": "^13.0.0",
-    "abstract-syntax-tree": "^2.18.0",
+    "abstract-syntax-tree": "^2.18.1",
     "axios": "0.21.1",
     "axios-extensions": "3.1.3",
     "css-tree": "^1.1.3",
