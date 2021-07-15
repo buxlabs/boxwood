@@ -13,9 +13,6 @@ test('filters', async assert => {
   var { template } = await compile('<div html="{foo | uppercase}"></div>')
   assert.deepEqual(template({ foo: 'bar' }, escape), '<div>BAR</div>')
 
-  var { template } = await compile('<div text="{foo | uppercase}"></div>')
-  assert.deepEqual(template({ foo: 'bar' }, escape), '<div>BAR</div>')
-
   var { template } = await compile('<div class="{foo | uppercase}"></div>')
   assert.deepEqual(template({ foo: 'bar' }, escape), '<div class="BAR"></div>')
 

@@ -16,7 +16,6 @@ const InternationalizationPlugin = require('../../plugins/InternationalizationPl
 const BoxModelPlugin = require('../../plugins/BoxModelPlugin')
 const InlinePlugin = require('../../plugins/InlinePlugin')
 const SwappedStylesPlugin = require('../../plugins/SwappedStylesPlugin')
-const TextPlugin = require('../../plugins/TextPlugin')
 const Importer = require('../../Importer')
 const Optimizer = require('../../Optimizer')
 const Scope = require('../../Scope')
@@ -68,8 +67,7 @@ class Renderer {
       new CurlyStylesPlugin(),
       new ScopedStylesPlugin(),
       new SwappedStylesPlugin(),
-      new InternationalizationPlugin({ translations, filters, errors }),
-      new TextPlugin()
+      new InternationalizationPlugin({ translations, filters, errors })
     ]
     const depth = 0
     tree.append(getTemplateVariableDeclaration(TEMPLATE_VARIABLE))
