@@ -53,7 +53,7 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
     })
     promises.push(promise)
     const output = await promise
-    scripts.push([getLiteral(`\n${output}`)])
+    scripts.push(output)
   } else if (keys.includes('compiler')) {
     const { value } = attrs.find(attr => attr.key === 'compiler')
     const compiler = options.compilers[value]

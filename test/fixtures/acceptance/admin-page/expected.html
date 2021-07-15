@@ -127,7 +127,7 @@
     })
   document.querySelector('#sidebar-toggle').addEventListener('click', event => {
     document.querySelector('#sidebar').classList.toggle('undisplayed')
-  })
+  });
   const searchInput = document.getElementById('search')
   const issues = Array.from(document.getElementsByClassName('ui task grid'))
   searchInput.addEventListener('keyup', ({ target }) => {

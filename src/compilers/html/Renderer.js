@@ -6,6 +6,7 @@ const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE, BUILT_IN_VARIABLES 
 const { getTemplateVariableDeclaration, getTemplateReturnStatement, getTemplateAssignmentExpression } = require('../../utilities/factory')
 const collect = require('../../utilities/collect')
 const { getFilter } = require('../../utilities/filters')
+const { concatenateScripts } = require('../../utilities/js')
 const { unique } = require('pure-utilities/array')
 const Statistics = require('../../Statistics')
 const RoutesPlugin = require('../../plugins/RoutesPlugin')
@@ -115,21 +116,9 @@ class Renderer {
       if (style) {
         tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
       }
-      // TODO check if this is slow, unique on objects
       if (scripts.length > 0) {
-        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral('<script>')))
-        unique(scripts).forEach(script => {
-          if (typeof script === 'string') {
-            tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(script)))
-          } else if (Array.isArray(script)) {
-            script.forEach(node => {
-              tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, node))
-            })
-          }
-        })
-        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral('</script>')))
+        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<script>${concatenateScripts(scripts)}</script>`)))
       }
-
       const used = []
       unique(filters).forEach(name => {
         const filter = getFilter(name, translations, options)
