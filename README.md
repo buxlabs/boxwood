@@ -79,6 +79,8 @@ HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a 
 
 ## Usage
 
+### compile
+
 ```js
 const { compile, escape } = require('boxwood')
 
@@ -88,7 +90,45 @@ async function example () {
 }
 
 example()
+
 ```
+
+### createRender
+
+```js
+const { createRender } = require('boxwood')
+
+const render = createRender({
+  cacheEnabled: process.env.NODE_ENV === 'production',
+  compilerOptions: {
+    paths: [
+      path.join(__dirname, 'views'),
+      path.join(__dirname, 'public')
+    ]
+  },
+  globals (path, options) {
+    return { domain: 'https://foo.bar' }
+  }
+})
+
+// ... await render(path, options, callback?)
+```
+
+#### cacheEnabled = true
+
+It lets you disable cache in certain conditions. You probably don't want to cache files during development.
+
+#### compilerOptions = {}
+
+These options are passed down to [boxwood](https://github.com/buxlabs/boxwood).
+
+#### globals = {}
+
+Often you have some data that can be reused in many pages. The option can be either a function that returns an object, or an object.
+
+#### log = false
+
+Option for displaying warnings and errors in console. By default logging is off.
 
 ## API
 
