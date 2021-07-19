@@ -1,10 +1,9 @@
-const Compiler = require('./src/Compiler')
+const compile = require('./src/compile')
 const escape = require('./src/vdom/utilities/escape')
+const { createRender } = require('./src/render')
 
 module.exports = {
-  async compile (source, options = {}) {
-    const compiler = new Compiler(options)
-    return compiler.compile(source)
-  },
-  escape
+  compile,
+  escape,
+  createRender
 }
