@@ -91,22 +91,22 @@ test('img: images can have a contain attribute', async assert => {
 
 test('img: does not show warning if the same image is used many times', async assert => {
   var { template , warnings } = await compile(`
-    <main><img src="./placeholder.png" /></main>
-    <footer><img src="./placeholder.png"/></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<main><img src="./placeholder.png"></main><footer><img src="./placeholder.png"></footer>')
+    <main><img src="./placeholder.png" alt="Placeholder"/></main>
+    <footer><img src="./placeholder.png" alt="Placeholder"/></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<main><img src="./placeholder.png" alt="Placeholder"></main><footer><img src="./placeholder.png" alt="Placeholder"></footer>')
   assert.deepEqual(warnings.length, 0)
 
   var { template } = await compile(`
-    <main><img src="./placeholder.svg" /></main>
-    <footer><img src="./placeholder.svg"/></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<main><img src="./placeholder.svg"></main><footer><img src="./placeholder.svg"></footer>')
+    <main><img src="./placeholder.svg" alt="Placeholder"/></main>
+    <footer><img src="./placeholder.svg" alt="Placeholder"/></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+  assert.deepEqual(template({}, escape), '<main><img src="./placeholder.svg" alt="Placeholder"></main><footer><img src="./placeholder.svg" alt="Placeholder"></footer>')
   assert.deepEqual(warnings.length, 0)
 })
 
 test('img: does not show warning if the same inlined image is used many times', async assert => {
   const { template , warnings } = await compile(`
-    <main><img src="./placeholder.png" inline /></main>
-    <footer><img src="./placeholder.png" inline/></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
+    <main><img src="./placeholder.png" alt="Placeholder" inline /></main>
+    <footer><img src="./placeholder.png" alt="Placeholder" inline/></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
   const result = template({}, escape)
   assert.truthy(result.includes('<main><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA'))
   assert.truthy(result.includes('<footer><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA'))
