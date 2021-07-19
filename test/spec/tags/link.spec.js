@@ -19,6 +19,11 @@ test('link: inline for css', async assert => {
   assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
 })
 
+test('link: inline and minify', async assert => {
+  var { template } = await compile(`<link href="./foo.css" inline minify>`, { paths: [path.join(__dirname, '../../fixtures/stylesheets')] })
+  assert.deepEqual(template({}, escape), '<style>.foo{color:red}</style>')
+})
+
 test('link: global inline for css', async assert => {
   var { template } = await compile(`<link href="./foo.css">`, { paths: [path.join(__dirname, '../../fixtures/stylesheets')], inline: ['stylesheets'] })
   assert.deepEqual(template({}, escape), '<style>.foo { color: red; }</style>')
