@@ -24,6 +24,7 @@ const templateTag = require('./template')
 const translateTag = require('./translate')
 const translationTag = require('./translation')
 const varTag = require('./var')
+const linkTag = require('./link')
 
 module.exports = {
   foreach: foreachTag,
@@ -49,5 +50,6 @@ module.exports = {
   template: templateTag,
   translate: translateTag,
   translation: translationTag,
-  var: varTag
+  var: varTag,
+  link: linkTag
 }
