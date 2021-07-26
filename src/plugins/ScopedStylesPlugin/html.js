@@ -97,7 +97,7 @@ function addClassAttributeWithScopeToHtmlTag (tag, attributes, scopes) {
     attributes.push({
       key: 'class',
       value: scopes.reduce((array, scope) => {
-        if (tag === scope.name) {
+        if (tag === scope.name && !array.includes(scope.id)) {
           array.push(scope.id)
         }
         return array
