@@ -111,30 +111,30 @@
       </div>
     </footer>
   </div>
-</body>
-</html>
-<script>
-  Array.from(document.querySelector('.dropdown.list').childNodes).filter(node => node.localName === 'li')
-    .forEach(dropdownItem => {
-      dropdownItem.addEventListener('click', ({ target }) => {
-        const dropdownContainer = target.closest('.dropdown.container')
-        if (dropdownContainer) {
-          dropdownContainer.classList.toggle('open')
-          const dropdownList = dropdownContainer.parentElement.querySelector('ul')
-          if (dropdownList) dropdownList.classList.toggle('undisplayed')
-        }
+  <script>
+    Array.from(document.querySelector('.dropdown.list').childNodes).filter(node => node.localName === 'li')
+      .forEach(dropdownItem => {
+        dropdownItem.addEventListener('click', ({ target }) => {
+          const dropdownContainer = target.closest('.dropdown.container')
+          if (dropdownContainer) {
+            dropdownContainer.classList.toggle('open')
+            const dropdownList = dropdownContainer.parentElement.querySelector('ul')
+            if (dropdownList) dropdownList.classList.toggle('undisplayed')
+          }
+        })
+      })
+    document.querySelector('#sidebar-toggle').addEventListener('click', event => {
+      document.querySelector('#sidebar').classList.toggle('undisplayed')
+    });
+    const searchInput = document.getElementById('search')
+    const issues = Array.from(document.getElementsByClassName('ui task grid'))
+    searchInput.addEventListener('keyup', ({ target }) => {
+      const { value } = target
+      issues.forEach(issue => {
+        const title = issue.querySelector('a')
+        issue.classList.toggle('undisplayed', !title.innerText.includes(value))
       })
     })
-  document.querySelector('#sidebar-toggle').addEventListener('click', event => {
-    document.querySelector('#sidebar').classList.toggle('undisplayed')
-  });
-  const searchInput = document.getElementById('search')
-  const issues = Array.from(document.getElementsByClassName('ui task grid'))
-  searchInput.addEventListener('keyup', ({ target }) => {
-    const { value } = target
-    issues.forEach(issue => {
-      const title = issue.querySelector('a')
-      issue.classList.toggle('undisplayed', !title.innerText.includes(value))
-    })
-  })
-</script> 
+  </script>
+</body>
+</html>

@@ -366,7 +366,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           append(getObjectMemberExpression(property))
           append(getLiteral('>'))
         } else {
-          if (tag === 'head') {
+          if (tag === 'head' || tag === 'body') {
             const identifier = { type: 'Literal', value: `__NEEDLE_${tag.toUpperCase()}__` }
             needles[tag] = identifier
             append(identifier)

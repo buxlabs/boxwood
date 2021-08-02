@@ -155,13 +155,13 @@
       </div>
     </div>
   </footer>
+  <script>
+    const root = document.querySelector('.logo')
+    document.querySelector('.back').addEventListener('click', () => {
+      const { referrer } = document
+      if (referrer && referrer.startsWith(window.location.origin)) return this.history.back()
+      window.location.href = root.href
+    })
+  </script>
 </body>
 </html>
-<script>
-  const root = document.querySelector('.logo')
-  document.querySelector('.back').addEventListener('click', () => {
-    const { referrer } = document
-    if (referrer && referrer.startsWith(window.location.origin)) return this.history.back()
-    window.location.href = root.href
-  })
-</script>

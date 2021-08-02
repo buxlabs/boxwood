@@ -115,11 +115,12 @@ class Renderer {
       await Promise.all(promises)
       const style = unique(styles).join(' ')
       if (style) {
+        const allStyles = `<style>${style}</style>`
         if (needles.head) {
           const node = tree.first('Literal[value=__NEEDLE_HEAD__]')
-          node.value = `<style>${style}</style>`
+          node.value = allStyles
         } else {
-          tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
+          tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(allStyles)))
         }
       } else {
         tree.replace((node) => {
@@ -133,7 +134,23 @@ class Renderer {
         })
       }
       if (scripts.length > 0) {
-        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<script>${concatenateScripts(scripts)}</script>`)))
+        const allScripts = `<script>${concatenateScripts(scripts)}</script>`
+        if (needles.body) {
+          const node = tree.first('Literal[value=__NEEDLE_BODY__]')
+          node.value = allScripts
+        } else {
+          tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(allScripts)))
+        }
+      } else {
+        tree.replace((node) => {
+          if (node.type === 'ExpressionStatement' &&
+            node.expression.type === 'AssignmentExpression' &&
+            node.expression.right.type === 'Literal' &&
+            node.expression.right.value === '__NEEDLE_BODY__') {
+            return null
+          }
+          return node
+        })
       }
       const used = []
       unique(filters).forEach(name => {
