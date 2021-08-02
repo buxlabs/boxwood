@@ -58,6 +58,7 @@ class Renderer {
     const stack = [options.path]
     const store = {}
     const translations = {}
+    const needles = {}
     const promises = []
     const errors = []
     const plugins = [
@@ -109,12 +110,27 @@ class Renderer {
     const severities = warnings.map(warning => warning.severity)
     if (!severities.includes('critical')) {
       walk(htmltree, async fragment => {
-        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, stack, store, depth, options, promises, errors, warnings })
+        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles })
       })
       await Promise.all(promises)
       const style = unique(styles).join(' ')
       if (style) {
-        tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
+        if (needles.head) {
+          const node = tree.first('Literal[value=__NEEDLE_HEAD__]')
+          node.value = `<style>${style}</style>`
+        } else {
+          tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<style>${style}</style>`)))
+        }
+      } else {
+        tree.replace((node) => {
+          if (node.type === 'ExpressionStatement' &&
+            node.expression.type === 'AssignmentExpression' &&
+            node.expression.right.type === 'Literal' &&
+            node.expression.right.value === '__NEEDLE_HEAD__') {
+            return null
+          }
+          return node
+        })
       }
       if (scripts.length > 0) {
         tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(`<script>${concatenateScripts(scripts)}</script>`)))

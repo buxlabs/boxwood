@@ -71,7 +71,7 @@ test('acceptance: email', async assert => {
   assert.deepEqual(errors.length, 0)
 })
 
-test.skip('acceptance: scoped-styles-head', async assert => {
+test('acceptance: scoped-styles-head', async assert => {
   const { actual, expected } = await suite('scoped-styles-head')
   assert.deepEqual(actual, expected)
 })

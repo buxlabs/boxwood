@@ -266,10 +266,10 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
   return { fragment }
 }
 
-async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles })
     })
   }
   function append (node) {
@@ -366,6 +366,11 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
           append(getObjectMemberExpression(property))
           append(getLiteral('>'))
         } else {
+          if (tag === 'head') {
+            const identifier = { type: 'Literal', value: `__NEEDLE_${tag.toUpperCase()}__` }
+            needles[tag] = identifier
+            append(identifier)
+          }
           append(getLiteral(`</${tag}>`))
         }
       }

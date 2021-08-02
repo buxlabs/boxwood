@@ -14,6 +14,34 @@
   <meta name="msapplication-TileColor" content="#00aba9">
   <meta name="msapplication-config" content="/favicons/browserconfig.xml">
   <link rel="stylesheet" type="text/css" href="/assets/css/design.min.css">
+  <style>
+    .content {
+      width: 550px;
+      margin: 40px 0 50px 260px;
+    }
+    .ui input[type="search"] {
+      padding: 3px 5px;
+      max-width: 80%;
+    }
+    .light.green {
+      color: #00ffa5;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 200px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 15px 0 30px 30px;
+      border-right: 1px solid #bbb;
+      box-shadow: 0 0 5px #ccc;
+    }
+    .scope-2508678226.ui.white.breadcrumb.white.divider {
+      color:#fff
+    }
+  </style>
 </head>
 <body class="white background">
   <aside class="sidebar with purple background">
@@ -96,34 +124,6 @@
   </div>
 </body>
 </html>
-<style>
-  .content {
-    width: 550px;
-    margin: 40px 0 50px 260px;
-  }
-  .ui input[type="search"] {
-    padding: 3px 5px;
-    max-width: 80%;
-  }
-  .light.green {
-    color: #00ffa5;
-  }
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 200px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 15px 0 30px 30px;
-    border-right: 1px solid #bbb;
-    box-shadow: 0 0 5px #ccc;
-  }
-  .scope-2508678226.ui.white.breadcrumb.white.divider {
-    color:#fff
-  }
-</style>
 <script>
   const filter = document.getElementById('filter')
   const searchables = document.querySelectorAll('[data-searchable="searchable"]')
