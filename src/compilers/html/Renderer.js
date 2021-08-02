@@ -113,45 +113,35 @@ class Renderer {
         await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles })
       })
       await Promise.all(promises)
+
+      function replaceNeedleOrAppend (tree, { needle, tag, content }) {
+        if (content) {
+          const all = `<${tag}>${content}</${tag}>`
+          if (needles[needle]) {
+            const node = tree.first(`Literal[value=__NEEDLE_${needle.toUpperCase()}__]`)
+            node.value = all
+          } else {
+            tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(all)))
+          }
+        } else {
+          tree.replace((node) => {
+            if (node.type === 'ExpressionStatement' &&
+              node.expression.type === 'AssignmentExpression' &&
+              node.expression.right.type === 'Literal' &&
+              node.expression.right.value === `__NEEDLE_${needle.toUpperCase()}__`) {
+              return null
+            }
+            return node
+          })
+        }
+      }
+
       const style = unique(styles).join(' ')
-      if (style) {
-        const allStyles = `<style>${style}</style>`
-        if (needles.head) {
-          const node = tree.first('Literal[value=__NEEDLE_HEAD__]')
-          node.value = allStyles
-        } else {
-          tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(allStyles)))
-        }
-      } else {
-        tree.replace((node) => {
-          if (node.type === 'ExpressionStatement' &&
-            node.expression.type === 'AssignmentExpression' &&
-            node.expression.right.type === 'Literal' &&
-            node.expression.right.value === '__NEEDLE_HEAD__') {
-            return null
-          }
-          return node
-        })
-      }
-      if (scripts.length > 0) {
-        const allScripts = `<script>${concatenateScripts(scripts)}</script>`
-        if (needles.body) {
-          const node = tree.first('Literal[value=__NEEDLE_BODY__]')
-          node.value = allScripts
-        } else {
-          tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(allScripts)))
-        }
-      } else {
-        tree.replace((node) => {
-          if (node.type === 'ExpressionStatement' &&
-            node.expression.type === 'AssignmentExpression' &&
-            node.expression.right.type === 'Literal' &&
-            node.expression.right.value === '__NEEDLE_BODY__') {
-            return null
-          }
-          return node
-        })
-      }
+      replaceNeedleOrAppend(tree, { needle: 'head', tag: 'style', content: style })
+
+      const script = concatenateScripts(scripts)
+      replaceNeedleOrAppend(tree, { needle: 'body', tag: 'script', content: script })
+
       const used = []
       unique(filters).forEach(name => {
         const filter = getFilter(name, translations, options)
