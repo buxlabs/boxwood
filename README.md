@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/boxwood.svg)](https://www.npmjs.com/package/boxwood)
 [![build](https://github.com/buxlabs/boxwood/workflows/build/badge.svg)](https://github.com/buxlabs/boxwood/actions)
 
-> Progressively enhanced HTML templating engine written in JavaScript
+> Server side templating engine written in JavaScript
 
 ## Table of Contents
 
