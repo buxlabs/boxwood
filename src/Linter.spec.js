@@ -175,3 +175,10 @@ test('Linter: returns a warning if alt attribute is not present for an image', a
     { message: 'img tag should have an alt attribute', type: 'ALT_ATTRIBUTE_MISSING' }
   ])
 })
+
+test('Linter: does not return a warning if alt attribute is using a translate modifier', async assert => {
+  const linter = new Linter()
+  const source = `<img alt|translate="foo" src="https://foo.bar/baz.png"/>`
+  const tree = parse(source)
+  assert.deepEqual(await linter.lint(tree, source, []), [])
+})

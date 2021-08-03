@@ -48,7 +48,7 @@ module.exports = class Linter {
       }
 
       if (node.tagName === IMAGE_TAG && !components.includes(IMAGE_TAG)) {
-        const alt = node.attributes.find(attribute => attribute.key === 'alt')
+        const alt = node.attributes.find(attribute => attribute.key === 'alt' || attribute.key.startsWith('alt|'))
         if (!alt) {
           warnings.push({ message: `${IMAGE_TAG} tag should have an alt attribute`, type: 'ALT_ATTRIBUTE_MISSING' })
         }
