@@ -1,6 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const Bundler = require('./Bundler')
-const { OBJECT_VARIABLE } = require('../../utilities/enum')
+const Bundler = require('../Bundler')
+const { OBJECT_VARIABLE } = require('../../../utilities/enum')
 
 class Compiler {
   constructor (options) {
