@@ -91,6 +91,11 @@ test('acceptance: scoped-styles-within-slots', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test.skip('acceptance: scopes-styles-import', async assert => {
+  const { actual, expected } = await suite('scoped-styles-import')
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: slider', async assert => {
   const { actual, expected } = await suite('slider')
   assert.deepEqual(actual, expected)

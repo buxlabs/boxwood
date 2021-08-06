@@ -149,7 +149,7 @@ test('Importer: template can have two levels of imports', async assert => {
   assert.deepEqual(asset3.warnings, [])
 })
 
-test('Importer: template has unknown asset', async assert => {
+test('Importer: template has an unknown asset', async assert => {
   const source = '<import unknown from="./unknown.html"><unknown/>'
   const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
@@ -158,7 +158,7 @@ test('Importer: template has unknown asset', async assert => {
   assert.deepEqual(warnings[0].type, 'COMPONENT_NOT_FOUND')
 })
 
-test('Importer: template has unknown stylesheet', async assert => {
+test('Importer: template has an unknown stylesheet', async assert => {
   const source = '<link rel="stylesheet" href="./main.css" inline>'
   const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
