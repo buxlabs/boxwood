@@ -4,7 +4,8 @@ const { writeFileSync, existsSync, unlinkSync, promises: { readFile } } = requir
 const { join } = require('path')
 const { tmpdir } = require('os')
 const { uid } = require('pure-utilities/string')
-const { transpile } = require('../transpilers/html')
+const { transpile: transpileCSS, getSelectors } = require('../transpilers/css')
+const { transpile: transpileHTML } = require('../transpilers/html')
 
 const bundle = async (source, options = {}) => {
   const paths = options.paths || []
@@ -50,7 +51,7 @@ const bundle = async (source, options = {}) => {
         }
         const content = await readFile(file.path, 'utf8')
         return {
-          contents: transpile(content.trim()),
+          contents: transpileHTML(content.trim()),
           loader: 'js'
         }
       })
@@ -72,12 +73,14 @@ const bundle = async (source, options = {}) => {
         if (!file) {
           // throw with a nice error message and add specs
         }
-        // const content = await readFile(file.path, 'utf8')
+        const content = await readFile(file.path, 'utf8')
+        const style = transpileCSS(content)
+        const selectors = getSelectors(style)
         // TODO transform css classes
         // return a map of names
-        styles.push('.container-1234{color:red;}')
+        styles.push(style)
         return {
-          contents: 'export default { container: "container-1234" }',
+          contents: `export default ${JSON.stringify(selectors)}`,
           loader: 'js'
         }
       })

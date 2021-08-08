@@ -91,7 +91,7 @@ test('acceptance: scoped-styles-within-slots', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('acceptance: scopes-styles-import', async assert => {
+test('acceptance: scopes-styles-import', async assert => {
   const { actual, expected } = await suite('scoped-styles-import', { compiler: 'new', extension: 'js' })
   assert.deepEqual(actual, expected)
 })
