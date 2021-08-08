@@ -3,7 +3,7 @@
 const test = require('ava')
 const { program, generate, ArrayExpression } = require('abstract-syntax-tree')
 const { transpileNode } = require('./node')
-const { parse } = require('../utilities/html')
+const { parse } = require('../../utilities/html')
 
 function body (tree) {
   return tree.length === 1

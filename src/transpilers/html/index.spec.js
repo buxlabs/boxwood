@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const { transpile } = require('./html')
+const { transpile } = require('.')
 
 test('transpile: text', assert => {
   assert.deepEqual(transpile('foo'), `export default function () {

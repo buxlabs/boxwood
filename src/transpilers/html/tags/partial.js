@@ -1,6 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { camelize } = require('pure-utilities/string')
-const { findAttributeByKey } = require('../../utilities/attributes')
+const { findAttributeByKey } = require('../../../utilities/attributes')
 
 const { CallExpression, Identifier } = AbstractSyntaxTree
 

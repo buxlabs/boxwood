@@ -2,11 +2,11 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { camelize } = require('pure-utilities/string')
-const { parse, walk } = require('../utilities/html')
-const { findAttributeByKey } = require('../utilities/attributes')
 const { deduceParams } = require('./expression')
-const BoxModelPlugin = require('../plugins/BoxModelPlugin')
-const CurlyStylesPlugin = require('../plugins/CurlyStylesPlugin')
+const BoxModelPlugin = require('../../plugins/BoxModelPlugin')
+const CurlyStylesPlugin = require('../../plugins/CurlyStylesPlugin')
+const { parse, walk } = require('../../utilities/html')
+const { findAttributeByKey } = require('../../utilities/attributes')
 const { transpileNode } = require('./node')
 
 const {
