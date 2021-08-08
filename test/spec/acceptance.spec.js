@@ -237,8 +237,8 @@ test.skip('acceptance: accordion-html', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: accordion-js', async assert => {
-  const { actual, expected } = await suite('accordion-js', { compiler: 'new', extension: 'js' })
+test('acceptance: accordion', async assert => {
+  const { actual, expected } = await suite('accordion', { compiler: 'new', extension: 'js' })
   assert.deepEqual(actual, expected)
 })
 
@@ -304,7 +304,7 @@ test.skip('acceptance: variables', async assert => {
 
 
 async function suite (name, { compilerOptions = {} , extension = 'html', compiler = 'deprecated' } = {}) {
-  const dir = join(__dirname, '../fixtures/acceptance', name)
+  const dir = join(__dirname, '../fixtures/acceptance', extension === 'js' ? `js/${name}` : name)
   const path1 = join(dir, `actual.${extension}`)
   const path2 = join(dir, 'expected.html')
   const path3 = join(dir, 'data.json')
