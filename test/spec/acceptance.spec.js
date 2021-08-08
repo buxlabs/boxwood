@@ -91,7 +91,7 @@ test('acceptance: scoped-styles-within-slots', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: scopes-styles-import', async assert => {
+test('acceptance: scoped-styles-import', async assert => {
   const { actual, expected } = await suite('scoped-styles-import', { compiler: 'new', extension: 'js' })
   assert.deepEqual(actual, expected)
 })
@@ -302,6 +302,10 @@ test.skip('acceptance: variables', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: i18n', async assert => {
+  const { actual, expected } = await suite('i18n', { compiler: 'new', extension: 'js' })
+  assert.deepEqual(actual, expected)
+})
 
 async function suite (name, { compilerOptions = {} , extension = 'html', compiler = 'deprecated' } = {}) {
   const dir = join(__dirname, '../fixtures/acceptance', extension === 'js' ? `js/${name}` : name)
