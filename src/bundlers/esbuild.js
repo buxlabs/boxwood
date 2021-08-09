@@ -1,5 +1,6 @@
 const esbuild = require('esbuild')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const YAML = require('yaml')
 const { writeFileSync, existsSync, unlinkSync, promises: { readFile } } = require('fs')
 const { join } = require('path')
 const { tmpdir } = require('os')
@@ -87,11 +88,46 @@ const bundle = async (source, options = {}) => {
     }
   }
 
+  const yamlPlugin = {
+    name: 'yaml',
+    setup (build) {
+      build.onResolve({ filter: /\.yaml?$/ }, args => ({
+        path: args.path.replace(/\.yaml$/, ''),
+        namespace: 'boxwood-yaml'
+      }))
+      build.onLoad({
+        filter: /.*/,
+        namespace: 'boxwood-yaml'
+      }, async (args) => {
+        const file = findFile(args.path, 'yaml')
+        if (!file) {
+          // throw with a nice error message and add specs
+        }
+        const content = await readFile(file.path, 'utf8')
+        const data = YAML.parse(content)
+        return {
+          contents: `
+            const data = ${JSON.stringify(data)}
+
+            export function i18n (language) {
+              return function (key) {
+                return data.i18n[key][language]
+              }
+            }
+
+            export default data
+          `,
+          loader: 'js'
+        }
+      })
+    }
+  }
+
   writeFileSync(input, source)
   const result = await esbuild.build({
     platform: options.platform || 'node',
     bundle: true,
-    plugins: [resolvePlugin, htmlPlugin, cssPlugin],
+    plugins: [resolvePlugin, htmlPlugin, cssPlugin, yamlPlugin],
     entryPoints: [input],
     format: options.format || 'iife',
     minify: true,

@@ -1,17 +1,7 @@
 import { div } from "boxwood"
-
-function i18n (data, language) {
-  return function (key) {
-    return data[key][language]
-  }
-}
+import { i18n } from "./data.yaml"
 
 export default function app ({ language }) {
-  const translate = i18n({
-    hello: {
-      en: 'Hello!',
-      pl: 'Hej!'
-    }
-  }, language)
+  const translate = i18n(language)
   return div(translate('hello'))
 }
