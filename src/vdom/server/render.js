@@ -14,6 +14,9 @@ function render (node) {
   if (typeof node === 'string') {
     return escape(node)
   }
+  if (typeof node === 'number') {
+    return node
+  }
   return renderElement(node)
 }
 

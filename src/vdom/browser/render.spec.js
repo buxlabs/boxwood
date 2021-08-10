@@ -71,3 +71,8 @@ test('#render: html page', assert => {
   assert.truthy(node)
 })
 
+test('#render: number', assert => {
+  const node = render(tag('div', 1234))
+  assert.deepEqual(node.innerHTML, '1234')
+})
+

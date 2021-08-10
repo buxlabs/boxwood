@@ -77,8 +77,6 @@ const bundle = async (source, options = {}) => {
         const content = await readFile(file.path, 'utf8')
         const style = transpileCSS(content)
         const selectors = getSelectors(style)
-        // TODO transform css classes
-        // return a map of names
         styles.push(style)
         return {
           contents: `export default ${JSON.stringify(selectors)}`,

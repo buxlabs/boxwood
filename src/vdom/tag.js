@@ -9,7 +9,7 @@ function toArray (children) {
 function deduceParams (params) {
   if (params.length === 3) { return params }
   if (params.length === 2) {
-    if (Array.isArray(params[1]) || typeof params[1] === 'string') {
+    if (Array.isArray(params[1]) || typeof params[1] === 'string' || typeof params[1] === 'number') {
       const [name, children] = params
       return [name, {}, children]
     }

@@ -64,3 +64,8 @@ test('#render: html page', assert => {
   ])
   assert.deepEqual(result, '<!DOCTYPE html><html><head></head><body><header>foo</header><main>bar</main><footer>baz</footer></body></html>')
 })
+
+test('#render: number', assert => {
+  const result = render(tag('div', 1234))
+  assert.deepEqual(result, '<div>1234</div>')
+})

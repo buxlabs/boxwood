@@ -307,6 +307,11 @@ test('acceptance: i18n', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: yaml', async assert => {
+  const { actual, expected } = await suite('yaml', { compiler: 'new', extension: 'js' })
+  assert.deepEqual(actual, expected)
+})
+
 async function suite (name, { compilerOptions = {} , extension = 'html', compiler = 'deprecated' } = {}) {
   const dir = join(__dirname, '../fixtures/acceptance', extension === 'js' ? `js/${name}` : name)
   const path1 = join(dir, `actual.${extension}`)

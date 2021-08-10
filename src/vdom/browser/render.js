@@ -6,6 +6,8 @@ const escape = require('../utilities/escape')
 function render (node, state, dispatch) {
   if (typeof node === 'string') {
     return renderText(node)
+  } else if (typeof node === 'number') {
+    return renderNumber(node)
   } else if (node.name === '!DOCTYPE') {
     return renderDoctype()
   } else if (Array.isArray(node)) {
@@ -19,6 +21,10 @@ function render (node, state, dispatch) {
 
 function renderText (text) {
   return document.createTextNode(escape(text))
+}
+
+function renderNumber (number) {
+  return document.createTextNode(number)
 }
 
 function renderDoctype (node) {
