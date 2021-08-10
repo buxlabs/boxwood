@@ -1128,3 +1128,17 @@ test('import: partial should be optimized safely', async assert => {
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div>foo</div>')
 })
+
+
+
+test('import: import css', async assert => {
+  const { template, errors, warnings } = await compile(`
+    <import classes from="./main.css"/>
+    <div class="{classes.foo}"></div>
+  `, {
+    paths: [path.join(__dirname, '../../fixtures/style')]
+  })
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
+  assert.deepEqual(template({}, escape), '<div class="foo-2664316334"></div><style>.foo-2664316334{color:red}</style>')
+})

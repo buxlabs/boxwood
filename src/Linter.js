@@ -6,10 +6,18 @@ const { unique, duplicates } = require('pure-utilities/array')
 const { getComponentNames } = require('./utilities/attributes')
 const { getAssetPaths, isImageNode, isSVGNode } = require('./utilities/node')
 
+function isStyleImport (node) {
+  const from = node.attributes.find(attr => attr.key === 'from')
+  if (from && from.value.endsWith('.css')) {
+    return true
+  }
+  return false
+}
+
 function analyze (tree) {
   const components = []
   walk(tree, node => {
-    if (isImportTag(node.tagName)) {
+    if (isImportTag(node.tagName) && !isStyleImport(node)) {
       const names = getComponentNames(node.attributes)
       names.forEach(name => components.push(name))
     }

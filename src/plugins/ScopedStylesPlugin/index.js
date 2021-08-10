@@ -3,6 +3,7 @@
 const Plugin = require('../Plugin')
 const { addScopeToCssSelectors } = require('./css')
 const { addScopeToHtmlClassAttribute, addClassAttributeWithScopeToHtmlTag } = require('./html')
+const { transpile: transpileCss, getSelectors } = require('../../transpilers/css')
 
 class ScopedStylesPlugin extends Plugin {
   constructor () {
@@ -14,7 +15,17 @@ class ScopedStylesPlugin extends Plugin {
     this.scopes[this.depth] = []
   }
 
-  prerun ({ tag, keys, children, attributes }) {
+  prerun ({ fragment, tag, keys, assets, children, attributes }) {
+    if (tag === 'import') {
+      const from = attributes.find(attribute => attribute.key === 'from')
+      if (from && from.value.endsWith('.css')) {
+        fragment.tagName = 'var'
+        const { key } = attributes[0]
+        /* do we need a better check here? */
+        const asset = assets.find(asset => asset.name === key)
+        fragment.attributes = [{ key, value: getSelectors(transpileCss(asset.source)) }]
+      }
+    }
     if (tag === 'style' && keys.includes('scoped')) {
       children.forEach(node => {
         node.content = addScopeToCssSelectors(node.content, this.scopes[this.depth])

@@ -22,6 +22,7 @@ const Optimizer = require('../../Optimizer')
 const Scope = require('../../Scope')
 const { getLiteral } = require('../../utilities/ast')
 const Preprocessor = require('./Preprocessor')
+const { transpile: transpileCSS } = require('../../transpilers/css')
 
 class Renderer {
   async render (source, htmltree, options) {
@@ -83,6 +84,13 @@ class Renderer {
     const styles = output.styles
       ? output.styles.map(style => style.children[0] && style.children[0].content).filter(Boolean)
       : []
+
+    assets.forEach(asset => {
+      if (asset.type === 'COMPONENT' && asset.path.endsWith('.css')) {
+        const css = transpileCSS(asset.source)
+        styles.push(css)
+      }
+    })
     walk(htmltree, async fragment => {
       try {
         const attrs = fragment.attributes || []
