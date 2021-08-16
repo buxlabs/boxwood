@@ -3,6 +3,8 @@
 const tag = require('./tag')
 
 const node = (name) => (attributes, children) => tag(name, attributes, children)
+const doctype = () => tag('!DOCTYPE', { html: true })
+const link = (attributes) => attributes ? tag('link', attributes) : ''
 
 module.exports = {
   a: node('a'),
@@ -57,6 +59,7 @@ module.exports = {
   form: node('form'),
   head: node('head'),
   html: node('html'),
+  link,
   main: node('main'),
   mark: node('mark'),
   ruby: node('ruby'),
@@ -97,7 +100,7 @@ module.exports = {
   article: node('article'),
   caption: node('caption'),
   details: node('details'),
-  doctype: () => tag('!DOCTYPE', { html: true }),
+  doctype,
   section: node('section'),
   summary: node('summary'),
   picture: node('picture'),
