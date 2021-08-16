@@ -317,6 +317,11 @@ test('acceptance: inline-stylesheets', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: inline-images', async assert => {
+  const { actual, expected } = await suite('inline-images', { compiler: 'new', extension: 'js' })
+  assert.deepEqual(actual, expected)
+})
+
 async function suite (name, { compilerOptions = {} , extension = 'html', compiler = 'deprecated' } = {}) {
   const dir = join(__dirname, '../fixtures/acceptance', extension === 'js' ? `js/${name}` : name)
   const path1 = join(dir, `actual.${extension}`)

@@ -2,8 +2,7 @@ const { parse, walk, generate } = require('css-tree')
 const { getExtension, getBase64Extension } = require('../../utilities/string')
 const { findAsset, isFileSupported } = require('../../utilities/files')
 
-function getBase64String (asset, options, isFont) {
-  const { path, base64 } = asset
+function getBase64String (base64, path, options, isFont) {
   const extension = getExtension(path)
   const dataType = isFont ? 'data:application/font-' : 'data:image/'
   return [
@@ -17,7 +16,7 @@ function convertElementValueToBase64 ({ element, value, assets, options, isFont 
   if (!isFileSupported(value)) return
   const asset = findAsset(value, assets, options)
   if (!asset) return
-  element.value = getBase64String(asset, options, isFont)
+  element.value = getBase64String(asset.base64, asset.path, options, isFont)
 }
 
 function inlineUrls (tree, assets, options) {

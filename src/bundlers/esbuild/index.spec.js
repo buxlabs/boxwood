@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const { bundle } = require('./esbuild')
+const { bundle } = require('.')
 const { join } = require('path')
 
 test('esbuild: keeps simple code', async assert => {
@@ -21,8 +21,8 @@ test('esbuild: can import html components', async assert => {
   `
   const output = await bundle(source, {
     paths: [
-      join(__dirname, '../vdom/server'),
-      join(__dirname, '../../test/fixtures')
+      join(__dirname, '../../vdom/server'),
+      join(__dirname, '../../../test/fixtures')
     ]
   })
   assert.truthy(output)
