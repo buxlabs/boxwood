@@ -51,8 +51,13 @@ test('acceptance: same-attributes (html)', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: objects-as-parameters', async assert => {
-  const { actual, expected } = await suite('objects-as-parameters')
+test('acceptance: objects-as-parameters (deprecated)', async assert => {
+  const { actual, expected } = await suite('deprecated/objects-as-parameters')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: objects-as-parameters (html)', async assert => {
+  const { actual, expected } = await suite('html/objects-as-parameters', { compiler: 'new', extension: 'html' })
   assert.deepEqual(actual, expected)
 })
 

@@ -147,6 +147,8 @@ function transpile (source, options) {
 
   let imports
 
+  // console.log(outputTree.source)
+
   imports = deduceComponents(tree)
   if (imports.length > 0) {
     outputTree.prepend(createComponentImportDeclarations(imports))
@@ -162,8 +164,6 @@ function transpile (source, options) {
       }
     })
   }
-
-  // console.log(outputTree.source)
 
   imports = deducePartials(outputTree)
   if (imports.length > 0) {

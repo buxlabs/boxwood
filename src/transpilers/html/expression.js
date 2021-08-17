@@ -63,10 +63,18 @@ function deduceParams (body) {
   ].filter(Boolean)
 }
 
+function normalizeTokenValue (value) {
+  if (value.trim().startsWith('{') && value.trim().endsWith('}')) {
+    return `(${value})`
+  }
+  return value
+}
+
 function transpileExpression (source, escape = true) {
   const tokens = lexer(source)
   const nodes = tokens.map(token => {
     if (token.type === 'expression') {
+      token.value = normalizeTokenValue(token.value)
       const tree = new AbstractSyntaxTree(token.value)
       const { expression } = tree.first('ExpressionStatement')
       markNodes(expression)
