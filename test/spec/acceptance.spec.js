@@ -26,11 +26,9 @@ test('acceptance: booleans (deprecated)', async assert => {
   assert.deepEqual(errors.length, 0)
 })
 
-test.skip('acceptance: booleans (html)', async assert => {
-  const { actual, expected, warnings, errors } = await suite('html/booleans')
+test('acceptance: booleans (html)', async assert => {
+  const { actual, expected } = await suite('html/booleans', { compiler: 'new', extension: 'html' })
   assert.deepEqual(actual, expected)
-  assert.deepEqual(warnings.length, 0)
-  assert.deepEqual(errors.length, 0)
 })
 
 test('acceptance: components-in-a-loop', async assert => {

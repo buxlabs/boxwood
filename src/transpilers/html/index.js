@@ -8,6 +8,8 @@ const CurlyStylesPlugin = require('../../plugins/CurlyStylesPlugin')
 const { parse, walk } = require('../../utilities/html')
 const { findAttributeByKey } = require('../../utilities/attributes')
 const { transpileNode } = require('./node')
+// TODO: initial transpilation, move to a separate dir? or inline here after removing the outdated compiler
+const Transpiler = require('../../compilers/html/Transpiler')
 
 const {
   ArrayExpression,
@@ -132,6 +134,8 @@ function body (tree, options) {
 }
 
 function transpile (source, options) {
+  source = new Transpiler().transpile(source)
+
   const tree = parse(source)
   const outputTree = new AbstractSyntaxTree(
     program(body(tree, options))

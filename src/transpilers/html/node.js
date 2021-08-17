@@ -67,9 +67,9 @@ function transpileNode ({ node: htmlNode, parent, index }) {
   function mapIfStatement (htmlNode, parent, index) {
     function mapAttributesToTest ({ attributes }) {
       if (attributes.length === 1) {
-        if (attributes[0].key === 'true') {
+        if (attributes[0].key === 'true' || attributes[0].key === '{true}') {
           return new Literal(true)
-        } else if (attributes[0].key === 'false') {
+        } else if (attributes[0].key === 'false' || attributes[0].key === '{false}') {
           return new Literal(false)
         } else {
           return new Identifier({ name: attributes[0].key, parameter: true })

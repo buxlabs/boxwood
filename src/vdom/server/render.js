@@ -32,6 +32,7 @@ function isEventHandler (key) {
 }
 
 function renderElement (node) {
+  if (!node) { return }
   const { name, attributes, children } = node
   const element = { attributes: [], children: '' }
 
