@@ -1,6 +1,10 @@
 import { img } from "boxwood"
-import example from "images/1x1.png"
+import png from "images/1x1.png"
+import svg from "images/line.svg"
 
 export default function app () {
-  return img({ src: example })
+  return [
+    img({ src: png }),
+    img({ src: svg })
+  ]
 }

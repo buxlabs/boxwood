@@ -12,18 +12,17 @@ function getBase64String (base64, path) {
 }
 
 module.exports = ({ paths }) => ({
-  name: 'png',
+  name: 'image',
   setup (build) {
-    build.onResolve({ filter: /\.png?$/ }, args => ({
-      path: args.path.replace(/\.png$/, ''),
-      namespace: 'boxwood-png'
+    build.onResolve({ filter: /\.png|\.svg/ }, args => ({
+      path: args.path,
+      namespace: 'boxwood-image'
     }))
     build.onLoad({
       filter: /.*/,
-      namespace: 'boxwood-png'
+      namespace: 'boxwood-image'
     }, async (args) => {
-      // TODO add other extensions
-      const asset = findAsset(args.path, 'png', { paths })
+      const asset = findAsset(args.path, null, { paths })
       if (!asset) {
         // TODO throw with a nice error message and add specs
       }
