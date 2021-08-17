@@ -71,8 +71,13 @@ test('acceptance: components-with-box-model-attributes (html)', async assert => 
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: import-multiple-components', async assert => {
-  const { actual, expected } = await suite('import-multiple-components')
+test('acceptance: import-multiple-components (deprecated)', async assert => {
+  const { actual, expected } = await suite('deprecated/import-multiple-components')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: import-multiple-components (html)', async assert => {
+  const { actual, expected } = await suite('html/import-multiple-components', { compiler: 'new', extension: 'html' })
   assert.deepEqual(actual, expected)
 })
 
