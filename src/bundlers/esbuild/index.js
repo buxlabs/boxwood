@@ -1,10 +1,9 @@
 const esbuild = require('esbuild')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { writeFileSync, unlinkSync, promises: { readFile } } = require('fs')
+const { writeFileSync, unlinkSync } = require('fs')
 const { join } = require('path')
 const { tmpdir } = require('os')
 const { uid } = require('pure-utilities/string')
-const { findAsset } = require('./utilities/asset')
 const ResolvePlugin = require('./plugins/resolve')
 const HTMLPlugin = require('./plugins/html')
 const CSSPlugin = require('./plugins/css')
@@ -36,26 +35,6 @@ const bundle = async (source, options = {}) => {
   const file = result.outputFiles[0]
   unlinkSync(input)
   const tree = new AbstractSyntaxTree(file.text)
-  const files = []
-  tree.remove((node, parent) => {
-    if (
-      node.type === 'ObjectExpression' &&
-      node.properties.find(property => property.key.name === 'inline')) {
-      const property = node.properties.find(property => property.key.name === 'src')
-      const file = findAsset(property.value.value, 'css', { paths })
-      files.push(file)
-      return null
-    }
-    return node
-  })
-  const contents = await Promise.all(files.map(async file => {
-    return { path: file.path, content: await readFile(file.path, 'utf8') }
-  }))
-  contents.forEach(({ path, content }) => {
-    if (path.endsWith('.css')) {
-      styles.push(content)
-    }
-  })
   tree.replace(node => {
     // TODO we need a better way to match the global scoped style tag
     // this could lead to false

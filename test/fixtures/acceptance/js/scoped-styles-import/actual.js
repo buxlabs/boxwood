@@ -1,5 +1,5 @@
 import { div, html, doctype, head, body, title, style } from 'boxwood'
-import styles from './example.css'
+import styles from './example.css?scoped=true'
 
 export default function App () {
   return [

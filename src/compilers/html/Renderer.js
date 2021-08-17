@@ -24,6 +24,28 @@ const { getLiteral } = require('../../utilities/ast')
 const Preprocessor = require('./Preprocessor')
 const { transpile: transpileCSS } = require('../../transpilers/css')
 
+function replaceNeedleOrAppend (tree, { needles, needle, tag, content }) {
+  if (content) {
+    const all = `<${tag}>${content}</${tag}>`
+    if (needles[needle]) {
+      const node = tree.first(`Literal[value=__NEEDLE_${needle.toUpperCase()}__]`)
+      node.value = all
+    } else {
+      tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(all)))
+    }
+  } else {
+    tree.replace((node) => {
+      if (node.type === 'ExpressionStatement' &&
+        node.expression.type === 'AssignmentExpression' &&
+        node.expression.right.type === 'Literal' &&
+        node.expression.right.value === `__NEEDLE_${needle.toUpperCase()}__`) {
+        return null
+      }
+      return node
+    })
+  }
+}
+
 class Renderer {
   async render (source, htmltree, options) {
     if (!htmltree) { return null }
@@ -122,33 +144,11 @@ class Renderer {
       })
       await Promise.all(promises)
 
-      function replaceNeedleOrAppend (tree, { needle, tag, content }) {
-        if (content) {
-          const all = `<${tag}>${content}</${tag}>`
-          if (needles[needle]) {
-            const node = tree.first(`Literal[value=__NEEDLE_${needle.toUpperCase()}__]`)
-            node.value = all
-          } else {
-            tree.append(getTemplateAssignmentExpression(TEMPLATE_VARIABLE, getLiteral(all)))
-          }
-        } else {
-          tree.replace((node) => {
-            if (node.type === 'ExpressionStatement' &&
-              node.expression.type === 'AssignmentExpression' &&
-              node.expression.right.type === 'Literal' &&
-              node.expression.right.value === `__NEEDLE_${needle.toUpperCase()}__`) {
-              return null
-            }
-            return node
-          })
-        }
-      }
-
       const style = unique(styles).join(' ')
-      replaceNeedleOrAppend(tree, { needle: 'head', tag: 'style', content: style })
+      replaceNeedleOrAppend(tree, { needles, needle: 'head', tag: 'style', content: style })
 
       const script = concatenateScripts(scripts)
-      replaceNeedleOrAppend(tree, { needle: 'body', tag: 'script', content: script })
+      replaceNeedleOrAppend(tree, { needles, needle: 'body', tag: 'script', content: script })
 
       const used = []
       unique(filters).forEach(name => {

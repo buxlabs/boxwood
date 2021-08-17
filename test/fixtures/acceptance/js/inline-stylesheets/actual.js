@@ -1,9 +1,8 @@
 import { div, link, style } from "boxwood"
+import css from "css/normalize.css"
 
 export default function app () {
   return [
-    div({ class: "foo" }),
-    link({ src: "/style/main.css", inline: true }),
-    style({ scoped: true })
+    style(css)
   ]
 }

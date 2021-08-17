@@ -8,7 +8,7 @@ const { print } = require('./utilities/log')
 const read = promisify(readFile)
 
 function createRender ({
-  compilerOptions = {},
+  compilerOptions = { paths: [] },
   globals = {},
   cacheEnabled = true,
   log = false
