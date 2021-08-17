@@ -1,0 +1,8 @@
+<import icon from="./components/icon.html"/>
+<import a from="./components/link.html"/>
+<if icon><icon name="{icon}" width="50"/></if>
+<if header><h3>{header}</h3></if>
+<if message><p>{message}</p></if>
+<for link in links>
+  <a id="{link.id}" color="{link.color}" decoration="{link.decoration}">{link.content}</a>
+</for>

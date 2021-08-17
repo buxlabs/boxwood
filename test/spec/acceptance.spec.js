@@ -31,8 +31,13 @@ test('acceptance: booleans (html)', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: components-in-a-loop', async assert => {
-  const { actual, expected } = await suite('components-in-a-loop')
+test('acceptance: components-in-a-loop (deprecated)', async assert => {
+  const { actual, expected } = await suite('deprecated/components-in-a-loop')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: components-in-a-loop (html)', async assert => {
+  const { actual, expected } = await suite('html/components-in-a-loop', { compiler: 'new', extension: 'html' })
   assert.deepEqual(actual, expected)
 })
 

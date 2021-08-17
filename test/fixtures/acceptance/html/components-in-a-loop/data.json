@@ -1,0 +1,25 @@
+{
+  "icon": "circle",
+  "header": "foo",
+  "message": "bar",
+  "links": [
+    {
+      "id": "red",
+      "color": "red",
+      "decoration": "underlined",
+      "content": "baz"
+    },
+    {
+      "id": "green",
+      "color": "green",
+      "decoration": "underlined",
+      "content": "qux"
+    },
+    {
+      "id": "blue",
+      "color": "blue",
+      "decoration": "underlined",
+      "content": "quux"
+    }
+  ]
+}

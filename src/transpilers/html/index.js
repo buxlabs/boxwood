@@ -20,6 +20,10 @@ const {
   Literal
 } = AbstractSyntaxTree
 
+function pathToIdentifier (path) {
+  return `__${camelize(path).replace('.', 'Dot')}__`
+}
+
 const program = (body) => {
   const params = deduceParams(body)
   return AbstractSyntaxTree.program(
@@ -37,7 +41,7 @@ function createComponentImportDeclarations (imports) {
     return new ImportDeclaration({
       specifiers: [
         new ImportDefaultSpecifier({
-          local: new Identifier(`__${camelize(path)}__`)
+          local: new Identifier(pathToIdentifier(path))
         })
       ],
       source: new Literal(path)
@@ -151,7 +155,7 @@ function transpile (source, options) {
       if (node.type === 'CallExpression' && node.callee.name === 'tag') {
         imports.forEach(leaf => {
           if (node.arguments[0].value === leaf.tag) {
-            node.callee.name = `__${camelize(leaf.path)}__`
+            node.callee.name = pathToIdentifier(leaf.path)
             node.arguments.shift()
           }
         })
