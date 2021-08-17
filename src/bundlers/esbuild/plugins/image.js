@@ -14,7 +14,7 @@ function getBase64String (base64, path) {
 module.exports = ({ paths }) => ({
   name: 'image',
   setup (build) {
-    build.onResolve({ filter: /\.png|\.svg/ }, args => ({
+    build.onResolve({ filter: /\.png|\.svg|\.jpg|\.jpeg/ }, args => ({
       path: args.path,
       namespace: 'boxwood-image'
     }))
