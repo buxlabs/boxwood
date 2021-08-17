@@ -20,7 +20,7 @@ test('transpile: comment', assert => {
 test('transpile: html div tag', assert => {
   assert.deepEqual(transpile('<div></div>'), `import {tag} from "boxwood";
 export default function () {
-  return tag("div");
+  return tag("div", {});
 }
 `)
 })
@@ -28,7 +28,7 @@ export default function () {
 test('transpile: multiple html tags', assert => {
   assert.deepEqual(transpile('<div></div><span></span>'), `import {tag} from "boxwood";
 export default function () {
-  return [tag("div"), tag("span")];
+  return [tag("div", {}), tag("span", {})];
 }
 `)
 })
@@ -36,7 +36,7 @@ export default function () {
 test('transpile: self closing html tags', assert => {
   assert.deepEqual(transpile('<br><hr>'), `import {tag} from "boxwood";
 export default function () {
-  return [tag("br"), tag("hr")];
+  return [tag("br", {}), tag("hr", {})];
 }
 `)
 })
@@ -44,7 +44,7 @@ export default function () {
 test('transpile: nested html tags', assert => {
   assert.deepEqual(transpile('<div><div></div></div>'), `import {tag} from "boxwood";
 export default function () {
-  return tag("div", [tag("div")]);
+  return tag("div", {}, [tag("div", {})]);
 }
 `)
 })
@@ -62,7 +62,7 @@ export default function () {
 test('transpile: html tag with text', assert => {
   assert.deepEqual(transpile('<div>foo</div>'), `import {tag} from "boxwood";
 export default function () {
-  return tag("div", ["foo"]);
+  return tag("div", {}, ["foo"]);
 }
 `)
 })
@@ -191,7 +191,7 @@ export default function () {
 test('transpile: import', assert => {
   assert.deepEqual(transpile('<import foo from="components/foo.html"/><foo/>'), `import __componentsFooHtml__ from "components/foo.html";
 export default function () {
-  return __componentsFooHtml__();
+  return __componentsFooHtml__({});
 }
 `)
 })
@@ -203,7 +203,7 @@ test('transpile: simple component with a script', assert => {
 export default function () {
   return [tag("div", {
     class: "foo"
-  }), tag("script", ["console.log(\\"bar\\")"])];
+  }), tag("script", {}, ["console.log(\\"bar\\")"])];
 }
 `)
 })

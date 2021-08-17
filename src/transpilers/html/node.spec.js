@@ -21,15 +21,15 @@ function transpile (input) {
 }
 
 test('transpileNode: div', assert => {
-  assert.deepEqual(transpile('<div></div>'), 'tag("div")')
+  assert.deepEqual(transpile('<div></div>'), 'tag("div", {})')
 })
 
 test('transpileNode: multiple divs', assert => {
-  assert.deepEqual(transpile('<div></div><div></div>'), '[tag("div"), tag("div")]')
+  assert.deepEqual(transpile('<div></div><div></div>'), '[tag("div", {}), tag("div", {})]')
 })
 
 test('transpileNode: br', assert => {
-  assert.deepEqual(transpile('<br/>'), 'tag("br")')
+  assert.deepEqual(transpile('<br/>'), 'tag("br", {})')
 })
 
 test('transpileNode: slot', assert => {

@@ -41,10 +41,16 @@ test('acceptance: components-in-a-loop (html)', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: same-attributes', async assert => {
-  const { actual, expected } = await suite('same-attributes')
+test('acceptance: same-attributes (deprecated)', async assert => {
+  const { actual, expected } = await suite('deprecated/same-attributes')
   assert.deepEqual(actual, expected)
 })
+
+test('acceptance: same-attributes (html)', async assert => {
+  const { actual, expected } = await suite('html/same-attributes', { compiler: 'new', extension: 'html' })
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: objects-as-parameters', async assert => {
   const { actual, expected } = await suite('objects-as-parameters')
   assert.deepEqual(actual, expected)

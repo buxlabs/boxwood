@@ -163,6 +163,8 @@ function transpile (source, options) {
     })
   }
 
+  // console.log(outputTree.source)
+
   imports = deducePartials(outputTree)
   if (imports.length > 0) {
     outputTree.prepend(createPartialImportDeclarations(imports))

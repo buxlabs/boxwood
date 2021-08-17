@@ -44,18 +44,20 @@ function mapForStatement (htmlNode, parent, index) {
 
 function transpileNode ({ node: htmlNode, parent, index }) {
   function mapAttributes (attributes) {
-    return attributes.length > 0 && new ObjectExpression({
-      properties: attributes.map(attribute => {
-        return new Property({
-          key: new Identifier(attribute.key),
-          value: transpileExpression(attribute.value, false),
-          kind: 'init',
-          computed: false,
-          method: false,
-          shorthand: false
+    return attributes.length > 0
+      ? new ObjectExpression({
+          properties: attributes.map(attribute => {
+            return new Property({
+              key: new Identifier(attribute.key),
+              value: transpileExpression(attribute.value, false),
+              kind: 'init',
+              computed: false,
+              method: false,
+              shorthand: false
+            })
+          })
         })
-      })
-    })
+      : new ObjectExpression({ properties: [] })
   }
   function mapChildren (children) {
     return children.length > 0 && new ArrayExpression({
