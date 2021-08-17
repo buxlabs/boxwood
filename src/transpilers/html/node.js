@@ -48,7 +48,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
       properties: attributes.map(attribute => {
         return new Property({
           key: new Identifier(attribute.key),
-          value: new Literal(attribute.value),
+          value: transpileExpression(attribute.value, false),
           kind: 'init',
           computed: false,
           method: false,
@@ -118,6 +118,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     if (htmlNode.tagName === 'import') { return tags.import(htmlNode) }
     if (htmlNode.tagName === '!doctype') { return tags.doctype() }
     if (htmlNode.tagName === 'partial') { return tags.partial(htmlNode) }
+    if (htmlNode.tagName === 'slot') { return tags.slot(htmlNode) }
     const { tagName, attributes, children } = htmlNode
     const node = new CallExpression({
       callee: new Identifier('tag'),

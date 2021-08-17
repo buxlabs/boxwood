@@ -9,6 +9,16 @@ const fs = require('fs')
 
 const readFile = util.promisify(fs.readFile)
 
+test('acceptance: aliased-attributes (deprecated)', async assert => {
+  const { actual, expected } = await suite('deprecated/aliased-attributes')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: aliased-attributes (html)', async assert => {
+  const { actual, expected } = await suite('html/aliased-attributes', { compiler: 'new', extension: 'html' })
+  assert.deepEqual(actual, expected)
+})
+
 test('acceptance: components-in-a-loop', async assert => {
   const { actual, expected } = await suite('components-in-a-loop')
   assert.deepEqual(actual, expected)
@@ -18,12 +28,6 @@ test('acceptance: same-attributes', async assert => {
   const { actual, expected } = await suite('same-attributes')
   assert.deepEqual(actual, expected)
 })
-
-test('acceptance: aliased-attributes', async assert => {
-  const { actual, expected } = await suite('aliased-attributes')
-  assert.deepEqual(actual, expected)
-})
-
 test('acceptance: objects-as-parameters', async assert => {
   const { actual, expected } = await suite('objects-as-parameters')
   assert.deepEqual(actual, expected)

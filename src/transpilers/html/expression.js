@@ -36,37 +36,48 @@ function findParams (body) {
   return unique(nodes.map(node => node.name))
 }
 
-function deduceParams (body) {
-  const params = findParams(body)
-  if (params.length === 0) {
-    return []
-  }
-  return new ObjectPattern({
-    properties: params.map(param => {
-      const node = new Identifier(param)
-      return new Property({
-        key: node,
-        value: node,
-        kind: 'init',
-        computed: false,
-        method: false,
-        shorthand: true
-      })
-    })
-  })
+function findChildren (body) {
+  const tree = new AbstractSyntaxTree(body)
+  const node = tree.first('Identifier[name="__children__"]')
+  return node
 }
 
-function transpileExpression (source) {
+function deduceParams (body) {
+  const params = findParams(body)
+  const children = findChildren(body)
+  return [
+    params.length > 0 && new ObjectPattern({
+      properties: params.map(param => {
+        const node = new Identifier(param)
+        return new Property({
+          key: node,
+          value: node,
+          kind: 'init',
+          computed: false,
+          method: false,
+          shorthand: true
+        })
+      })
+    }),
+    children
+  ].filter(Boolean)
+}
+
+function transpileExpression (source, escape = true) {
   const tokens = lexer(source)
   const nodes = tokens.map(token => {
     if (token.type === 'expression') {
       const tree = new AbstractSyntaxTree(token.value)
       const { expression } = tree.first('ExpressionStatement')
       markNodes(expression)
-      return new CallExpression({
-        callee: new Identifier({ name: 'escape' }),
-        arguments: [expression]
-      })
+      if (escape) {
+        return new CallExpression({
+          callee: new Identifier({ name: 'escape' }),
+          arguments: [expression]
+        })
+      } else {
+        return expression
+      }
     }
     if (token.type === 'text') {
       return new Literal({ value: token.value })

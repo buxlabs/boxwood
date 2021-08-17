@@ -31,3 +31,7 @@ test('transpileNode: multiple divs', assert => {
 test('transpileNode: br', assert => {
   assert.deepEqual(transpile('<br/>'), 'tag("br")')
 })
+
+test('transpileNode: slot', assert => {
+  assert.deepEqual(transpile('<slot/>'), '__children__')
+})
