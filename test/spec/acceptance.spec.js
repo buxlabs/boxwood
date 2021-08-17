@@ -19,6 +19,20 @@ test('acceptance: aliased-attributes (html)', async assert => {
   assert.deepEqual(actual, expected)
 })
 
+test('acceptance: booleans (deprecated)', async assert => {
+  const { actual, expected, warnings, errors } = await suite('deprecated/booleans')
+  assert.deepEqual(actual, expected)
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
+})
+
+test.skip('acceptance: booleans (html)', async assert => {
+  const { actual, expected, warnings, errors } = await suite('html/booleans')
+  assert.deepEqual(actual, expected)
+  assert.deepEqual(warnings.length, 0)
+  assert.deepEqual(errors.length, 0)
+})
+
 test('acceptance: components-in-a-loop', async assert => {
   const { actual, expected } = await suite('components-in-a-loop')
   assert.deepEqual(actual, expected)
@@ -214,13 +228,6 @@ test('acceptance: nested-slots-4-levels', async assert => {
 test('acceptance: translate-modifier', async assert => {
   const { actual, expected } = await suite('translate-modifier')
   assert.deepEqual(actual, expected)
-})
-
-test('acceptance: booleans', async assert => {
-  const { actual, expected, warnings, errors } = await suite('booleans')
-  assert.deepEqual(actual, expected)
-  assert.deepEqual(warnings.length, 0)
-  assert.deepEqual(errors.length, 0)
 })
 
 test('acceptance: routes', async assert => {
