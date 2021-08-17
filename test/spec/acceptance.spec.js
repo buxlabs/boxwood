@@ -61,8 +61,13 @@ test('acceptance: objects-as-parameters (html)', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: components-with-box-model-attributes', async assert => {
-  const { actual, expected } = await suite('components-with-box-model-attributes')
+test('acceptance: components-with-box-model-attributes (deprecated)', async assert => {
+  const { actual, expected } = await suite('deprecated/components-with-box-model-attributes')
+  assert.deepEqual(actual, expected)
+})
+
+test('acceptance: components-with-box-model-attributes (html)', async assert => {
+  const { actual, expected } = await suite('html/components-with-box-model-attributes', { compiler: 'new', extension: 'html' })
   assert.deepEqual(actual, expected)
 })
 
