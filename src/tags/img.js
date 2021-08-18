@@ -1,16 +1,9 @@
 'use strict'
 
-const { convertAttributeToInlineStyle, convertSizeToWidthAndHeight, setAutoDimension } = require('../utilities/css')
 const { findAsset } = require('../utilities/files')
 const { getExtension, getBase64Extension, normalizeNewline } = require('../utilities/string')
 
 module.exports = function ({ fragment, attrs, keys, assets, options }) {
-  convertAttributeToInlineStyle(attrs, ['fluid', 'responsive'], 'max-width: 100%; height: auto;')
-  convertAttributeToInlineStyle(attrs, ['cover'], 'object-fit: cover; object-position: right top;')
-  convertAttributeToInlineStyle(attrs, ['contain'], 'object-fit: contain; object-position: center;')
-  convertSizeToWidthAndHeight(attrs)
-  setAutoDimension(attrs, keys, 'width', assets, options)
-  setAutoDimension(attrs, keys, 'height', assets, options)
   if (keys.includes('inline') || options.inline.includes('images')) {
     fragment.attributes = fragment.attributes.map(attr => {
       if (attr.key === 'inline') return null

@@ -3,26 +3,6 @@ const compile = require('../../helpers/deprecated-compile')
 const path = require('path')
 const { escape } = require('../../..')
 
-test('img: width auto for png', async assert => {
-  var { template } = await compile('<img src="../../fixtures/images/placeholder.png" width="auto" height="auto">', { paths: [__dirname] })
-  assert.deepEqual(template({}, escape), '<img src="../../fixtures/images/placeholder.png" width="250" height="250">')
-})
-
-test('img: width auto for jpg', async assert => {
-  var { template } = await compile('<img src="../../fixtures/images/placeholder.jpg" width="auto" height="auto">', { paths: [__dirname] })
-  assert.deepEqual(template({}, escape), '<img src="../../fixtures/images/placeholder.jpg" width="250" height="250">')
-})
-
-test('img: width auto for svg', async assert => {
-  var { template } = await compile('<img src="../../fixtures/images/placeholder.svg" width="auto" height="auto">', { paths: [__dirname] })
-  assert.deepEqual(template({}, escape), '<img src="../../fixtures/images/placeholder.svg" width="400" height="100">')
-})
-
-test('img: size', async assert => {
-  var { template } = await compile('<img src="../../fixtures/images/placeholder.svg" size="1600x800">', { paths: [__dirname] })
-  assert.deepEqual(template({}, escape), '<img src="../../fixtures/images/placeholder.svg" width="1600" height="800">')
-})
-
 test('img[inline]: works for png', async assert => {
   var { template } = await compile(`<img src='./placeholder.png' inline>`, { paths: [path.join(__dirname, '../../fixtures/images')] })
   assert.deepEqual(template({}, escape), `<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAD6BAMAAAB6wkcOAAAAG1BMVEXMzMyWlpa+vr6qqqqcnJyjo6O3t7exsbHFxcUJuPfiAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACLElEQVR4nO3WvY6bQBSG4WPWGEqPfzAldrJRShNF2ZSQ/9KscgEmWlkpsZQLAEXKdecMWAZtXA5N9D7FauGTODPDzMEiAAAAAAAAAAAAAAAAAAAAAAAAAAAA+D94bz8fRRpjTCwS5F9vxqHGphb5tarcVi+N2Yhsu+qFMYdbsddV941ZOy0emjcv9Lnlu9PppwTmR7m5Fc+Wp9OplnP0yjidfKCTSfdyPtqLJpKZXeB/4iDqhnKUMnZZ3V/osmdyTuxFqcte2HFs9W5x6ONgYeOZDsWPXFaf6lwmc0lre5Hqsp73tuhaX3Xdx3ftjO/0rQRLl9X9rH18IbZWkehM7ZQ9c/SXg9ifh9IthOd226kyk09P5lEk1yE0mb2VZtt4EE+/5OukXYhw5bh4mFdiT1Q1qN5ERTWIJ8YevFGqv1zrbn70iliMtOusArMaxNKsk3tTt5FxW3xmvkn4oG91OZh7mEeDWH7rQhT7MeaeXnax7qe+uhTxs1i34wjVfW0hrdD0e143/fJZLM18hD2ffrj8o7O6nnc98Jeed411Udyf93Blq9gOpp3s2uu0obat7hK3N8uD+17XdXD73Olm0Ofzarvo43ZYeTVCn492u12iJ+5PnvXfOB2Dv+5jPXGvn3S7Of/GTW2fmdvPuEn677uug9dut0s8078Lcf99n3SP976v3kv/2+Yc22bbx3Kff6xlhN82AAAAAAAAAAAAAAAAAAAAAAAAAACg9xcCzVRdbP7JlAAAAABJRU5ErkJggg==">`)
@@ -51,42 +31,6 @@ test('img: global inline for jpg', async assert => {
 test('img: global inline for svg', async assert => {
   var { template } = await compile(`<img src='./placeholder.svg'>`, { paths: [ path.join(__dirname, '../../fixtures/images') ], inline: ['images'] })
   assert.deepEqual(template({}, escape), `<img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjEwMCI+PHJlY3Qgd2lkdGg9IjQwMCIgaGVpZ2h0PSIxMDAiIHN0eWxlPSJmaWxsOnJnYigwLDAsMjU1KTtzdHJva2Utd2lkdGg6MTA7c3Ryb2tlOnJnYigwLDAsMCkiIC8+PC9zdmc+Cg==">`)
-})
-
-test('img: makes image responsive when fluid attribute has been set', async assert => {
-  var { template } = await compile(`<img src="./placeholder.png" fluid>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
-
-  var { template } = await compile(`<img fluid src="./placeholder.png">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
-
-  var { template } = await compile(`<img src="./placeholder.png" style="border-radius: 10px;" fluid>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')
-
-  var { template } = await compile(`<img fluid src="./placeholder.png" style="border-radius: 10px;">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')
-
-  var { template } = await compile(`<img src="./placeholder.png" responsive>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
-
-  var { template } = await compile(`<img responsive src="./placeholder.png">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto;">')
-
-  var { template } = await compile(`<img src="./placeholder.png" style="border-radius: 10px;" responsive>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')
-
-  var { template } = await compile(`<img responsive src="./placeholder.png" style="border-radius: 10px;">`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="max-width: 100%; height: auto; border-radius: 10px;">')
-})
-
-test('img: images can have a cover attribute', async assert => {
-  var { template } = await compile(`<img src="./placeholder.png" cover>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="object-fit: cover; object-position: right top;">')
-})
-
-test('img: images can have a contain attribute', async assert => {
-  var { template } = await compile(`<img src="./placeholder.png" contain>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  assert.deepEqual(template({}, escape), '<img src="./placeholder.png" style="object-fit: contain; object-position: center;">')
 })
 
 test('img: does not show warning if the same image is used many times', async assert => {
