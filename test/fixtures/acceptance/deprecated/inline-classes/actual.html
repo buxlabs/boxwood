@@ -1,0 +1,29 @@
+<import layout from="./components/layout.html"/>
+<layout>
+  <h1 class="mb-0 pb-0 nunito">Hello</h1>
+  <h2 class="mb-0 pb-0 nunito">World!</h2>
+  <p class="m-0">
+    <span class="bold">{foo}</span>
+  </p>
+  <p class="bold mb-0">Dane Kontaktowe</p>
+  <if bar>
+    <p class="m-0">{bar}</p>
+  </if>
+</layout>
+<style inline>
+  .nunito {
+    font-family: 'Nunito';
+  }
+  .m-0 {
+    margin: 0;
+  }
+  .mb-0 {
+    margin-bottom: 0;
+  }
+  .pb-0 {
+    padding-bottom: 0;
+  }
+  .bold {
+    font-weight: bold;
+  }
+</style>

@@ -1,0 +1,19 @@
+h1 {
+  font-family: 'Nunito';
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+h2 {
+  font-family: 'Nunito';
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+p {
+  margin:0;
+}
+
+.bold {
+  font-weight: bold;
+}

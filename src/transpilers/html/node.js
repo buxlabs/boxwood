@@ -13,7 +13,9 @@ const {
   Literal,
   ObjectExpression,
   Property,
-  ReturnStatement
+  ReturnStatement,
+  TryStatement,
+  CatchClause
 } = AbstractSyntaxTree
 
 let FOR_LOOP_INDEX = 0
@@ -106,6 +108,31 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     })
   }
 
+  function mapTryStatement (htmlNode, parent, index) {
+    function mapCurrentNodeToBlockStatement (htmlNode) {
+      const body = htmlNode.children.map((node, index) => transpileNode({ node, parent: htmlNode.children, index })).filter(Boolean)
+      const argument = body.pop()
+      body.push(new ReturnStatement({ argument }))
+      return new BlockStatement({ body })
+    }
+
+    function mapNextNodeToCatchClause (nextNode) {
+      if (nextNode && nextNode.tagName === 'catch') {
+        const body = nextNode.children.map((node, index) => transpileNode({ node, parent: htmlNode.children, index })).filter(Boolean)
+        const argument = body.pop()
+        body.push(new ReturnStatement({ argument }))
+        return new CatchClause({
+          body: new BlockStatement({ body })
+        })
+      }
+      return null
+    }
+    return new TryStatement({
+      block: mapCurrentNodeToBlockStatement(htmlNode),
+      handler: mapNextNodeToCatchClause(parent[index + 1])
+    })
+  }
+
   if (htmlNode.type === 'element' && htmlNode.tagName === 'if') {
     const statement = mapIfStatement(htmlNode, parent, index)
     const { expression } = AbstractSyntaxTree.iife(statement)
@@ -113,6 +140,12 @@ function transpileNode ({ node: htmlNode, parent, index }) {
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
     return null
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'elseif') {
+    return null
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'try') {
+    const statement = mapTryStatement(htmlNode, parent, index)
+    const { expression } = AbstractSyntaxTree.iife(statement)
+    return expression
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'catch') {
     return null
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'for') {
     return mapForStatement(htmlNode, parent, index)
