@@ -330,10 +330,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (tag === '!doctype') {
       tags.doctype({ tree, options })
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
-      if (tag === 'svg' && keys.includes('from')) {
-        const found = tags.svg({ fragment, attrs, assets, options })
-        if (!found) return
-      } else if (tag === 'img') {
+      if (tag === 'img') {
         tags.img({ fragment, attrs, keys, assets, options })
       }
       if (keys.includes('content')) {

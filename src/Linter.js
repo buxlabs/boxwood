@@ -4,7 +4,7 @@ const walk = require('himalaya-walk')
 const { isImportTag } = require('./utilities/string')
 const { unique, duplicates } = require('pure-utilities/array')
 const { getComponentNames } = require('./utilities/attributes')
-const { getAssetPaths, isImageNode, isSVGNode } = require('./utilities/node')
+const { getAssetPaths, isImageNode } = require('./utilities/node')
 
 function isStyleImport (node) {
   const from = node.attributes.find(attr => attr.key === 'from')
@@ -99,7 +99,7 @@ module.exports = class Linter {
     })
     imports.forEach(node => {
       let assetPaths = getAssetPaths(node)
-      if (isImageNode(node, options) || isSVGNode(node)) {
+      if (isImageNode(node, options)) {
         assetPaths = assetPaths.filter(item => !assetPaths.includes(item))
       }
       allPaths = allPaths.concat(assetPaths)

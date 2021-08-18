@@ -25,13 +25,6 @@ class CompilerError extends BaseError {
   }
 }
 
-class SVGError extends BaseError {
-  constructor (message) {
-    super('SVGError', message)
-    Error.captureStackTrace(this, this.constructor)
-  }
-}
-
 class TranslationError extends BaseError {
   constructor (message) {
     super('TranslationError', message)
@@ -92,7 +85,6 @@ function createTranslationError (message, stack) {
 
 module.exports = {
   CompilerError,
-  SVGError,
   TranslationError,
   ExpressionError,
   YAMLTranslationError,

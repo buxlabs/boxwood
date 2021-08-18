@@ -10,7 +10,6 @@ class Statistics {
   constructor () {
     this.components = []
     this.partials = []
-    this.svgs = []
     this.images = []
     this.scripts = []
     this.stylesheets = []
@@ -26,7 +25,6 @@ class Statistics {
     this
       .concat('components', statistics.components)
       .concat('partials', statistics.partials)
-      .concat('svgs', statistics.svgs)
       .concat('images', statistics.images)
       .concat('scripts', statistics.scripts)
       .concat('stylesheets', statistics.stylesheets)
@@ -37,7 +35,6 @@ class Statistics {
     return uniq([].concat(
       this.components.map(item => item.path),
       this.partials.map(item => item.path),
-      this.svgs.map(item => item.path),
       this.images.map(item => item.path),
       this.scripts.map(item => item.path),
       this.stylesheets.map(item => item.path),
@@ -49,7 +46,6 @@ class Statistics {
     return {
       components: uniq(this.components),
       partials: uniq(this.partials),
-      svgs: uniq(this.svgs),
       images: uniq(this.images),
       scripts: uniq(this.scripts),
       stylesheets: uniq(this.stylesheets),

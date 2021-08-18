@@ -93,10 +93,6 @@ function isGlobalInlineScript (node, options) {
     node.attributes.find(attribute => attribute.key === 'src')
 }
 
-function isSvgTagWithFromAttribute (node) {
-  return node.tagName === 'svg' && node.attributes.find(attribute => attribute.key === 'from')
-}
-
 function isImageTagWithInlineAttribute (node) {
   return node.tagName === 'img' && node.attributes.find(attribute => attribute.key === 'inline')
 }
@@ -145,8 +141,6 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'SCRIPT' })
     } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options) || isStyleWithInlineAttribute(node) || isFontWithInlineAttribute(node)) {
       nodes.push({ node, kind: 'STYLESHEET' })
-    } else if (isSvgTagWithFromAttribute(node)) {
-      nodes.push({ node, kind: 'SVG' })
     } else if (isImageNode(node, options)) {
       nodes.push({ node, kind: 'IMAGE' })
     } else if (isScriptTagWithI18nAttribute(node) || isI18nTag(node)) {
@@ -174,6 +168,5 @@ module.exports = {
   getAssetPaths,
   getImportNodes,
   isImageNode,
-  isSVGNode: isSvgTagWithFromAttribute,
   normalizeAttributes
 }

@@ -68,8 +68,6 @@ class Renderer {
         statistics.scripts.push(asset)
       } else if (asset.type === 'STYLESHEET') {
         statistics.stylesheets.push(asset)
-      } else if (asset.type === 'SVG') {
-        statistics.svgs.push(asset)
       } else if (asset.type === 'IMAGE') {
         statistics.images.push(asset)
       } else if (asset.type === 'TRANSLATION') {

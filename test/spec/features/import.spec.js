@@ -718,13 +718,6 @@ test('import: if compiler inline options includes stylesheets', async assert => 
   assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.css')])
 })
 
-test('import: should add the inline svg path to the statistics', async assert => {
-  var { statistics } = await compile(`<svg from='./foo.svg'>`, {
-    paths: [ path.join(__dirname, '../../fixtures/Importer') ]
-  })
-  assert.deepEqual(statistics.assets, [path.join(__dirname, '../../fixtures/Importer/foo.svg')])
-})
-
 test('import: should add the inline image path to the statistics', async assert => {
   var { statistics } = await compile(`<img src='./foo.jpg' inline>`, {
     paths: [ path.join(__dirname, '../../fixtures/Importer') ]

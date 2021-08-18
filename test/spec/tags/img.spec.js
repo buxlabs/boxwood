@@ -112,13 +112,3 @@ test('img: does not show warning if the same inlined image is used many times', 
   assert.truthy(result.includes('<footer><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA'))
   assert.deepEqual(warnings.length, 0)
 })
-
-test('svg: does not show warning if the same inlined svg is used many times', async assert => {
-  const { template , warnings } = await compile(`
-    <main><svg from="./placeholder.svg" inline /></main>
-    <footer><svg from="./placeholder.svg" inline /></footer>`, { paths: [path.join(__dirname, '..', '..', 'fixtures', 'images')] })
-  const result = template({}, escape)
-  assert.truthy(result.includes('<main><svg width="400" height="100">'))
-  assert.truthy(result.includes('<footer><svg width="400" height="100">'))
-  assert.deepEqual(warnings.length, 0)
-})
