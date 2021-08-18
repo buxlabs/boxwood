@@ -15,7 +15,8 @@ const {
   Property,
   ReturnStatement,
   TryStatement,
-  CatchClause
+  CatchClause,
+  UnaryExpression
 } = AbstractSyntaxTree
 
 let FOR_LOOP_INDEX = 0
@@ -98,11 +99,69 @@ function transpileNode ({ node: htmlNode, parent, index }) {
       } else if (nextNode && nextNode.tagName === 'elseif') {
         return mapIfStatement(nextNode, parent, index + 1)
       }
-      return null
+      return new BlockStatement({
+        body: [
+          new ReturnStatement({
+            argument: new Literal('')
+          })
+        ]
+      })
     }
 
     return new IfStatement({
       test: mapAttributesToTest(htmlNode),
+      consequent: mapCurrentNodeToConsequent(htmlNode),
+      alternate: mapNextNodeToAlternate(parent[index + 1])
+    })
+  }
+
+  function mapUnlessStatement (htmlNode, parent, index) {
+    function mapAttributesToTest ({ attributes }) {
+      if (attributes.length === 1) {
+        if (attributes[0].key === 'true' || attributes[0].key === '{true}') {
+          return new Literal(true)
+        } else if (attributes[0].key === 'false' || attributes[0].key === '{false}') {
+          return new Literal(false)
+        } else {
+          return new Identifier({ name: attributes[0].key, parameter: true })
+        }
+      }
+      throw new Error('unsupported')
+    }
+
+    function mapCurrentNodeToConsequent (htmlNode) {
+      const body = htmlNode.children.map((node, index) => transpileNode({ node, parent: htmlNode.children, index })).filter(Boolean)
+      const argument = body.pop()
+      body.push(new ReturnStatement({ argument }))
+      return new BlockStatement({ body })
+    }
+
+    function mapNextNodeToAlternate (nextNode) {
+      if (nextNode && nextNode.tagName === 'else') {
+        const body = nextNode.children.map((node, index) => transpileNode({ node, parent: nextNode.children, index })).filter(Boolean)
+        const argument = body.pop()
+        body.push(new ReturnStatement({ argument }))
+        return new BlockStatement({ body })
+      } else if (nextNode && nextNode.tagName === 'elseunless') {
+        return mapUnlessStatement(nextNode, parent, index + 1)
+      } else if (nextNode && nextNode.tagName === 'elseif') {
+        return mapIfStatement(nextNode, parent, index + 1)
+      }
+      return new BlockStatement({
+        body: [
+          new ReturnStatement({
+            argument: new Literal('')
+          })
+        ]
+      })
+    }
+
+    return new IfStatement({
+      test: new UnaryExpression({
+        operator: '!',
+        argument: mapAttributesToTest(htmlNode),
+        prefix: true
+      }),
       consequent: mapCurrentNodeToConsequent(htmlNode),
       alternate: mapNextNodeToAlternate(parent[index + 1])
     })
@@ -140,6 +199,12 @@ function transpileNode ({ node: htmlNode, parent, index }) {
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'else') {
     return null
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'elseif') {
+    return null
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'unless') {
+    const statement = mapUnlessStatement(htmlNode, parent, index)
+    const { expression } = AbstractSyntaxTree.iife(statement)
+    return expression
+  } else if (htmlNode.type === 'element' && htmlNode.tagName === 'elseunless') {
     return null
   } else if (htmlNode.type === 'element' && htmlNode.tagName === 'try') {
     const statement = mapTryStatement(htmlNode, parent, index)

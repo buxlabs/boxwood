@@ -72,6 +72,8 @@ test('transpile: if statement with `true`', assert => {
   return (function () {
     if (true) {
       return "foo";
+    } else {
+      return "";
     }
   })();
 }
@@ -83,6 +85,8 @@ test('transpile: if statement with `false`', assert => {
   return (function () {
     if (false) {
       return "foo";
+    } else {
+      return "";
     }
   })();
 }
@@ -107,6 +111,8 @@ test('transpile: if statement with a variable', assert => {
   return (function () {
     if (foo) {
       return "foo";
+    } else {
+      return "";
     }
   })();
 }
@@ -120,6 +126,8 @@ test('transpile: if/elseif statement with a variable', assert => {
       return "foo";
     } else if (bar) {
       return "bar";
+    } else {
+      return "";
     }
   })();
 }
@@ -150,6 +158,8 @@ test('transpile: if/elseif/elseif statement with a variable', assert => {
       return "bar";
     } else if (baz) {
       return "baz";
+    } else {
+      return "";
     }
   })();
 }

@@ -1,6 +1,6 @@
 const test = require('ava')
-const compile = require('../../helpers/compile')
-const { escape } = require('../../..')
+const compile = require('../../../helpers/deprecated-compile')
+const { escape } = require('../../../..')
 
 test('unless', async assert => {
   var { template } = await compile('<unless foo>bar</unless>')
