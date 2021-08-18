@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/deprecated-compile')
+const compile = require('../../helpers/compile')
 const { escape } = require('../../..')
 const path = require('path')
 
@@ -185,33 +185,8 @@ test('operators: ternary operator works with computed object property access', a
 })
 
 test('operators: ternary operator works inside loops', async assert => {
-  var { template } = await compile(`
-    <select>
-      <for number in range="0..1">
-        <option selected="{ number == foo ? 'selected': '' }">{number}</option>
-      </for>
-    </select>
-  `)
-  assert.deepEqual(template({ foo: '1' }, escape), '<select><option>0</option><option selected>1</option></select>')
-
-  var { template } = await compile(`
-    <select>
-      <for number in range="2018..2020">
-        <option value="{number}" selected="{ number == foo ? 'selected' : '' }">{number}</option>
-      </for>
-    </select>
-  `)
-  assert.deepEqual(template({ foo: '2019' }, escape), `<select><option value="2018">2018</option><option value="2019" selected>2019</option><option value="2020">2020</option></select>`)
-
-  var { template } = await compile(`
-    <import layout from="./layouts/blank1.html">
-    <layout foo="minimal">
-      <for number in range="1..3">
-        <div class="{ number == bar ? 'selected' : '' }">{number}</div>
-      </for>
-    </layout>
-  `, { paths: [path.join(__dirname, '..', '..', 'fixtures')] })
-  assert.deepEqual(template({ bar: '2' }, escape), '<div class="minimal"><div class="">1</div><div class="selected">2</div><div class="">3</div></div>')
+  const { template } = await compile(`<for car in cars>{car === 'x' ? 'X' : car}</for>`)
+  assert.deepEqual(template({ cars: ['a', 'x']}, escape), 'aX')
 })
 
 test('operators: filters boolean attributes', async assert => {

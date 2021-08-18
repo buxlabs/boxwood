@@ -45,6 +45,16 @@ test('#render: self closing tags with attributes', assert => {
   assert.deepEqual(result, '<hr class="primary">')
 })
 
+test('#render: selected option', assert => {
+  const result = render(tag('option', { value: 'foo', selected: true }))
+  assert.deepEqual(result, '<option value="foo" selected></option>')
+})
+
+test('#render: deselected option', assert => {
+  const result = render(tag('option', { value: 'foo', selected: false }))
+  assert.deepEqual(result, '<option value="foo"></option>')
+})
+
 test('#render: doctype', assert => {
   const result = render(doctype())
   assert.deepEqual(result, '<!DOCTYPE html>')

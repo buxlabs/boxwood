@@ -38,8 +38,12 @@ function renderElement (node) {
 
   for (const key in attributes) {
     const value = attributes[key]
-    if (typeof value === 'boolean' && value) {
-      element.attributes.push(key)
+    if (typeof value === 'boolean') {
+      if (value) {
+        element.attributes.push(key)
+      } else {
+        continue
+      }
     } else if (isEventHandler(key)) {
       continue
     } else {
