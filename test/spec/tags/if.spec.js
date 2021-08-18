@@ -2995,35 +2995,6 @@ test('if: shorthand syntax inside of loops', async assert => {
   assert.deepEqual(html, 'startstop')
 })
 
-test('if: shorthand syntax inside of components', async assert => {
-  const { template } = await compile(`
-    <template foo>
-      <if bar>baz<else>qux<end>
-    </template>
-    <foo bar/>
-    <foo>
-  `)
-  assert.deepEqual(template({}, escape), 'bazqux')
-})
-
-test('if: shorthand syntax with translate tag', async assert => {
-  const { template } = await compile(`
-    <translate foo/>
-    <if bar>baz<end>
-    <i18n yaml>
-    foo:
-    - 'fOo'
-    - 'foO'
-    </i18n>
-  `, {
-    languages: ['pl', 'en']
-  })
-  assert.deepEqual(template({ bar: true, language: 'pl' }, escape), 'fOobaz')
-  assert.deepEqual(template({ bar: true, language: 'en' }, escape), 'foObaz')
-  assert.deepEqual(template({ bar: false, language: 'pl' }, escape), 'fOo')
-  assert.deepEqual(template({ bar: false, language: 'en' }, escape), 'foO')
-})
-
 test('if: true in a curly tag', async assert => {
   const { template } = await compile(`<if {true}>foo<end>`)
   assert.deepEqual(template({}, escape), 'foo')

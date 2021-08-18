@@ -278,54 +278,12 @@ test('output: binary expressions with literals are precalculated', async assert 
   assert.deepEqual(normalize(template.toString()), normalize(`function render() { return "foo"; }`))
 })
 
-test('output: object inlining', async assert => {
-  var { template } = await compile(`
-    <template foo>{bar.baz}</template>
-    <foo bar="{ { baz: 'qux' } }" />
-  `)
-
-  assert.deepEqual(normalize(template.toString()), normalize('function render() { return "qux"; }'))
-})
-
 test('output: square syntax for one identifier', async assert => {
   var { template } = await compile(`<div id="[id]"></div>`)
   assert.deepEqual(normalize(template.toString()), normalize(`function render(__o) {
     var __t = "<div id=\\"";
     __t += __o.id || "";;
     __t+= "\\"></div>";
-    return __t;
-  }`))
-})
-
-test('output: undefined options', async assert => {
-  const { template } = await compile(`
-    <template foo>
-      { bar.baz }
-    </template>
-    <foo/>
-    { bar.baz }
-  `)
-  assert.deepEqual(normalize(template.toString()), normalize(`function render(__o, __e) {
-    var __t = "";
-    __t += __e(__o.bar.baz);
-    return __t;
-  }`))
-})
-
-test.skip('output: assigning variables', async assert => {
-  const { template } = await compile(`
-    <template foo>
-      <for car in cars>{car}</for>
-    </template>
-    <foo cars="{['BMW', 'Hyundai']}" />
-  `)
-  assert.deepEqual(normalize(template.toString()), normalize(`function render(__o, __e) {
-    var __t = "";
-    var c = ["BMW", "Hyundai"];
-    for (var a = 0, b = c.length; a < b; a++) {
-      var car = c[a];
-      __t += __e(car);
-    }
     return __t;
   }`))
 })

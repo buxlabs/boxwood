@@ -77,44 +77,6 @@ test('i18n: translations in yaml - format validation', async assert => {
   assert.deepEqual(error2.type, 'TranslationError')
   assert.deepEqual(error2.message, 'There is no translation for the foo___scope_746128617 key')
   assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
-
-  var { template, errors } = await compile(`
-    <template foo>
-      <script i18n yaml>
-      foo:
-      -'bar'
-      -'bar'
-      </script>
-      <div><translate foo/></div>
-    </template>
-    <foo/>
-  `, { languages: ['pl', 'en'] })
-
-  assert.truthy(errors.length)
-  var [error1, error2] = errors
-  assert.deepEqual(error1.type, 'YAMLTranslationError')
-  assert.deepEqual(error1.message, 'Implicit map keys need to be followed by map values')
-  assert.deepEqual(error2.type, 'TranslationError')
-  assert.deepEqual(error2.message, 'There is no translation for the foo___scope_196157161 key')
-  assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
-
-  var { template, errors } = await compile(`
-    <template foo>
-      <script i18n yaml>
-      foo_bar:
-      -'foo_bar'
-      -'foo_bar'
-      </script>
-      <div><translate foo_{bar}/></div>
-    </template>
-    <foo/>
-  `, { languages: ['pl', 'en'] })
-
-  assert.truthy(errors.length)
-  var [error1] = errors
-  assert.deepEqual(error1.type, 'YAMLTranslationError')
-  assert.deepEqual(error1.message, 'Implicit map keys need to be followed by map values')
-  assert.deepEqual(template({ language: 'pl', bar: 'bar' }, escape), '<div></div>')
 })
 
 test('i18n: translations in yaml and a translate tag with dot notation', async assert => {
@@ -483,32 +445,6 @@ test('i18n: dynamic translations', async assert => {
     languages: ['pl', 'en']
   })
   assert.deepEqual(template({ language: 'pl', price: '10000', tax: 1.23 }, escape), '<div>Cena po uwzględnieniu podatku: 12300</div>')
-
-  var { template } = await compile(`
-    <template footer>
-      <script i18n yaml>
-        contact:
-        - 'Skontaktuj się z nami. BUXLABS. Na rynku od {year}. Wszelkie prawa zastrzeżone.'
-        - 'Contact us. BUXLABS. Since {year}. All rights reserved.'
-      </script>
-      <footer>
-        <translate contact year="{year}"/>
-      </footer>
-    </template>
-    <script i18n yaml>
-      hello:
-      - 'Witaj {name}!'
-      - 'Hello {name}!'
-    </script>
-    <main>
-      <p><translate hello name="{name}"/></p>
-      <footer year="{year}"/>
-    </main>
-    `, {
-      paths: [path.join(__dirname, '../../fixtures/translations')],
-      languages: ['pl', 'en']
-    })
-  assert.deepEqual(template({ language: 'en', year: 2019, name: 'World' }, escape), '<main><p>Hello World!</p><footer>Contact us. BUXLABS. Since 2019. All rights reserved.</footer></main>')
 })
 
 test('i18n: loading translations from files', async assert => {

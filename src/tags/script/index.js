@@ -24,24 +24,6 @@ module.exports = async function ({ tree, keys, attrs, fragment, assets, variable
       ast.each('VariableDeclarator', node => variables.push(node.id.name))
       ast.body.forEach(node => tree.append(node))
     }
-  } else if (keys.includes('polyfills')) {
-    let content = ''
-    const { value } = attrs.find(attr => attr.key === 'polyfills')
-    const ast = new AbstractSyntaxTree(value)
-    const polyfills = AbstractSyntaxTree.serialize(ast.body[0].expression)
-    polyfills.forEach(polyfill => {
-      const asset = findAsset(polyfill, assets, options)
-      if (asset) {
-        content += asset.source
-      } else {
-        warnings.push({ type: 'POLYFILL_NOT_FOUND', message: `${polyfill} polyfill not found` })
-      }
-    })
-    fragment.children.forEach(node => {
-      node.used = true
-      content += node.content
-    })
-    scripts.push(content)
   } else if (keys.includes('scoped')) {
     const leaf = fragment.children[0]
     if (!leaf) return

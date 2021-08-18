@@ -12,13 +12,3 @@ test('foreach', async assert => {
   var { template } = await compile(`<foreach foo in bar>{foo}</foreach>`)
   assert.deepEqual(template({ bar: new Set([1, 2, 3, 4, 5]) }, escape), '12345')
 })
-
-test('foreach: inlining', async assert => {
-  const { template } = await compile(`
-    <template foo>
-      <foreach car in cars>{car}</foreach>
-    </template>
-    <foo cars="{['BMW', 'Hyundai']}" />
-  `)
-  assert.deepEqual(template({}, escape), 'BMWHyundai')
-})

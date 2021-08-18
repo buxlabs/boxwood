@@ -56,44 +56,6 @@ test('attributes: shorthand syntax with multiple strings', async assert => {
   assert.deepEqual(template({ bar: 'bar' }, escape), '<div class="foo bar baz"></div>')
 })
 
-test('attributes: shorthand syntax with components', async assert => {
-  var { template } = await compile(`
-    <template foo>
-      <div class="['container', fluid && 'fluid']"><slot></slot></div>
-    </template>
-    <foo><p>foo bar baz</p></foo>`
-  )
-  assert.deepEqual(template({}, escape), '<div class="container"><p>foo bar baz</p></div>')
-
-  var { template } = await compile(`
-    <template foo>
-      <div class="['container', fluid && 'fluid']"><slot></slot></div>
-    </template>
-    <foo fluid><p>foo bar baz</p></foo>`
-  )
-  assert.deepEqual(template({}, escape), '<div class="container fluid"><p>foo bar baz</p></div>')
-})
-
-test('attributes: shorthand syntax for passing data', async assert => {
-  var { template } = await compile(`
-    <template foo>{bar}</template>
-    <foo {bar}>`
-  )
-  assert.deepEqual(template({ bar: 'bar' }, escape), 'bar')
-
-  var { template } = await compile(`
-    <template foo>{foo}{bar}{baz}{ban}</template>
-    <foo {foo} {bar} {baz} {ban}>`
-  )
-  assert.deepEqual(template({ foo: 'foo', bar: 'bar', baz: 'baz', ban: 'ban' }, escape), 'foobarbazban')
-
-  var { template } = await compile(`
-    <import foo from="./foo.html">
-    <foo {foo}><div>{foo}</div></foo>`
-  , { paths: [join(__dirname, '../../fixtures/attributes')] })
-  assert.deepEqual(template({ foo: 'foo' }, escape), '<div class="foo"><div>foo</div></div>')
-})
-
 test('attributes: shorthand syntax for passing data to the nested components', async assert => {
   var { template } = await compile(`
     <import layout from="./layout.html"/>

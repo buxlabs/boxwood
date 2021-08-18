@@ -541,30 +541,6 @@ test('filters', async assert => {
   assert.deepEqual(template({ foo: { a: 1 } }, escape), 'a')
 })
 
-test('filters: usage in partials', async assert => {
-  var { template } = await compile(`<template foo>{category | uppercase}</template><foo category="js"/>`)
-  assert.deepEqual(template({}, escape), 'JS')
-
-  var { template } = await compile(`<template foo>{category | uppercase | lowerfirst}</template><foo category="js"/>`)
-  assert.deepEqual(template({}, escape), 'jS')
-
-  var { template } = await compile(`
-    <template foo>
-      {category | uppercase | lowerfirst}
-    </template>
-    <template bar>
-      <div class="{container || 'container'}">
-        <slot></slot>
-      </div>
-    </foo>
-    </template>
-    <bar container="fluid-container" category="css">
-      <foo category="{category}"/>
-    </bar>
-  `)
-  assert.deepEqual(template({category: 'css'}, escape), '<div class="fluid-container">cSS</div>')
-})
-
 test('filters: custom filters', async assert => {
   var { template } = await compile('{foo | myFilter}', {
     filters: {

@@ -13,18 +13,3 @@ test('each', async assert => {
     }
   }, escape), '123')
 })
-
-test('each: template usage', async assert => {
-  const { template } = await compile(`
-    <template cars><each car in cars>{car}</each></template>
-    <cars {cars}/>
-  `)
-  assert.deepEqual(template({
-    cars: {
-      each: function (callback) {
-        const elements = ['BMW', 'Hyundai']
-        elements.forEach(callback)
-      }
-    }
-  }, escape), 'BMWHyundai')
-})

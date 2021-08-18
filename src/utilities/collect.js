@@ -146,15 +146,6 @@ function inlineData (htmlTree, content, path, assets, plugins, warnings, errors,
   return htmlTree
 }
 
-function collectInlineComponents (fragment, attributes, components) {
-  const { key } = attributes[attributes.length - 1]
-  const { content } = fragment.children[0]
-  components.push({ name: key, files: ['.'], content, path: null, type: 'template' })
-  fragment.children.forEach(child => {
-    child.used = true
-  })
-}
-
 function isSlotOrYield (node) {
   return node.tagName === 'slot' || node.tagName === 'yield'
 }
@@ -193,21 +184,17 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
   let slots = 0
   let children = fragment.children
   walk(htmlTree, async (current) => {
-    const attrs = current.attributes || []
-    const keys = attrs.map(attr => attr.key)
     if (isImportTag(current.tagName)) {
       collectComponentsFromImport(current, currentComponents, path, assets, options)
     } else if (current.tagName === 'partial' || current.tagName === 'render' || current.tagName === 'include') {
       collectComponentsFromPartialOrRender(current, assets, path, plugins, warnings, errors, options, variables, stack)
     } else if (current.attributes && current.attributes[0] && current.attributes[0].key === 'partial') {
       collectComponentsFromPartialAttribute(current, assets, path, plugins, warnings, errors, options, variables, stack)
-    } else if (current.tagName === 'template' && keys.length > 0) {
-      collectInlineComponents(current, attrs, currentComponents)
     }
     const currentComponent = currentComponents.find(component => component.name === current.tagName)
     const unresolvable = component && current.tagName === component.name && !currentComponent
     if (unresolvable) { current.unresolvable = true }
-    const isInContext = currentComponent && (currentComponent.files.includes(current.context) || currentComponent.type === 'template')
+    const isInContext = currentComponent && (currentComponent.files.includes(current.context))
     if (currentComponent && !current.unresolvable && isInContext) {
       queue.push(children)
       stack.push(currentComponent.path)
@@ -315,8 +302,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       fragment.children.forEach(child => {
         child.used = true
       })
-    } else if (tag === 'template' && keys.length > 0) {
-      collectInlineComponents(fragment, attrs, components)
     } else if (tag === 'link' && (keys.includes('inline'))) {
       tags.link({ attrs, assets, options, styles })
     } else if (tag === 'style') {

@@ -86,11 +86,6 @@ test('acceptance: inline-classes', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: inline in template', async assert => {
-  const { actual, expected } = await suite('inline-in-template')
-  assert.deepEqual(actual, expected)
-})
-
 test('acceptance: app-page', async assert => {
   const { actual, expected } = await suite('app-page')
   assert.deepEqual(actual, expected)

@@ -228,15 +228,6 @@ subtitle: Hey!
 </layout>
 ```
 
-#### template
-
-You can define local components as well. It can be useful for tiny bits of html. Don't forget to specify the name of the component.
-
-```html
-<template foo>{bar}</template>
-<foo {bar}/>
-```
-
 ### Filters
 
 There are many filters available out of the box.
@@ -294,14 +285,6 @@ It's possible to inline images as base64 strings.
 <img src="images/foo.png" inline>
 ```
 
-#### svg[from]
-
-You can inline svgs too.
-
-```html
-<svg from="images/foo.svg"/>
-```
-
 ### Styles
 
 #### scoped
@@ -334,16 +317,6 @@ render(
   <Foo bar="baz" />,
   document.getElementById("app")
 )
-</script>
-```
-
-#### polyfills
-
-Polyfills can be injected.
-
-```html
-<script polyfills="['promise.js']">
-new Promise(resolve => resolve())
 </script>
 ```
 
@@ -401,103 +374,6 @@ For more complicated texts, you can also use inline translations.
 <translation en>
   <p>Hello! Lorem ipsum dolor <span>sit amet</span>.</p>
 </translation>
-```
-
-## Examples
-
-The engine transforms html templates to a single rendering function. The compiler inlines variables, uses only the paths it needs and does other optimizations to create a fast template. There's still a big space for improvements, but the benchmarks look promising.
-
-Let's have a look at some examples.
-
-In this one, we'd like to render `{bar}`. The function has two parameters - __o (options) and __e (escape), which are referenced and used below.
-
-```
-<if foo.length equals 0>{bar}</if>
-```
-
-```js
-function render(__o, __e) {
-  var __t = "";
-  if (__o.foo.length === 0) {
-    __t += __e(__o.bar);
-  }
-  return __t;
-}
-```
-
-Let's have a look at a simple loop now.
-
-```
-<for month in months>{month}</for>
-```
-
-```js
-function render(__o, __e) {
-  var __t = "";
-  for (var a = 0, b = __o.months.length; a < b; a += 1) {
-    var month = __o.months[a];
-    __t += __e(month);
-  }
-  return __t;
-}
-```
-
-Using `<foreach` results with a slighty different code.
-
-```
-<foreach month in months>{month}</foreach>
-```
-
-```js
-function render(__o, __e) {
-  var __t = "";
-  __o.months.forEach(function (month) {
-    __t += __e(month);
-  });
-  return __t;
-}
-```
-
-## Benchmarks
-
-`npm run benchmark`
-
-```
-todos: boxwood x 6,272,859 ops/sec ±0.36% (88 runs sampled)
-todos: underscore x 284,402 ops/sec ±0.53% (91 runs sampled)
-todos: lodash x 351,229 ops/sec ±0.51% (89 runs sampled)
-todos: handlebars x 244,253 ops/sec ±0.62% (87 runs sampled)
-todos: mustache x 535,452 ops/sec ±0.38% (92 runs sampled)
-Fastest is boxwood
-  ✔ benchmark: todos (30.9s)
-friends: boxwood x 1,736,236 ops/sec ±0.33% (88 runs sampled)
-friends: underscore x 100,276 ops/sec ±0.18% (89 runs sampled)
-friends: lodash x 131,153 ops/sec ±0.39% (92 runs sampled)
-friends: handlebars x 295,538 ops/sec ±0.15% (95 runs sampled)
-friends: mustache x 164,524 ops/sec ±0.47% (92 runs sampled)
-Fastest is boxwood
-  ✔ benchmark: friends (31s)
-if: boxwood x 62,801,617 ops/sec ±0.15% (87 runs sampled)
-if: underscore x 530,691 ops/sec ±0.20% (90 runs sampled)
-if: lodash x 549,457 ops/sec ±0.93% (86 runs sampled)
-if: handlebars x 285,902 ops/sec ±0.54% (91 runs sampled)
-if: mustache x 742,208 ops/sec ±0.41% (88 runs sampled)
-Fastest is boxwood
-  ✔ benchmark: if (30.8s)
-projects: boxwood x 1,955,177 ops/sec ±0.27% (92 runs sampled)
-projects: underscore x 117,698 ops/sec ±0.14% (90 runs sampled)
-projects: lodash x 148,609 ops/sec ±0.46% (91 runs sampled)
-projects: handlebars x 217,347 ops/sec ±0.25% (90 runs sampled)
-projects: mustache x 228,487 ops/sec ±0.60% (88 runs sampled)
-Fastest is boxwood
-  ✔ benchmark: projects (31.1s)
-search: boxwood x 648,366 ops/sec ±0.74% (91 runs sampled)
-search: underscore x 22,410 ops/sec ±0.60% (90 runs sampled)
-search: lodash x 26,543 ops/sec ±0.60% (90 runs sampled)
-search: handlebars x 263,402 ops/sec ±0.45% (92 runs sampled)
-search: mustache x 101,305 ops/sec ±0.25% (93 runs sampled)
-Fastest is boxwood
-  ✔ benchmark: search (31s)
 ```
 
 ## Maintainers
