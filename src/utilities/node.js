@@ -84,21 +84,8 @@ function isFontWithInlineAttribute (node) {
   return node.tagName === 'font' && node.attributes.find(attribute => attribute.key === 'inline')
 }
 
-function isGlobalInlineLink (node, options) {
-  return node.tagName === 'link' && options.inline.includes('stylesheets')
-}
-
-function isGlobalInlineScript (node, options) {
-  return node.tagName === 'script' && options.inline.includes('scripts') &&
-    node.attributes.find(attribute => attribute.key === 'src')
-}
-
 function isImageTagWithInlineAttribute (node) {
   return node.tagName === 'img' && node.attributes.find(attribute => attribute.key === 'inline')
-}
-
-function isGlobalInlineImage (node, options) {
-  return node.tagName === 'img' && options.inline.includes('images')
 }
 
 function isImageTagWithAutoWidthAttribute (node) {
@@ -124,7 +111,6 @@ function isTemplateTag (node) {
 function isImageNode (node, options) {
   return !!(
     isImageTagWithInlineAttribute(node) ||
-    isGlobalInlineImage(node, options) ||
     isImageTagWithAutoHeightAttribute(node) ||
     isImageTagWithAutoWidthAttribute(node)
   )
@@ -137,9 +123,9 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'IMPORT' })
     } else if (isPartialTag(node.tagName) || hasPartialAttribute(node)) {
       nodes.push({ node, kind: 'PARTIAL' })
-    } else if (isScriptWithInlineAttribute(node) || isGlobalInlineScript(node, options) || isScriptWithPolyfillsAttribute(node)) {
+    } else if (isScriptWithInlineAttribute(node) || isScriptWithPolyfillsAttribute(node)) {
       nodes.push({ node, kind: 'SCRIPT' })
-    } else if (isLinkWithInlineAttribute(node) || isGlobalInlineLink(node, options) || isStyleWithInlineAttribute(node) || isFontWithInlineAttribute(node)) {
+    } else if (isLinkWithInlineAttribute(node) || isStyleWithInlineAttribute(node) || isFontWithInlineAttribute(node)) {
       nodes.push({ node, kind: 'STYLESHEET' })
     } else if (isImageNode(node, options)) {
       nodes.push({ node, kind: 'IMAGE' })

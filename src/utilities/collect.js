@@ -317,7 +317,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
     } else if (tag === 'template' && keys.length > 0) {
       collectInlineComponents(fragment, attrs, components)
-    } else if (tag === 'link' && (keys.includes('inline') || options.inline.includes('stylesheets'))) {
+    } else if (tag === 'link' && (keys.includes('inline'))) {
       tags.link({ attrs, assets, options, styles })
     } else if (tag === 'style') {
       tags.style({ fragment, styles })

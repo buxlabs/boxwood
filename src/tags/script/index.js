@@ -10,7 +10,7 @@ const scoped = require('./scoped')
 const script = { scoped }
 
 module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
-  if (keys.includes('inline') || options.inline.includes('scripts')) {
+  if (keys.includes('inline')) {
     if (keys.includes('src')) {
       const { value: path } = attrs.find(attr => attr.key === 'src')
       const asset = findAsset(path, assets, options)

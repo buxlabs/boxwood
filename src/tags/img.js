@@ -4,7 +4,7 @@ const { findAsset } = require('../utilities/files')
 const { getExtension, getBase64Extension, normalizeNewline } = require('../utilities/string')
 
 module.exports = function ({ fragment, attrs, keys, assets, options }) {
-  if (keys.includes('inline') || options.inline.includes('images')) {
+  if (keys.includes('inline')) {
     fragment.attributes = fragment.attributes.map(attr => {
       if (attr.key === 'inline') return null
       if (attr.key === 'src') {

@@ -18,22 +18,6 @@ test('compiler: returns errors for invalid paths option', async assert => {
   assert.deepEqual(errors, [])
 })
 
-test('compiler: returns errors for invalid inline options', async assert => {
-  var { errors } = await compile('', { inline: 'foo' })
-  assert.deepEqual(errors.length, 1)
-  assert.deepEqual(errors[0].message, 'Compiler option "inline" must be an array')
-
-  var { errors } = await compile('', { inline: ['images', 'fonts', 'scripts'] })
-  assert.deepEqual(errors.length, 1)
-  assert.deepEqual(errors[0].message, 'Compiler option "inline" can contain ["images", "scripts", "stylesheets"]')
-
-  var { errors } = await compile('', { inline: ['images', 'scripts'] })
-  assert.deepEqual(errors, [])
-
-  var { errors } = await compile('', { inline: [] })
-  assert.deepEqual(errors, [])
-})
-
 test('compiler: returns errors for invalid compilers options', async assert => {
   var { errors } = await compile('', { compilers: [] })
   assert.deepEqual(errors.length, 1)

@@ -7,7 +7,6 @@ const { TEMPLATE_VARIABLE, OBJECT_VARIABLE, ESCAPE_VARIABLE } = require('./enum'
 module.exports = {
   getOptions: (options) => {
     const newOptions = Object.assign({
-      inline: [],
       compilers: {},
       paths: [],
       path: '.',
@@ -35,7 +34,6 @@ module.exports = {
   validateOptions: ({ inline, compilers, paths, languages, cache, aliases, styles }) => {
     return [
       arePathsValid(paths),
-      isInlineValid(inline),
       areCompilersValid(compilers),
       areLanguagesValid(languages),
       isCacheValid(cache),
@@ -52,14 +50,6 @@ function arePathsValid (paths) {
   }
   if (paths.some(path => path === '')) {
     return new CompilerError('paths', 'cannot contain empty strings')
-  }
-}
-
-function isInlineValid (inline) {
-  const SUPPORTED_TYPES = ['images', 'scripts', 'stylesheets']
-  if (!Array.isArray(inline)) return new CompilerError('inline', 'must be an array')
-  if (inline.some(option => !SUPPORTED_TYPES.includes(option))) {
-    return new CompilerError('inline', 'can contain ["images", "scripts", "stylesheets"]')
   }
 }
 
