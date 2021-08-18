@@ -254,19 +254,6 @@ test('acceptance: translate-modifier', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test('acceptance: routes', async assert => {
-  const { actual, expected } = await suite('routes', {
-    compilerOptions: {
-      routes: {
-        Users: {
-          browse: '/rest/users'
-        }
-      }
-    }
-  })
-  assert.deepEqual(actual, expected)
-})
-
 test.skip('acceptance: accordion (html)', async assert => {
   const { actual, expected } = await suite('html/accordion', { compiler: 'new', extension: 'html' })
   assert.deepEqual(actual, expected)

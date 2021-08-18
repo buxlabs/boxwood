@@ -24,7 +24,6 @@ module.exports = {
       script: {
         paths: []
       },
-      routes: {},
       compiler: null
     }, options)
     newOptions.hooks = Object.assign({

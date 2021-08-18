@@ -118,7 +118,6 @@ function prerunPlugins (tree, plugins) {
 
 function body (tree, options) {
   const plugins = [
-    // new RoutesPlugin(options, errors),
     // new DataPlugin(),
     // new InlinePlugin(),
     new BoxModelPlugin(options),
