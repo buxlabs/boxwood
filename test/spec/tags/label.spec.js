@@ -13,11 +13,6 @@ test('label: can use dynamic for attribute', async assert => {
   assert.deepEqual(template({ foo: 'foo' }, escape), '<label for="foo">bar</label>')
 })
 
-test('label: can use bind syntax to bind a for attribute', async assert => {
-  var { template } = await compile('<label for|bind="foo">bar</label>')
-  assert.deepEqual(template({ foo: 'foo' }, escape), '<label for="foo">bar</label>')
-})
-
 test('label: accepts a for attribute as a param', async assert => {
   var { template } = await compile('<import label from="./tags/label/label1.html" /><label for="foo">bar</label>', {
     paths: [ join(__dirname, '../../fixtures') ]

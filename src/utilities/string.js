@@ -75,13 +75,6 @@ function extractValues (attribute) {
     }, [])
 }
 
-function getName (name) {
-  if (name.endsWith('|bind')) {
-    return name.substring(0, name.length - 5)
-  }
-  return name
-}
-
 function isImportTag (name) {
   return name === 'import' || name === 'require'
 }
@@ -128,7 +121,6 @@ function wordsToNumbers (string) {
 module.exports = {
   extract,
   extractValues,
-  getName,
   isCurlyTag,
   isSquareTag,
   containsCurlyTag,

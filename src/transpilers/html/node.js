@@ -47,12 +47,16 @@ function mapForStatement (htmlNode, parent, index) {
 
 function transpileNode ({ node: htmlNode, parent, index }) {
   function mapAttributes (attributes) {
+    function getAttributeValue (value) {
+      if (value === null) { return new Literal(true) }
+      return transpileExpression(value, false)
+    }
     return attributes.length > 0
       ? new ObjectExpression({
           properties: attributes.map(attribute => {
             return new Property({
               key: new Identifier(attribute.key),
-              value: transpileExpression(attribute.value, false),
+              value: getAttributeValue(attribute.value),
               kind: 'init',
               computed: false,
               method: false,

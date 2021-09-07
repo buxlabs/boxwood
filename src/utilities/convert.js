@@ -6,7 +6,7 @@ const {
   getTemplateAssignmentExpression, getEscapeCallExpression
 } = require('./factory')
 const { getLiteral, getIdentifier } = require('./ast')
-const { extract, getName, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue } = require('./string')
+const { extract, isCurlyTag, isSquareTag, containsCurlyTag, getTagValue } = require('./string')
 const { getFilterName, extractFilterName } = require('./filters')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { array, math, collection, object, json, date } = require('pure-utilities')
@@ -104,15 +104,12 @@ function convertAttribute (name, value, variables, currentFilters, translations,
       return AbstractSyntaxTree.template('<%= element %> || ""', { element: array.elements[0] })[0]
     }
     return AbstractSyntaxTree.template('<%= array %>.filter(Boolean).join(" ")', { array })[0]
-  } else if (name.endsWith('|bind')) {
-    const expression = convertToExpression(value)
-    return getTemplateNode(expression, variables, UNESCAPED_NAMES.includes(name.split('|')[0]))
   }
   return getLiteral(value)
 }
 
 function converHtmlAttribute (fragment, variables, currentFilters, translations, languages) {
-  const html = fragment.attributes.find(attr => attr.key === 'html' || attr.key === 'html|bind')
+  const html = fragment.attributes.find(attr => attr.key === 'html')
   if (html) {
     return convertAttribute(html.key, html.value, variables, currentFilters, translations, languages)
   }
@@ -300,7 +297,7 @@ function modify (node, variables, filters) {
 function convertTag (fragment, variables, currentFilters, translations, languages, options) {
   const node = fragment.tagName
   const parts = []
-  const tag = fragment.attributes.find(attr => attr.key === 'tag' || attr.key === 'tag|bind')
+  const tag = fragment.attributes.find(attr => attr.key === 'tag')
   if (tag) {
     const property = tag.key === 'tag' ? tag.value.substring(1, tag.value.length - 1) : tag.value
     parts.push(getLiteral('<'))
@@ -308,11 +305,11 @@ function convertTag (fragment, variables, currentFilters, translations, language
   } else {
     parts.push(getLiteral(`<${node}`))
   }
-  const allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag' && attr.key !== 'tag|bind')
+  const allowed = fragment.attributes.filter(attr => attr.key !== 'html' && attr.key !== 'text' && attr.key !== 'tag')
   if (allowed.length) {
     allowed.forEach(attr => {
-      if (BOOLEAN_ATTRIBUTES.includes(getName(attr.key))) {
-        const expression = getLiteral(` ${getName(attr.key)}`)
+      if (BOOLEAN_ATTRIBUTES.includes(attr.key)) {
+        const expression = getLiteral(` ${attr.key}`)
         if (!attr.value) {
           parts.push(expression)
         } else {
@@ -326,7 +323,7 @@ function convertTag (fragment, variables, currentFilters, translations, language
           })
         }
       } else if (attr.value) {
-        parts.push(getLiteral(` ${getName(attr.key)}="`))
+        parts.push(getLiteral(` ${attr.key}="`))
         parts.push(convertAttribute(attr.key, attr.value, variables, currentFilters, translations, languages))
         parts.push(getLiteral('"'))
       }
