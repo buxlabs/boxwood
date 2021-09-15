@@ -269,6 +269,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     const tag = fragment.tagName
     const attrs = fragment.attributes
     const keys = attrs ? attrs.map(attr => attr.key) : []
+    const type = attrs ? attrs.find(attr => attr.key === 'type')?.value : null
     const context = fragment.context || '.'
     const component = components.find(component => component.name === tag && component.files && component.files.includes(context))
     const { languages } = options
@@ -306,7 +307,7 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tags.link({ attrs, assets, options, styles })
     } else if (tag === 'style') {
       tags.style({ fragment, styles })
-    } else if (tag === 'script') {
+    } else if (tag === 'script' && !['application/json', 'application/ld+json'].includes(type)) {
       tags.script({ tree, fragment, keys, attrs, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options })
     } else if (tag === 'template') {
       tags.template({ tree, fragment, options })
