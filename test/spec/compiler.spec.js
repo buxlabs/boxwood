@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../helpers/deprecated-compile')
+const compile = require('../helpers/compile')
 
 test('compiler: returns errors for invalid paths option', async assert => {
   var { errors } = await compile('', { paths: 'foo' })
@@ -98,29 +98,6 @@ test('compiler: caches templates and related data', async assert => {
   const output2 = await compile('<div>foo</div>', { cache: true })
   const output3 = await compile('<div>{bar}</div>', { cache: true })
   assert.deepEqual(output1.from, 'generator')
-  assert.deepEqual(output1.dynamic, false)
   assert.deepEqual(output2.from, 'cache')
-  assert.deepEqual(output2.dynamic, false)
   assert.deepEqual(output3.from, 'generator')
-  assert.deepEqual(output3.dynamic, true)
-})
-
-test('compiler: returns dynamic flag that is set to true if the template uses any data', async assert => {
-  const { dynamic } = await compile('<div>{foo}</div>')
-  assert.deepEqual(dynamic, true)
-})
-
-test('compiler: returns dynamic flag that is set to false if the template does not use any data', async assert => {
-  const { dynamic } = await compile('<div>foo</div>')
-  assert.deepEqual(dynamic, false)
-})
-
-test('compiler: does not return static html if the template uses data', async assert => {
-  const { html } = await compile('<div>{foo}</div>')
-  assert.deepEqual(html, undefined)
-})
-
-test('compiler: returns html if the template does not use any data', async assert => {
-  const { html } = await compile('<div>foo</div>')
-  assert.deepEqual(html, '<div>foo</div>')
 })
