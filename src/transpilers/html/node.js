@@ -84,7 +84,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
           return new Identifier({ name: attributes[0].key, parameter: true })
         }
       }
-      throw new Error('unsupported')
+      throw new Error('Unsupported length of attributes (if)')
     }
 
     function mapCurrentNodeToConsequent (htmlNode) {
@@ -130,7 +130,7 @@ function transpileNode ({ node: htmlNode, parent, index }) {
           return new Identifier({ name: attributes[0].key, parameter: true })
         }
       }
-      throw new Error('unsupported')
+      throw new Error('Unsupported length of attributes (unless)')
     }
 
     function mapCurrentNodeToConsequent (htmlNode) {
