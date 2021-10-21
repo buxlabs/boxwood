@@ -8,7 +8,10 @@ async function render (input) {
       join(__dirname, '../../../../test/fixtures')
     ]
   })
-  const { template } = await compiler.compile(input)
+  const { template, warnings, errors } = await compiler.compile(input)
+  if (errors.length > 0) {
+    throw errors[0]
+  }
   return template()
 }
 

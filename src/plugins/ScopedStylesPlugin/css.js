@@ -1,12 +1,12 @@
 'use strict'
 
 const { parse, walk, generate } = require('css-tree')
-const hash = require('string-hash')
+const { hash } = require('../../utilities/string')
 const { normalizeNewline } = require('../../utilities/string')
 
 function addScopeToCssSelectors (input, scopes) {
   const content = normalizeNewline(input).trim()
-  const id = `scope-${hash(content)}`
+  const id = hash(content)
   const tree = parse(content)
   const keyframes = {}
   walk(tree, node => {
