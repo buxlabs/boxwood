@@ -29,7 +29,7 @@ test('ScopesStylesPlugin: it converts html and css', assert => {
   })
   const output = stringify(tree, input)
   assert.deepEqual(output, `
-    <div class='scope-2771010719 foo'></div>
-    <style scoped>.scope-2771010719.foo{color:red}</style>
+    <div class='sa52a449f foo'></div>
+    <style scoped>.sa52a449f.foo{color:red}</style>
   `)
 })

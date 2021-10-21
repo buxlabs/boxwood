@@ -29,9 +29,9 @@ test('Preprocessor: puts scoped styles in the head tag', async assert => {
     <html>
       <head>
         <title>foo</title>
-      <style>.scope-2387775620.foo{color:red}</style></head>
+      <style>.s8e529084.foo{color:red}</style></head>
       <body>
-        <div class='scope-2387775620 foo'></div>
+        <div class='s8e529084 foo'></div>
       </body>
     </html>
   `.trim())

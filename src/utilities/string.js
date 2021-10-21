@@ -2,6 +2,7 @@
 
 const { extname } = require('path')
 const lexer = require('./lexer')
+const stringHash = require('string-hash')
 
 function curlyTag (string) {
   return `{${string}}`
@@ -118,6 +119,11 @@ function wordsToNumbers (string) {
   if (index >= 0) { return index }
 }
 
+function hash (string) {
+  if (!string) { return '' }
+  return 's' + stringHash(string).toString(16)
+}
+
 module.exports = {
   extract,
   extractValues,
@@ -133,5 +139,6 @@ module.exports = {
   dasherize,
   hyphenate,
   wordsToNumbers,
-  normalizeNewline
+  normalizeNewline,
+  hash
 }

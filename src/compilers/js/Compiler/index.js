@@ -1,11 +1,11 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const Bundler = require('../Bundler')
 const { OBJECT_VARIABLE } = require('../../../utilities/enum')
-const { validateOptions } = require('../../../utilities/options')
+const { getOptions, validateOptions } = require('../../../utilities/options')
 
 class Compiler {
   constructor (options) {
-    this.options = options
+    this.options = getOptions(options)
   }
 
   async compile (input) {

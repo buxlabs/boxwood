@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const { extract, dasherize, hyphenate, getExtension } = require('./string')
+const { extract, dasherize, hyphenate, getExtension, hash } = require('./string')
 
 test('extract: extracts from tokens filters and values', assert => {
   assert.deepEqual(extract('foo'), [{ type: 'text', value: 'foo' }])
@@ -40,4 +40,11 @@ test('hyphenate: converts characters to lowercase and prepends a dash', assert =
 test('getExtension: returns the extension of the file', assert => {
   assert.deepEqual(getExtension('index'), '')
   assert.deepEqual(getExtension('index.html'), 'html')
+})
+
+test('hash: returns a hash', assert => {
+  assert.deepEqual(hash(''), '')
+  assert.deepEqual(hash(undefined), '')
+  assert.deepEqual(hash(null), '')
+  assert.deepEqual(hash('foo'), 'sb875c63')
 })
