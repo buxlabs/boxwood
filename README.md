@@ -11,8 +11,6 @@
 - [Install](#install)
 - [Usage](#usage)
 - [API](#api)
-- [Examples](#examples)
-- [Benchmarks](#benchmarks)
 - [REPL](https://buxlabs.pl/en/tools/js/boxwood)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
