@@ -4,6 +4,7 @@ const { readFile } = require('fs')
 const { dirname } = require('path')
 const { promisify } = require('util')
 const { print } = require('./utilities/log')
+const { optimize } = require('./optimizers/html')
 
 const read = promisify(readFile)
 
@@ -32,8 +33,9 @@ function createRender ({
       const template = await compileFile(path)
       const params = typeof globals === 'function' ? globals(path, options) : globals
       const html = template({ ...params, ...options }, escape)
-      if (callback) return callback(null, html)
-      return html
+      const optimizedHtml = optimize(html)
+      if (callback) return callback(null, optimizedHtml)
+      return optimizedHtml
     } catch (exception) {
       if (callback) return callback(exception)
       return exception.message
