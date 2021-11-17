@@ -6,7 +6,9 @@ function optimize (html) {
     conservativeCollapse: true,
     removeComments: true,
     sortAttributes: true,
-    sortClassName: true
+    sortClassName: true,
+    minifyCSS: true,
+    minifyJS: true
   })
 }
 

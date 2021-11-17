@@ -20,3 +20,11 @@ test('optimize: sorts attributes', assert => {
 test('optimize: sorts classes', assert => {
   assert.deepEqual(optimize('<div class="foo bar"></div>'), '<div class="bar foo"></div>')
 })
+
+test('optimize: optimizes css', assert => {
+  assert.deepEqual(optimize('<style>.red { color: red; }</style>'), '<style>.red{color:red}</style>')
+})
+
+test('optimize: optimizes js', assert => {
+  assert.deepEqual(optimize('<script>const foo = "bar";</script>'), '<script>const foo="bar"</script>')
+})
