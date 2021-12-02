@@ -3,63 +3,51 @@ const { join } = require('path')
 const ESBundler = require('../../Bundler')
 const { OBJECT_VARIABLE } = require('../../utilities/enum')
 
+const { CallExpression, ExpressionStatement, FunctionExpression, Identifier, ImportDeclaration, ImportSpecifier, Literal } = AbstractSyntaxTree
+
+function getRenderImportSpecifier () {
+  const identifier = new Identifier('render')
+  return new ImportSpecifier({
+    local: identifier,
+    imported: identifier
+  })
+}
+
+function getRenderCallExpression (node) {
+  return new CallExpression({
+    callee: new Identifier('render'),
+    arguments: [
+      new CallExpression({
+        callee: new FunctionExpression(node.declaration),
+        arguments: [new Identifier(OBJECT_VARIABLE)]
+      })
+    ]
+  })
+}
+
+function isBoxwoodImportDeclaration (node) {
+  return AbstractSyntaxTree.match(node, 'ImportDeclaration[source.value="boxwood"]')
+}
+
+function getBoxwoodImportDeclaration () {
+  return new ImportDeclaration({
+    specifiers: [getRenderImportSpecifier()],
+    source: new Literal('boxwood')
+  })
+}
+
+function isFunctionExportDeclaration (node) {
+  return AbstractSyntaxTree.match(node, 'ExportDefaultDeclaration[declaration.type="FunctionDeclaration"]')
+}
+
 class Bundler {
   constructor (options) {
     this.options = options
   }
 
   async bundle (input) {
-    const tree = new AbstractSyntaxTree(input)
-    let scoped = false
-    tree.replace(node => {
-      if (node.type === 'ImportDeclaration' && node.source.value === 'boxwood') {
-        scoped = true
-        node.specifiers.push({
-          type: 'ImportSpecifier',
-          local: { type: 'Identifier', name: 'render' },
-          imported: { type: 'Identifier', name: 'render' }
-        })
-      }
-    })
-    if (!scoped) {
-      scoped = true
-      tree.prepend({
-        type: 'ImportDeclaration',
-        specifiers: [
-          {
-            type: 'ImportSpecifier',
-            local: { type: 'Identifier', name: 'render' },
-            imported: { type: 'Identifier', name: 'render' }
-          }
-        ],
-        source: {
-          type: 'Literal',
-          value: 'boxwood'
-        }
-      })
-    }
-    tree.replace(node => {
-      if (scoped && node.type === 'ExportDefaultDeclaration' && node.declaration.type === 'FunctionDeclaration') {
-        return {
-          type: 'ExpressionStatement',
-          expression: {
-            type: 'CallExpression',
-            callee: {
-              type: 'Identifier',
-              name: 'render'
-            },
-            arguments: [
-              {
-                type: 'CallExpression',
-                callee: { ...node.declaration, type: 'FunctionExpression' },
-                arguments: [{ type: 'Identifier', name: OBJECT_VARIABLE }]
-              }
-            ]
-          }
-        }
-      }
-      return node
-    })
+    const tree = this.parse(input)
+
     const bundler = new ESBundler()
     return await bundler.bundle(tree.source, {
       platform: 'node',
@@ -69,6 +57,27 @@ class Bundler {
         ...this.options.paths
       ]
     })
+  }
+
+  parse (input) {
+    const tree = new AbstractSyntaxTree(input)
+    let imported = false
+    tree.replace(node => {
+      if (isBoxwoodImportDeclaration(node)) {
+        imported = true
+        node.specifiers.push(getRenderImportSpecifier())
+      }
+    })
+    if (!imported) {
+      tree.prepend(getBoxwoodImportDeclaration())
+    }
+    tree.replace(node => {
+      if (isFunctionExportDeclaration(node)) {
+        return new ExpressionStatement({ expression: getRenderCallExpression(node) })
+      }
+      return node
+    })
+    return tree
   }
 }
 
