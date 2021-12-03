@@ -17,7 +17,7 @@ function body (tree) {
 
 function transpile (input) {
   const tree = parse(input)
-  return generate(program(body(tree))).trim()
+  return generate(program(body(tree))).trim().replace(/\r\n|\n/g, '').replace(/\s\s+/g, ' ')
 }
 
 test('transpileNode: div', assert => {
@@ -34,4 +34,8 @@ test('transpileNode: br', assert => {
 
 test('transpileNode: slot', assert => {
   assert.deepEqual(transpile('<slot/>'), '__children__')
+})
+
+test('transpileNode: if', assert => {
+  assert.deepEqual(transpile('<if true>foo</if>'), '(function () { if (true) { return "foo"; } else { return ""; }})()')
 })
