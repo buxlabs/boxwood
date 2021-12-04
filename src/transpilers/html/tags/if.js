@@ -1,14 +1,18 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
+const { transpileExpression } = require('../expression')
+const { isCurlyTag } = require('../../../utilities/string')
 
 const { BlockStatement, Literal, Identifier, IfStatement, ReturnStatement } = AbstractSyntaxTree
 
-function mapIfStatement (htmlNode, parent, index, transpileNode) {
+function mapIfStatement (htmlNode, parent, index = 0, transpileNode) {
   function mapAttributesToTest ({ attributes }) {
     if (attributes.length === 1) {
       if (attributes[0].key === 'true' || attributes[0].key === '{true}') {
         return new Literal(true)
       } else if (attributes[0].key === 'false' || attributes[0].key === '{false}') {
         return new Literal(false)
+      } else if (isCurlyTag(attributes[0].key)) {
+        return transpileExpression(attributes[0].key)
       } else {
         return new Identifier({ name: attributes[0].key, parameter: true })
       }
@@ -18,7 +22,7 @@ function mapIfStatement (htmlNode, parent, index, transpileNode) {
 
   function mapCurrentNodeToConsequent (htmlNode) {
     const body = htmlNode.children.map((node, index) => transpileNode({ node, parent: htmlNode.children, index })).filter(Boolean)
-    const argument = body.pop()
+    const argument = body.pop() || new Literal('')
     body.push(new ReturnStatement({ argument }))
     return new BlockStatement({ body })
   }
