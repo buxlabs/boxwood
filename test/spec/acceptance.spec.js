@@ -191,7 +191,7 @@ test('acceptance: relative-paths', async assert => {
 
 test('acceptance: implicit-variables', async assert => {
   const { actual } = await suite('implicit-variables')
-  assert.truthy(actual.includes('TypeError: Cannot read property \'name\' of undefined'))
+  assert.truthy(actual.includes("TypeError: Cannot read properties of undefined (reading 'name')"))
 })
 
 test('acceptance: explicit-variables', async assert => {
