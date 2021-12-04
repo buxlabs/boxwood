@@ -182,26 +182,34 @@ export default function ({foo}) {
 })
 
 test('transpile: partial', assert => {
-  assert.deepEqual(transpile('<partial from="partials/foo.html"/>'), `import __partialsFooHtml__ from "partials/foo.html";
+  assert.deepEqual(transpile('<partial from="partials/foo.html"/>'), `import __partialsSlashFooDotHtml__ from "partials/foo.html";
 export default function () {
-  return __partialsFooHtml__();
+  return __partialsSlashFooDotHtml__();
+}
+`)
+})
+
+test('transpile: partial with .. path', assert => {
+  assert.deepEqual(transpile('<partial from="../partials/foo.html"/>'), `import __dotDotSlashPartialsSlashFooDotHtml__ from "../partials/foo.html";
+export default function () {
+  return __dotDotSlashPartialsSlashFooDotHtml__();
 }
 `)
 })
 
 test('transpile: two partials', assert => {
-  assert.deepEqual(transpile('<partial from="partials/foo.html"/> <partial from="partials/bar.html"/>'), `import __partialsFooHtml__ from "partials/foo.html";
-import __partialsBarHtml__ from "partials/bar.html";
+  assert.deepEqual(transpile('<partial from="partials/foo.html"/> <partial from="partials/bar.html"/>'), `import __partialsSlashFooDotHtml__ from "partials/foo.html";
+import __partialsSlashBarDotHtml__ from "partials/bar.html";
 export default function () {
-  return [__partialsFooHtml__(), " ", __partialsBarHtml__()];
+  return [__partialsSlashFooDotHtml__(), " ", __partialsSlashBarDotHtml__()];
 }
 `)
 })
 
 test('transpile: import', assert => {
-  assert.deepEqual(transpile('<import foo from="components/foo.html"/><foo/>'), `import __componentsFooHtml__ from "components/foo.html";
+  assert.deepEqual(transpile('<import foo from="components/foo.html"/><foo/>'), `import __componentsSlashFooDotHtml__ from "components/foo.html";
 export default function () {
-  return __componentsFooHtml__({});
+  return __componentsSlashFooDotHtml__({});
 }
 `)
 })

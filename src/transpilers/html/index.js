@@ -21,7 +21,7 @@ const {
 } = AbstractSyntaxTree
 
 function pathToIdentifier (path) {
-  return `__${camelize(path).replace('.', 'Dot')}__`
+  return `__${camelize(path.replace(/\./g, 'Dot_').replace(/\//g, 'Slash_'))}__`
 }
 
 const program = (body) => {
