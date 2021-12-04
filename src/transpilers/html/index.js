@@ -1,7 +1,6 @@
 'use strict'
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
-const { camelize } = require('pure-utilities/string')
 const { deduceParams } = require('./expression')
 const BoxModelPlugin = require('../../plugins/BoxModelPlugin')
 const CurlyStylesPlugin = require('../../plugins/CurlyStylesPlugin')
@@ -10,6 +9,7 @@ const { findAttributeByKey } = require('../../utilities/attributes')
 const { transpileNode } = require('./node')
 // TODO: initial transpilation, move to a separate dir? or inline here after removing the outdated compiler
 const Transpiler = require('../../compilers/html/Transpiler')
+const { pathToIdentifier } = require('./utilities/path')
 
 const {
   ArrayExpression,
@@ -19,10 +19,6 @@ const {
   ImportSpecifier,
   Literal
 } = AbstractSyntaxTree
-
-function pathToIdentifier (path) {
-  return `__${camelize(path.replace(/\./g, 'Dot_').replace(/\//g, 'Slash_'))}__`
-}
 
 const program = (body) => {
   const params = deduceParams(body)
