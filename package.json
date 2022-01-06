@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "ava 'test/spec/**/*.spec.js' 'src/**/*.spec.js'",
+    "test": "ava 'test/spec/**/*.spec.js' 'src/**/*.spec.js' --no-worker-threads",
     "coverage": "nyc npm test",
     "benchmark": "ava test/benchmark.spec.js --verbose",
     "watch": "npm test -- --watch",
@@ -71,7 +71,7 @@
     "yaml": "^1.10.2"
   },
   "devDependencies": {
-    "ava": "3.15.0",
+    "ava": "^4.0.0",
     "benchmark": "2.1.4",
     "browser-env": "3.3.0",
     "express": "^4.17.2",
