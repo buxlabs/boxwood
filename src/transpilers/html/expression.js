@@ -1,6 +1,6 @@
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { unique } = require('pure-utilities/array')
-const lexer = require('../../utilities/lexer')
+const lexer = require('../../lexers/internal')
 const { BUILT_IN_VARIABLES } = require('../../utilities/enum')
 
 const { ArrayExpression, CallExpression, Identifier, Literal, ObjectPattern, Property, toBinaryExpression } = AbstractSyntaxTree

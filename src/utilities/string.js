@@ -1,7 +1,7 @@
 'use strict'
 
 const { extname } = require('path')
-const lexer = require('./lexer')
+const lexer = require('../lexers/internal')
 const stringHash = require('string-hash')
 
 function curlyTag (string) {

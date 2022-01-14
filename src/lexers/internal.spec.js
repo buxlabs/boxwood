@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const lexer = require('./lexer')
+const lexer = require('./internal')
 
 test('lexer: returns tokens', assert => {
   assert.deepEqual(lexer('foo'), [{ type: 'text', value: 'foo' }])

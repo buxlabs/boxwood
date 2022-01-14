@@ -1,6 +1,6 @@
 'use strict'
 
-const lexer = require('./lexer')
+const lexer = require('../lexers/internal')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { isCurlyTag, getTagValue, curlyTag } = require('./string')
 const { parse, stringify } = require('./html')

@@ -2,7 +2,7 @@ const test = require('ava')
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { unique } = require('pure-utilities/array')
 const { markNodes, findParams } = require('./expression')
-const lexer = require('../../utilities/lexer')
+const lexer = require('../../lexers/internal')
 
 function findParamsInSource (source) {
   const tokens = lexer(source)
