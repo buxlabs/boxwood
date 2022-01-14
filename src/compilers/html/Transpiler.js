@@ -1,20 +1,8 @@
 'use strict'
 
-const Lexer = require('html-lexer')
 const { isCurlyTag, getTagValue } = require('../../utilities/string')
 const { SPECIAL_TAGS } = require('../../utilities/enum')
-
-const tokenize = (source) => {
-  const tokens = []
-  const delegate = {
-    write: (token) => tokens.push(token),
-    end: () => null
-  }
-  const lexer = new Lexer(delegate)
-  lexer.write(source)
-  lexer.end()
-  return tokens
-}
+const tokenize = require('../../lexers/html')
 
 const transform = (tokens) => {
   const output = []
