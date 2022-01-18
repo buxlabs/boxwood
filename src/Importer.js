@@ -110,7 +110,8 @@ async function recursiveImport (tree, source, path, options, depth, remote, url)
     }
   }
   const imports = getImportNodes(tree, options)
-  const warnings = lint(source, imports.map(({ node }) => node), options)
+  const isHtmlPath = path === '.' || path.endsWith('.html')
+  const warnings = isHtmlPath ? lint(source, imports.map(({ node }) => node), options) : []
   const assets = await Promise.all(imports.map(({ node, kind }) => fetch(node, kind, path, remote, url, options)))
   const current = flatten(assets)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {

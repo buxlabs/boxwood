@@ -13,7 +13,6 @@ function isStyleImport (node) {
   return false
 }
 
-
 function analyze (tree) {
   const components = []
   walk(tree, node => {

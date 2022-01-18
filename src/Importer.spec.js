@@ -259,7 +259,7 @@ test('Importer: template imports itself', async assert => {
 })
 
 test('Importer: template has an unused asset', async assert => {
-  const source = '<import foo from="./foo.html">'
+  const source = '<import foo from="./foo.html" />'
   const importer = new Importer(source, { paths: [fixtures], hooks })
   const { warnings } = await importer.import()
   assert.deepEqual(warnings.length, 1)

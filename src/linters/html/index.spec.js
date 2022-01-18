@@ -3,7 +3,18 @@
 const test = require('ava')
 const { lint } = require('.')
 
-test('Linter: unused components', async assert => {
+test('lint: brackets', async assert => {
+  let source = '<div></div>'
+  assert.deepEqual(await lint(source), [])
+
+  source = 'div></div>'
+  assert.deepEqual(await lint(source), [{ type: 'OPENING_ANGLE_BRACKET_MISSING', message: 'opening angle bracket is missing' }])
+
+  source = '<div</div>'
+  assert.deepEqual(await lint(source), [{ type: 'CLOSING_ANGLE_BRACKET_MISSING', message: 'closing angle bracket is missing' }])
+})
+
+test('lint: unused components', async assert => {
   let source = '<div></div>'
   assert.deepEqual(await lint(source), [])
 
@@ -92,7 +103,7 @@ test('Linter: unused components', async assert => {
   assert.deepEqual(await lint(source), [])
 })
 
-test('Linter: unclosed tags', async assert => {
+test('lint: unclosed tags', async assert => {
   let source = '<div></div>'
   assert.deepEqual(await lint(source), [])
 
@@ -103,7 +114,7 @@ test('Linter: unclosed tags', async assert => {
   assert.deepEqual(await lint(source), [])
 })
 
-test('Linter: duplicate components', async assert => {
+test('lint: duplicate components', async assert => {
   const source = `
     <link rel="stylesheet" type="text/css" href="/foo.css" inline>
     <link rel="stylesheet" type="text/css" href="/bar.css" inline>
@@ -119,14 +130,14 @@ test('Linter: duplicate components', async assert => {
   ]), [{ message: 'Component path duplicate: ./foo.css', type: 'COMPONENT_PATH_DUPLICATE' }])
 })
 
-test('Linter: returns a warning if rel attribute is not present for an external link', async assert => {
+test('lint: returns a warning if rel attribute is not present for an external link', async assert => {
   const source = `<a href="https://foo.bar">bar</a>`
   assert.deepEqual(await lint(source, []), [
     { message: 'a tag with external href should have a rel attribute (e.g. rel="noopener")', type: 'REL_ATTRIBUTE_MISSING' }
   ])
 })
 
-test('Linter: does not return a warning for a component that uses the a tag name', async assert => {
+test('lint: does not return a warning for a component that uses the a tag name', async assert => {
   const source = `
     <import a from="components/a.html"/>
     <a href="https://foo.bar">bar</a>
@@ -134,14 +145,14 @@ test('Linter: does not return a warning for a component that uses the a tag name
   assert.deepEqual(await lint(source, []), [])
 })
 
-test('Linter: returns a warning if alt attribute is not present for an image', async assert => {
+test('lint: returns a warning if alt attribute is not present for an image', async assert => {
   const source = `<img src="https://foo.bar/baz.png"/>`
   assert.deepEqual(await lint(source, []), [
     { message: 'img tag should have an alt attribute', type: 'ALT_ATTRIBUTE_MISSING' }
   ])
 })
 
-test('Linter: does not return a warning if alt attribute is using a translate modifier', async assert => {
+test('lint: does not return a warning if alt attribute is using a translate modifier', async assert => {
   const source = `<img alt|translate="foo" src="https://foo.bar/baz.png"/>`
   assert.deepEqual(await lint(source, []), [])
 })
