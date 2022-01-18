@@ -1,6 +1,7 @@
 'use strict'
 
 const walk = require('himalaya-walk')
+const { parse } = require('./utilities/html')
 const { isImportTag } = require('./utilities/string')
 const { unique, duplicates } = require('pure-utilities/array')
 const { getComponentNames } = require('./utilities/attributes')
@@ -31,7 +32,8 @@ function isExternalUrl (url) {
 }
 
 module.exports = class Linter {
-  lint (tree, source, imports = [], options = {}) {
+  lint (source, imports = [], options = {}) {
+    const tree = parse(source)
     return [
       ...this.verifyTags(tree),
       ...this.verifyComponents(tree),
