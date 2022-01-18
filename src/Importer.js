@@ -4,7 +4,7 @@ const { join, dirname } = require('path')
 const { readFile, readFileWithCache, resolveAlias } = require('./utilities/files')
 const { flatten } = require('pure-utilities/collection')
 const Transpiler = require('./compilers/html/Transpiler')
-const Linter = require('./Linter')
+const { lint } = require('./linters/html')
 const request = require('./utilities/request')
 const { getFullRemoteUrl, isRemotePath } = require('./utilities/url')
 const { mergeAssets } = require('./utilities/assets')
@@ -13,7 +13,6 @@ const { getComponentNames } = require('./utilities/attributes')
 const { getAssetPaths, getImportNodes } = require('./utilities/node')
 const { parse } = require('./utilities/html')
 const transpiler = new Transpiler()
-const linter = new Linter()
 
 let id = 1
 
@@ -111,7 +110,7 @@ async function recursiveImport (tree, source, path, options, depth, remote, url)
     }
   }
   const imports = getImportNodes(tree, options)
-  const warnings = linter.lint(source, imports.map(({ node }) => node), options)
+  const warnings = lint(source, imports.map(({ node }) => node), options)
   const assets = await Promise.all(imports.map(({ node, kind }) => fetch(node, kind, path, remote, url, options)))
   const current = flatten(assets)
   const nested = await Promise.all(current.filter(element => element.tree).map(async element => {
