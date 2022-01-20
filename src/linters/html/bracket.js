@@ -11,8 +11,12 @@ function isClosingBracket (character) {
   return character === CLOSING_ANGLE_BRACKET
 }
 
+const IGNORED_TOKENS = [
+  'rawtext', 'commentStart', 'commentData', 'commentEnd'
+]
+
 function verifyBrackets (source) {
-  const tokens = tokenize(source).filter(token => token[0] !== 'rawtext')
+  const tokens = tokenize(source).filter(token => !IGNORED_TOKENS.includes(token[0]))
   const text = tokens.map(token => token[1]).join('')
 
   const errors = []

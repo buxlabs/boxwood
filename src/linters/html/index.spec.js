@@ -3,7 +3,7 @@
 const test = require('ava')
 const { lint } = require('.')
 
-test('lint: brackets', async assert => {
+test('lint: bracket verification', async assert => {
   let source = '<div></div>'
   assert.deepEqual(await lint(source), [])
 
@@ -14,11 +14,16 @@ test('lint: brackets', async assert => {
   assert.deepEqual(await lint(source), [{ type: 'CLOSING_ANGLE_BRACKET_MISSING', message: 'closing angle bracket is missing' }])
 })
 
-test('lint: brackets should ignore content of script and style tags', async assert => {
+test('lint: bracket verification should ignore content of script and style tags', async assert => {
   let source = '<script>if (foo > 42 || bar < 42) {}</script>'
   assert.deepEqual(await lint(source), [])
 
   source = '<style>.foo { content: "<>"; }</style>'
+  assert.deepEqual(await lint(source), [])
+})
+
+test('lint: bracket verification ignores comments', async assert => {
+  let source = '<!-- <p>foo</p> -->'
   assert.deepEqual(await lint(source), [])
 })
 
