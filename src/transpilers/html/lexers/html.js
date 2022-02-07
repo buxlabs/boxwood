@@ -1,10 +1,14 @@
 'use strict'
 
-const START_TAG = '{'
-const END_TAG = '}'
-
 const TEXT = 'text'
-const EXPRESSION = 'expression'
+const CURLY = 'curly'
+const SQUARE = 'square'
+
+const CURLY_START_TAG = '{'
+const CURLY_END_TAG = '}'
+
+const SQUARE_START_TAG = '['
+const SQUARE_END_TAG = ']'
 
 module.exports = function tokenize (input) {
   const tokens = []
@@ -23,17 +27,28 @@ module.exports = function tokenize (input) {
     if (value) tokens.push({ type, value })
   }
   let value = ''
-  let type = current(START_TAG) ? EXPRESSION : TEXT
+  let type = current(CURLY_START_TAG) ? CURLY : current(SQUARE_START_TAG) ? SQUARE : TEXT
   let depth = 0
   while (index < length) {
-    if (current(START_TAG)) { depth += 1 } else if (current(END_TAG)) { depth -= 1 }
+    if (current(CURLY_START_TAG)) { depth += 1 } else if (current(CURLY_END_TAG)) { depth -= 1 }
+    if (current(SQUARE_START_TAG)) { depth += 1 } else if (current(SQUARE_END_TAG)) { depth -= 1 }
 
-    if (current(START_TAG) && depth === 1) {
+    if (current(CURLY_START_TAG) && depth === 1) {
       push(type, value)
       advance()
       value = ''
-      type = EXPRESSION
-    } else if (current(END_TAG) && depth === 0) {
+      type = CURLY
+    } else if (current(CURLY_END_TAG) && depth === 0) {
+      push(type, value)
+      advance()
+      value = ''
+      type = TEXT
+    } else if (current(SQUARE_START_TAG) && depth === 1) {
+      push(type, value)
+      advance()
+      value = ''
+      type = SQUARE
+    } else if (current(SQUARE_END_TAG) && depth === 0) {
       push(type, value)
       advance()
       value = ''
