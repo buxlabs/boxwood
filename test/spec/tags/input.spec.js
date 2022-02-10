@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/deprecated-compile')
+const compile = require('../../helpers/compile')
 const path = require('path')
 const { escape } = require('../../..')
 
@@ -10,7 +10,7 @@ test('input: can be used as a non self closing tag when imported as component', 
   `, {
     paths: [ path.join(__dirname, '../../fixtures/components') ]
   })
-  assert.deepEqual(template({}, escape), '<input name="foo" type="text">')
+  assert.deepEqual(template({}, escape).trim(), '<input name="foo" type="text">')
 })
 
 test('input: can be used as a non self closing tag when imported as component (multiple spaces', async assert => {
@@ -20,7 +20,7 @@ test('input: can be used as a non self closing tag when imported as component (m
   `, {
     paths: [ path.join(__dirname, '../../fixtures/components') ]
   })
-  assert.deepEqual(template({}, escape), '<input name="foo" type="text">')
+  assert.deepEqual(template({}, escape).trim(), '<input name="foo" type="text">')
 })
 
 test('input[type=checkbox]', async assert => {
