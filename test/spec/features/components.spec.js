@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../helpers/deprecated-compile')
+const compile = require('../../helpers/compile')
 const path = require('path')
 const { escape } = require('../../..')
 
@@ -12,7 +12,8 @@ test('components: tag', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a></a>')
 })
@@ -26,7 +27,8 @@ test('components: tag in an array', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a></a>')
 })
@@ -40,7 +42,8 @@ test('components: tag with an attribute', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a href="#foo"></a>')
 })
@@ -57,7 +60,8 @@ test('components: two tags in an array', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a></a><a></a>')
 })
@@ -74,7 +78,8 @@ test('components: three tags in an array', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a></a><a></a>')
 })
@@ -88,7 +93,8 @@ test('components: tag with a child', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a>foo</a>')
 })
@@ -105,7 +111,8 @@ test('components: tag with children', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<a><strong>foo</strong>bar</a>')
 })
@@ -124,7 +131,8 @@ test('components: tag with nested children', async assert => {
     }
   `, {
     paths: [],
-    path: 'app.js'
+    path: 'app.js',
+    format: 'js'
   })
   assert.deepEqual(template({ title: 'foo' }, escape), '<div><a><strong>foo</strong>bar</a></div>')
 })
