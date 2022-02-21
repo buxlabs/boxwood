@@ -1,5 +1,5 @@
 const test = require('ava')
-const compile = require('../../../helpers/deprecated-compile')
+const compile = require('../../../helpers/compile')
 const { escape } = require('../../../..')
 
 test('script[type="application/json"]', async assert => {
