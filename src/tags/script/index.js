@@ -1,7 +1,6 @@
 'use strict'
 
 const { getLiteral } = require('../../utilities/ast')
-const { findAsset } = require('../../utilities/files')
 const { containsCurlyTag } = require('../../utilities/string')
 const { convertAttribute } = require('../../utilities/convert')
 const scoped = require('./scoped')
@@ -9,13 +8,7 @@ const scoped = require('./scoped')
 const script = { scoped }
 
 module.exports = async function ({ tree, keys, attrs, fragment, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options }) {
-  if (keys.includes('inline') && keys.includes('src')) {
-    const { value: path } = attrs.find(attr => attr.key === 'src')
-    const asset = findAsset(path, assets, options)
-    if (!asset) return
-    const content = asset.source.trim()
-    scripts.push(content)
-  } else if (keys.includes('scoped')) {
+  if (keys.includes('scoped')) {
     const leaf = fragment.children[0]
     if (!leaf) return
     leaf.used = true
