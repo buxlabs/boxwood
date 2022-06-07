@@ -1,4 +1,4 @@
-const { parse, walk, generate } = require('css-tree')
+const { parse, walk, generate } = require('../../utilities/css')
 const { getExtension, getBase64Extension } = require('../../utilities/string')
 const { findAsset, isFileSupported } = require('../../utilities/files')
 

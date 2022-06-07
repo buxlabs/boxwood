@@ -1,6 +1,6 @@
 'use strict'
 
-const { parse, walk, generate } = require('css-tree')
+const { parse, walk, generate } = require('../../utilities/css')
 const createHash = require('string-hash')
 const { camelize } = require('pure-utilities/string')
 
