@@ -73,7 +73,7 @@ test('i18n: translations in yaml - format validation', async assert => {
   assert.truthy(errors.length)
   var [error1, error2] = errors
   assert.deepEqual(error1.type, 'YAMLTranslationError')
-  assert.deepEqual(error1.message, 'Implicit map keys need to be followed by map values')
+  assert.truthy(error1.message.includes('Implicit keys need to be on a single line at line 3, column 5:'))
   assert.deepEqual(error2.type, 'TranslationError')
   assert.deepEqual(error2.message, 'There is no translation for the foo___scope_746128617 key')
   assert.deepEqual(template({ language: 'pl' }, escape), '<div></div>')
@@ -180,7 +180,7 @@ test('i18n: throws if the yaml file is corrupt', async assert => {
     paths: [__dirname],
     languages: ['pl', 'en']
   })
-  assert.deepEqual(errors[0].message, 'A collection cannot be both a mapping and a sequence')
+  assert.truthy(errors[0].message.includes('Implicit keys need to be on a single line at line 2, column 1'))
 })
 
 test('i18n: throws if the json file is corrupt', async assert => {
@@ -216,7 +216,7 @@ test('i18n: throws if the data tag in yaml format has invalid format', async ass
         en:baz
     </data>
   `)
-  assert.deepEqual(errors[0].message, 'Implicit map keys need to be followed by map values')
+  assert.truthy(errors[0].message.includes('Implicit map keys need to be followed by map values at line 5, column 9'))
 })
 
 test('i18n: throws if the data tag in yaml format has invalid characters', async assert => {
@@ -228,7 +228,7 @@ test('i18n: throws if the data tag in yaml format has invalid characters', async
         en: baz:
     </data>
   `)
-  assert.deepEqual(errors[0].message, 'Nested mappings are not allowed in compact mappings')
+  assert.truthy(errors[0].message.includes('Nested mappings are not allowed in compact mappings at line 5, column 13'))
 })
 
 test('i18n: multiple translations', async assert => {

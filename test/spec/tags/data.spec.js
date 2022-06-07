@@ -19,7 +19,7 @@ test('data: duplicate translation', async assert => {
   `)
   assert.deepEqual(errors.length, 1)
   assert.deepEqual(errors[0].type, 'YAMLTranslationError')
-  assert.deepEqual(errors[0].message, 'Map keys must be unique; "buy_now" is repeated')
+  assert.truthy(errors[0].message.includes('Map keys must be unique at line 9, column 7:'))
 })
 
 test('data: missing format attribute', async assert => {
