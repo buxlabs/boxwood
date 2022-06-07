@@ -21,7 +21,7 @@ function mapForStatement (htmlNode, parent, index, transpileNode) {
     // TODO we should not mark params which were created on the fly, e.g. for nested loops
     array: new Identifier({ name: htmlNode.attributes[2].key, parameter: true }),
     children: htmlNode.children.map((child, index) =>
-      transpileNode({ node: child, parent: htmlNode, index: index })
+      transpileNode({ node: child, parent: htmlNode, index })
     )
   })
   return node.expression

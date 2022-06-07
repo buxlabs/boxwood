@@ -17,17 +17,17 @@ function mapAttributes (attributes) {
   }
   return attributes.length > 0
     ? new ObjectExpression({
-        properties: attributes.map(attribute => {
-          return new Property({
-            key: new Identifier(attribute.key),
-            value: getAttributeValue(attribute.value),
-            kind: 'init',
-            computed: false,
-            method: false,
-            shorthand: false
-          })
+      properties: attributes.map(attribute => {
+        return new Property({
+          key: new Identifier(attribute.key),
+          value: getAttributeValue(attribute.value),
+          kind: 'init',
+          computed: false,
+          method: false,
+          shorthand: false
         })
       })
+    })
     : new ObjectExpression({ properties: [] })
 }
 function mapChildren (children, transpileNode) {

@@ -48,18 +48,18 @@ function deduceParams (body) {
   return [
     params.length > 0
       ? new ObjectPattern({
-          properties: params.map(param => {
-            const node = new Identifier(param)
-            return new Property({
-              key: node,
-              value: node,
-              kind: 'init',
-              computed: false,
-              method: false,
-              shorthand: true
-            })
+        properties: params.map(param => {
+          const node = new Identifier(param)
+          return new Property({
+            key: node,
+            value: node,
+            kind: 'init',
+            computed: false,
+            method: false,
+            shorthand: true
           })
         })
+      })
       : children && new Identifier('__UNUSED_PARAM__'),
     children
   ].filter(Boolean)
