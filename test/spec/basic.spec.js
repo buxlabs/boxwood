@@ -314,14 +314,6 @@ test('basic', async assert => {
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img src="./placeholder.png">')
 })
 
-test.skip('basic: tag', async assert => {
-  var { template } = await compile('<div tag="{tag}"></div>')
-  assert.deepEqual(template({ tag: 'button' }), '<button></button>')
-
-  var { template } = await compile('<div tag="{tag}"></div>')
-  assert.deepEqual(template({ tag: 'a' }), '<a></a>')
-})
-
 test.skip('basic: other', async assert => {
   var { template } = await compile('{foo + bar}')
   assert.deepEqual(template({ foo: '<script>alert("foo")</script>', bar: 'hello' }, escape), '&lt;script&gt;alert(&quot;foo&quot;)&lt;/script&gt;hello')

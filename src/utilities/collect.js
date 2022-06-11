@@ -2,7 +2,7 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { getLiteral } = require('./ast')
-const { getTemplateAssignmentExpression, getObjectMemberExpression } = require('./factory')
+const { getTemplateAssignmentExpression } = require('./factory')
 const { convertText, convertTag } = require('./convert')
 const walk = require('himalaya-walk')
 const { SPECIAL_TAGS, SELF_CLOSING_TAGS } = require('./enum')
@@ -342,20 +342,12 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       })
       collectChildren(fragment, tree)
       if (!SELF_CLOSING_TAGS.includes(tag)) {
-        const attr = fragment.attributes.find(attr => attr.key === 'tag')
-        if (attr) {
-          const property = attr.key === 'tag' ? attr.value.substring(1, attr.value.length - 1) : attr.value
-          append(getLiteral('</'))
-          append(getObjectMemberExpression(property))
-          append(getLiteral('>'))
-        } else {
-          if (tag === 'head' || tag === 'body') {
-            const identifier = { type: 'Literal', value: `__NEEDLE_${tag.toUpperCase()}__` }
-            needles[tag] = identifier
-            append(identifier)
-          }
-          append(getLiteral(`</${tag}>`))
+        if (tag === 'head' || tag === 'body') {
+          const identifier = { type: 'Literal', value: `__NEEDLE_${tag.toUpperCase()}__` }
+          needles[tag] = identifier
+          append(identifier)
         }
+        append(getLiteral(`</${tag}>`))
       }
     } else if (fragment.type === 'text') {
       const nodes = convertText(fragment.content, variables, filters, translations, languages, false, options.compact)
