@@ -15,7 +15,7 @@ function render (node) {
     return escape(node)
   }
   if (typeof node === 'number') {
-    return node
+    return node.toString()
   }
   return renderElement(node)
 }

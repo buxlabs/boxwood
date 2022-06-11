@@ -322,9 +322,9 @@ test.skip('basic: other', async assert => {
   assert.deepEqual(template({ translate () { return 'foo' } }, escape), '<button>foo&nbsp;<span class="fa fa-search"></span></button>')
 })
 
-test.skip('basic: escape', async assert => {
+test('basic: escape', async assert => {
   var { template } = await compile('{"&"}')
-  assert.deepEqual(template({}, escape), '&')
+  assert.deepEqual(template({}, escape), '&amp;')
 })
 
 test.skip('basic: style tag', async assert => {

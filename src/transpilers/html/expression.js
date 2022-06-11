@@ -84,6 +84,9 @@ function transpileExpression (source, escape = true) {
       const tree = new AbstractSyntaxTree(token.value)
       const { expression } = tree.first('ExpressionStatement')
       markNodes(expression)
+      if (expression.type === 'Literal' && typeof expression.value === 'string') {
+        return expression
+      }
       if (escape) {
         return new CallExpression({
           callee: new Identifier({ name: 'escape' }),
