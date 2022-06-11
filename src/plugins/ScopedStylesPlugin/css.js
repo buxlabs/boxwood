@@ -11,7 +11,7 @@ function addScopeToCssSelectors (input, scopes) {
   const keyframes = {}
   walk(tree, node => {
     if (node.type === 'Atrule' && node.name === 'keyframes') {
-      const child = node.prelude.children.first()
+      const child = node.prelude.children.first
       const marker = `${child.name}-${id}`
       keyframes[child.name] = marker
       child.name = marker
@@ -30,7 +30,7 @@ function addScopeToCssSelectors (input, scopes) {
             }
           })
           if (hasScope) {
-            const node = child.children.first()
+            const node = child.children.first
             if (node.type === 'TypeSelector') { child.children.shift() }
             child.children.unshift({ type: 'ClassSelector', loc: null, name: id })
             if (node.type === 'TypeSelector') { child.children.unshift(node) }
@@ -44,7 +44,7 @@ function addScopeToCssSelectors (input, scopes) {
   }
   walk(tree, node => {
     if (node.type === 'Declaration' && isAnimationProperty(node.property)) {
-      const child = node.value.children.first()
+      const child = node.value.children.first
       if (keyframes[child.name]) {
         child.name = keyframes[child.name]
       }

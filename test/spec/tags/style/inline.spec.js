@@ -52,7 +52,8 @@ test('style[inline]: inline fonts', async assert => {
   })
   const output = template({}, escape)
   assert.truthy(output.includes('url(data:application/font-ttf;charset=utf-8;base64'))
-  assert.truthy(output.includes('EABQAlACkAMQHiAeM=) format(\'truetype\')'))
+  assert.truthy(output.includes('EABQAlACkAMQHiAeM=)'))
+  assert.truthy(output.includes('truetype'))
 })
 
 test('style[inline]: background image', async assert => {

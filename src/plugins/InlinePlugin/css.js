@@ -2,8 +2,9 @@ const { parse, walk, generate } = require('../../utilities/css')
 const { getExtension, getBase64Extension } = require('../../utilities/string')
 const { findAsset, isFileSupported } = require('../../utilities/files')
 
-function getBase64String (base64, path, options, isFont) {
+function getBase64String (base64, path, options) {
   const extension = getExtension(path)
+  const isFont = extension === 'ttf' || extension === 'woff' || extension === 'woff2'
   const dataType = isFont ? 'data:application/font-' : 'data:image/'
   return [
     `${dataType}${getBase64Extension(extension)}`,
@@ -12,19 +13,19 @@ function getBase64String (base64, path, options, isFont) {
   ].filter(Boolean).join(';')
 }
 
-function convertElementValueToBase64 ({ element, value, assets, options, isFont }) {
+function convertElementValueToBase64 ({ element, value, assets, options }) {
   if (!isFileSupported(value)) return
   const asset = findAsset(value, assets, options)
   if (!asset) return
-  element.value = getBase64String(asset.base64, asset.path, options, isFont)
+  element.value = getBase64String(asset.base64, asset.path, options)
 }
 
 function inlineUrls (tree, assets, options) {
   walk(tree, node => {
     if (node.type === 'Url') {
-      let { type, value } = node.value
+      let { value } = node
       value = value.replace(/'|"/g, '')
-      convertElementValueToBase64({ element: node.value, value, assets, options, isFont: type === 'Raw' })
+      convertElementValueToBase64({ element: node, value, assets, options })
     }
   })
   return tree

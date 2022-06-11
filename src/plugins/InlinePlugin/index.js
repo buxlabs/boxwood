@@ -25,7 +25,7 @@ class InlinePlugin extends Plugin {
   run ({ fragment, keys, assets, options }) {
     if (fragment.tagName === 'font' && keys.includes('inline')) {
       const attribute = fragment.attributes.find(attribute => attribute.key === 'from')
-      convertElementValueToBase64({ element: attribute, value: attribute.value, assets, options, isFont: true })
+      convertElementValueToBase64({ element: attribute, value: attribute.value, assets, options })
     }
     if (fragment.type === 'element' && fragment.tagName !== 'style' && this.styles.length) {
       applyStylesInFragment(fragment, this.styles)
