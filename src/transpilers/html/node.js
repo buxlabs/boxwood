@@ -41,6 +41,8 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     return tags.slot(htmlNode)
   } else if (tagName === 'style') {
     return tags.style(htmlNode)
+  } else if (tagName === 'script') {
+    return tags.script(htmlNode, transpileNode)
   }
   return tags.any(htmlNode, transpileNode)
 }

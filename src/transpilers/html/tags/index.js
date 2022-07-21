@@ -10,5 +10,6 @@ module.exports = {
   any: require('./any'),
   comment: require('./comment'),
   text: require('./text'),
-  style: require('./style')
+  style: require('./style'),
+  script: require('./script')
 }

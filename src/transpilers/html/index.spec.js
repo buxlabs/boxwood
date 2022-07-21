@@ -221,7 +221,7 @@ test('transpile: simple component with a script', assert => {
 export default function () {
   return [tag("div", {
     class: "foo"
-  }), tag("script", {}, ["console.log(\\"bar\\")"])];
+  }), tag("script", {}, "console.log(\\"bar\\")")];
 }
 `)
 })

@@ -292,18 +292,6 @@ test('basic', async assert => {
   var { template } = await compile('{foo.bar + 1}')
   assert.deepEqual(template({ foo: { bar: 1 } }, escape), '2')
 
-  var { template } = await compile('<script></script>')
-  assert.deepEqual(template({}, escape), '<script></script>')
-
-  var { template } = await compile('<script src="foo.js" defer></script>')
-  assert.deepEqual(template({}, escape), '<script src="foo.js" defer></script>')
-
-  var { template } = await compile('<script src="foo.js" async></script>')
-  assert.deepEqual(template({}, escape), '<script src="foo.js" async></script>')
-
-  var { template } = await compile('<script type="text/javascript" src="./main.js"></script>')
-  assert.deepEqual(template({}, escape), '<script type="text/javascript" src="./main.js"></script>')
-
   var { template } = await compile('<img class="img-responsive" src="/assets/images/{photos[0]}" alt="Photo">')
   assert.deepEqual(template({ photos: ['foo.jpg', 'bar.jpg'] }, escape), '<img class="img-responsive" src="/assets/images/foo.jpg" alt="Photo">')
 
@@ -335,9 +323,22 @@ test('basic: style tag', async assert => {
   assert.deepEqual(template({}, escape), '<style>.foo{color:red}</style>')
 })
 
-test.skip('basic: script tag', async assert => {
-  var { template } = await compile('<script>console.log({ foo: "bar" })</script>')
-  assert.deepEqual(template({}, escape), '<script>console.log({ foo: "bar" })</script>')
+test('basic: script tag', async assert => {
+  var { template } = await compile('<script>console.log(foo)</script>')
+  assert.deepEqual(template({}, escape), '<script>console.log(foo)</script>')
+
+  var { template } = await compile('<script></script>')
+  assert.deepEqual(template({}, escape), '<script></script>')
+
+  var { template } = await compile('<script src="foo.js" defer></script>')
+  assert.deepEqual(template({}, escape), '<script src="foo.js" defer></script>')
+
+  var { template } = await compile('<script src="foo.js" async></script>')
+  assert.deepEqual(template({}, escape), '<script src="foo.js" async></script>')
+
+  var { template } = await compile('<script type="text/javascript" src="./main.js"></script>')
+  assert.deepEqual(template({}, escape), '<script type="text/javascript" src="./main.js"></script>')
+
 })
 
 test.skip('basic: template tag', async assert => {
