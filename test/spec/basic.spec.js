@@ -292,9 +292,6 @@ test('basic', async assert => {
   var { template } = await compile('{foo.bar + 1}')
   assert.deepEqual(template({ foo: { bar: 1 } }, escape), '2')
 
-  var { template } = await compile('<style></style>')
-  assert.deepEqual(template({}, escape), '<style></style>')
-
   var { template } = await compile('<script></script>')
   assert.deepEqual(template({}, escape), '<script></script>')
 
@@ -327,11 +324,14 @@ test('basic: escape', async assert => {
   assert.deepEqual(template({}, escape), '&amp;')
 })
 
-test.skip('basic: style tag', async assert => {
+test('basic: style tag', async assert => {
+  var { template } = await compile('<style></style>')
+  assert.deepEqual(template({}, escape), '<style></style>')
+
   var { template } = await compile('<style>.foo{color:red}</style>')
   assert.deepEqual(template({}, escape), '<style>.foo{color:red}</style>')
 
-  var { template } = await compile('<style type="text/css">.foo{color:red}</style></script>')
+  var { template } = await compile('<style type="text/css">.foo{color:red}</style>')
   assert.deepEqual(template({}, escape), '<style>.foo{color:red}</style>')
 })
 

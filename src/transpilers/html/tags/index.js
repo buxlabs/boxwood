@@ -9,5 +9,6 @@ module.exports = {
   try: require('./try'),
   any: require('./any'),
   comment: require('./comment'),
-  text: require('./text')
+  text: require('./text'),
+  style: require('./style')
 }

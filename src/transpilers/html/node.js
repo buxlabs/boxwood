@@ -39,6 +39,8 @@ function transpileNode ({ node: htmlNode, parent, index }) {
     return tags.partial(htmlNode)
   } else if (tagName === 'slot') {
     return tags.slot(htmlNode)
+  } else if (tagName === 'style') {
+    return tags.style(htmlNode)
   }
   return tags.any(htmlNode, transpileNode)
 }

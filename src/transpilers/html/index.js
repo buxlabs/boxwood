@@ -158,7 +158,10 @@ function transpile (source, options) {
     })
   }
 
-  // console.log(outputTree.source)
+  if (process.env.DEBUG) {
+    console.log('----- OUTPUT TREE -----')
+    console.log(outputTree.source)
+  }
 
   imports = deducePartials(outputTree)
   if (imports.length > 0) {
