@@ -76,7 +76,6 @@ class Renderer {
     })
     const scripts = []
     const stack = [options.path]
-    const store = {}
     const translations = {}
     const needles = {}
     const promises = []
@@ -136,7 +135,7 @@ class Renderer {
     const severities = warnings.map(warning => warning.severity)
     if (!severities.includes('critical')) {
       walk(htmltree, async fragment => {
-        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles })
+        await collect({ source, tree, fragment, assets, variables, filters, components, styles, scripts, translations, plugins, stack, depth, options, promises, errors, warnings, needles })
       })
       await Promise.all(promises)
 

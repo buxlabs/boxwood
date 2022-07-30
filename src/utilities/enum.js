@@ -71,7 +71,6 @@ module.exports = {
     'partial',
     'render',
     'include',
-    'content',
     'translate',
     'font',
     'var'

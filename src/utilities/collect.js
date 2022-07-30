@@ -253,10 +253,10 @@ function resolveComponent (content, path, component, fragment, queue, plugins, w
   return { fragment }
 }
 
-async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles }) {
+async function collect ({ source, tree, fragment, assets, variables, filters, components, scripts, styles, translations, plugins, stack, depth, options, promises, errors, warnings, needles }) {
   function collectChildren (fragment, ast) {
     walk(fragment, async current => {
-      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, stack, store, depth, options, promises, errors, warnings, needles })
+      await collect({ source, tree: ast, fragment: current, assets, variables, filters, components, scripts, styles, translations, plugins, stack, depth, options, promises, errors, warnings, needles })
     })
   }
   function append (node) {
@@ -297,12 +297,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tags.translate({ tree, fragment, attrs, options, filters, variables, translations, languages })
     } else if (tag === 'translation') {
       tags.translation({ tree, fragment, attrs, options, languages, stack, errors, collectChildren })
-    } else if (tag === 'content') {
-      const { key } = attrs[1]
-      store[key] = fragment
-      fragment.children.forEach(child => {
-        child.used = true
-      })
     } else if (tag === 'link' && (keys.includes('inline'))) {
       tags.link({ attrs, assets, options, styles })
     } else if (tag === 'style') {
@@ -318,18 +312,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
     } else if (fragment.type === 'element' && !SPECIAL_TAGS.includes(tag)) {
       if (tag === 'img') {
         tags.img({ fragment, attrs, keys, assets, options })
-      }
-      if (keys.includes('content')) {
-        const { value } = attrs[0]
-        if (store[value]) {
-          fragment.children = store[value].children
-          fragment.children.forEach(child => {
-            child.used = false
-          })
-        }
-        if (fragment.tagName !== 'meta') {
-          fragment.attributes = fragment.attributes.filter(attribute => attribute.key !== 'content')
-        }
       }
       collectComponentsFromPartialAttribute(fragment, assets, null, plugins, warnings, errors, options, variables, stack)
       const nodes = convertTag(fragment, variables, filters, translations, languages, options)

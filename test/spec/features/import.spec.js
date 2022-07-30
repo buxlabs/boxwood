@@ -152,11 +152,6 @@ test('import', async assert => {
   })
   assert.deepEqual(template({}, escape), '<input type="checkbox">')
 
-  var { template } = await compile(`<import metadata from="./meta.html"><content for title>foo</content><metadata></metadata>`, {
-    paths: [ path.join(__dirname, '../../fixtures/partial') ]
-  })
-  assert.deepEqual(template({}, escape), '<title>foo</title>')
-
   var { template } = await compile(`<import layout from="./default.html"/><layout></layout>`, {
     paths: [ path.join(__dirname, '../../fixtures/layouts') ]
   })

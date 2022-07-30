@@ -351,8 +351,3 @@ test.skip('basic: template tag', async assert => {
   var { template } = await compile('<template><div>{}</div></template>')
   assert.deepEqual(template({}, escape), '<template><div>{}</div></template>')
 })
-
-test.skip('basic: content for', async assert => {
-  var { template } = await compile('<content for title>foo</content><title content="title"></title>')
-  assert.deepEqual(template({}, escape), '<title>foo</title>')
-})
