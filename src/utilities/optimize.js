@@ -185,7 +185,7 @@ function isEachTag (node) {
   return node.tagName === 'each'
 }
 
-const FORBIDDEN_TAGS = ['template', 'script', 'style']
+const FORBIDDEN_TAGS = ['script', 'style']
 function curlyTagReduction (string, variables, warnings) {
   const tree = parse(string)
   const newVariables = []

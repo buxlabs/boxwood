@@ -338,16 +338,4 @@ test('basic: script tag', async assert => {
 
   var { template } = await compile('<script type="text/javascript" src="./main.js"></script>')
   assert.deepEqual(template({}, escape), '<script type="text/javascript" src="./main.js"></script>')
-
-})
-
-test.skip('basic: template tag', async assert => {
-  var { template } = await compile('<template></template>')
-  assert.deepEqual(template({}, escape), '<template></template>')
-
-  var { template } = await compile('<template><div></div></template>')
-  assert.deepEqual(template({}, escape), '<template><div></div></template>')
-
-  var { template } = await compile('<template><div>{}</div></template>')
-  assert.deepEqual(template({}, escape), '<template><div>{}</div></template>')
 })

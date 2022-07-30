@@ -19,7 +19,6 @@ const slotTag = require('./slot')
 const imgTag = require('./img')
 const scriptTag = require('./script')
 const styleTag = require('./style')
-const templateTag = require('./template')
 const translateTag = require('./translate')
 const translationTag = require('./translation')
 const varTag = require('./var')
@@ -45,7 +44,6 @@ module.exports = {
   img: imgTag,
   script: scriptTag,
   style: styleTag,
-  template: templateTag,
   translate: translateTag,
   translation: translationTag,
   var: varTag,

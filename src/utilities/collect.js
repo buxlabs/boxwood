@@ -303,8 +303,6 @@ async function collect ({ source, tree, fragment, assets, variables, filters, co
       tags.style({ fragment, styles })
     } else if (tag === 'script' && !['application/json', 'application/ld+json'].includes(type)) {
       tags.script({ tree, fragment, keys, attrs, assets, variables, promises, warnings, filters, translations, languages, append, scripts, options })
-    } else if (tag === 'template') {
-      tags.template({ tree, fragment, options })
     } else if (tag === 'data') {
       tags.data({ fragment })
     } else if (tag === '!doctype') {

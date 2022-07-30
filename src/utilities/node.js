@@ -2,7 +2,6 @@
 
 const { join } = require('path')
 const walk = require('himalaya-walk')
-const { parse } = require('./html')
 const { isCurlyTag, isImportTag, isPartialTag } = require('./string')
 const { parse: cssParse, walk: cssWalk } = require('./css')
 const { isFileSupported } = require('./files')
@@ -24,16 +23,6 @@ function getAssetPath ({ attributes }, name) {
 function getAssetPaths (node, name) {
   if (isStyleWithInlineAttribute(node)) {
     return getAssetPathsFromStyleTag(node)
-  } else if (isTemplateTag(node)) {
-    const { content } = node.children[0]
-    const tree = parse(content)
-    let paths = []
-    walk(tree, leaf => {
-      if (leaf.tagName === 'style') {
-        paths = paths.concat(getAssetPathsFromStyleTag(leaf))
-      }
-    })
-    return paths
   }
   return [getAssetPath(node, name)].filter(Boolean)
 }
@@ -95,10 +84,6 @@ function isI18nTag (node) {
   return node.tagName === 'i18n' && node.attributes.find(attribute => attribute.key === 'from')
 }
 
-function isTemplateTag (node) {
-  return node.tagName === 'template' && node.attributes.length > 0
-}
-
 function isImageNode (node, options) {
   return !!(
     isImageTagWithInlineAttribute(node) ||
@@ -122,8 +107,6 @@ function getImportNodes (tree, options) {
       nodes.push({ node, kind: 'IMAGE' })
     } else if (isScriptTagWithI18nAttribute(node) || isI18nTag(node)) {
       nodes.push({ node, kind: 'TRANSLATION' })
-    } else if (isTemplateTag(node)) {
-      nodes.push({ node, kind: 'TEMPLATE' })
     }
   })
   return nodes
