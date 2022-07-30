@@ -1,13 +1,18 @@
 'use strict'
 
 const test = require('ava')
-const env = require('browser-env')
+const { JSDOM } = require('jsdom')
 const render = require('./render')
 const tag = require('../tag')
 const { doctype, html, head, body, header, main, footer } = require('../nodes')
 
 test.before(() => {
-  env(['document'])
+  const { window } = new JSDOM('<!doctype html><html><head></head><body></body></html>')
+  global.document = window.document
+})
+
+test.after(() => {
+  delete global.document
 })
 
 test('#render: creates a dom node from a vdom node', assert => {
@@ -75,4 +80,3 @@ test('#render: number', assert => {
   const node = render(tag('div', 1234))
   assert.deepEqual(node.innerHTML, '1234')
 })
-
