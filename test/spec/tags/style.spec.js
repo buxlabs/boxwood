@@ -53,10 +53,10 @@ test('style: does not produce errors when data tag is present', async assert => 
           <div class="status-{status} ui high centered small padded container on mobile">
             <if header>
               <h1 class="white">{header}</h1>
-            <end>
+            </if>
             <if content>
               <p class="white">{content}</p>
-            <end>
+            </if>
             <link bold alternative underlined headline href="{root}"><translate go_to_home /></link>
           </div>
         </div>

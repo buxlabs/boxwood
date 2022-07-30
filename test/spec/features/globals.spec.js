@@ -57,7 +57,7 @@ test.skip('globals: implicit variables', async assert => {
   var { template } = await compile('<for bar in globals.foo>{bar}</for>')
   assert.deepEqual(template({ foo: [1, 2, 3] }, escape), '123')
 
-  var { template } = await compile('<if globals.foo>foo<end>')
+  var { template } = await compile('<if globals.foo>foo</if>')
   assert.deepEqual(template({ foo: true }, escape), 'foo')
 })
 

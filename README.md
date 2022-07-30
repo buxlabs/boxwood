@@ -66,9 +66,10 @@ HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a 
 ```html
 <if name is present>
   Hello, {name}!
+</if>
 <else>
   Welcome!
-<end>
+</else>
 ```
 
 ## Install
@@ -168,21 +169,23 @@ You can also render html partials inline. It can be useful for fragments or page
 There are two syntaxes you can use - short and long. The short one allows you to specify the starting tags only, for example:
 
 ```html
-<if foo>bar<end>
+<if foo>bar</if>
 ```
 
 ```html
 <if foo>
   bar
+</if>
 <elseif baz>
   qux
+</elseif>
 <else>
   quux
-<end>
+</else>
 ```
 
 ```html
-<unless foo>bar<end>
+<unless foo>bar</unless>
 ```
 
 The long syntax requires to specify closing tags explicitly.

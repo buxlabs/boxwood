@@ -9,14 +9,16 @@
         <td>
           <if price is present>
             {price}
+          </if>
           <else>
             foo
-          <end>
+          </else>
           <if price is missing>
             bar
+          </if>
           <else>
             {price}
-          <end>
+          </else>
         </td>
       </tr>
     </tbody>

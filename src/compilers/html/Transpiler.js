@@ -6,7 +6,6 @@ const tokenize = require('../../lexers/html')
 
 const transform = (tokens) => {
   const output = []
-  const contexts = []
   const imports = []
   let lastTag
   tokens.forEach((token, index) => {
@@ -14,27 +13,6 @@ const transform = (tokens) => {
     const next = tokens[index + 1]
     if (type === 'tagName') {
       lastTag = value
-      if (value === 'if' || value === 'unless') {
-        contexts.push(value)
-      } else if (value === 'elseif' || value === 'else' || value === 'elseunless') {
-        const context = contexts[contexts.length - 1]
-        if (context === 'if' || context === 'elseif' || context === 'unless') {
-          const last = output.pop()
-          output.push(['beginEndTag', '</'])
-          output.push(['tagName', context])
-          output.push(['finishTag', '>'])
-          output.push(last)
-          contexts.push(value)
-        }
-      } else if (value === 'end') {
-        const context = contexts[contexts.length - 1]
-        if (context === 'if' || context === 'unless' || context === 'elseunless' || context === 'else' || context === 'elseif') {
-          tokens[index - 1][0] = 'beginEndTag'
-          tokens[index - 1][1] = '</'
-          token[1] = context
-          contexts.pop()
-        }
-      }
       output.push(token)
     } else if (type === 'attributeName' && (lastTag === 'import' || lastTag === 'require')) {
       const [, value] = token

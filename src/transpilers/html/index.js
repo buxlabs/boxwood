@@ -133,7 +133,16 @@ function body (tree, options) {
 }
 
 function transpile (source, options) {
+  if (process.env.DEBUG) {
+    console.log('----- SOURCE -----')
+    console.log(source)
+  }
   source = new Transpiler().transpile(source)
+
+  if (process.env.DEBUG) {
+    console.log('----- TRANSPILED SOURCE -----')
+    console.log(source)
+  }
 
   const tree = parse(source)
   const outputTree = new AbstractSyntaxTree(

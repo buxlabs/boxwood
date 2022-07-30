@@ -32,42 +32,42 @@ test('unless', async assert => {
 })
 
 test('unless: true in a curly tag', async assert => {
-  const { template } = await compile(`<unless {true}>foo<end>`)
+  const { template } = await compile(`<unless {true}>foo</unless>`)
   assert.deepEqual(template({}, escape), '')
 })
 
 test('unless: true without a tag', async assert => {
-  const { template } = await compile(`<unless true>foo<end>`)
+  const { template } = await compile(`<unless true>foo</unless>`)
   assert.deepEqual(template({}, escape), '')
 })
 
 test('unless: false in a curly tag', async assert => {
-  const { template } = await compile(`<unless {false}>foo<end>`)
+  const { template } = await compile(`<unless {false}>foo</unless>`)
   assert.deepEqual(template({}, escape), 'foo')
 })
 
 test('unless: false without a tag', async assert => {
-  const { template } = await compile(`<unless false>foo<end>`)
+  const { template } = await compile(`<unless false>foo</unless>`)
   assert.deepEqual(template({}, escape), 'foo')
 })
 
 
 test('unless: true in a curly tag with else tag', async assert => {
-  const { template } = await compile(`<unless {true}>foo<else>bar<end>`)
+  const { template } = await compile(`<unless {true}>foo</unless><else>bar</else>`)
   assert.deepEqual(template({}, escape), 'bar')
 })
 
 test('unless: true without a tag with else tag', async assert => {
-  const { template } = await compile(`<unless true>foo<else>bar<end>`)
+  const { template } = await compile(`<unless true>foo</unless><else>bar</else>`)
   assert.deepEqual(template({}, escape), 'bar')
 })
 
 test('unless: false in a curly tag with else tag', async assert => {
-  const { template } = await compile(`<unless {false}>foo<else>bar<end>`)
+  const { template } = await compile(`<unless {false}>foo</unless><else>bar</else>`)
   assert.deepEqual(template({}, escape), 'foo')
 })
 
 test('unless: false without a tag with else tag', async assert => {
-  const { template } = await compile(`<unless false>foo<else>bar<end>`)
+  const { template } = await compile(`<unless false>foo</unless><else>bar</else>`)
   assert.deepEqual(template({}, escape), 'foo')
 })
