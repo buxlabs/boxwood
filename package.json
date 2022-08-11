@@ -61,7 +61,6 @@
     "html-lexer": "^0.4.1",
     "html-minifier": "4.0.0",
     "memoizee": "0.4.15",
-    "negate-sentence": "0.2.0",
     "path-to-regexp": "^6.2.1",
     "pure-conditions": "1.2.1",
     "pure-utilities": "^1.2.4",

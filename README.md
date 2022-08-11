@@ -64,7 +64,7 @@ Square tags are array expressions and can be used as values of html attributes.
 HTML tags can contain additional attributes, e.g. `<if limit is a number>` is a valid tag. The attribute syntax follows the natural language principles.
 
 ```html
-<if name is present>
+<if name>
   Hello, {name}!
 </if>
 <else>

@@ -7,15 +7,15 @@
     <tbody>
       <tr>
         <td>
-          <if price is present>
+          <if price>
             {price}
           </if>
           <else>
             foo
           </else>
-          <if price is missing>
+          <unless price>
             bar
-          </if>
+          </unless>
           <else>
             {price}
           </else>
