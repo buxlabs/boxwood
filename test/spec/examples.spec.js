@@ -8,30 +8,8 @@ const { escape } = require('../..')
 
 const readFile = util.promisify(fs.readFile)
 
-test.skip('example: fizzbuzz', async assert => {
-  const { actual, expected } = await suite('fizzbuzz')
-  assert.deepEqual(actual, expected)
-})
-
-test.skip('example: grid', async assert => {
-  const { actual, expected } = await suite('grid', {
-    collection: {
-      each: callback => {
-        const elements = [1, 2, 3, 4]
-        elements.forEach(callback)
-      }
-    }
-  })
-  assert.deepEqual(actual, expected)
-})
-
 test('example: home', async assert => {
   const { actual, expected } = await suite('home')
-  assert.deepEqual(actual, expected)
-})
-
-test.skip('example: scope', async assert => {
-  const { actual, expected } = await suite('scope')
   assert.deepEqual(actual, expected)
 })
 
@@ -40,13 +18,13 @@ test('example: slots', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('example: theme', async assert => {
-  const { actual, expected } = await suite('theme')
+test.skip('example: scope', async assert => {
+  const { actual, expected } = await suite('scope')
   assert.deepEqual(actual, expected)
 })
 
-test.skip('example: inlining', async assert => {
-  const { actual, expected } = await suite('inlining')
+test.skip('example: theme', async assert => {
+  const { actual, expected } = await suite('theme')
   assert.deepEqual(actual, expected)
 })
 
