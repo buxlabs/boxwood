@@ -33,12 +33,3 @@ test('div[border]: predefined border value', async assert => {
   })
   assert.deepEqual(template({}, escape), '<div style="border: 1px solid black;"></div>')
 })
-
-test.skip('partial[border]: does not convert the attribute', async assert => {
-  const { template } = await compile('<partial from="./baz.html" border="top" />', {
-    paths: [
-      path.join(__dirname, '../../fixtures/partial/attributes')
-    ]
-  })
-  assert.deepEqual(template({}, escape), '<div class="border-top"></div>')
-})

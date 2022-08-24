@@ -18,16 +18,6 @@ test('example: slots', async assert => {
   assert.deepEqual(actual, expected)
 })
 
-test.skip('example: scope', async assert => {
-  const { actual, expected } = await suite('scope')
-  assert.deepEqual(actual, expected)
-})
-
-test.skip('example: theme', async assert => {
-  const { actual, expected } = await suite('theme')
-  assert.deepEqual(actual, expected)
-})
-
 async function suite (name, data = {}) {
   const dir = join(__dirname, '../fixtures/examples', name)
   const path1 = join(dir, 'actual.html')
