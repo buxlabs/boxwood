@@ -16,15 +16,15 @@ const readFile = util.promisify(fs.readFile)
 
 async function benchmark (dir, assert) {
   const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.html`), 'utf8')
-  const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.html`), 'utf8')
+  const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.js`), 'utf8')
   const source3 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/underscore.ejs`), 'utf8')
   const source4 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/lodash.ejs`), 'utf8')
   const source5 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/handlebars.hbs`), 'utf8')
   const source6 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/mustache.mst`), 'utf8')
 
   const suite = new Suite()
-  const { template: fn1 } = await compile(source1)
-  const { template: fn2 } = await compile(source2)
+  const { template: fn1 } = await compile(source1, { format: 'html' })
+  const { template: fn2 } = await compile(source2, { format: 'js' })
   const fn3 = underscore.template(source3)
   const fn4 = template(source4)
   const fn5 = handlebars.compile(source5)
@@ -48,7 +48,7 @@ async function benchmark (dir, assert) {
       fn1(data, escape)
     })
       .add('boxwood[js]', function () {
-        fn1(data, escape)
+        fn2(data, escape)
       })
       .add('underscore', function () {
         fn3(data)
