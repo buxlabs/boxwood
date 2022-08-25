@@ -4,9 +4,7 @@ const { join } = require('path')
 const { getFullRemoteUrl, isRemotePath } = require('./url')
 const fs = require('fs')
 const util = require('util')
-const memoize = require('memoizee')
 const readFile = util.promisify(fs.readFile)
-const readFileWithCache = memoize(readFile)
 const { isImage } = require('pure-conditions')
 
 const SUPPORTED_EXTENSIONS = ['.ttf', '.otf', '.woff', '.woff2', '.svg', '.eot']
@@ -25,7 +23,6 @@ function isFileSupported (path) {
   return isImage(path) || SUPPORTED_EXTENSIONS.map(extension => path.endsWith(extension)).includes(true)
 }
 
-// TODO: Unify with Importer
 function findAsset (path, assets, options) {
   path = resolveAlias(path, options.aliases)
   if (isRemotePath(path)) {
@@ -49,7 +46,5 @@ function findAsset (path, assets, options) {
 module.exports = {
   findAsset,
   isFileSupported,
-  readFile,
-  readFileWithCache,
-  resolveAlias
+  readFile
 }
