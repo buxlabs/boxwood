@@ -9,8 +9,7 @@
     "coverage": "nyc npm test",
     "benchmark": "ava test/benchmark.spec.js --verbose",
     "watch": "npm test -- --watch",
-    "prepush": "npm run lint && npm test",
-    "typecheck": "tsc --checkJs index.js --noEmit --esModuleInterop --target es5"
+    "prepush": "npm run lint && npm test"
   },
   "ava": {
     "files": [
@@ -76,7 +75,6 @@
     "nyc": "15.1.0",
     "puppeteer": "^16.2.0",
     "standard": "^17.0.0",
-    "typescript": "^4.7.4",
     "underscore": "^1.13.4"
   },
   "standard": {
