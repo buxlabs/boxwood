@@ -19,12 +19,12 @@ function createRender ({
     if (cacheEnabled && cache.has(path)) return cache.get(path)
     const source = await read(path, 'utf8')
     const { paths = [], ...options } = compilerOptions
-    const { template, warnings, errors } = await compile(source, {
+    const { template, errors } = await compile(source, {
       ...options,
       paths: [dirname(path), ...paths]
     })
     if (cacheEnabled) { cache.set(path, template) }
-    if (log) { print({ path, warnings, errors, log }) }
+    if (log) { print({ path, errors, log }) }
     return template
   }
 

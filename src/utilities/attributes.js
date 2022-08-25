@@ -11,13 +11,7 @@ function findAttributeByKey (attributes, key) {
   return attributes.find(attr => attr.key === key)
 }
 
-function removeAttributeByKey (attributes, key) {
-  if (!attributes) { return }
-  attributes.splice(attributes.findIndex(attr => attr.key === key), 1)
-}
-
 module.exports = {
   getComponentNames,
-  findAttributeByKey,
-  removeAttributeByKey
+  findAttributeByKey
 }

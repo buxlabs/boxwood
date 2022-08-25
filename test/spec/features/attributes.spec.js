@@ -55,19 +55,3 @@ test('attributes: shorthand syntax with multiple strings', async assert => {
   assert.deepEqual(template({}, escape), '<div class="foo baz"></div>')
   assert.deepEqual(template({ bar: 'bar' }, escape), '<div class="foo bar baz"></div>')
 })
-
-test('attributes: shorthand syntax for passing data to the nested components', async assert => {
-  var { template } = await compile(`
-    <import layout from="./layout.html"/>
-    <layout picture="/foo.jpg"/>
-  `, { paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
-  assert.deepEqual(template({}, escape).trim(), '<img src="/foo.jpg">')
-})
-
-test('attributes: shorthand syntax for passing data to the nested components with template data', async assert => {
-  var { template } = await compile(`
-    <import layout from="./layout.html"/>
-    <layout {picture}/>
-  `, { paths: [join(__dirname, '../../fixtures/attributes/shorthand')] })
-  assert.deepEqual(template({ picture: "/foo.jpg" }, escape).trim(), '<img src="/foo.jpg">')
-})

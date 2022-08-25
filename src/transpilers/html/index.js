@@ -2,13 +2,9 @@
 
 const AbstractSyntaxTree = require('abstract-syntax-tree')
 const { deduceParams } = require('./expression')
-const BoxModelPlugin = require('../../plugins/BoxModelPlugin')
-const CurlyStylesPlugin = require('../../plugins/CurlyStylesPlugin')
 const { parse, walk } = require('../../utilities/html')
 const { findAttributeByKey } = require('../../utilities/attributes')
 const { transpileNode } = require('./node')
-// TODO: initial transpilation, move to a separate dir? or inline here after removing the outdated compiler
-const Transpiler = require('../../compilers/html/Transpiler')
 const { pathToIdentifier } = require('./utilities/path')
 
 const {
@@ -97,32 +93,7 @@ function createBoxwoodImportDeclaration (imports) {
   })
 }
 
-function prerunPlugins (tree, plugins) {
-  plugins.forEach(plugin => plugin.beforeprerun())
-  walk(tree, node => {
-    plugins.forEach(plugin => {
-      plugin.prerun({
-        tag: node.tagName,
-        keys: node.attributes ? node.attributes.map(attribute => attribute.key) : [],
-        attrs: node.attributes || [],
-        fragment: node
-      })
-    })
-  })
-  plugins.forEach(plugin => plugin.afterprerun())
-}
-
-function body (tree, options) {
-  const plugins = [
-    // new DataPlugin(),
-    // new InlinePlugin(),
-    new BoxModelPlugin(options),
-    new CurlyStylesPlugin()
-    // new ScopedStylesPlugin(),
-    // new SwappedStylesPlugin(),
-    // new InternationalizationPlugin({ translations, filters, errors })
-  ]
-  prerunPlugins(tree, plugins)
+function body (tree) {
   return tree.length === 1
     ? transpileNode({ node: tree[0], parent: tree, index: 0 })
     : new ArrayExpression(
@@ -135,12 +106,6 @@ function body (tree, options) {
 function transpile (source, options) {
   if (process.env.DEBUG) {
     console.log('----- SOURCE -----')
-    console.log(source)
-  }
-  source = new Transpiler().transpile(source)
-
-  if (process.env.DEBUG) {
-    console.log('----- TRANSPILED SOURCE -----')
     console.log(source)
   }
 

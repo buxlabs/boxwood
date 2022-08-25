@@ -7,8 +7,7 @@ module.exports = async function (source, options) {
     ...options
   }).then((output) => {
     if (process.env.DEBUG === 'boxwood') {
-      const { template, warnings, errors } = output
-      if (warnings.length > 0) { console.log(warnings) }
+      const { template, errors } = output
       if (errors.length > 0) { console.log(errors) }
       console.log(template.toString())
     }

@@ -20,7 +20,7 @@ class Compiler {
     const lastNode = body.pop()
     body.push({ type: 'ReturnStatement', argument: lastNode.expression })
     const template = new Function(`return function render(${OBJECT_VARIABLE}) {\nreturn ${tree.source}}`)() // eslint-disable-line
-    return { template, warnings: [], errors: [] }
+    return { template, errors: [] }
   }
 }
 
