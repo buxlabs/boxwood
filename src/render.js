@@ -7,19 +7,19 @@ const { optimize } = require('./optimizers/html')
 function createRender ({
   compilerOptions = { paths: [] },
   globals = {},
-  cacheEnabled = true,
+  cache = true,
   log = false
 } = {}) {
-  const cache = new Map()
+  const map = new Map()
   async function compileFile (path) {
-    if (cacheEnabled && cache.has(path)) return cache.get(path)
+    if (cache && map.has(path)) return map.get(path)
     const source = await readFile(path, 'utf8')
     const { paths = [], ...options } = compilerOptions
     const { template, errors } = await compile(source, {
       ...options,
       paths: [dirname(path), ...paths]
     })
-    if (cacheEnabled) { cache.set(path, template) }
+    if (cache) { map.set(path, template) }
     if (log) { print({ path, errors, log }) }
     return template
   }
