@@ -53,7 +53,6 @@
     "esbuild": "^0.15.5",
     "himalaya": "1.1.0",
     "himalaya-walk": "1.0.0",
-    "html-lexer": "^0.4.1",
     "html-minifier": "4.0.0",
     "path-to-regexp": "^6.2.1",
     "pure-conditions": "1.2.1",
