@@ -7,7 +7,6 @@ const underscore = require('underscore')
 const template = require('lodash.template')
 const handlebars = require('handlebars')
 const mustache = require('mustache')
-const { escape } = require('..')
 const path = require('path')
 const util = require('util')
 const fs = require('fs')
@@ -15,52 +14,49 @@ const fs = require('fs')
 const readFile = util.promisify(fs.readFile)
 
 async function benchmark (dir, assert) {
-  const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.html`), 'utf8')
-  const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.js`), 'utf8')
-  const source3 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/underscore.ejs`), 'utf8')
-  const source4 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/lodash.ejs`), 'utf8')
-  const source5 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/handlebars.hbs`), 'utf8')
-  const source6 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/mustache.mst`), 'utf8')
+  const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.js`), 'utf8')
+  const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/underscore.ejs`), 'utf8')
+  const source3 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/lodash.ejs`), 'utf8')
+  const source4 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/handlebars.hbs`), 'utf8')
+  const source5 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/mustache.mst`), 'utf8')
 
   const suite = new Suite()
-  const { template: fn1 } = await compile(source1, { format: 'html' })
-  const { template: fn2 } = await compile(source2, { format: 'js' })
-  const fn3 = underscore.template(source3)
-  const fn4 = template(source4)
-  const fn5 = handlebars.compile(source5)
-  mustache.parse(source6)
+  const { template: fn1 } = await compile(source1, { format: 'js' })
+  const fn2 = underscore.template(source2)
+  const fn3 = template(source3)
+  const fn4 = handlebars.compile(source4)
+  const fn5 = (data) => mustache.render(source5, data)
+  mustache.parse(source5)
 
   const data = require(path.join(__dirname, `fixtures/benchmark/${dir}/data.json`))
 
   function normalize (string) {
     return string.replace(/\s/g, '')
   }
-  const result = normalize(fn1(data, escape))
+  const result = normalize(fn1(data))
 
+  assert.deepEqual(result, normalize(fn1(data)))
   assert.deepEqual(result, normalize(fn2(data)))
   assert.deepEqual(result, normalize(fn3(data)))
   assert.deepEqual(result, normalize(fn4(data)))
   assert.deepEqual(result, normalize(fn5(data)))
-  assert.deepEqual(result, normalize(mustache.render(source6, data)))
 
   await new Promise(resolve => {
-    suite.add('boxwood[html]', function () {
-      fn1(data, escape)
-    })
+    suite
       .add('boxwood[js]', function () {
-        fn2(data, escape)
+        fn1(data)
       })
       .add('underscore', function () {
-        fn3(data)
+        fn2(data)
       })
       .add('lodash', function () {
-        fn4(data)
+        fn3(data)
       })
       .add('handlebars', function () {
-        fn5(source5, data)
+        fn4(data)
       })
       .add('mustache', function () {
-        mustache.render(source6, data)
+        fn5(data)
       })
       .on('cycle', function (event) {
         console.log(`${dir}: ${String(event.target)}`)
