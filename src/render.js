@@ -1,12 +1,8 @@
 const compile = require('./compile')
-const escape = require('./vdom/utilities/escape')
-const { readFile } = require('fs')
+const { promises: { readFile } } = require('fs')
 const { dirname } = require('path')
-const { promisify } = require('util')
 const { print } = require('./utilities/log')
 const { optimize } = require('./optimizers/html')
-
-const read = promisify(readFile)
 
 function createRender ({
   compilerOptions = { paths: [] },
@@ -17,7 +13,7 @@ function createRender ({
   const cache = new Map()
   async function compileFile (path) {
     if (cacheEnabled && cache.has(path)) return cache.get(path)
-    const source = await read(path, 'utf8')
+    const source = await readFile(path, 'utf8')
     const { paths = [], ...options } = compilerOptions
     const { template, errors } = await compile(source, {
       ...options,
@@ -32,7 +28,9 @@ function createRender ({
     try {
       const template = await compileFile(path)
       const params = typeof globals === 'function' ? globals(path, options) : globals
-      const html = template({ ...params, ...options }, escape)
+      const html = template({ ...params, ...options })
+      // TODO consider caching optimized html too
+      // optimization process can be slow
       const optimizedHtml = optimize(html)
       if (callback) return callback(null, optimizedHtml)
       return optimizedHtml
