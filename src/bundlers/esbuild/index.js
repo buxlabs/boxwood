@@ -7,6 +7,7 @@ const { uid } = require('pure-utilities/string')
 const ResolvePlugin = require('./plugins/resolve')
 const HTMLPlugin = require('./plugins/html')
 const CSSPlugin = require('./plugins/css')
+const CSSModulesPlugin = require('./plugins/module.css')
 const YAMLPlugin = require('./plugins/yaml')
 const ImagePlugin = require('./plugins/image')
 
@@ -22,7 +23,8 @@ const bundle = async (source, options = {}) => {
     plugins: [
       ResolvePlugin({ paths }),
       HTMLPlugin({ paths }),
-      CSSPlugin({ paths, styles }),
+      CSSPlugin({ paths }),
+      CSSModulesPlugin({ paths, styles }),
       YAMLPlugin({ paths }),
       ImagePlugin({ paths })
     ],

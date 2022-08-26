@@ -1,10 +1,11 @@
 const { promises: { readFile } } = require('fs')
-const { findAsset } = require('../utilities/asset')
+const { findAsset } = require('../../utilities/asset')
+const { transpile: transpileCSS, getSelectors } = require('./transpilers/css')
 
-module.exports = ({ paths }) => ({
-  name: 'css',
+module.exports = ({ paths, styles }) => ({
+  name: 'module.css',
   setup (build) {
-    build.onResolve({ filter: /\.css/ }, args => ({
+    build.onResolve({ filter: /\.module\.css/ }, args => ({
       path: args.path,
       namespace: 'boxwood-css'
     }))
@@ -17,8 +18,11 @@ module.exports = ({ paths }) => ({
         // throw with a nice error message and add specs
       }
       const content = await readFile(asset.path, 'utf8')
+      const style = transpileCSS(content)
+      const selectors = getSelectors(style)
+      styles.push(style)
       return {
-        contents: `export default \`${content}\``,
+        contents: `export default ${JSON.stringify(selectors)}`,
         loader: 'js'
       }
     })
