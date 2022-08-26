@@ -1,7 +1,6 @@
 'use strict'
 
 const { extname } = require('path')
-const lexer = require('../lexers/internal')
 const stringHash = require('string-hash')
 
 function curlyTag (string) {
@@ -20,60 +19,12 @@ function isCurlyTag (value) {
   return isTag(value, '{', '}')
 }
 
-function isSquareTag (value) {
-  return isTag(value, '[', ']')
-}
-
 function containsCurlyTag (value) {
   return containsTag(value, '{', '}')
 }
 
 function getTagValue (value) {
   return value.substring(1, value.length - 1).trim()
-}
-
-function getOptimizedValue (value, compact) {
-  if (typeof compact === 'function') { return compact(value) }
-  if (compact === 'collapsed') { return value.trim().replace(/\n/g, '') }
-  return compact ? value.replace(/\s+/g, ' ') : value
-}
-
-function extract (value, compact) {
-  // is this the best way? should the lexer handle it?
-  if (isSquareTag(value)) { return [{ type: 'expression', value }] }
-  const text = getOptimizedValue(value, compact)
-  const tokens = lexer(text)
-  const objects = tokens.map((token, index) => {
-    if (token.type === 'expression') {
-      // TODO
-      // what about {(foo || bar) | capitalize} ?
-      if (token.value.includes('|') && !token.value.includes('||')) {
-        const parts = token.value.split('|').map(string => string.trim())
-        token.original = `{${token.value}}`
-        token.value = `{${parts[0]}}`
-        token.filters = parts.slice(1)
-      } else {
-        token.value = `{${token.value}}`
-      }
-    }
-    return token
-  })
-  return objects.filter(object => !!object.value)
-}
-
-function extractValues (attribute) {
-  return extract(attribute.value)
-    .reduce((values, { value }) => {
-      if (isCurlyTag(value)) {
-        values.push(value.trim())
-      } else if (isSquareTag(value)) {
-        values.push(value.trim())
-      } else {
-        const parts = value.split(/\s+/g)
-        parts.forEach(part => values.push(part))
-      }
-      return values
-    }, [])
 }
 
 function isImportTag (name) {
@@ -125,10 +76,7 @@ function hash (string) {
 }
 
 module.exports = {
-  extract,
-  extractValues,
   isCurlyTag,
-  isSquareTag,
   containsCurlyTag,
   getTagValue,
   curlyTag,
