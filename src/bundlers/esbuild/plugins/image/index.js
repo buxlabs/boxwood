@@ -1,6 +1,6 @@
 const { promises: { readFile } } = require('fs')
-const { findAsset } = require('../utilities/asset')
-const { getExtension, getBase64Extension } = require('../../../utilities/string')
+const { findAsset } = require('../../utilities/asset')
+const { getExtension, getBase64Extension } = require('./utilities/string')
 
 function getBase64String (base64, path) {
   const extension = getExtension(path)
