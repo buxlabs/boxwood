@@ -1,4 +1,0 @@
-{
-  "stylesheets": ["normalize.css", "main.css"],
-  "scripts": ["polyfills.js", "main.js"]
-}

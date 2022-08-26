@@ -1,6 +1,5 @@
 const { promises: { readFile } } = require('fs')
 const { findAsset } = require('../utilities/asset')
-const { transpile: transpileHTML } = require('../../../transpilers/html')
 
 module.exports = ({ paths }) => ({
   name: 'html',
@@ -19,7 +18,7 @@ module.exports = ({ paths }) => ({
       }
       const content = await readFile(asset.path, 'utf8')
       return {
-        contents: transpileHTML(content.trim()),
+        contents: content.trim(),
         loader: 'js'
       }
     })

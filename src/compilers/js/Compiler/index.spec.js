@@ -111,17 +111,3 @@ test('it works with custom js to css fns', async assert => {
     }
   `), '<h1 style="color: red">Hello, world!</h1>')
 })
-
-test('it can import html components', async assert => {
-  assert.deepEqual(await render(`
-    import { h1 } from 'boxwood'
-    import nav from 'components/nav.html'
-
-    export default function () {
-      return [
-        h1('Hello, world!'),
-        nav()
-      ]
-    }
-  `), '<h1>Hello, world!</h1><div>foo</div>')
-})

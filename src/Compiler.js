@@ -1,5 +1,3 @@
-'use strict'
-
 const Cache = require('./Cache')
 const compile = require('./compilers/compile')
 const { getOptions } = require('./utilities/options')
