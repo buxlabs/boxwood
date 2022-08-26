@@ -70,6 +70,7 @@ module.exports = {
   audio: node('audio'),
   input: node('input'),
   label: node('label'),
+  meta: node('meta'),
   meter: node('meter'),
   param: node('param'),
   small: node('small'),

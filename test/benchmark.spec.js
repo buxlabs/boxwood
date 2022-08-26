@@ -73,7 +73,7 @@ test('benchmark: todos', async assert => {
   await benchmark('todos', assert)
 })
 
-test.skip('benchmark: friends', async assert => {
+test('benchmark: friends', async assert => {
   await benchmark('friends', assert)
 })
 
