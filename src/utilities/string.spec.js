@@ -1,15 +1,7 @@
 'use strict'
 
 const test = require('ava')
-const { dasherize, hyphenate, getExtension, hash } = require('./string')
-
-test('dasherize: replaces dots with dashes', assert => {
-  assert.deepEqual(dasherize('foo.bar'), 'foo-bar')
-})
-
-test('hyphenate: converts characters to lowercase and prepends a dash', assert => {
-  assert.deepEqual(hyphenate('fooBar'), 'foo-bar')
-})
+const { getExtension, hash } = require('./string')
 
 test('getExtension: returns the extension of the file', assert => {
   assert.deepEqual(getExtension('index'), '')
