@@ -1,17 +1,33 @@
-const { promises: { writeFile } } = require('fs')
-const { tmpdir } = require('os')
-const { join } = require('path')
+const { promises: { writeFile, unlink } } = require('fs')
 const { randomBytes } = require('crypto')
 
-async function compile (input) {
-  const path = join(tmpdir(), `${randomBytes(32).toString('hex')}.js`)
-  await writeFile(path, input)
-  const template = require(path)
+async function compile (input, { path } = {}) {
+  const file = (path || __filename).replace(/\.js$/, `${randomBytes(32).toString('hex')}.js`)
+  await writeFile(file, input)
+  const template = require(file)
+  await unlink(file)
   return {
     template
   }
 }
 
+const ENTITIES = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  "'": '&#39;',
+  '"': '&quot;'
+}
+
+const REGEXP = /[&<>'"]/g
+
+const escape = (string) => {
+  return String.prototype.replace.call(string, REGEXP, function (character) {
+    return ENTITIES[character]
+  })
+}
+
 module.exports = {
-  compile
+  compile,
+  escape
 }

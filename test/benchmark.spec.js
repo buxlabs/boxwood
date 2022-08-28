@@ -64,26 +64,30 @@ async function benchmark (dir, assert) {
   })
 }
 
-test('benchmark: basic', async assert => {
+test.serial('benchmark: basic', async assert => {
   await benchmark('basic', assert)
 })
 
-test.skip('benchmark: todos', async assert => {
+test.serial('benchmark: escape', async assert => {
+  await benchmark('escape', assert)
+})
+
+test.serial.skip('benchmark: todos', async assert => {
   await benchmark('todos', assert)
 })
 
-test.skip('benchmark: friends', async assert => {
+test.serial.skip('benchmark: friends', async assert => {
   await benchmark('friends', assert)
 })
 
-test.skip('benchmark: if', async assert => {
+test.serial.skip('benchmark: if', async assert => {
   await benchmark('if', assert)
 })
 
-test.skip('benchmark: projects', async assert => {
+test.serial.skip('benchmark: projects', async assert => {
   await benchmark('projects', assert)
 })
 
-test.skip('benchmark: search', async assert => {
+test.serial.skip('benchmark: search', async assert => {
   await benchmark('search', assert)
 })

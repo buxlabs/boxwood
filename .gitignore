@@ -61,4 +61,6 @@ typings/
 .vscode/settings.json
 
 sandbox/
+cache/
+tmp/
 .husky
