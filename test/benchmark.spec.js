@@ -69,6 +69,10 @@ async function benchmark (dir, assert) {
   })
 }
 
+test('benchmark: basic', async assert => {
+  await benchmark('basic', assert)
+})
+
 test('benchmark: todos', async assert => {
   await benchmark('todos', assert)
 })
