@@ -1,17 +1,12 @@
-'use strict'
-
 const test = require('ava')
+const path = require('path')
+const { promises: { readFile } } = require('fs')
 const { Suite } = require('benchmark')
-const compile = require('./helpers/compile')
 const underscore = require('underscore')
 const template = require('lodash.template')
 const handlebars = require('handlebars')
 const mustache = require('mustache')
-const path = require('path')
-const util = require('util')
-const fs = require('fs')
-
-const readFile = util.promisify(fs.readFile)
+const { compile } = require('..')
 
 async function benchmark (dir, assert) {
   const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.js`), 'utf8')
@@ -73,11 +68,11 @@ test('benchmark: basic', async assert => {
   await benchmark('basic', assert)
 })
 
-test('benchmark: todos', async assert => {
+test.skip('benchmark: todos', async assert => {
   await benchmark('todos', assert)
 })
 
-test('benchmark: friends', async assert => {
+test.skip('benchmark: friends', async assert => {
   await benchmark('friends', assert)
 })
 
