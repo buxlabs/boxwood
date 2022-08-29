@@ -1,11 +1,5 @@
-const { promises: { writeFile, unlink } } = require('fs')
-const { randomBytes } = require('crypto')
-
-async function compile (input, { path } = {}) {
-  const file = (path || __filename).replace(/\.js$/, `${randomBytes(32).toString('hex')}.js`)
-  await writeFile(file, input)
-  const template = require(file)
-  await unlink(file)
+async function compile (path) {
+  const template = require(path)
   return {
     template
   }

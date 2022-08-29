@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard",
-    "test": "ava 'test/spec/**/*.spec.js' 'src/**/*.spec.js' --no-worker-threads",
+    "test": "ava '**/*.spec.js'",
     "coverage": "nyc npm test",
-    "benchmark": "ava test/benchmark.spec.js --verbose",
+    "benchmark": "ava test/benchmark/index.js --verbose",
     "watch": "npm test -- --watch",
     "prepush": "npm run lint && npm test"
   },

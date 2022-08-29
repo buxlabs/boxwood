@@ -6,24 +6,23 @@ const underscore = require('underscore')
 const template = require('lodash.template')
 const handlebars = require('handlebars')
 const mustache = require('mustache')
-const { compile } = require('..')
+const { compile } = require('../..')
 
 async function benchmark (dir, assert) {
-  const source1 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/boxwood.js`), 'utf8')
-  const source2 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/underscore.ejs`), 'utf8')
-  const source3 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/lodash.ejs`), 'utf8')
-  const source4 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/handlebars.hbs`), 'utf8')
-  const source5 = await readFile(path.join(__dirname, `fixtures/benchmark/${dir}/mustache.mst`), 'utf8')
+  const source2 = await readFile(path.join(__dirname, `./fixtures/${dir}/underscore.ejs`), 'utf8')
+  const source3 = await readFile(path.join(__dirname, `./fixtures/${dir}/lodash.ejs`), 'utf8')
+  const source4 = await readFile(path.join(__dirname, `./fixtures/${dir}/handlebars.hbs`), 'utf8')
+  const source5 = await readFile(path.join(__dirname, `./fixtures/${dir}/mustache.mst`), 'utf8')
 
   const suite = new Suite()
-  const { template: fn1 } = await compile(source1, { format: 'js' })
+  const { template: fn1 } = await compile(path.join(__dirname, `./fixtures/${dir}/boxwood.js`))
   const fn2 = underscore.template(source2)
   const fn3 = template(source3)
   const fn4 = handlebars.compile(source4)
   const fn5 = (data) => mustache.render(source5, data)
   mustache.parse(source5)
 
-  const data = require(path.join(__dirname, `fixtures/benchmark/${dir}/data.json`))
+  const data = require(path.join(__dirname, `./fixtures/${dir}/data.json`))
 
   function normalize (string) {
     return string.replace(/\s/g, '')

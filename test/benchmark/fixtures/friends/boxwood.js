@@ -6,7 +6,7 @@ export default function ({ friends }) {
     html({ lang: 'en' }, [
       head([
         meta({ charset: 'UTF-8' }),
-        title('Friends'),
+        title('Friends')
       ]),
       body([
         div({ class: 'friends' }, friends.map(friend => {
@@ -17,28 +17,28 @@ export default function ({ friends }) {
               li(`Age: ${friend.age}`),
               li(`Address: ${friend.address}`),
               li([
-                `Image: `,
+                'Image: ',
                 img({ src: friend.picture })
               ]),
               li(`Company: ${friend.company}`),
               li([
-                `Email: `,
+                'Email: ',
                 a({ href: `mailto:${friend.email}` }, friend.email)
               ]),
               li(`About: ${friend.about}`),
               friend.tags.length && li([
-                `Tags: `,
+                'Tags: ',
                 ul(friend.tags.map(tag => li(tag)))
               ]),
               friend.friends.length && li([
-                `Friends: `,
+                'Friends: ',
                 ul(friend.friends.map(friend => li(`${friend.name} (${friend.id})`)))
               ])
             ].filter(Boolean))
           ])
         }))
       ])
-    ]),
-    
+    ])
+
   ]
 }
