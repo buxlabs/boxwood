@@ -21,7 +21,12 @@ const escape = (string) => {
   })
 }
 
+const div = (content) => {
+  return "<div>" + content + "</div>"
+}
+
 module.exports = {
   compile,
-  escape
+  escape,
+  div
 }
