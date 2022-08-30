@@ -75,16 +75,16 @@ test.serial('benchmark: div', async assert => {
   await benchmark('div', assert)
 })
 
+test.serial('benchmark: if', async assert => {
+  await benchmark('if', assert)
+})
+
 test.serial.skip('benchmark: todos', async assert => {
   await benchmark('todos', assert)
 })
 
 test.serial.skip('benchmark: friends', async assert => {
   await benchmark('friends', assert)
-})
-
-test.serial.skip('benchmark: if', async assert => {
-  await benchmark('if', assert)
 })
 
 test.serial.skip('benchmark: projects', async assert => {

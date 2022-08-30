@@ -25,8 +25,13 @@ const div = (content) => {
   return "<div>" + content + "</div>"
 }
 
+const span = (options, content) => {
+  return "<span class='" + options.class + "'>" + content + "</span>"
+}
+
 module.exports = {
   compile,
   escape,
-  div
+  div,
+  span
 }
