@@ -64,6 +64,7 @@ const ul = node('ul')
 const li = node('li')
 const title = node('title')
 const a = node('a')
+const p = node('p')
 
 const doctype = () => '<!DOCTYPE html>'
 const img = (options) => '<img ' + attributes(options) + '>'
@@ -86,5 +87,6 @@ module.exports = {
   li,
   img,
   meta,
-  a
+  a,
+  p
 }

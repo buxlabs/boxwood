@@ -87,10 +87,10 @@ test.serial('benchmark: friends', async assert => {
   await benchmark('friends', assert)
 })
 
-test.serial.skip('benchmark: projects', async assert => {
-  await benchmark('projects', assert)
+test.serial('benchmark: search', async assert => {
+  await benchmark('search', assert)
 })
 
-test.serial.skip('benchmark: search', async assert => {
-  await benchmark('search', assert)
+test.serial.skip('benchmark: projects', async assert => {
+  await benchmark('projects', assert)
 })
