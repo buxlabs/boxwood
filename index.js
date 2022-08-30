@@ -42,29 +42,14 @@ const tag = (a, b, c) => {
   return '<' + name + '>' + render(children) + '</' + name + '>'
 }
 
-const div = (options, children) => {
-  return tag('div', options, children)
-}
+const node = (name) => (options, children) => tag(name, options, children)
 
-const span = (options, children) => {
-  return tag('span', options, children)
-}
-
-const h1 = (options, children) => {
-  return tag('h1', options, children)
-}
-
-const h2 = (options, children) => {
-  return tag('h2', options, children)
-}
-
-const ul = (options, children) => {
-  return tag('ul', options, children)
-}
-
-const li = (options, children) => {
-  return tag('li', options, children)
-}
+const div = node('div')
+const span = node('span')
+const h1 = node('h1')
+const h2 = node('h2')
+const ul = node('ul')
+const li = node('li')
 
 module.exports = {
   compile,
