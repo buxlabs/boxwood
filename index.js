@@ -21,28 +21,49 @@ const escape = (string) => {
   })
 }
 
-const div = (content) => {
-  return '<div>' + content + '</div>'
+const render = (children) => {
+  if (Array.isArray(children)) { return children.join('') }
+  return children
 }
 
-const span = (options, content) => {
-  return "<span class='" + options.class + "'>" + content + '</span>'
+const attributes = (options) => {
+  return 'class=' + options.class
 }
 
-const h1 = (content) => {
-  return '<h1>' + content + '</h1>'
+const tag = (a, b, c) => {
+  if (a && b && c) {
+    const name = a
+    const options = b
+    const children = c
+    return '<' + name + ' ' + attributes(options) + '>' + render(children) + '</' + name + '>'
+  }
+  const name = a
+  const children = b
+  return '<' + name + '>' + render(children) + '</' + name + '>'
 }
 
-const h2 = (content) => {
-  return '<h2>' + content + '</h2>'
+const div = (options, children) => {
+  return tag('div', options, children)
 }
 
-const ul = (children) => {
-  return '<ul>' + children.join('') + '</ul>'
+const span = (options, children) => {
+  return tag('span', options, children)
 }
 
-const li = (content) => {
-  return '<li>' + content + '</li>'
+const h1 = (options, children) => {
+  return tag('h1', options, children)
+}
+
+const h2 = (options, children) => {
+  return tag('h2', options, children)
+}
+
+const ul = (options, children) => {
+  return tag('ul', options, children)
+}
+
+const li = (options, children) => {
+  return tag('li', options, children)
 }
 
 module.exports = {
