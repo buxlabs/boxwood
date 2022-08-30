@@ -1,7 +1,7 @@
-import { doctype, html, head, body, meta, img, title, div, ul, li, a } from 'boxwood'
+const { fragment, doctype, html, head, body, meta, img, title, div, ul, li, a } = require('../../../..')
 
-export default function ({ friends }) {
-  return [
+module.exports = function ({ friends }) {
+  return fragment([
     doctype(),
     html({ lang: 'en' }, [
       head([
@@ -34,10 +34,10 @@ export default function ({ friends }) {
                 'Friends: ',
                 ul(friend.friends.map(friend => li(`${friend.name} (${friend.id})`)))
               ])
-            ].filter(Boolean))
+            ])
           ])
         }))
       ])
     ])
-  ].join('')
+  ])
 }

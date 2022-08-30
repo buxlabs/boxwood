@@ -1,4 +1,4 @@
-const { div, span } = require('../../../..')
+const { fragment, div, span } = require('../../../..')
 
 function description (account) {
   if (account.status === 'closed') { return 'Your account has been closed!' }
@@ -7,5 +7,5 @@ function description (account) {
 }
 
 module.exports = function ({ accounts }) {
-  return accounts.map(account => div(description(account))).join('')
+  return fragment(accounts.map(account => div(description(account))))
 }
