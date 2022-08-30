@@ -22,16 +22,36 @@ const escape = (string) => {
 }
 
 const div = (content) => {
-  return "<div>" + content + "</div>"
+  return '<div>' + content + '</div>'
 }
 
 const span = (options, content) => {
-  return "<span class='" + options.class + "'>" + content + "</span>"
+  return "<span class='" + options.class + "'>" + content + '</span>'
+}
+
+const h1 = (content) => {
+  return '<h1>' + content + '</h1>'
+}
+
+const h2 = (content) => {
+  return '<h2>' + content + '</h2>'
+}
+
+const ul = (children) => {
+  return '<ul>' + children.join('') + '</ul>'
+}
+
+const li = (content) => {
+  return '<li>' + content + '</li>'
 }
 
 module.exports = {
   compile,
   escape,
   div,
-  span
+  span,
+  h1,
+  h2,
+  ul,
+  li
 }

@@ -79,7 +79,7 @@ test.serial('benchmark: if', async assert => {
   await benchmark('if', assert)
 })
 
-test.serial.skip('benchmark: todos', async assert => {
+test.serial('benchmark: todos', async assert => {
   await benchmark('todos', assert)
 })
 
