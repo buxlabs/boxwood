@@ -58,8 +58,13 @@ const head = node('head')
 const body = node('body')
 const div = node('div')
 const span = node('span')
+const style = node('style')
 const h1 = node('h1')
 const h2 = node('h2')
+const h3 = node('h3')
+const h4 = node('h4')
+const h5 = node('h5')
+const h6 = node('h6')
 const ul = node('ul')
 const li = node('li')
 const title = node('title')
@@ -81,8 +86,13 @@ module.exports = {
   fragment,
   div,
   span,
+  style,
   h1,
   h2,
+  h3,
+  h4,
+  h5,
+  h6,
   ul,
   li,
   img,
