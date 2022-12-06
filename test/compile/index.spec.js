@@ -19,3 +19,9 @@ test('compile: it returns a template which can require dependencies', async asse
 
   assert.deepEqual(template(), 'foo/bar')
 })
+
+test('compile: it works with tags', async assert => {
+  const { template } = await compile(join(__dirname, './fixtures/tag/div.js'))
+
+  assert.deepEqual(template(), '<div>foo</div>')
+})
