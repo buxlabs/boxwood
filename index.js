@@ -67,6 +67,7 @@ const h5 = node('h5')
 const h6 = node('h6')
 const ul = node('ul')
 const li = node('li')
+const button = node('button')
 const title = node('title')
 const a = node('a')
 const p = node('p')
@@ -95,6 +96,7 @@ module.exports = {
   h6,
   ul,
   li,
+  button,
   img,
   meta,
   a,
