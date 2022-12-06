@@ -46,7 +46,7 @@
   },
   "homepage": "https://github.com/buxlabs/boxwood#readme",
   "devDependencies": {
-    "ava": "^4.3.3",
+    "ava": "^5.1.0",
     "benchmark": "2.1.4",
     "express": "^4.18.2",
     "handlebars": "^4.7.7",
