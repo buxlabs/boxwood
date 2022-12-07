@@ -3,8 +3,32 @@ async function compile (path) {
   return {
     template (data) {
       const tree = fn(data)
+      const nodes = {}
+      const styles = []
+      walk(tree, node => {
+        if (node.name === 'head') {
+          nodes.head = node
+        }
+        if (node.name === 'style') {
+          styles.push(node.children)
+          node.ignore = true
+        }
+      })
+      if (nodes.head) {
+        nodes.head.children.push({
+          name: 'style',
+          children: styles.join('')
+        })
+      }
       return render(tree)
     }
+  }
+}
+
+function walk (tree, callback) {
+  callback(tree)
+  if (Array.isArray(tree.children)) {
+    tree.children.map(node => walk(node, callback))
   }
 }
 
@@ -24,10 +48,53 @@ const escape = (string) => {
   })
 }
 
+const BOOLEAN_ATTRIBUTES = [
+  'async',
+  'autofocus',
+  'autoplay',
+  'border',
+  'challenge',
+  'checked',
+  'compact',
+  'contenteditable',
+  'controls',
+  'default',
+  'defer',
+  'disabled',
+  'formnovalidate',
+  'frameborder',
+  'hidden',
+  'indeterminate',
+  'ismap',
+  'loop',
+  'multiple',
+  'muted',
+  'nohref',
+  'noresize',
+  'noshade',
+  'novalidate',
+  'nowrap',
+  'open',
+  'readonly',
+  'required',
+  'reversed',
+  'scoped',
+  'scrolling',
+  'seamless',
+  'selected',
+  'sortable',
+  'spellcheck',
+  'translate'
+]
+
 const attributes = (options) => {
   const result = []
   for (const key in options) {
-    result.push(key + '=' + '"' + options[key] + '"')
+    if (BOOLEAN_ATTRIBUTES.includes(key)) {
+      result.push(key)
+    } else {
+      result.push(key + '=' + '"' + options[key] + '"')
+    }
   }
   return result.join(' ')
 }
@@ -39,9 +106,13 @@ const SELF_CLOSING_TAGS = [
 ]
 
 const render = (input) => {
+  if (input.ignore) { return '' }
   if (Array.isArray(input)) { return input.map(render).join('') }
   if (typeof input === 'number') { return input.toString() }
   if (typeof input === 'string') { return input }
+  if (input.name === 'fragment') {
+    return render(input.children)
+  }
   if (SELF_CLOSING_TAGS.includes(input.name)) {
     if (input.attributes) {
       return `<${input.name} ` + attributes(input.attributes) + '>'
@@ -49,25 +120,19 @@ const render = (input) => {
     return `<${input.name}>`
   }
   if (input.attributes && input.children) {
-    if (Array.isArray(input.children)) {
-      return `<${input.name} ` + attributes(input.attributes) + '>' + input.children.map(render).join('') + `</${input.name}>`
-    }
     return `<${input.name} ` + attributes(input.attributes) + '>' + render(input.children) + `</${input.name}>`
   }
   if (input.attributes) {
     return `<${input.name} ` + attributes(input.attributes) + `></${input.name}>`
   }
   if (input.children) {
-    if (Array.isArray(input.children)) {
-      return `<${input.name}>` + input.children.map(render).join('') + `</${input.name}>`
-    }
     return `<${input.name}>` + render(input.children) + `</${input.name}>`
   }
   return `<${input.name}></${input.name}>`
 }
 
 const fragment = (children) => {
-  return render(children)
+  return { name: 'fragment', children }
 }
 
 const tag = (a, b, c) => {
@@ -83,6 +148,12 @@ const tag = (a, b, c) => {
   }
   const name = a
   const children = b
+  if (SELF_CLOSING_TAGS.includes(name)) {
+    return {
+      name,
+      attributes: children
+    }
+  }
   return {
     name,
     children
@@ -97,6 +168,7 @@ const body = node('body')
 const div = node('div')
 const span = node('span')
 const style = node('style')
+const input = node('input')
 const h1 = node('h1')
 const h2 = node('h2')
 const h3 = node('h3')
@@ -125,6 +197,7 @@ module.exports = {
   div,
   span,
   style,
+  input,
   h1,
   h2,
   h3,
