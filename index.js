@@ -14,7 +14,7 @@ async function compile (path) {
           node.ignore = true
         }
       })
-      if (nodes.head) {
+      if (nodes.head && styles.length > 0) {
         nodes.head.children.push({
           name: 'style',
           children: styles.join('')
@@ -102,7 +102,7 @@ const attributes = (options) => {
 const SELF_CLOSING_TAGS = [
   'area', 'base', 'br', 'col', 'command',
   'embed', 'hr', 'img', 'input', 'keygen', 'link',
-  'meta', 'param', 'source', 'track', 'wbr', '!doctype html'
+  'meta', 'param', 'source', 'track', 'wbr', '!DOCTYPE html'
 ]
 
 const render = (input) => {
@@ -181,7 +181,7 @@ const button = node('button')
 const title = node('title')
 const a = node('a')
 const p = node('p')
-const doctype = node('!doctype html')
+const doctype = node('!DOCTYPE html')
 const img = node('img')
 const meta = node('meta')
 
