@@ -1,7 +1,10 @@
 async function compile (path) {
-  const template = require(path)
+  const fn = require(path)
   return {
-    template
+    template (data) {
+      const tree = fn(data)
+      return render(tree)
+    }
   }
 }
 
@@ -21,18 +24,46 @@ const escape = (string) => {
   })
 }
 
-const render = (children) => {
-  if (Array.isArray(children)) { return children.filter(Boolean).join('') }
-  if (typeof children === 'number') return children.toString()
-  return escape(children)
-}
-
 const attributes = (options) => {
   const result = []
   for (const key in options) {
     result.push(key + '=' + '"' + options[key] + '"')
   }
   return result.join(' ')
+}
+
+const SELF_CLOSING_TAGS = [
+  'area', 'base', 'br', 'col', 'command',
+  'embed', 'hr', 'img', 'input', 'keygen', 'link',
+  'meta', 'param', 'source', 'track', 'wbr', '!doctype html'
+]
+
+const render = (input) => {
+  if (Array.isArray(input)) { return input.map(render).join('') }
+  if (typeof input === 'number') { return input.toString() }
+  if (typeof input === 'string') { return input }
+  if (SELF_CLOSING_TAGS.includes(input.name)) {
+    if (input.attributes) {
+      return `<${input.name} ` + attributes(input.attributes) + '>'
+    }
+    return `<${input.name}>`
+  }
+  if (input.attributes && input.children) {
+    if (Array.isArray(input.children)) {
+      return `<${input.name} ` + attributes(input.attributes) + '>' + input.children.map(render).join('') + `</${input.name}>`
+    }
+    return `<${input.name} ` + attributes(input.attributes) + '>' + render(input.children) + `</${input.name}>`
+  }
+  if (input.attributes) {
+    return `<${input.name} ` + attributes(input.attributes) + `></${input.name}>`
+  }
+  if (input.children) {
+    if (Array.isArray(input.children)) {
+      return `<${input.name}>` + input.children.map(render).join('') + `</${input.name}>`
+    }
+    return `<${input.name}>` + render(input.children) + `</${input.name}>`
+  }
+  return `<${input.name}></${input.name}>`
 }
 
 const fragment = (children) => {
@@ -42,13 +73,20 @@ const fragment = (children) => {
 const tag = (a, b, c) => {
   if (a && b && c) {
     const name = a
-    const options = b
+    const attributes = b
     const children = c
-    return '<' + name + ' ' + attributes(options) + '>' + render(children) + '</' + name + '>'
+    return {
+      name,
+      children,
+      attributes
+    }
   }
   const name = a
   const children = b
-  return '<' + name + '>' + render(children) + '</' + name + '>'
+  return {
+    name,
+    children
+  }
 }
 
 const node = (name) => (options, children) => tag(name, options, children)
@@ -71,10 +109,9 @@ const button = node('button')
 const title = node('title')
 const a = node('a')
 const p = node('p')
-
-const doctype = () => '<!DOCTYPE html>'
-const img = (options) => '<img ' + attributes(options) + '>'
-const meta = (options) => '<meta ' + attributes(options) + '>'
+const doctype = node('!doctype html')
+const img = node('img')
+const meta = node('meta')
 
 module.exports = {
   compile,
