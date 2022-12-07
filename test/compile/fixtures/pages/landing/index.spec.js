@@ -5,5 +5,5 @@ const { compile } = require('../../../../..')
 test('#pages/landing: it returns a page with css', async assert => {
   const { template } = await compile(join(__dirname, './index.js'))
 
-  assert.deepEqual(template(), '<html><head><title>Landing page</title><style>body { background: #ccc; }</style></head><body><button>Hello, world!</button></body></html>')
+  assert.deepEqual(template(), '<html><head><title>Landing page</title><style>body { background: #ccc; }</style></head><body><button class="__button__1234">Hello, world!</button><style>.__button__1234{color: red}</style></body></html>')
 })
