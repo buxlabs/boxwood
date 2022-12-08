@@ -1,4 +1,4 @@
-const { button, fragment, style } = require('../../../../../..')
+const { button, fragment, style } = require('../../../..')
 const { classes, styles } = require('./styles')
 
 module.exports = (children) => {

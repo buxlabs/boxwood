@@ -1,4 +1,4 @@
-const { html, head, title, style, body } = require('../../../../../..')
+const { html, head, title, style, body } = require('../../../..')
 
 module.exports = (children) => {
   return html([

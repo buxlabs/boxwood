@@ -1,6 +1,6 @@
 const test = require('ava')
 const { join } = require('path')
-const { compile } = require('../../../../..')
+const { compile } = require('../../..')
 
 test('#pages/landing: it returns a page with css', async assert => {
   const { template } = await compile(join(__dirname, './index.js'))

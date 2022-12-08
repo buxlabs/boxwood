@@ -160,6 +160,13 @@ const tag = (a, b, c) => {
   }
 }
 
+function css () {
+  return {
+    classes: [],
+    style: ''
+  }
+}
+
 const node = (name) => (options, children) => tag(name, options, children)
 
 const html = node('html')
@@ -210,5 +217,6 @@ module.exports = {
   img,
   meta,
   a,
-  p
+  p,
+  css
 }
