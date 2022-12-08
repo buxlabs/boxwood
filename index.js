@@ -169,7 +169,8 @@ function css (values) {
   const tree = parse(input)
   const { rules } = tree.stylesheet
   const classes = {}
-  rules.forEach(rule => {
+
+  function transform (rule) {
     rule.selectors = rule.selectors.map(selector => {
       if (selector.startsWith('.')) {
         if (selector.includes(':')) {
@@ -186,6 +187,18 @@ function css (values) {
       }
       return selector
     })
+  }
+
+  rules.forEach(rule => {
+    if (rule.type === 'rule') {
+      transform(rule)
+    } else if (rule.type === 'media') {
+      rule.rules.forEach(rule => {
+        if (rule.type === 'rule') {
+          transform(rule)
+        }
+      })
+    }
   })
   return {
     classes,
