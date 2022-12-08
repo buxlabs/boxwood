@@ -107,9 +107,9 @@ const SELF_CLOSING_TAGS = [
 
 const render = (input) => {
   if (input.ignore) { return '' }
-  if (Array.isArray(input)) { return input.map(render).join('') }
+  if (Array.isArray(input)) { return input.filter(Boolean).map(render).join('') }
   if (typeof input === 'number') { return input.toString() }
-  if (typeof input === 'string') { return input }
+  if (typeof input === 'string') { return escape(input) }
   if (input.name === 'fragment') {
     return render(input.children)
   }
