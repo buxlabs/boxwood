@@ -172,10 +172,17 @@ function css (values) {
   rules.forEach(rule => {
     rule.selectors = rule.selectors.map(selector => {
       if (selector.startsWith('.')) {
-        const input = selector.substr(1)
-        const output = `__${input}__${hash}`
-        classes[input] = output
-        return `.${output}`
+        if (selector.includes(':')) {
+          const [input, pseudoselector] = selector.substr(1).split(':')
+          const output = `__${input}__${hash}`
+          classes[input] = output
+          return `.${output}:${pseudoselector}`
+        } else {
+          const input = selector.substr(1)
+          const output = `__${input}__${hash}`
+          classes[input] = output
+          return `.${output}`
+        }
       }
       return selector
     })
