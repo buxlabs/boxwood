@@ -162,8 +162,10 @@ const tag = (a, b, c) => {
 
 function css () {
   return {
-    classes: [],
-    style: ''
+    classes: {
+      button: '__button__1234'
+    },
+    styles: '.__button__1234{color: red}'
   }
 }
 
