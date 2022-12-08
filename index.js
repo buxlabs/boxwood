@@ -160,49 +160,26 @@ const tag = (a, b, c) => {
   }
 }
 
-const { parse, stringify } = require('css')
+const csstree = require('css-tree')
 const toHash = require('string-hash')
 
 function css (values) {
   const input = values[0]
   const hash = toHash(input).toString(36).substr(0, 5)
-  const tree = parse(input)
-  const { rules } = tree.stylesheet
+  const tree = csstree.parse(input)
   const classes = {}
 
-  function transform (rule) {
-    rule.selectors = rule.selectors.map(selector => {
-      if (selector.startsWith('.')) {
-        if (selector.includes(':')) {
-          const [input, pseudoselector] = selector.substr(1).split(':')
-          const output = `__${input}__${hash}`
-          classes[input] = output
-          return `.${output}:${pseudoselector}`
-        } else {
-          const input = selector.substr(1)
-          const output = `__${input}__${hash}`
-          classes[input] = output
-          return `.${output}`
-        }
-      }
-      return selector
-    })
-  }
-
-  rules.forEach(rule => {
-    if (rule.type === 'rule') {
-      transform(rule)
-    } else if (rule.type === 'media') {
-      rule.rules.forEach(rule => {
-        if (rule.type === 'rule') {
-          transform(rule)
-        }
-      })
+  csstree.walk(tree, node => {
+    if (node.type === 'ClassSelector') {
+      const name = `__${node.name}__${hash}`
+      classes[node.name] = name
+      node.name = name
     }
   })
+
   return {
     classes,
-    styles: stringify(tree, { compress: true })
+    styles: csstree.generate(tree)
   }
 }
 
