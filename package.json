@@ -63,5 +63,8 @@
       "test/spec/**/*",
       "src/**/*.spec.js"
     ]
+  },
+  "dependencies": {
+    "css": "^3.0.0"
   }
 }

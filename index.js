@@ -160,12 +160,30 @@ const tag = (a, b, c) => {
   }
 }
 
-function css () {
+const { parse, stringify } = require('css')
+
+let counter = 1
+
+function css (values) {
+  const input = values[0]
+  const tree = parse(input)
+  const { rules } = tree.stylesheet
+  const classes = {}
+  rules.forEach(rule => {
+    rule.selectors = rule.selectors.map(selector => {
+      if (selector.startsWith('.')) {
+        const input = selector.substr(1)
+        const output = `__${input}__${counter}`
+        counter += 1
+        classes[input] = output
+        return `.${output}`
+      }
+      return selector
+    })
+  })
   return {
-    classes: {
-      button: '__button__1234'
-    },
-    styles: '.__button__1234{color: red}'
+    classes,
+    styles: stringify(tree, { compress: true })
   }
 }
 
