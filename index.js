@@ -161,11 +161,11 @@ const tag = (a, b, c) => {
 }
 
 const { parse, stringify } = require('css')
-
-let counter = 1
+const toHash = require('string-hash')
 
 function css (values) {
   const input = values[0]
+  const hash = toHash(input).toString(36).substr(0, 5)
   const tree = parse(input)
   const { rules } = tree.stylesheet
   const classes = {}
@@ -173,8 +173,7 @@ function css (values) {
     rule.selectors = rule.selectors.map(selector => {
       if (selector.startsWith('.')) {
         const input = selector.substr(1)
-        const output = `__${input}__${counter}`
-        counter += 1
+        const output = `__${input}__${hash}`
         classes[input] = output
         return `.${output}`
       }

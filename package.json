@@ -65,6 +65,7 @@
     ]
   },
   "dependencies": {
-    "css": "^3.0.0"
+    "css": "^3.0.0",
+    "string-hash": "^1.1.3"
   }
 }
