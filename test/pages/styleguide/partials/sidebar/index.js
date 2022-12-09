@@ -1,5 +1,5 @@
 const { div } = require('../../../../..')
-const styles = require('./styles')
+const styles = require('./css')
 
 module.exports = (children) => {
   return [
