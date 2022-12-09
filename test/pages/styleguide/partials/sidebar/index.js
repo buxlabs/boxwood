@@ -1,9 +1,9 @@
-const { div, style, fragment } = require('../../../../..')
-const { classes, styles } = require('./styles')
+const { div } = require('../../../../..')
+const styles = require('./styles')
 
 module.exports = (children) => {
-  return fragment([
-    div({ class: classes.sidebar }, children),
-    style(styles)
-  ])
+  return [
+    div({ class: styles.sidebar }, children),
+    styles.css
+  ]
 }

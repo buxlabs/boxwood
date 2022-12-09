@@ -5,7 +5,7 @@ async function compile (path) {
       const tree = fn(data)
       const nodes = {}
       const styles = []
-      walk(tree, node => {
+      const find = (node) => {
         if (node.name === 'head') {
           nodes.head = node
         }
@@ -13,7 +13,11 @@ async function compile (path) {
           styles.push(node.children)
           node.ignore = true
         }
-      })
+        if (Array.isArray(node)) {
+          node.forEach(find)
+        }
+      }
+      walk(tree, find)
       if (nodes.head && styles.length > 0) {
         nodes.head.children.push({
           name: 'style',
@@ -178,8 +182,8 @@ function css (values) {
   })
 
   return {
-    classes,
-    styles: csstree.generate(tree)
+    ...classes,
+    css: style(csstree.generate(tree))
   }
 }
 

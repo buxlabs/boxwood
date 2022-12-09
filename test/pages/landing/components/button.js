@@ -1,9 +1,9 @@
-const { button, fragment, style } = require('../../../..')
-const { classes, styles } = require('./styles')
+const { button } = require('../../../..')
+const styles = require('./styles')
 
 module.exports = (children) => {
-  return fragment([
-    button({ class: classes.button }, children),
-    style(styles)
-  ])
+  return [
+    button({ class: styles.button }, children),
+    styles.css
+  ]
 }
