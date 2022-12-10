@@ -4,12 +4,11 @@
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
-    "lint": "standard",
     "test": "ava '**/*.spec.js'",
     "coverage": "nyc npm test",
     "benchmark": "ava test/benchmark/index.js --verbose",
     "watch": "npm test -- --watch",
-    "prepush": "npm run lint && npm test"
+    "prepush": "npm test"
   },
   "ava": {
     "files": [
@@ -54,7 +53,6 @@
     "lodash.template": "4.5.0",
     "mustache": "^4.2.0",
     "nyc": "15.1.0",
-    "standard": "^17.0.0",
     "underscore": "^1.13.6"
   },
   "standard": {

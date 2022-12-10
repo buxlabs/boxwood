@@ -1,7 +1,10 @@
-async function compile (path) {
+const csstree = require('css-tree')
+const toHash = require('string-hash')
+
+async function compile(path) {
   const fn = require(path)
   return {
-    template (data) {
+    template(data) {
       const tree = fn(data)
       const nodes = {}
       const styles = []
@@ -21,18 +24,18 @@ async function compile (path) {
       if (nodes.head && styles.length > 0) {
         nodes.head.children.push({
           name: 'style',
-          children: styles.join('')
+          children: styles.join(''),
         })
       }
       return render(tree)
-    }
+    },
   }
 }
 
-function walk (tree, callback) {
+function walk(tree, callback) {
   callback(tree)
   if (Array.isArray(tree.children)) {
-    tree.children.map(node => walk(node, callback))
+    tree.children.map((node) => walk(node, callback))
   }
 }
 
@@ -41,7 +44,7 @@ const ENTITIES = {
   '<': '&lt;',
   '>': '&gt;',
   "'": '&#39;',
-  '"': '&quot;'
+  '"': '&quot;',
 }
 
 const REGEXP = /[&<>'"]/g
@@ -88,7 +91,7 @@ const BOOLEAN_ATTRIBUTES = [
   'selected',
   'sortable',
   'spellcheck',
-  'translate'
+  'translate',
 ]
 
 const attributes = (options) => {
@@ -104,16 +107,38 @@ const attributes = (options) => {
 }
 
 const SELF_CLOSING_TAGS = [
-  'area', 'base', 'br', 'col', 'command',
-  'embed', 'hr', 'img', 'input', 'keygen', 'link',
-  'meta', 'param', 'source', 'track', 'wbr', '!DOCTYPE html'
+  'area',
+  'base',
+  'br',
+  'col',
+  'command',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'keygen',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+  '!DOCTYPE html',
 ]
 
 const render = (input) => {
-  if (input.ignore) { return '' }
-  if (Array.isArray(input)) { return input.filter(Boolean).map(render).join('') }
-  if (typeof input === 'number') { return input.toString() }
-  if (typeof input === 'string') { return escape(input) }
+  if (input.ignore) {
+    return ''
+  }
+  if (Array.isArray(input)) {
+    return input.filter(Boolean).map(render).join('')
+  }
+  if (typeof input === 'number') {
+    return input.toString()
+  }
+  if (typeof input === 'string') {
+    return escape(input)
+  }
   if (input.name === 'fragment') {
     return render(input.children)
   }
@@ -124,10 +149,18 @@ const render = (input) => {
     return `<${input.name}>`
   }
   if (input.attributes && input.children) {
-    return `<${input.name} ` + attributes(input.attributes) + '>' + render(input.children) + `</${input.name}>`
+    return (
+      `<${input.name} ` +
+      attributes(input.attributes) +
+      '>' +
+      render(input.children) +
+      `</${input.name}>`
+    )
   }
   if (input.attributes) {
-    return `<${input.name} ` + attributes(input.attributes) + `></${input.name}>`
+    return (
+      `<${input.name} ` + attributes(input.attributes) + `></${input.name}>`
+    )
   }
   if (input.children) {
     return `<${input.name}>` + render(input.children) + `</${input.name}>`
@@ -147,7 +180,7 @@ const tag = (a, b, c) => {
     return {
       name,
       children,
-      attributes
+      attributes,
     }
   }
   const name = a
@@ -155,25 +188,22 @@ const tag = (a, b, c) => {
   if (SELF_CLOSING_TAGS.includes(name)) {
     return {
       name,
-      attributes: children
+      attributes: children,
     }
   }
   return {
     name,
-    children
+    children,
   }
 }
 
-const csstree = require('css-tree')
-const toHash = require('string-hash')
-
-function css (values) {
+function css(values) {
   const input = values[0]
   const hash = toHash(input).toString(36).substr(0, 5)
   const tree = csstree.parse(input)
   const classes = {}
 
-  csstree.walk(tree, node => {
+  csstree.walk(tree, (node) => {
     if (node.type === 'ClassSelector') {
       const name = `__${node.name}__${hash}`
       classes[node.name] = name
@@ -183,60 +213,134 @@ function css (values) {
 
   return {
     ...classes,
-    css: style(csstree.generate(tree))
+    css: tag('style', csstree.generate(tree)),
   }
 }
 
 const node = (name) => (options, children) => tag(name, options, children)
-
-const html = node('html')
-const head = node('head')
-const body = node('body')
-const div = node('div')
-const span = node('span')
-const style = node('style')
-const input = node('input')
-const h1 = node('h1')
-const h2 = node('h2')
-const h3 = node('h3')
-const h4 = node('h4')
-const h5 = node('h5')
-const h6 = node('h6')
-const ul = node('ul')
-const li = node('li')
-const button = node('button')
-const title = node('title')
-const a = node('a')
-const p = node('p')
 const doctype = node('!DOCTYPE html')
-const img = node('img')
-const meta = node('meta')
+
+const nodes = [
+  'a',
+  'abbr',
+  'address',
+  'area',
+  'article',
+  'aside',
+  'audio',
+  'b',
+  'base',
+  'bdi',
+  'bdo',
+  'blockquote',
+  'body',
+  'br',
+  'button',
+  'canvas',
+  'caption',
+  'cite',
+  'code',
+  'col',
+  'colgroup',
+  'data',
+  'datalist',
+  'dd',
+  'del',
+  'details',
+  'dfn',
+  'dialog',
+  'div',
+  'dl',
+  'dt',
+  'em',
+  'embed',
+  'fieldset',
+  'figcaption',
+  'figure',
+  'footer',
+  'form',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'head',
+  'header',
+  'hr',
+  'html',
+  'i',
+  'iframe',
+  'img',
+  'input',
+  'ins',
+  'kbd',
+  'label',
+  'legend',
+  'li',
+  'link',
+  'main',
+  'map',
+  'mark',
+  'meta',
+  'meter',
+  'nav',
+  'noscript',
+  'object',
+  'ol',
+  'optgroup',
+  'option',
+  'output',
+  'p',
+  'param',
+  'picture',
+  'pre',
+  'progress',
+  'q',
+  'rp',
+  'rt',
+  'ruby',
+  's',
+  'samp',
+  'script',
+  'section',
+  'select',
+  'small',
+  'source',
+  'span',
+  'strong',
+  'style',
+  'sub',
+  'summary',
+  'sup',
+  'svg',
+  'table',
+  'tbody',
+  'td',
+  'template',
+  'textarea',
+  'tfoot',
+  'th',
+  'thead',
+  'time',
+  'title',
+  'tr',
+  'track',
+  'u',
+  'ul',
+  'var',
+  'video',
+  'wbr',
+].reduce((result, name) => {
+  result[name] = node(name)
+  return result
+}, {})
 
 module.exports = {
   compile,
   doctype,
-  html,
-  head,
-  title,
-  body,
   escape,
   fragment,
-  div,
-  span,
-  style,
-  input,
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  ul,
-  li,
-  button,
-  img,
-  meta,
-  a,
-  p,
-  css
+  css,
+  ...nodes,
 }
