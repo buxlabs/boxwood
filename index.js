@@ -4,8 +4,8 @@ const toHash = require('string-hash')
 async function compile(path) {
   const fn = require(path)
   return {
-    template(data) {
-      const tree = fn(data)
+    template() {
+      const tree = fn(...arguments)
       const nodes = {}
       const styles = []
       const find = (node) => {
@@ -336,8 +336,30 @@ const nodes = [
   return result
 }, {})
 
+function classes() {
+  const array = []
+  for (let i = 0, ilen = arguments.length; i < ilen; i += 1) {
+    const arg = arguments[i]
+    if (!arg) {
+      continue
+    }
+    const type = typeof arg
+    if (type === 'string') {
+      array.push(arg)
+    } else if (type === 'object') {
+      for (const key in arg) {
+        if (arg[key]) {
+          array.push(key)
+        }
+      }
+    }
+  }
+  return array.join(' ')
+}
+
 module.exports = {
   compile,
+  classes,
   doctype,
   escape,
   fragment,
