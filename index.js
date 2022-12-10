@@ -8,6 +8,7 @@ async function compile(path) {
       const tree = fn(...arguments)
       const nodes = {}
       const styles = []
+      const scripts = []
       const find = (node) => {
         if (node.name === 'head') {
           nodes.head = node
@@ -16,16 +17,28 @@ async function compile(path) {
           styles.push(node.children)
           node.ignore = true
         }
+        if (node.name === 'script') {
+          scripts.push(node.children)
+          node.ignore = true
+        }
         if (Array.isArray(node)) {
           node.forEach(find)
         }
       }
       walk(tree, find)
-      if (nodes.head && styles.length > 0) {
-        nodes.head.children.push({
-          name: 'style',
-          children: styles.join(''),
-        })
+      if (nodes.head) {
+        if (styles.length > 0) {
+          nodes.head.children.push({
+            name: 'style',
+            children: styles.join(''),
+          })
+        }
+        if (scripts.length > 0) {
+          nodes.head.children.push({
+            name: 'script',
+            children: scripts.join(''),
+          })
+        }
       }
       return render(tree)
     },
@@ -197,10 +210,19 @@ const tag = (a, b, c) => {
   }
 }
 
-function css(values) {
-  const input = values[0]
-  const hash = toHash(input).toString(36).substr(0, 5)
-  const tree = csstree.parse(input)
+function css(inputs) {
+  let result = ''
+  for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
+    const input = inputs[i]
+    const value = arguments[i + 1]
+    if (value) {
+      result += input + value
+    } else {
+      result += input
+    }
+  }
+  const hash = toHash(result).toString(36).substr(0, 5)
+  const tree = csstree.parse(result)
   const classes = {}
 
   csstree.walk(tree, (node) => {
@@ -214,6 +236,22 @@ function css(values) {
   return {
     ...classes,
     css: tag('style', csstree.generate(tree)),
+  }
+}
+
+function js(inputs) {
+  let result = ''
+  for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
+    const input = inputs[i]
+    const value = arguments[i + 1]
+    if (value) {
+      result += input + value
+    } else {
+      result += input
+    }
+  }
+  return {
+    js: tag('script', result),
   }
 }
 
@@ -364,5 +402,6 @@ module.exports = {
   escape,
   fragment,
   css,
+  js,
   ...nodes,
 }
