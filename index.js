@@ -9,7 +9,7 @@ async function compile(path) {
       const nodes = {}
       const styles = []
       const scripts = []
-      const find = (node) => {
+      const walk = (node) => {
         if (node.name === 'head') {
           nodes.head = node
         }
@@ -22,10 +22,12 @@ async function compile(path) {
           node.ignore = true
         }
         if (Array.isArray(node)) {
-          node.forEach(find)
+          node.forEach(walk)
+        } else if (Array.isArray(node.children)) {
+          node.children.forEach(walk)
         }
       }
-      walk(tree, find)
+      walk(tree)
       if (nodes.head) {
         if (styles.length > 0) {
           nodes.head.children.push({
@@ -42,13 +44,6 @@ async function compile(path) {
       }
       return render(tree)
     },
-  }
-}
-
-function walk(tree, callback) {
-  callback(tree)
-  if (Array.isArray(tree.children)) {
-    tree.children.map((node) => walk(node, callback))
   }
 }
 
