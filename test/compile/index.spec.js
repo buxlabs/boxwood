@@ -20,6 +20,13 @@ test('compile: it returns a template which can require dependencies', async asse
   assert.deepEqual(template(), 'foo/bar')
 })
 
+test('compile: it works with attribute aliases', async assert => {
+  const { template } = await compile(join(__dirname, './fixtures/attributes.js'))
+
+  assert.deepEqual(template({ className: 'foo', htmlFor: 'bar' }, 'baz'), '<label class="foo" for="bar">baz</label>')
+})
+
+
 test('compile: it works with div tags', async assert => {
   const { template } = await compile(join(__dirname, './fixtures/tag/div.js'))
 

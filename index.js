@@ -107,13 +107,19 @@ const BOOLEAN_ATTRIBUTES = [
   'translate',
 ]
 
+const ALIASES = {
+  className: 'class',
+  htmlFor: 'for'
+}
+
 const attributes = (options) => {
   const result = []
   for (const key in options) {
     if (BOOLEAN_ATTRIBUTES.includes(key)) {
       result.push(key)
     } else {
-      result.push(key + '=' + '"' + options[key] + '"')
+      const name = ALIASES[key] || key
+      result.push(name + '=' + '"' + options[key] + '"')
     }
   }
   return result.join(' ')
