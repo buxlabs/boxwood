@@ -110,11 +110,14 @@ const ALIASES = {
 const attributes = (options) => {
   const result = []
   for (const key in options) {
-    if (BOOLEAN_ATTRIBUTES.includes(key)) {
-      result.push(key)
-    } else {
-      const name = ALIASES[key] || key
-      result.push(name + '=' + '"' + options[key] + '"')
+    const value = options[key]
+    if (value) {
+      if (BOOLEAN_ATTRIBUTES.includes(key)) {
+        result.push(key)
+      } else {
+        const name = ALIASES[key] || key
+        result.push(name + '=' + '"' + options[key] + '"')
+      }
     }
   }
   return result.join(' ')
