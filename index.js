@@ -57,7 +57,7 @@ const ENTITIES = {
 
 const REGEXP = /[&<>'"]/g
 
-const escape = (string) => {
+const escapeHTML = (string) => {
   return String.prototype.replace.call(string, REGEXP, function (character) {
     return ENTITIES[character]
   })
@@ -143,7 +143,11 @@ const SELF_CLOSING_TAGS = [
   '!DOCTYPE html',
 ]
 
-const render = (input) => {
+const isUnescapedTag = (name) => {
+  return !['script', 'style', 'template'].includes(name)
+}
+
+const render = (input, escape = true) => {
   if (input.ignore) {
     return ''
   }
@@ -154,7 +158,7 @@ const render = (input) => {
     return input.toString()
   }
   if (typeof input === 'string') {
-    return escape(input)
+    return escape ? escapeHTML(input) : input
   }
   if (input.name === 'fragment') {
     return render(input.children)
@@ -170,7 +174,7 @@ const render = (input) => {
       `<${input.name} ` +
       attributes(input.attributes) +
       '>' +
-      render(input.children) +
+      render(input.children, isUnescapedTag(input.name)) +
       `</${input.name}>`
     )
   }
@@ -180,7 +184,7 @@ const render = (input) => {
     )
   }
   if (input.children) {
-    return `<${input.name}>` + render(input.children) + `</${input.name}>`
+    return `<${input.name}>` + render(input.children, isUnescapedTag(input.name)) + `</${input.name}>`
   }
   return `<${input.name}></${input.name}>`
 }
@@ -403,7 +407,7 @@ module.exports = {
   compile,
   classes,
   doctype,
-  escape,
+  escape: escapeHTML,
   fragment,
   css,
   js,

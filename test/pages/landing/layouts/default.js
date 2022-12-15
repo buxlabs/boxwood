@@ -3,6 +3,7 @@ const { css, doctype, html, head, title, style, body } = require('../../../..')
 const styles = css`
 body {
   background: #ccc;
+  font-family: "Lato";
 }
 `
 
