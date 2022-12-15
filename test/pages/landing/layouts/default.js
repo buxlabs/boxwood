@@ -1,4 +1,10 @@
-const { doctype, html, head, title, style, body } = require('../../../..')
+const { css, doctype, html, head, title, style, body } = require('../../../..')
+
+const styles = css`
+body {
+  background: #ccc;
+}
+`
 
 module.exports = (children) => {
   return [
@@ -6,7 +12,7 @@ module.exports = (children) => {
     html([
       head([
         title('Landing page'),
-        style('body { background: #ccc; }')
+        styles.css
       ]),
       body(children)
     ])
