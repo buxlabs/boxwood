@@ -15,7 +15,7 @@ const styles = css`
 `
 
 const code = js`
-  const accordions = document.querySelector('${styles.accordion}')
+  const accordions = document.querySelector('.${styles.accordion}')
   accordions.forEach(accordion => {
     accordion.addEventListener('click', function () {
       const sibling = this.nextElement

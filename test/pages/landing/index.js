@@ -3,6 +3,9 @@ const button = require('./components/button')
 
 module.exports = () => layout([
   button(
-    'Hello, world!'
+    'Sign In'
+  ),
+  button(
+    'Sign Up'
   )
 ])

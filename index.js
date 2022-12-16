@@ -13,12 +13,21 @@ async function compile(path) {
         if (node.name === 'head') {
           nodes.head = node
         }
+        if (node.name === 'body') {
+          nodes.body = node
+        }
         if (node.name === 'style') {
-          styles.push(node.children)
+          const css = node.children
+          if (!styles.includes(css)) {
+            styles.push(css)
+          }
           node.ignore = true
         }
         if (node.name === 'script') {
-          scripts.push(node.children)
+          const js = node.children
+          if (!scripts.includes(js)) {
+            scripts.push(js)
+          }
           node.ignore = true
         }
         if (Array.isArray(node)) {
@@ -35,8 +44,10 @@ async function compile(path) {
             children: styles.join(''),
           })
         }
+      }
+      if (nodes.body) {
         if (scripts.length > 0) {
-          nodes.head.children.push({
+          nodes.body.children.push({
             name: 'script',
             children: scripts.join(''),
           })

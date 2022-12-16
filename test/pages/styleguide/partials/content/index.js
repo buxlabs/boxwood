@@ -1,5 +1,8 @@
 const { div } = require('../../../../..')
+const accordion = require('../../../../components/accordion')
 
-module.exports = (children) => {
-  return div(children)
+module.exports = () => {
+  return div([
+    accordion({ title: 'Section 1...' }, [])
+  ])
 }
