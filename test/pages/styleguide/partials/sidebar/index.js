@@ -1,5 +1,5 @@
-const { div } = require('../../../../..')
-const styles = require('./css')
+const { css, div } = require('../../../../..')
+const styles = css.load(__dirname, 'index.css')
 
 module.exports = () => {
   return [

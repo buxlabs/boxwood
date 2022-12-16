@@ -1,3 +1,5 @@
+const { join } = require('path')
+const { readFileSync } = require('fs')
 const csstree = require('css-tree')
 const toHash = require('string-hash')
 
@@ -258,6 +260,12 @@ function css(inputs) {
   }
 }
 
+css.load = function () {
+  const path = join(...arguments)
+  const content = readFileSync(path, 'utf8')
+  return css`${content}`
+}
+
 function js(inputs) {
   let result = ''
   for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
@@ -272,6 +280,12 @@ function js(inputs) {
   return {
     js: tag('script', result),
   }
+}
+
+js.load = function () {
+  const path = join(...arguments)
+  const content = readFileSync(path, 'utf8')
+  return js`${content}`
 }
 
 const node = (name) => (options, children) => tag(name, options, children)
