@@ -450,5 +450,6 @@ module.exports = {
   raw,
   css,
   js,
+  tag,
   ...nodes,
 }
