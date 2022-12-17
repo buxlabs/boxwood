@@ -176,6 +176,9 @@ const render = (input, escape = true) => {
   if (input.name === 'fragment') {
     return render(input.children)
   }
+  if (input.name === 'raw') {
+    return render(input.children, false)
+  }
   if (SELF_CLOSING_TAGS.includes(input.name)) {
     if (input.attributes) {
       return `<${input.name} ` + attributes(input.attributes) + '>'
@@ -204,6 +207,16 @@ const render = (input, escape = true) => {
 
 const fragment = (children) => {
   return { name: 'fragment', children }
+}
+
+const raw = (children) => {
+  return { name: 'raw', children }
+}
+
+raw.load = function () {
+  const path = join(...arguments)
+  const content = readFileSync(path, 'utf8')
+  return raw(content)
 }
 
 const tag = (a, b, c) => {
@@ -434,6 +447,7 @@ module.exports = {
   doctype,
   escape: escapeHTML,
   fragment,
+  raw,
   css,
   js,
   ...nodes,
