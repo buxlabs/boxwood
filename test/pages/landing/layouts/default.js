@@ -1,11 +1,5 @@
 const { css, doctype, html, head, title, style, body } = require('../../../..')
-
-const styles = css`
-body {
-  background: #ccc;
-  font-family: "Lato";
-}
-`
+const styles = css.load(__dirname, 'default.css')
 
 module.exports = (children) => {
   return [

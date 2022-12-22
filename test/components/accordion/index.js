@@ -1,18 +1,6 @@
 const { css, div, js, h3 } = require('../../..')
 
-const styles = css`
-  .accordion {
-    cursor: pointer;
-  }
-
-  .content {
-    background: white;
-  }
-
-  .hidden {
-    display: none;
-  }
-`
+const styles = css.load(__dirname, 'index.css')
 
 const code = js`
   const accordions = document.querySelector('.${styles.accordion}')

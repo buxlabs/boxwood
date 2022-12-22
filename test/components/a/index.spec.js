@@ -14,6 +14,6 @@ test('#components/a: it returns a component with css', async (assert) => {
       },
       'foo'
     ),
-    '<a class="__link__ybr2b foo" href="/bar" target="_blank">foo</a>'
+    '<a class="__link__7ge2y foo" href="/bar" target="_blank">foo</a>'
   )
 })

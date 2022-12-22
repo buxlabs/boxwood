@@ -1,0 +1,11 @@
+.accordion {
+  cursor: pointer;
+}
+
+.content {
+  background: white;
+}
+
+.hidden {
+  display: none;
+}

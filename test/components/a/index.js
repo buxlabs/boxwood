@@ -1,12 +1,5 @@
 const { a, css } = require('../../..')
-
-const styles = css`
-  .link {
-    color: #4183c4;
-    cursor: pointer;
-    text-decoration: none;
-  }
-`
+const styles = css.load(__dirname, 'index.css')
 
 module.exports = ({ className, href, target }, children = []) => {
   return [
