@@ -12,6 +12,7 @@ async function compile(path) {
       const styles = []
       const scripts = []
       const walk = (node) => {
+        if (!node) { return }
         if (node.name === 'head') {
           nodes.head = node
         }
@@ -35,7 +36,7 @@ async function compile(path) {
         if (Array.isArray(node)) {
           node.forEach(walk)
         } else if (Array.isArray(node.children)) {
-          node.children.forEach(walk)
+          node.children.filter(Boolean).forEach(walk)
         }
       }
       walk(tree)

@@ -3,7 +3,7 @@ const sidebar = require('./partials/sidebar')
 const content = require('./partials/content')
 
 module.exports = () => {
-  return layout([
+  return layout({ title: 'Styleguide' }, [
     sidebar(),
     content()
   ])

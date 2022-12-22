@@ -1,10 +1,11 @@
-const { html, head, title, style, body } = require('../../../..')
+const { html, head, tag, meta, style, body, } = require('../../../..')
 
-module.exports = (children) => {
+module.exports = ({ title, description }, children) => {
   return html([
     head([
-      title('Landing page'),
-      style('body { background: #ccc; }')
+      title && tag('title', title),
+      style('body { background: #ccc; }'),
+      description && meta({ name: 'description', content: description })
     ]),
     body(children)
   ])
