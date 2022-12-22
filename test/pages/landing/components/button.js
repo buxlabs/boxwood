@@ -1,9 +1,9 @@
-const { button } = require('../../../..')
-const styles = require('./css')
+const { button, css } = require('../../../..')
+const styles = css.load(__dirname, 'button.css')
 
-module.exports = (children) => {
+module.exports = ({ className }, children) => {
   return [
-    button({ class: styles.button }, children),
+    button({ class: [className, styles.button] }, children),
     styles.css
   ]
 }

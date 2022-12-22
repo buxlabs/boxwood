@@ -1,4 +1,4 @@
-const { classes, css, div, js, h3 } = require('../../..')
+const { css, div, js, h3 } = require('../../..')
 
 const styles = css`
   .accordion {
@@ -27,7 +27,7 @@ const code = js`
 module.exports = ({ title }, children) => {
   return [
     h3({ class: styles.accordion }, title),
-    div({ class: classes(styles.content, styles.hidden) }, children),
+    div({ class: [styles.content, styles.hidden] }, children),
     styles.css,
     code.js,
   ]

@@ -1,4 +1,4 @@
-const { a, classes, css } = require('../../..')
+const { a, css } = require('../../..')
 
 const styles = css`
   .link {
@@ -10,7 +10,7 @@ const styles = css`
 
 module.exports = ({ className, href, target }, children = []) => {
   return [
-    a({ class: classes(styles.link, className), href, target }, children),
+    a({ class: [styles.link, className], href, target }, children),
     styles.css,
   ]
 }

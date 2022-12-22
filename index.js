@@ -130,7 +130,9 @@ const attributes = (options) => {
         result.push(key)
       } else {
         const name = ALIASES[key] || key
-        result.push(name + '=' + '"' + options[key] + '"')
+        const value = options[key]
+        const content = Array.isArray(value) ? classes(...value) : value
+        result.push(name + '=' + '"' + content + '"')
       }
     }
   }

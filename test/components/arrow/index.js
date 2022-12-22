@@ -1,4 +1,4 @@
-const { classes, css, span } = require('../../..')
+const { css, span } = require('../../..')
 
 const styles = css`
 .arrow {
@@ -22,5 +22,5 @@ const styles = css`
 `
 
 module.exports = ({ direction }) => {
-  return span({ class: classes(styles.arrow, { [styles[direction]]: direction }) }, [])
+  return span({ class: [styles.arrow, { [styles[direction]]: direction }] }, [])
 }

@@ -1,4 +1,4 @@
-const { css, div, classes } = require('../../..')
+const { css, div } = require('../../..')
 
 const styles = css`
 .avatar {
@@ -28,7 +28,7 @@ const styles = css`
 
 module.exports = ({ image, text }) => {
   if (image) {
-    return div({ class: classes(styles.avatar, styles.image), style: `background-image: url(${image})` }, [])
+    return div({ class: [styles.avatar, styles.image], style: `background-image: url(${image})` }, [])
   }
-  return div({ class: classes(styles.avatar, styles.text) }, text)
+  return div({ class: [styles.avatar, styles.text] }, text)
 }
