@@ -1,19 +1,19 @@
-const test = require('ava')
-const { join } = require('path')
-const { compile } = require('../../..')
+const test = require("ava")
+const { join } = require("path")
+const { compile } = require("../../..")
 
-test('#components/a: it returns a component with css', async (assert) => {
-  const { template } = await compile(join(__dirname, './index.js'))
+test("#components/a: it returns a component with css", async (assert) => {
+  const { template } = await compile(join(__dirname, "./index.js"))
 
   assert.deepEqual(
     template(
       {
-        className: 'foo',
-        href: '/bar',
-        target: '_blank',
+        className: "foo",
+        href: "/bar",
+        target: "_blank",
       },
-      'foo'
+      "foo"
     ),
-    '<a class="__link__7ge2y foo" href="/bar" target="_blank">foo</a>'
+    '<a class="__link__1f29w foo" href="/bar" target="_blank">foo</a>'
   )
 })

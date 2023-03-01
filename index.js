@@ -1,7 +1,7 @@
-const { join } = require('path')
-const { readFileSync } = require('fs')
-const csstree = require('css-tree')
-const toHash = require('string-hash')
+const { join } = require("path")
+const { readFileSync } = require("fs")
+const csstree = require("css-tree")
+const toHash = require("string-hash")
 
 async function compile(path) {
   const fn = require(path)
@@ -12,21 +12,23 @@ async function compile(path) {
       const styles = []
       const scripts = []
       const walk = (node) => {
-        if (!node) { return }
-        if (node.name === 'head') {
+        if (!node) {
+          return
+        }
+        if (node.name === "head") {
           nodes.head = node
         }
-        if (node.name === 'body') {
+        if (node.name === "body") {
           nodes.body = node
         }
-        if (node.name === 'style') {
+        if (node.name === "style") {
           const css = node.children
           if (!styles.includes(css)) {
             styles.push(css)
           }
           node.ignore = true
         }
-        if (node.name === 'script') {
+        if (node.name === "script") {
           const js = node.children
           if (!scripts.includes(js)) {
             scripts.push(js)
@@ -43,16 +45,16 @@ async function compile(path) {
       if (nodes.head) {
         if (styles.length > 0) {
           nodes.head.children.push({
-            name: 'style',
-            children: styles.join(''),
+            name: "style",
+            children: styles.join(""),
           })
         }
       }
       if (nodes.body) {
         if (scripts.length > 0) {
           nodes.body.children.push({
-            name: 'script',
-            children: scripts.join(''),
+            name: "script",
+            children: scripts.join(""),
           })
         }
       }
@@ -62,11 +64,11 @@ async function compile(path) {
 }
 
 const ENTITIES = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  "'": '&#39;',
-  '"': '&quot;',
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  "'": "&#39;",
+  '"': "&quot;",
 }
 
 const REGEXP = /[&<>'"]/g
@@ -78,47 +80,47 @@ const escapeHTML = (string) => {
 }
 
 const BOOLEAN_ATTRIBUTES = [
-  'async',
-  'autofocus',
-  'autoplay',
-  'border',
-  'challenge',
-  'checked',
-  'compact',
-  'contenteditable',
-  'controls',
-  'default',
-  'defer',
-  'disabled',
-  'formnovalidate',
-  'frameborder',
-  'hidden',
-  'indeterminate',
-  'ismap',
-  'loop',
-  'multiple',
-  'muted',
-  'nohref',
-  'noresize',
-  'noshade',
-  'novalidate',
-  'nowrap',
-  'open',
-  'readonly',
-  'required',
-  'reversed',
-  'scoped',
-  'scrolling',
-  'seamless',
-  'selected',
-  'sortable',
-  'spellcheck',
-  'translate',
+  "async",
+  "autofocus",
+  "autoplay",
+  "border",
+  "challenge",
+  "checked",
+  "compact",
+  "contenteditable",
+  "controls",
+  "default",
+  "defer",
+  "disabled",
+  "formnovalidate",
+  "frameborder",
+  "hidden",
+  "indeterminate",
+  "ismap",
+  "loop",
+  "multiple",
+  "muted",
+  "nohref",
+  "noresize",
+  "noshade",
+  "novalidate",
+  "nowrap",
+  "open",
+  "readonly",
+  "required",
+  "reversed",
+  "scoped",
+  "scrolling",
+  "seamless",
+  "selected",
+  "sortable",
+  "spellcheck",
+  "translate",
 ]
 
 const ALIASES = {
-  className: 'class',
-  htmlFor: 'for'
+  className: "class",
+  htmlFor: "for",
 }
 
 const attributes = (options) => {
@@ -132,59 +134,59 @@ const attributes = (options) => {
         const name = ALIASES[key] || key
         const value = options[key]
         const content = Array.isArray(value) ? classes(...value) : value
-        result.push(name + '=' + '"' + content + '"')
+        result.push(name + "=" + '"' + content + '"')
       }
     }
   }
-  return result.join(' ')
+  return result.join(" ")
 }
 
 const SELF_CLOSING_TAGS = [
-  'area',
-  'base',
-  'br',
-  'col',
-  'command',
-  'embed',
-  'hr',
-  'img',
-  'input',
-  'keygen',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track',
-  'wbr',
-  '!DOCTYPE html',
+  "area",
+  "base",
+  "br",
+  "col",
+  "command",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "keygen",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr",
+  "!DOCTYPE html",
 ]
 
 const isUnescapedTag = (name) => {
-  return !['script', 'style', 'template'].includes(name)
+  return !["script", "style", "template"].includes(name)
 }
 
 const render = (input, escape = true) => {
   if (input.ignore) {
-    return ''
+    return ""
   }
   if (Array.isArray(input)) {
-    return input.filter(Boolean).map(render).join('')
+    return input.filter(Boolean).map(render).join("")
   }
-  if (typeof input === 'number') {
+  if (typeof input === "number") {
     return input.toString()
   }
-  if (typeof input === 'string') {
+  if (typeof input === "string") {
     return escape ? escapeHTML(input) : input
   }
-  if (input.name === 'fragment') {
+  if (input.name === "fragment") {
     return render(input.children)
   }
-  if (input.name === 'raw') {
+  if (input.name === "raw") {
     return render(input.children, false)
   }
   if (SELF_CLOSING_TAGS.includes(input.name)) {
     if (input.attributes) {
-      return `<${input.name} ` + attributes(input.attributes) + '>'
+      return `<${input.name} ` + attributes(input.attributes) + ">"
     }
     return `<${input.name}>`
   }
@@ -192,7 +194,7 @@ const render = (input, escape = true) => {
     return (
       `<${input.name} ` +
       attributes(input.attributes) +
-      '>' +
+      ">" +
       render(input.children, isUnescapedTag(input.name)) +
       `</${input.name}>`
     )
@@ -203,22 +205,26 @@ const render = (input, escape = true) => {
     )
   }
   if (input.children) {
-    return `<${input.name}>` + render(input.children, isUnescapedTag(input.name)) + `</${input.name}>`
+    return (
+      `<${input.name}>` +
+      render(input.children, isUnescapedTag(input.name)) +
+      `</${input.name}>`
+    )
   }
   return `<${input.name}></${input.name}>`
 }
 
 const fragment = (children) => {
-  return { name: 'fragment', children }
+  return { name: "fragment", children }
 }
 
 const raw = (children) => {
-  return { name: 'raw', children }
+  return { name: "raw", children }
 }
 
 raw.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, 'utf8')
+  const content = readFileSync(path, "utf8")
   return raw(content)
 }
 
@@ -248,7 +254,7 @@ const tag = (a, b, c) => {
 }
 
 function css(inputs) {
-  let result = ''
+  let result = ""
   for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
     const input = inputs[i]
     const value = arguments[i + 1]
@@ -263,7 +269,7 @@ function css(inputs) {
   const classes = {}
 
   csstree.walk(tree, (node) => {
-    if (node.type === 'ClassSelector') {
+    if (node.type === "ClassSelector") {
       const name = `__${node.name}__${hash}`
       classes[node.name] = name
       node.name = name
@@ -272,18 +278,20 @@ function css(inputs) {
 
   return {
     ...classes,
-    css: tag('style', csstree.generate(tree)),
+    css: tag("style", csstree.generate(tree)),
   }
 }
 
 css.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, 'utf8')
-  return css`${content}`
+  const content = readFileSync(path, "utf8")
+  return css`
+    ${content}
+  `
 }
 
 function js(inputs) {
-  let result = ''
+  let result = ""
   for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
     const input = inputs[i]
     const value = arguments[i + 1]
@@ -294,130 +302,130 @@ function js(inputs) {
     }
   }
   return {
-    js: tag('script', result),
+    js: tag("script", result),
   }
 }
 
 js.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, 'utf8')
+  const content = readFileSync(path, "utf8")
   return js`${content}`
 }
 
 const node = (name) => (options, children) => tag(name, options, children)
-const doctype = node('!DOCTYPE html')
+const doctype = node("!DOCTYPE html")
 
 const nodes = [
-  'a',
-  'abbr',
-  'address',
-  'area',
-  'article',
-  'aside',
-  'audio',
-  'b',
-  'base',
-  'bdi',
-  'bdo',
-  'blockquote',
-  'body',
-  'br',
-  'button',
-  'canvas',
-  'caption',
-  'cite',
-  'code',
-  'col',
-  'colgroup',
-  'data',
-  'datalist',
-  'dd',
-  'del',
-  'details',
-  'dfn',
-  'dialog',
-  'div',
-  'dl',
-  'dt',
-  'em',
-  'embed',
-  'fieldset',
-  'figcaption',
-  'figure',
-  'footer',
-  'form',
-  'h1',
-  'h2',
-  'h3',
-  'h4',
-  'h5',
-  'h6',
-  'head',
-  'header',
-  'hr',
-  'html',
-  'i',
-  'iframe',
-  'img',
-  'input',
-  'ins',
-  'kbd',
-  'label',
-  'legend',
-  'li',
-  'link',
-  'main',
-  'map',
-  'mark',
-  'meta',
-  'meter',
-  'nav',
-  'noscript',
-  'object',
-  'ol',
-  'optgroup',
-  'option',
-  'output',
-  'p',
-  'param',
-  'picture',
-  'pre',
-  'progress',
-  'q',
-  'rp',
-  'rt',
-  'ruby',
-  's',
-  'samp',
-  'script',
-  'section',
-  'select',
-  'small',
-  'source',
-  'span',
-  'strong',
-  'style',
-  'sub',
-  'summary',
-  'sup',
-  'svg',
-  'table',
-  'tbody',
-  'td',
-  'template',
-  'textarea',
-  'tfoot',
-  'th',
-  'thead',
-  'time',
-  'title',
-  'tr',
-  'track',
-  'u',
-  'ul',
-  'var',
-  'video',
-  'wbr',
+  "a",
+  "abbr",
+  "address",
+  "area",
+  "article",
+  "aside",
+  "audio",
+  "b",
+  "base",
+  "bdi",
+  "bdo",
+  "blockquote",
+  "body",
+  "br",
+  "button",
+  "canvas",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "data",
+  "datalist",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "dialog",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "embed",
+  "fieldset",
+  "figcaption",
+  "figure",
+  "footer",
+  "form",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "head",
+  "header",
+  "hr",
+  "html",
+  "i",
+  "iframe",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "label",
+  "legend",
+  "li",
+  "link",
+  "main",
+  "map",
+  "mark",
+  "meta",
+  "meter",
+  "nav",
+  "noscript",
+  "object",
+  "ol",
+  "optgroup",
+  "option",
+  "output",
+  "p",
+  "param",
+  "picture",
+  "pre",
+  "progress",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "s",
+  "samp",
+  "script",
+  "section",
+  "select",
+  "small",
+  "source",
+  "span",
+  "strong",
+  "style",
+  "sub",
+  "summary",
+  "sup",
+  "svg",
+  "table",
+  "tbody",
+  "td",
+  "template",
+  "textarea",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "title",
+  "tr",
+  "track",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr",
 ].reduce((result, name) => {
   result[name] = node(name)
   return result
@@ -431,9 +439,9 @@ function classes() {
       continue
     }
     const type = typeof arg
-    if (type === 'string') {
+    if (type === "string") {
       array.push(arg)
-    } else if (type === 'object') {
+    } else if (type === "object") {
       for (const key in arg) {
         if (arg[key]) {
           array.push(key)
@@ -441,7 +449,13 @@ function classes() {
       }
     }
   }
-  return array.join(' ')
+  return array.join(" ")
+}
+
+function i18n(translations) {
+  return function translate(language, key) {
+    return translations[key][language]
+  }
 }
 
 module.exports = {
@@ -454,5 +468,6 @@ module.exports = {
   css,
   js,
   tag,
+  i18n,
   ...nodes,
 }
