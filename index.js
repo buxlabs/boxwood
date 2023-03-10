@@ -5,6 +5,10 @@ const toHash = require("string-hash")
 const YAML = require("yaml")
 
 async function compile(path) {
+  if (process.env.NODE_ENV === "development") {
+    const name = require.resolve(path)
+    delete require.cache[name]
+  }
   const fn = require(path)
   return {
     template() {
