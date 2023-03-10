@@ -2,6 +2,7 @@ const { join } = require("path")
 const { readFileSync } = require("fs")
 const csstree = require("css-tree")
 const toHash = require("string-hash")
+const YAML = require("yaml")
 
 async function compile(path) {
   const fn = require(path)
@@ -455,6 +456,17 @@ function classes() {
 function i18n(translations) {
   return function translate(language, key) {
     return translations[key][language]
+  }
+}
+
+i18n.load = function () {
+  const path = join(...arguments)
+  const content = readFileSync(path, "utf8")
+  const data = path.endsWith(".yaml")
+    ? YAML.parse(content)
+    : JSON.parse(content)
+  return function translate(language, key) {
+    return data[key][language]
   }
 }
 

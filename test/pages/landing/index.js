@@ -1,7 +1,11 @@
-const layout = require('./layouts/default')
-const button = require('./components/button')
+const { i18n } = require("../../..")
+const layout = require("./layouts/default")
+const button = require("./components/button")
 
-module.exports = () => layout([
-  button({}, 'Sign In'),
-  button({}, 'Sign Up')
-])
+const translate = i18n.load(__dirname, "index.yaml")
+
+module.exports = () =>
+  layout([
+    button({}, translate("pl", "foo")),
+    button({}, translate("en", "foo")),
+  ])
