@@ -1,4 +1,4 @@
-const { div, i18n } = require("../../../../..")
+const { component, div, i18n } = require("../../../../..")
 const accordion = require("../../../../components/accordion")
 
 const translate = i18n({
@@ -8,8 +8,8 @@ const translate = i18n({
   },
 })
 
-module.exports = ({ language }) => {
+module.exports = component(({ language }) => {
   return div([
     accordion({ title: "Section 1..." }, [translate(language, "hey")]),
   ])
-}
+})

@@ -474,8 +474,28 @@ i18n.load = function () {
   }
 }
 
+function component(fn, styles) {
+  function execute(a, b) {
+    if (typeof a === "string" || Array.isArray(a)) {
+      return fn({}, a)
+    }
+    return fn(a, b || [])
+  }
+  return function (a, b) {
+    const tree = execute(a, b)
+    if (styles) {
+      if (Array.isArray(tree)) {
+        return tree.concat(styles.css)
+      }
+      return [tree, styles.css]
+    }
+    return tree
+  }
+}
+
 module.exports = {
   compile,
+  component,
   classes,
   doctype,
   escape: escapeHTML,

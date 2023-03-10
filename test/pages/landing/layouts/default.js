@@ -1,15 +1,21 @@
-const { css, doctype, html, head, title, style, body } = require('../../../..')
-const styles = css.load(__dirname, 'default.css')
+const {
+  component,
+  css,
+  doctype,
+  html,
+  head,
+  title,
+  style,
+  body,
+} = require("../../../..")
+const styles = css.load(__dirname, "default.css")
 
-module.exports = (children) => {
+module.exports = component(({ language }, children) => {
   return [
     doctype(),
-    html([
-      head([
-        title('Landing page'),
-        styles.css
-      ]),
-      body(children)
-    ])
+    html({ lang: language }, [
+      head([title("Landing page"), styles.css]),
+      body(children),
+    ]),
   ]
-}
+})
