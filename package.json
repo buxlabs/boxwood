@@ -1,6 +1,6 @@
 {
   "name": "boxwood",
-  "version": "0.65.0",
+  "version": "0.66.0",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
