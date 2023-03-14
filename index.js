@@ -457,6 +457,22 @@ function classes() {
   return array.join(" ")
 }
 
+const yaml = {
+  load() {
+    const path = join(...arguments)
+    const content = readFileSync(path, "utf8")
+    return YAML.parse(content)
+  },
+}
+
+const json = {
+  load() {
+    const path = join(...arguments)
+    const content = readFileSync(path, "utf8")
+    return JSON.parse(content)
+  },
+}
+
 function i18n(translations) {
   return function translate(language, key) {
     return translations[key][language]
@@ -465,19 +481,22 @@ function i18n(translations) {
 
 i18n.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, "utf8")
-  const data = path.endsWith(".yaml")
-    ? YAML.parse(content)
-    : JSON.parse(content)
+  const data = path.endsWith(".yaml") ? yaml.load(path) : json.load(path)
   return function translate(language, key) {
     return data[key][language]
   }
 }
 
-function component(fn, styles) {
+function component(fn, { styles, i18n } = {}) {
   function execute(a, b) {
     if (typeof a === "string" || Array.isArray(a)) {
       return fn({}, a)
+    }
+    if (i18n) {
+      function translate(key) {
+        return i18n[key][a.language]
+      }
+      return fn({ ...a, translate }, b || [])
     }
     return fn(a, b || [])
   }
@@ -503,6 +522,8 @@ module.exports = {
   raw,
   css,
   js,
+  yaml,
+  json,
   tag,
   i18n,
   ...nodes,
