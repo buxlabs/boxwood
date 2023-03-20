@@ -38,7 +38,10 @@ test("compile: it works with attribute aliases", async (assert) => {
 test("compile: it works with div tags", async (assert) => {
   const { template } = await compile(join(__dirname, "./fixtures/tag/div.js"))
 
-  assert.deepEqual(template(), '<div>foo</div><div id="bar"></div><div></div>')
+  assert.deepEqual(
+    template(),
+    '<div>foo</div><br><div id="bar"></div><br id="baz"><div></div>'
+  )
 })
 
 test("compile: it works with input tags", async (assert) => {
