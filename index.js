@@ -285,7 +285,8 @@ function css(inputs) {
 
 css.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, "utf8")
+  const file = path.endsWith(".css") ? path : join(path, "index.css")
+  const content = readFileSync(file, "utf8")
   return css`
     ${content}
   `
@@ -309,7 +310,8 @@ function js(inputs) {
 
 js.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, "utf8")
+  const file = path.endsWith(".js") ? path : join(path, "index.js")
+  const content = readFileSync(file, "utf8")
   return js`${content}`
 }
 
@@ -456,6 +458,7 @@ function classes() {
 const yaml = {
   load() {
     const path = join(...arguments)
+    const file = path.endsWith(".yaml") ? path : join(path, "index.yaml")
     const content = readFileSync(path, "utf8")
     return YAML.parse(content)
   },
@@ -464,7 +467,8 @@ const yaml = {
 const json = {
   load() {
     const path = join(...arguments)
-    const content = readFileSync(path, "utf8")
+    const file = path.endsWith(".json") ? path : join(path, "index.json")
+    const content = readFileSync(file, "utf8")
     return JSON.parse(content)
   },
 }
