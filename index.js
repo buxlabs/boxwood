@@ -230,27 +230,21 @@ raw.load = function () {
 }
 
 const tag = (a, b, c) => {
-  if (a && b && c) {
+  if (typeof b === "string" || typeof b === "number" || Array.isArray(b)) {
     const name = a
-    const attributes = b
-    const children = c
+    const children = b
     return {
       name,
-      children,
-      attributes,
+      children: children,
     }
   }
   const name = a
-  const children = b
-  if (SELF_CLOSING_TAGS.includes(name)) {
-    return {
-      name,
-      attributes: children,
-    }
-  }
+  const attributes = b
+  const children = c || []
   return {
     name,
     children,
+    attributes,
   }
 }
 
@@ -489,7 +483,7 @@ i18n.load = function () {
 
 function component(fn, { styles, i18n } = {}) {
   function execute(a, b) {
-    if (typeof a === "string" || Array.isArray(a)) {
+    if (typeof a === "string" || typeof a === "number" || Array.isArray(a)) {
       return fn({}, a)
     }
     if (i18n) {

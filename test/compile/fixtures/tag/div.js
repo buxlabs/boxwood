@@ -1,3 +1,3 @@
-const { div } = require('../../../..')
+const { div } = require("../../../..")
 
-module.exports = () => div('foo')
+module.exports = () => [div("foo"), div({ id: "bar" }), div()]
