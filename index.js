@@ -477,7 +477,16 @@ i18n.load = function () {
   const path = join(...arguments)
   const data = path.endsWith(".yaml") ? yaml.load(path) : json.load(path)
   return function translate(language, key) {
-    return data[key][language]
+    if (!language) {
+      throw new Error("TranslationError[method]: language is undefined")
+    }
+    const translation = data[key][language]
+    if (!translation) {
+      throw new Error(
+        `TranslationError[method]: translation for [${key}][${language}] is undefined`
+      )
+    }
+    return translation
   }
 }
 
@@ -487,8 +496,18 @@ function component(fn, { styles, i18n } = {}) {
       return fn({}, a)
     }
     if (i18n) {
+      const { language } = a
       function translate(key) {
-        return i18n[key][a.language]
+        if (!language) {
+          throw new Error("TranslationError[component]: language is undefined")
+        }
+        const translation = i18n[key][language]
+        if (!translation) {
+          throw new Error(
+            `TranslationError[component]: translation for [${key}][${language}] is undefined`
+          )
+        }
+        return translation
       }
       return fn({ ...a, translate }, b || [])
     }
