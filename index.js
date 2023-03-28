@@ -438,6 +438,8 @@ function classes() {
     const type = typeof arg
     if (type === "string") {
       array.push(arg)
+    } else if (Array.isArray(arg)) {
+      array.push(classes(...arg))
     } else if (type === "object") {
       for (const key in arg) {
         if (arg[key]) {
