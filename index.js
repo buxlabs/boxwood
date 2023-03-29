@@ -455,7 +455,7 @@ const yaml = {
   load() {
     const path = join(...arguments)
     const file = path.endsWith(".yaml") ? path : join(path, "index.yaml")
-    const content = readFileSync(path, "utf8")
+    const content = readFileSync(file, "utf8")
     return YAML.parse(content)
   },
 }
