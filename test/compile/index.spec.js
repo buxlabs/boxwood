@@ -49,3 +49,12 @@ test("compile: it works with input tags", async (assert) => {
 
   assert.deepEqual(template(), "<input checked>")
 })
+
+test("compile: it escapes html", async (assert) => {
+  const { template } = await compile(join(__dirname, "./fixtures/escape.js"))
+
+  assert.deepEqual(
+    template(),
+    "<code>&lt;h1&gt;foo&lt;/h1&gt;</code><code>&lt;h2&gt;bar&lt;/h2&gt;&lt;h2&gt;baz&lt;/h2&gt;</code>"
+  )
+})

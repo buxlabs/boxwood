@@ -171,7 +171,10 @@ const render = (input, escape = true) => {
     return ""
   }
   if (Array.isArray(input)) {
-    return input.filter(Boolean).map(render).join("")
+    return input
+      .filter(Boolean)
+      .map((input) => render(input))
+      .join("")
   }
   if (typeof input === "number") {
     return input.toString()
