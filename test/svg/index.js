@@ -1,12 +1,7 @@
-const { div, raw, svg, tag } = require('../..')
+const { div, svg, tag } = require("../..")
 
-const line = raw.load(__dirname, 'line.svg')
+const line = svg.load(__dirname, "line.svg")
 
 module.exports = () => {
-  return div([
-    line,
-    svg([
-      tag('rect')
-    ])
-  ])
+  return div([line, svg([tag("rect")])])
 }

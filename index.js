@@ -431,6 +431,34 @@ const nodes = [
   return result
 }, {})
 
+function extension(path) {
+  const parts = path.split(".")
+  return parts[parts.length - 1].toLowerCase()
+}
+
+function media(path) {
+  const type = extension(path)
+  return `image/${type === "jpg" ? "jpeg" : type}`
+}
+
+function base64({ content, path }) {
+  return `data:${media(path)};base64,${content}`
+}
+
+nodes.img.load = function () {
+  const path = join(...arguments)
+  const content = readFileSync(path, "base64")
+  return (options) => {
+    return nodes.img({ src: base64({ content, path }), ...options })
+  }
+}
+
+nodes.svg.load = function () {
+  const path = join(...arguments)
+  const content = readFileSync(path, "utf8")
+  return raw(content)
+}
+
 function classes() {
   const array = []
   for (let i = 0, ilen = arguments.length; i < ilen; i += 1) {
