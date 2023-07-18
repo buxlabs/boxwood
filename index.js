@@ -438,6 +438,9 @@ function extension(path) {
 
 function media(path) {
   const type = extension(path)
+  if (type === "svg") {
+    return "image/svg+xml"
+  }
   return `image/${type === "jpg" ? "jpeg" : type}`
 }
 

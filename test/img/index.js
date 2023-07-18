@@ -1,7 +1,8 @@
 const { img } = require("../..")
 
-const line = img.load(__dirname, "line.png")
+const line1 = img.load(__dirname, "line.png")
+const line2 = img.load(__dirname, "line.svg")
 
 module.exports = () => {
-  return line()
+  return [line1(), line2()]
 }

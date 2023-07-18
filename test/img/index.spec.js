@@ -7,4 +7,5 @@ test("#img.load: loads image as base64", async (assert) => {
   assert.truthy(
     template().includes('<img src="data:image/png;base64,MTAwMQ==">')
   )
+  assert.truthy(template().includes('<img src="data:image/svg+xml;base64,PHN'))
 })
