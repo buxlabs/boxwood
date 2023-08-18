@@ -1,13 +1,7 @@
 const { raw } = require("../..")
 
-const html = `
-<ul>
-  <li>foo</li>
-  <li>bar</li>
-  <li>baz</li>
-</ul>
-`
+const content = raw.load(__dirname, "content.html")
 
 module.exports = () => {
-  return raw(html)
+  return content
 }
