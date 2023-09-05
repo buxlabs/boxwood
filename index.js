@@ -531,7 +531,7 @@ i18n.load = function () {
   }
 }
 
-function component(fn, { styles, i18n } = {}) {
+function component(fn, { styles, i18n, code } = {}) {
   function execute(a, b) {
     if (typeof a === "string" || typeof a === "number" || Array.isArray(a)) {
       return fn({}, a)
@@ -563,11 +563,23 @@ function component(fn, { styles, i18n } = {}) {
   }
   return function (a, b) {
     const tree = execute(a, b)
+    if (styles && code) {
+      if (Array.isArray(tree)) {
+        return tree.concat(styles.css, code.js)
+      }
+      return [tree, styles.css, code.js]
+    }
     if (styles) {
       if (Array.isArray(tree)) {
         return tree.concat(styles.css)
       }
       return [tree, styles.css]
+    }
+    if (code) {
+      if (Array.isArray(tree)) {
+        return tree.concat(code.js)
+      }
+      return [tree, code.js]
     }
     return tree
   }

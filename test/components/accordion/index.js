@@ -1,6 +1,6 @@
-const { css, div, js, h3 } = require('../../..')
+const { component, css, div, js, h3 } = require("../../..")
 
-const styles = css.load(__dirname, 'index.css')
+const styles = css.load(__dirname, "index.css")
 
 const code = js`
   const accordions = document.querySelector('.${styles.accordion}')
@@ -12,11 +12,12 @@ const code = js`
   })
 `
 
-module.exports = ({ title }, children) => {
-  return [
-    h3({ class: styles.accordion }, title),
-    div({ class: [styles.content, styles.hidden] }, children),
-    styles.css,
-    code.js,
-  ]
-}
+module.exports = component(
+  ({ title }, children) => {
+    return [
+      h3({ class: styles.accordion }, title),
+      div({ class: [styles.content, styles.hidden] }, children),
+    ]
+  },
+  { styles, code }
+)
