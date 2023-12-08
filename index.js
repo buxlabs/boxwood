@@ -31,10 +31,17 @@ async function compile(path) {
         }
         if (node.name === "script") {
           const js = node.children
-          if (!scripts.includes(js)) {
-            scripts.push(js)
+          if (
+            node.attributes &&
+            node.attributes.type === "application/ld+json"
+          ) {
+            node.ignore = false
+          } else {
+            if (js && !scripts.includes(js)) {
+              scripts.push(js)
+            }
+            node.ignore = true
           }
-          node.ignore = true
         }
         if (Array.isArray(node)) {
           node.forEach(walk)
