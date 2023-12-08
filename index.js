@@ -33,7 +33,8 @@ async function compile(path) {
           const js = node.children
           if (
             node.attributes &&
-            node.attributes.type === "application/ld+json"
+            (node.attributes.type === "application/json" ||
+              node.attributes.type === "application/ld+json")
           ) {
             node.ignore = false
           } else {
