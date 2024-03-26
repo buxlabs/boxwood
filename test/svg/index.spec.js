@@ -1,11 +1,12 @@
-const test = require("ava")
+const test = require("node:test")
+const assert = require("node:assert")
 const { join } = require("path")
 const { compile } = require("../..")
 
-test("#svg: it returns an svg", async (assert) => {
+test("#svg: it returns an svg", async () => {
   const { template } = await compile(join(__dirname, "./index.js"))
-  assert.truthy(
+  assert(
     template().includes('<line x1="0" y1="10" x2="10" y2="0" stroke="black" />')
   )
-  assert.truthy(template().includes("<svg><rect></rect></svg>"))
+  assert(template().includes("<svg><rect></rect></svg>"))
 })

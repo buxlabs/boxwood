@@ -1,10 +1,11 @@
-const test = require('ava')
-const { join } = require('path')
-const { compile } = require('../../..')
+const test = require("node:test")
+const assert = require("node:assert")
+const { join } = require("path")
+const { compile } = require("../../..")
 
-test('#components/avatar: it returns a component with css', async (assert) => {
-  const { template } = await compile(join(__dirname, './index.js'))
+test("#components/avatar: it returns a component with css", async () => {
+  const { template } = await compile(join(__dirname, "./index.js"))
 
-  assert.truthy(template({ image: 'https://images.com/cat.png' }).includes('cat.png'))
-  assert.truthy(template({ text: 'foo' }).includes('foo'))
+  assert(template({ image: "https://images.com/cat.png" }).includes("cat.png"))
+  assert(template({ text: "foo" }).includes("foo"))
 })
