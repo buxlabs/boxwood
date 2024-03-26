@@ -1,4 +1,4 @@
-const { html, head, body, script } = require("boxwood")
+const { html, head, body, script } = require("../..")
 
 module.exports = () => {
   return html([
