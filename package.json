@@ -51,7 +51,6 @@
     "express": "^4.19.2",
     "handlebars": "^4.7.8",
     "jsdom": "^24.0.0",
-    "lodash.template": "4.5.0",
     "mustache": "^4.2.0",
     "underscore": "^1.13.6"
   },

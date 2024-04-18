@@ -6,7 +6,6 @@ const {
 } = require("fs")
 const { Suite } = require("benchmark")
 const underscore = require("underscore")
-const template = require("lodash.template")
 const handlebars = require("handlebars")
 const mustache = require("mustache")
 const { compile } = require("..")
@@ -34,10 +33,9 @@ async function benchmark(dir) {
     path.join(__dirname, `./fixtures/${dir}/boxwood.js`)
   )
   const fn2 = underscore.template(source2)
-  const fn3 = template(source3)
-  const fn4 = handlebars.compile(source4)
-  const fn5 = (data) => mustache.render(source5, data)
-  const fn6 = require(path.join(__dirname, `./fixtures/${dir}/vanilla.js`))
+  const fn3 = handlebars.compile(source4)
+  const fn4 = (data) => mustache.render(source5, data)
+  const fn5 = require(path.join(__dirname, `./fixtures/${dir}/vanilla.js`))
   mustache.parse(source5)
 
   const data = require(path.join(__dirname, `./fixtures/${dir}/data.json`))
@@ -52,12 +50,11 @@ async function benchmark(dir) {
   assert.deepEqual(result, normalize(fn3(data)))
   assert.deepEqual(result, normalize(fn4(data)))
   assert.deepEqual(result, normalize(fn5(data)))
-  assert.deepEqual(result, normalize(fn6(data)))
 
   await new Promise((resolve) => {
     suite
       .add("vanilla[js]", function () {
-        fn6(data)
+        fn5(data)
       })
       .add("boxwood[js]", function () {
         fn1(data)
@@ -65,14 +62,11 @@ async function benchmark(dir) {
       .add("underscore[ejs]", function () {
         fn2(data)
       })
-      .add("lodash[ejs]", function () {
+      .add("handlebars[hbs]", function () {
         fn3(data)
       })
-      .add("handlebars[hbs]", function () {
-        fn4(data)
-      })
       .add("mustache[mst]", function () {
-        fn5(data)
+        fn4(data)
       })
       .on("cycle", function (event) {
         console.log(`${dir}: ${String(event.target)}`)
