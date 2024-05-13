@@ -8,5 +8,4 @@ test("#svg: it returns an svg", async () => {
   assert(template().includes("<li>foo</li>"))
   assert(template().includes("<li>bar</li>"))
   assert(template().includes("<li>baz</li>"))
-  console.log(template())
 })
