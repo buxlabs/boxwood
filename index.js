@@ -314,9 +314,20 @@ function js(inputs) {
 }
 
 js.load = function () {
-  const path = join(...arguments)
+  const parts = []
+  for (const param of arguments) {
+    if (typeof param === "string") {
+      parts.push(param)
+    }
+  }
+  const path = join(...parts)
   const file = path.endsWith(".js") ? path : join(path, "index.js")
   const content = readFileSync(file, "utf8")
+
+  const options = arguments[arguments.length - 1]
+  if (options && options.transform) {
+    return js`${options.transform(content)}`
+  }
   return js`${content}`
 }
 
