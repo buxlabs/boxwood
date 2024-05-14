@@ -190,9 +190,6 @@ const render = (input, escape = true) => {
   if (typeof input === "string") {
     return escape ? escapeHTML(input) : input
   }
-  if (input.name === "fragment") {
-    return render(input.children)
-  }
   if (input.name === "raw") {
     return render(input.children, false)
   }
@@ -202,32 +199,14 @@ const render = (input, escape = true) => {
     }
     return `<${input.name}>`
   }
-  if (input.attributes && input.children) {
-    return (
-      `<${input.name} ` +
-      attributes(input.attributes) +
-      ">" +
-      render(input.children, isUnescapedTag(input.name)) +
-      `</${input.name}>`
-    )
-  }
-  if (input.attributes) {
-    return (
-      `<${input.name} ` + attributes(input.attributes) + `></${input.name}>`
-    )
-  }
-  if (input.children) {
-    return (
-      `<${input.name}>` +
-      render(input.children, isUnescapedTag(input.name)) +
-      `</${input.name}>`
-    )
-  }
-  return `<${input.name}></${input.name}>`
-}
 
-const fragment = (children) => {
-  return { name: "fragment", children }
+  return (
+    `<${input.name}` +
+    (input.attributes ? " " + attributes(input.attributes) : "") +
+    ">" +
+    render(input.children, isUnescapedTag(input.name)) +
+    `</${input.name}>`
+  )
 }
 
 const raw = (children) => {
@@ -601,7 +580,6 @@ module.exports = {
   classes,
   doctype,
   escape: escapeHTML,
-  fragment,
   raw,
   css,
   js,

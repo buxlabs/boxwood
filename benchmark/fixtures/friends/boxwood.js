@@ -1,5 +1,4 @@
 const {
-  fragment,
   doctype,
   html,
   head,
@@ -14,7 +13,7 @@ const {
 } = require("../../..")
 
 module.exports = function ({ friends }) {
-  return fragment([
+  return [
     doctype(),
     html({ lang: "en" }, [
       head([meta({ charset: "UTF-8" }), title("Friends")]),
@@ -52,5 +51,5 @@ module.exports = function ({ friends }) {
         ),
       ]),
     ]),
-  ])
+  ]
 }

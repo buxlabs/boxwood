@@ -1,4 +1,4 @@
-const { h1, h2, ul, li } = require("../../..")
+const { h1, h2, ul, li } = require("../..")
 
 module.exports = function ({ title, subtitle, todos }) {
   return [
