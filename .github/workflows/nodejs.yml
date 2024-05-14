@@ -8,17 +8,17 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.11.1]
+        version: [20.13.1]
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.version }}
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.version }}
       - name: npm install, build, and test
         run: |
           npm ci
-          npm test
+          npm run test:debug
         env:
           CI: true
