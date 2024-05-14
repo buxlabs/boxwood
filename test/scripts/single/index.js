@@ -1,4 +1,4 @@
-const { component, div, css, js, html, head, body } = require("../..")
+const { component, div, css, js, html, head, body } = require("../../..")
 
 module.exports = component(
   () => {
