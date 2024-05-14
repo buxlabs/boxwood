@@ -175,7 +175,7 @@ const isUnescapedTag = (name) => {
 }
 
 const render = (input, escape = true) => {
-  if (input.ignore) {
+  if (!input || input.ignore) {
     return ""
   }
   if (Array.isArray(input)) {
@@ -188,7 +188,10 @@ const render = (input, escape = true) => {
     return input.toString()
   }
   if (typeof input === "string") {
-    return escape ? escapeHTML(input) : input
+    if (escape) {
+      return escapeHTML(input)
+    }
+    return input
   }
   if (input.name === "raw") {
     return render(input.children, false)
