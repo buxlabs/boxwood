@@ -7,7 +7,5 @@ test("styles and scripts can be inlined is a function", async () => {
   const html = template()
   assert(html.includes("<div>foo</div><p>bar</p>"))
   assert(html.includes("<style>div{color:red}p{color:blue}</style>"))
-  assert(
-    html.includes("<script>console.log('foo');console.log('bar');</script>")
-  )
+  assert(html.includes("<script>alert('foo');alert('bar');</script>"))
 })

@@ -5,6 +5,6 @@ module.exports = component(
     return html([head([]), body([])])
   },
   {
-    scripts: [js`console.log('foo');`, js`console.log('bar');`],
+    scripts: [js`alert('foo');`, js`alert('bar');`],
   }
 )

@@ -556,24 +556,24 @@ function component(fn, { styles, i18n, scripts } = {}) {
       return fn({}, a)
     }
     if (i18n) {
+      if (!a || !a.language) {
+        throw new Error(
+          `TranslationError: language is undefined for component:\n${fn.toString()}`
+        )
+      }
       const { language } = a
       function translate(key) {
         if (!key) {
           throw new Error(
-            `TranslationError[${key}][${language}]: key is undefined for component:\n${fn.toString()}`
+            `TranslationError: key is undefined for component:\n${fn.toString()}`
           )
         }
-        if (!language) {
+        if (!i18n[key] || !i18n[key][language]) {
           throw new Error(
-            `TranslationError[${key}][${language}]: language is undefined for component:\n${fn.toString()}`
+            `TranslationError: translation [${key}][${language}] is undefined for component:\n${fn.toString()}`
           )
         }
         const translation = i18n[key][language]
-        if (!translation) {
-          throw new Error(
-            `TranslationError[${key}][${language}]: translation is undefined for component:\n${fn.toString()}`
-          )
-        }
         return translation
       }
       return fn({ ...a, translate }, b || [])

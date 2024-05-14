@@ -10,6 +10,6 @@ module.exports = component(
         color: red;
       }
     `,
-    scripts: js`console.log('hello, world!')`,
+    scripts: js`alert('hello, world!')`,
   }
 )

@@ -17,6 +17,6 @@ module.exports = component(
         }
       `,
     ],
-    scripts: [js`console.log('foo');`, js`console.log('bar');`],
+    scripts: [js`alert('foo');`, js`alert('bar');`],
   }
 )
