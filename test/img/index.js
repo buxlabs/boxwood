@@ -1,8 +1,10 @@
 const { img } = require("../..")
 
-const line1 = img.load(__dirname, "line.png")
-const line2 = img.load(__dirname, "line.svg")
+const png = img.load(__dirname, "square.png")
+const svg = img.load(__dirname, "line.svg")
+const jpg = img.load(__dirname, "square.jpg")
+const jpeg = img.load(__dirname, "square.jpeg")
 
 module.exports = () => {
-  return [line1(), line2()]
+  return [png(), svg(), jpg(), jpeg()]
 }

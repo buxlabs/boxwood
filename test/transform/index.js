@@ -12,6 +12,7 @@ module.exports = component(
         },
       }),
       js.load(__dirname, "client2.js"),
+      js.load(__dirname, "client3"),
     ],
   }
 )

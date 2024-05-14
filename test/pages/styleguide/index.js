@@ -3,7 +3,7 @@ const layout = require("./layouts/default")
 const sidebar = require("./partials/sidebar")
 const content = require("./partials/content")
 
-const i18n = json.load(__dirname, "index.json")
+const i18n = json.load(__dirname)
 
 module.exports = component(
   ({ language, translate }) => {

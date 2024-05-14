@@ -2,7 +2,6 @@ const { join } = require("path")
 const { readFileSync } = require("fs")
 const csstree = require("css-tree")
 const toHash = require("string-hash")
-const YAML = require("yaml")
 
 async function compile(path) {
   const fn = require(path)
@@ -486,15 +485,6 @@ function classes() {
   return array.join(" ")
 }
 
-const yaml = {
-  load() {
-    const path = join(...arguments)
-    const file = path.endsWith(".yaml") ? path : join(path, "index.yaml")
-    const content = readFileSync(file, "utf8")
-    return YAML.parse(content)
-  },
-}
-
 const json = {
   load() {
     const path = join(...arguments)
@@ -512,7 +502,7 @@ function i18n(translations) {
 
 i18n.load = function () {
   const path = join(...arguments)
-  const data = path.endsWith(".yaml") ? yaml.load(path) : json.load(path)
+  const data = json.load(path)
   return function translate(language, key) {
     if (!language) {
       throw new Error(`TranslationError: language is undefined`)
@@ -586,7 +576,6 @@ module.exports = {
   raw,
   css,
   js,
-  yaml,
   json,
   tag,
   i18n,
