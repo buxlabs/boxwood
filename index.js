@@ -582,38 +582,19 @@ function component(fn, { styles, i18n, scripts } = {}) {
   }
   return function (a, b) {
     const tree = execute(a, b)
-    if (styles && scripts) {
-      if (Array.isArray(tree)) {
-        return tree.concat(styles.css, scripts.js)
-      }
-      if (Array.isArray(styles) && Array.isArray(scripts)) {
-        return [
-          tree,
-          ...styles.map((style) => style.css),
-          ...scripts.map((script) => script.js),
-        ]
-      }
-      return [tree, styles.css, scripts.js]
-    }
+    let nodes = Array.isArray(tree) ? tree : [tree]
+
     if (styles) {
-      if (Array.isArray(tree)) {
-        return tree.concat(styles.css)
-      }
-      if (Array.isArray(styles)) {
-        return [tree, ...styles.map((style) => style.css)]
-      }
-      return [tree, styles.css]
+      const data = Array.isArray(styles) ? styles : [styles]
+      nodes = nodes.concat(data.map((style) => style.css))
     }
+
     if (scripts) {
-      if (Array.isArray(tree)) {
-        return tree.concat(scripts.js)
-      }
-      if (Array.isArray(scripts)) {
-        return [tree, ...scripts.map((script) => script.js)]
-      }
-      return [tree, scripts.js]
+      const data = Array.isArray(scripts) ? scripts : [scripts]
+      nodes = nodes.concat(data.map((script) => script.js))
     }
-    return tree
+
+    return nodes
   }
 }
 
