@@ -586,6 +586,13 @@ function component(fn, { styles, i18n, scripts } = {}) {
       if (Array.isArray(tree)) {
         return tree.concat(styles.css, scripts.js)
       }
+      if (Array.isArray(styles) && Array.isArray(scripts)) {
+        return [
+          tree,
+          ...styles.map((style) => style.css),
+          ...scripts.map((script) => script.js),
+        ]
+      }
       return [tree, styles.css, scripts.js]
     }
     if (styles) {
