@@ -4,6 +4,8 @@ coverage
 .github
 docs
 **/*.spec.js
+**/*.test.js
 website
 index.html
 sandbox
+benchmark
