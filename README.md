@@ -129,6 +129,8 @@ test("banner renders an optional description", async () => {
 })
 ```
 
+You can check the `test` dir for more examples.
+
 ## Maintainers
 
 [@emilos](https://github.com/emilos)
