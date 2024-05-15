@@ -46,7 +46,7 @@ async function compile(path) {
         if (Array.isArray(node)) {
           node.forEach(walk)
         } else if (Array.isArray(node.children)) {
-          node.children.filter(Boolean).forEach(walk)
+          node.children.forEach(walk)
         }
       }
       walk(tree)
@@ -174,14 +174,13 @@ const isUnescapedTag = (name) => {
 }
 
 const render = (input, escape = true) => {
-  if (!input || input.ignore) {
+  if (
+    typeof input === "undefined" ||
+    typeof input === "boolean" ||
+    input === null ||
+    input.ignore
+  ) {
     return ""
-  }
-  if (Array.isArray(input)) {
-    return input
-      .filter(Boolean)
-      .map((input) => render(input))
-      .join("")
   }
   if (typeof input === "number") {
     return input.toString()
@@ -192,6 +191,10 @@ const render = (input, escape = true) => {
     }
     return input
   }
+  if (Array.isArray(input)) {
+    return input.map((input) => render(input)).join("")
+  }
+
   if (input.name === "raw") {
     return render(input.children, false)
   }

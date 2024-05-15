@@ -3,8 +3,8 @@ const assert = require("node:assert")
 
 const { compile } = require("../..")
 
-test("numbers", async () => {
+test("booleans does not render anything", async () => {
   const { template } = await compile(__dirname)
   const html = template()
-  assert.deepEqual(html, "-10142")
+  assert.deepEqual(html, "<div></div>")
 })
