@@ -56,7 +56,7 @@ const layout = require("./layout")
 const banner = require("./banner")
 
 module.exports = () => {
-  return layout([
+  return layout({ language: "en" }, [
     banner({
       title: "Hello, world!",
       description: "Lorem ipsum dolor sit amet",
@@ -67,22 +67,24 @@ module.exports = () => {
 
 ```js
 // example/layout/index.js
-
-const { component, css, html, head, body } = require("boxwood")
+const { component, css, html, body } = require("boxwood")
 const head = require("./head")
 
 const styles = css.load(__dirname)
 
 module.exports = component(
-  (children) => {
-    return html([head(), body({ className: styles.layout }, children)])
+  ({ language }, children) => {
+    return html({ lang: language }, [
+      head(),
+      body({ className: styles.layout }, children),
+    ])
   },
   { styles }
 )
 ```
 
 ```js
-// example/head/index.js
+// example/layout/head/index.js
 const { head, title } = require("boxwood")
 
 module.exports = () => {
