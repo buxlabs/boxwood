@@ -48,6 +48,8 @@ const html = template({ foo: "bar" })
 console.log(html)
 ```
 
+You can use [express-boxwood](https://www.npmjs.com/package/express-boxwood) for [express](https://www.npmjs.com/package/express).
+
 ## Syntax
 
 ```js
