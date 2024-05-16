@@ -1,4 +1,4 @@
-const { input } = require("boxwood")
+const { input } = require("../../..")
 
 module.exports = () => {
   return [
