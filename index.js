@@ -29,6 +29,9 @@ async function compile(path) {
           node.ignore = true
         }
         if (node.name === "script") {
+          if (node.attributes && node.attributes.src) {
+            return
+          }
           const js = node.children
           if (
             node.attributes &&
@@ -135,7 +138,12 @@ const attributes = (options) => {
   const result = []
   for (const key in options) {
     const value = options[key]
-    if (value) {
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      value === true ||
+      Array.isArray(value)
+    ) {
       if (BOOLEAN_ATTRIBUTES.includes(key)) {
         result.push(key)
       } else {
