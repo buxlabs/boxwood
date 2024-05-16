@@ -4,7 +4,9 @@
   "description": "express boxwood",
   "main": "index.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test --test-reporter=dot",
+    "test:debug": "node --test --test-reporter=spec",
+    "coverage": "c8 npm test"
   },
   "repository": {
     "type": "git",
@@ -23,6 +25,7 @@
   },
   "homepage": "https://github.com/buxlabs/boxwood#readme",
   "devDependencies": {
+    "c8": "^9.1.0",
     "express": "^4.19.2"
   }
 }

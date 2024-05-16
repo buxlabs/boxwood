@@ -12,10 +12,10 @@ function purge(path) {
   }
 }
 
-function engine({ compile }) {
+function engine({ compile, env = NODE_ENV }) {
   const cache = new Map()
   async function compileFile(path) {
-    if (NODE_ENV === "development") {
+    if (env === "development") {
       purge(path)
       const { template } = await compile(path)
       return template
