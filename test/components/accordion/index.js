@@ -16,7 +16,7 @@ module.exports = component(
         accordions.forEach(accordion => {
           accordion.addEventListener('click', function () {
             const sibling = this.nextElement
-            sibling.classList.toggle('${styles.content}')
+            sibling.classList.toggle('${styles.hidden}')
           })
         })
       `,
