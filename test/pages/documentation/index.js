@@ -1,4 +1,4 @@
-const { doctype, html, head, body, title, h1, p } = require("boxwood")
+const { doctype, html, head, body, title, h1, p } = require("../../..")
 const accordion = require("../../components/accordion")
 
 module.exports = () => {
