@@ -1,16 +1,5 @@
 const { component, css, div, js, h3 } = require("../../..")
-
 const styles = css.load(__dirname, "index.css")
-
-const code = js`
-  const accordions = document.querySelector('.${styles.accordion}')
-  accordions.forEach(accordion => {
-    accordion.addEventListener('click', function () {
-      const sibling = this.nextElement
-      sibling.classList.toggle('${styles.content}')
-    })
-  })
-`
 
 module.exports = component(
   ({ title }, children) => {
@@ -19,5 +8,18 @@ module.exports = component(
       div({ class: [styles.content, styles.hidden] }, children),
     ]
   },
-  { styles, code }
+  {
+    styles,
+    scripts: [
+      js`
+        const accordions = document.querySelector('.${styles.accordion}')
+        accordions.forEach(accordion => {
+          accordion.addEventListener('click', function () {
+            const sibling = this.nextElement
+            sibling.classList.toggle('${styles.content}')
+          })
+        })
+      `,
+    ],
+  }
 )
