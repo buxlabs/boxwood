@@ -10,7 +10,10 @@ async function compile(path) {
       const tree = fn(...arguments)
       const nodes = {}
       const styles = []
-      const scripts = []
+      const scripts = {
+        head: [],
+        body: [],
+      }
       const walk = (node) => {
         if (!node) {
           return
@@ -29,19 +32,27 @@ async function compile(path) {
           node.ignore = true
         }
         if (node.name === "script") {
-          if (node.attributes && node.attributes.src) {
-            return
-          }
-          const js = node.children
+          const attributes = node.attributes || {}
           if (
-            node.attributes &&
-            (node.attributes.type === "application/json" ||
-              node.attributes.type === "application/ld+json")
+            attributes.src ||
+            ["application/json", "application/ld+json"].includes(
+              attributes.type
+            )
           ) {
             node.ignore = false
+            return
           } else {
-            if (js && !scripts.includes(js)) {
-              scripts.push(js)
+            const script = node.children
+            if (script) {
+              if (attributes.target === "head") {
+                if (!scripts.head.includes(script)) {
+                  scripts.head.push(script)
+                }
+              } else {
+                if (!scripts.body.includes(script)) {
+                  scripts.body.push(script)
+                }
+              }
             }
             node.ignore = true
           }
@@ -60,12 +71,18 @@ async function compile(path) {
             children: styles.join(""),
           })
         }
+        if (scripts.head.length > 0) {
+          nodes.head.children.push({
+            name: "script",
+            children: scripts.head.join(""),
+          })
+        }
       }
       if (nodes.body) {
-        if (scripts.length > 0) {
+        if (scripts.body.length > 0) {
           nodes.body.children.push({
             name: "script",
-            children: scripts.join(""),
+            children: scripts.body.join(""),
           })
         }
       }
@@ -317,10 +334,13 @@ js.load = function () {
   const content = readFileSync(file, "utf8")
 
   const options = arguments[arguments.length - 1]
+  const attributes = options.target ? { target: options.target } : {}
   if (options && options.transform) {
-    return js`${options.transform(content)}`
+    return {
+      js: tag("script", attributes, options.transform(content)),
+    }
   }
-  return js`${content}`
+  return { js: tag("script", attributes, content) }
 }
 
 const node = (name) => (options, children) => tag(name, options, children)
