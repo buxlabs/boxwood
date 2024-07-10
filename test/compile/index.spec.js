@@ -3,32 +3,26 @@ const assert = require("node:assert")
 const { compile } = require("../..")
 const { join } = require("path")
 
-test("compile: it returns a template", async () => {
-  const { template } = await compile(join(__dirname, "./fixtures/literal.js"))
+test("compile: it returns a template", () => {
+  const { template } = compile(join(__dirname, "./fixtures/literal.js"))
 
   assert.deepEqual(template(), "foo")
 })
 
-test("compile: it returns a template which can have parameters", async () => {
-  const { template } = await compile(
-    join(__dirname, "./fixtures/parameters.js")
-  )
+test("compile: it returns a template which can have parameters", () => {
+  const { template } = compile(join(__dirname, "./fixtures/parameters.js"))
 
   assert.deepEqual(template({ foo: "bar" }), "bar")
 })
 
-test("compile: it returns a template which can require dependencies", async () => {
-  const { template } = await compile(
-    join(__dirname, "./fixtures/dependencies.js")
-  )
+test("compile: it returns a template which can require dependencies", () => {
+  const { template } = compile(join(__dirname, "./fixtures/dependencies.js"))
 
   assert.deepEqual(template(), "foo/bar")
 })
 
-test("compile: it works with attribute aliases", async () => {
-  const { template } = await compile(
-    join(__dirname, "./fixtures/attributes.js")
-  )
+test("compile: it works with attribute aliases", () => {
+  const { template } = compile(join(__dirname, "./fixtures/attributes.js"))
 
   assert.deepEqual(
     template({ className: "foo", htmlFor: "bar" }, "baz"),
@@ -36,8 +30,8 @@ test("compile: it works with attribute aliases", async () => {
   )
 })
 
-test("compile: it works with div tags", async () => {
-  const { template } = await compile(join(__dirname, "./fixtures/tag/div.js"))
+test("compile: it works with div tags", () => {
+  const { template } = compile(join(__dirname, "./fixtures/tag/div.js"))
 
   assert.deepEqual(
     template(),
@@ -45,14 +39,14 @@ test("compile: it works with div tags", async () => {
   )
 })
 
-test("compile: it works with input tags", async () => {
-  const { template } = await compile(join(__dirname, "./fixtures/tag/input.js"))
+test("compile: it works with input tags", () => {
+  const { template } = compile(join(__dirname, "./fixtures/tag/input.js"))
 
   assert.deepEqual(template(), "<input checked>")
 })
 
-test("compile: it escapes html", async () => {
-  const { template } = await compile(join(__dirname, "./fixtures/escape.js"))
+test("compile: it escapes html", () => {
+  const { template } = compile(join(__dirname, "./fixtures/escape.js"))
 
   assert.deepEqual(
     template(),

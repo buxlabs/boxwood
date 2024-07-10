@@ -3,7 +3,7 @@ const { readFileSync } = require("fs")
 const csstree = require("css-tree")
 const toHash = require("string-hash")
 
-async function compile(path) {
+function compile(path) {
   const fn = require(path)
   return {
     template() {

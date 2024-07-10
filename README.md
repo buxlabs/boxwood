@@ -42,7 +42,7 @@ const { compile } = require("boxwood")
 const { join } = require("path")
 // ...
 const path = join(__dirname, "index.js")
-const { template } = await compile(path)
+const { template } = compile(path)
 // ...
 const html = template({ foo: "bar" })
 console.log(html)
@@ -121,13 +121,13 @@ const assert = require("node:assert")
 const { compile } = require("boxwood")
 
 test("banner renders a title", async () => {
-  const { template } = await compile(__dirname)
+  const { template } = compile(__dirname)
   const html = template({ title: "foo" })
   assert(html.includes("<h1>foo</h1>"))
 })
 
 test("banner renders an optional description", async () => {
-  const { template } = await compile(__dirname)
+  const { template } = compile(__dirname)
   const html = template({ title: "foo", description: "bar" })
   assert(html.includes("<h1>foo</h1>"))
   assert(html.includes("<p>bar</p>"))
