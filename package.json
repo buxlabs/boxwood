@@ -47,12 +47,12 @@
   "homepage": "https://github.com/buxlabs/boxwood#readme",
   "devDependencies": {
     "benchmark": "2.1.4",
-    "c8": "^9.1.0",
+    "c8": "^10.1.2",
     "express": "^4.19.2",
     "handlebars": "^4.7.8",
-    "jsdom": "^24.0.0",
+    "jsdom": "^24.1.1",
     "mustache": "^4.2.0",
-    "underscore": "^1.13.6"
+    "underscore": "^1.13.7"
   },
   "standard": {
     "ignore": [
