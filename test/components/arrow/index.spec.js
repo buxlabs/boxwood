@@ -8,18 +8,18 @@ test("#components/arrow: it returns a component with css", () => {
 
   assert.deepEqual(
     template({ direction: "top" }),
-    '<span class="arrow_19kjp top_19kjp"></span>'
+    '<span class="arrow_1 top_1"></span>'
   )
   assert.deepEqual(
     template({ direction: "right" }),
-    '<span class="arrow_19kjp right_19kjp"></span>'
+    '<span class="arrow_1 right_1"></span>'
   )
   assert.deepEqual(
     template({ direction: "bottom" }),
-    '<span class="arrow_19kjp bottom_19kjp"></span>'
+    '<span class="arrow_1 bottom_1"></span>'
   )
   assert.deepEqual(
     template({ direction: "left" }),
-    '<span class="arrow_19kjp left_19kjp"></span>'
+    '<span class="arrow_1 left_1"></span>'
   )
 })

@@ -62,8 +62,7 @@
     ]
   },
   "dependencies": {
-    "css-tree": "^3.0.0",
-    "string-hash": "^1.1.3"
+    "css-tree": "^3.0.0"
   },
   "prettier": {
     "semi": false

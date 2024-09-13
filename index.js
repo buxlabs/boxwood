@@ -1,7 +1,6 @@
 const { join } = require("path")
 const { readFileSync } = require("fs")
 const csstree = require("css-tree")
-const toHash = require("string-hash")
 
 function compile(path) {
   const fn = require(path)
@@ -268,6 +267,11 @@ const tag = (a, b, c) => {
   }
 }
 
+let number = 1
+function sequence() {
+  return number++
+}
+
 function css(inputs) {
   let result = ""
   for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
@@ -279,7 +283,7 @@ function css(inputs) {
       result += input
     }
   }
-  const hash = toHash(result).toString(36).substr(0, 5)
+  const hash = sequence()
   const tree = csstree.parse(result)
   const classes = {}
 
