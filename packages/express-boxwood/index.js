@@ -3,7 +3,7 @@ const NODE_ENV = process.env.NODE_ENV || "development"
 function purge(path) {
   const name = require.resolve(path)
   const dependency = require.cache[name]
-  if (dependency) {
+  if (dependency && dependency.children) {
     dependency.children.forEach((child) => {
       delete require.cache[child.id]
       purge(child.id)
