@@ -272,6 +272,34 @@ function sequence() {
   return number++
 }
 
+function decamelize(string) {
+  return string.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
+}
+
+function stylesheet(input) {
+  const object = { ...input }
+  return {
+    add(item) {
+      for (const key in item) {
+        object[key] = item[key]
+      }
+    },
+    set(key, value) {
+      object[key] = value
+    },
+    toString() {
+      let result = []
+      for (const key in object) {
+        const value = object[key]
+        if (value) {
+          result.push(`${decamelize(key)}:${value}`)
+        }
+      }
+      return result.join(";")
+    },
+  }
+}
+
 function css(inputs) {
   let result = ""
   for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
@@ -308,6 +336,14 @@ css.load = function () {
   return css`
     ${content}
   `
+}
+
+css.create = function (object) {
+  return stylesheet(object)
+}
+
+css.inline = function (object) {
+  return stylesheet(object).toString()
 }
 
 function js(inputs) {
