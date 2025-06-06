@@ -30,12 +30,15 @@ const express = require("express")
 const { compile } = require("boxwood")
 const engine = require("express-boxwood")
 
-const app = require("app")
+const app = express()
 
 app.engine("js", engine({ compile }))
 app.set("views", path.join(__dirname, "views"))
 app.set("view engine", "js")
-// other app code
+
+app.use('/', (request, response) => response.render('index'))
+
+app.listen(3000)
 ```
 
 ## API
