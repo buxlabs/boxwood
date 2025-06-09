@@ -1,5 +1,5 @@
-const { join } = require("path")
-const { readFileSync } = require("fs")
+const { join, resolve, sep: separator } = require("path")
+const { readFileSync, realpathSync } = require("fs")
 const csstree = require("css-tree")
 
 function compile(path) {
@@ -108,6 +108,24 @@ const escapeHTML = (string) => {
 
 function readFile(path, encoding) {
   try {
+    const base = process.cwd()
+    const absoluteBase = resolve(base)
+    const absolutePath = resolve(path)
+    const realBase = realpathSync(absoluteBase)
+    const realPath = realpathSync(absolutePath)
+
+    if (realPath === realBase) {
+      throw new Error(
+        `FileError: path "${path}" is the same as the current working directory "${base}"`
+      )
+    }
+
+    if (!realPath.startsWith(realBase + separator)) {
+      throw new Error(
+        `FileError: real path "${realPath}" is not within the current working directory "${realBase}"`
+      )
+    }
+
     return readFileSync(path, encoding)
   } catch (exception) {
     throw new Error(
