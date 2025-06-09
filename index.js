@@ -348,6 +348,25 @@ const raw = (children) => {
   return { name: "raw", children }
 }
 
+/*
+ * Raw content is a special case where we want to allow
+ * unescaped HTML content to be rendered directly.
+ * This is useful for cases where we want to
+ * include HTML fragments or templates that are
+ * not meant to be escaped, like large blocks of HTML,
+ * or when integrating with third-party libraries
+ * that require raw HTML.
+ *
+ * Please note that this should be used with caution,
+ * as it can lead to XSS vulnerabilities if the content
+ * is not properly sanitized.
+ *
+ * It should only be used for trusted content
+ * or in controlled environments.
+ *
+ * Should not be used for user-generated content.
+ */
+
 raw.load = function () {
   const path = join(...arguments)
   const type = extension(path)
@@ -473,6 +492,19 @@ function js(inputs) {
     js: tag("script", result),
   }
 }
+
+/*
+ * Load a JavaScript file and return a script tag.
+ *
+ * Please note that this should be used with caution,
+ * as it can lead to XSS vulnerabilities if the content
+ * is not properly sanitized.
+ *
+ * It should only be used for trusted content
+ * or in controlled environments.
+ *
+ * Should not be used for user-generated content.
+ */
 
 js.load = function () {
   const parts = []
@@ -644,6 +676,25 @@ nodes.img.load = function () {
     return nodes.img({ src: base64({ content, path }), ...options })
   }
 }
+
+/*
+ * SVG files are a special case where we want to allow
+ * unescaped SVG content to be rendered directly.
+ * This is useful for cases where we want to
+ * include SVG fragments or templates that are
+ * not meant to be escaped, like large blocks of SVG,
+ * or when integrating with third-party libraries
+ * that require raw SVG.
+ *
+ * Please note that this should be used with caution,
+ * as it can lead to XSS vulnerabilities if the content
+ * is not properly sanitized.
+ *
+ * It should only be used for trusted content
+ * or in controlled environments.
+ *
+ * Should not be used for user-generated content.
+ */
 
 nodes.svg.load = function () {
   const path = join(...arguments)
