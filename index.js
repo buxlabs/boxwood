@@ -1,4 +1,4 @@
-const { join, resolve, sep: separator } = require("path")
+const { join, resolve } = require("path")
 const { readFileSync, realpathSync } = require("fs")
 const csstree = require("css-tree")
 
@@ -106,6 +106,8 @@ const escapeHTML = (string) => {
   })
 }
 
+const normalizePath = (path) => path.replace(/\\/g, "/")
+
 function readFile(path, encoding) {
   try {
     const base = process.cwd()
@@ -113,14 +115,16 @@ function readFile(path, encoding) {
     const absolutePath = resolve(path)
     const realBase = realpathSync(absoluteBase)
     const realPath = realpathSync(absolutePath)
+    const normalizedBase = normalizePath(realBase)
+    const normalizedPath = normalizePath(realPath)
 
-    if (realPath === realBase) {
+    if (normalizedPath === normalizedBase) {
       throw new Error(
         `FileError: path "${path}" is the same as the current working directory "${base}"`
       )
     }
 
-    if (!realPath.startsWith(realBase + separator)) {
+    if (!normalizedPath.startsWith(normalizedBase + "/")) {
       throw new Error(
         `FileError: real path "${realPath}" is not within the current working directory "${realBase}"`
       )
