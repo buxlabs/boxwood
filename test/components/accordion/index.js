@@ -1,5 +1,5 @@
 const { component, css, div, js, h3 } = require("../../..")
-const styles = css.load(__dirname, "index.css")
+const styles = css.load(__dirname)
 
 module.exports = component(
   ({ title }, children) => {

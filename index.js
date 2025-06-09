@@ -348,6 +348,33 @@ const raw = (children) => {
   return { name: "raw", children }
 }
 
+/**
+ * Never trust HTML files from untrusted sources.
+ *
+ * This function is a basic sanitization of HTML content in case
+ * you've accidentally included a "trusted", but malicious HTML file that was downloaded
+ * from the internet or other untrusted sources.
+ *
+ * This function removes script and style tags, inline event handlers,
+ * and any href attributes that use JavaScript. It does not
+ * guarantee complete security, but it helps to mitigate some common
+ * XSS attacks that can be embedded in HTML files.
+ *
+ * It is recommended to check all HTML files before using them
+ * in your application.
+ *
+ * Never trust user-generated content.
+ */
+
+const sanitizeHTML = (content) => {
+  return content
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "")
+    .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+}
+
 /*
  * Raw content is a special case where we want to allow
  * unescaped HTML content to be rendered directly.
@@ -367,15 +394,21 @@ const raw = (children) => {
  * Should not be used for user-generated content.
  */
 
-raw.load = function () {
-  const path = join(...arguments)
+raw.load = function (path, options = {}) {
   const type = extension(path)
   if (!ALLOWED_RAW_EXTENSIONS.includes(type)) {
     throw new Error(
       `RawError: unsupported raw type "${type}" for path "${path}"`
     )
   }
-  const content = readFile(path, "utf8")
+
+  let content = readFile(path, "utf8")
+  if (type === "html" && options.sanitize !== false) {
+    content = sanitizeHTML(content)
+  } else if (type === "txt" && options.escape !== false) {
+    content = escapeHTML(content)
+  }
+
   return raw(content)
 }
 
@@ -460,8 +493,7 @@ function css(inputs) {
   }
 }
 
-css.load = function () {
-  const path = join(...arguments)
+css.load = function (path) {
   const file = path.endsWith(".css") ? path : join(path, "index.css")
   const content = readFile(file, "utf8")
   return css`
@@ -506,18 +538,10 @@ function js(inputs) {
  * Should not be used for user-generated content.
  */
 
-js.load = function () {
-  const parts = []
-  for (const param of arguments) {
-    if (typeof param === "string") {
-      parts.push(param)
-    }
-  }
-  const path = join(...parts)
+js.load = function (path, options = {}) {
   const file = path.endsWith(".js") ? path : join(path, "index.js")
   const content = readFile(file, "utf8")
 
-  const options = arguments[arguments.length - 1]
   const attributes = options.target ? { target: options.target } : {}
   if (options && options.transform) {
     return {
@@ -663,8 +687,7 @@ function base64({ content, path }) {
   return `data:${media(path)};base64,${content}`
 }
 
-nodes.img.load = function () {
-  const path = join(...arguments)
+nodes.img.load = function (path) {
   const type = extension(path)
   if (!ALLOWED_IMAGE_EXTENSIONS.includes(type)) {
     throw new Error(
@@ -719,18 +742,19 @@ const sanitizeSVG = (content) => {
  * Should not be used for user-generated content.
  */
 
-nodes.svg.load = function () {
-  const path = join(...arguments)
+nodes.svg.load = function (path, options = {}) {
   const type = extension(path)
   if (type !== "svg") {
     throw new Error(
       `SVGError: unsupported SVG type "${type}" for path "${path}"`
     )
   }
-  const content = readFile(path, "utf8")
-  const sanitized = sanitizeSVG(content)
+  let content = readFile(path, "utf8")
+  if (options.sanitize !== false) {
+    content = sanitizeSVG(content)
+  }
 
-  return raw(sanitized)
+  return raw(content)
 }
 
 function classes() {
@@ -757,8 +781,7 @@ function classes() {
 }
 
 const json = {
-  load() {
-    const path = join(...arguments)
+  load(path) {
     const file = path.endsWith(".json") ? path : join(path, "index.json")
     const content = readFile(file, "utf8")
     try {
@@ -777,9 +800,18 @@ function i18n(translations) {
   }
 }
 
-i18n.load = function () {
-  const path = join(...arguments)
+i18n.load = function (path, options = {}) {
   const data = json.load(path)
+  if (options.sanitize !== false) {
+    for (const key in data) {
+      for (const lang in data[key]) {
+        if (typeof data[key][lang] === "string") {
+          data[key][lang] = sanitizeHTML(data[key][lang])
+        }
+      }
+    }
+  }
+
   return function translate(language, key) {
     if (!language) {
       throw new Error(`TranslationError: language is undefined`)

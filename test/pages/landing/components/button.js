@@ -1,5 +1,6 @@
 const { button, component, css } = require("../../../..")
-const styles = css.load(__dirname, "button.css")
+const { join } = require("path")
+const styles = css.load(join(__dirname, "button.css"))
 
 module.exports = component(
   ({ className }, children) => {
