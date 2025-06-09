@@ -1,4 +1,4 @@
-const { raw } = require("../..")
+const { raw } = require("../../..")
 
 const content = raw.load(__dirname, "content.html")
 
