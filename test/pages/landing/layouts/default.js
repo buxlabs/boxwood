@@ -8,7 +8,8 @@ const {
   style,
   body,
 } = require("../../../..")
-const styles = css.load(__dirname, "default.css")
+const { join } = require("path")
+const styles = css.load(join(__dirname, "default.css"))
 
 module.exports = component(({ language }, children) => {
   return [

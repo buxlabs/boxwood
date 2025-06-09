@@ -1,4 +1,5 @@
 const { component, div, js, html, head, body } = require("../..")
+const { join } = require("path")
 
 module.exports = component(
   () => {
@@ -6,13 +7,13 @@ module.exports = component(
   },
   {
     scripts: [
-      js.load(__dirname, "client1.js", {
+      js.load(join(__dirname, "client1.js"), {
         transform(code) {
           return code.replace("bar", "baz")
         },
       }),
-      js.load(__dirname, "client2.js"),
-      js.load(__dirname, "client3"),
+      js.load(join(__dirname, "client2.js")),
+      js.load(join(__dirname, "client3/index.js")),
     ],
   }
 )

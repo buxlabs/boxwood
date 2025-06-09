@@ -1,6 +1,7 @@
 const { component, doctype, div, js, html, head, body } = require("../../..")
+const { join } = require("path")
 
-const script = js.load(__dirname, "client.js", { target: "head" })
+const script = js.load(join(__dirname, "client.js"), { target: "head" })
 
 module.exports = component(
   () => {

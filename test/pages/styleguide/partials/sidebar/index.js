@@ -1,5 +1,6 @@
 const { component, css, div } = require("../../../../..")
-const styles = css.load(__dirname, "index.css")
+const { join } = require("path")
+const styles = css.load(join(__dirname, "index.css"))
 
 module.exports = component(
   () => {
