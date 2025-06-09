@@ -590,7 +590,13 @@ const json = {
     const path = join(...arguments)
     const file = path.endsWith(".json") ? path : join(path, "index.json")
     const content = readFile(file, "utf8")
-    return JSON.parse(content)
+    try {
+      return JSON.parse(content)
+    } catch (exception) {
+      throw new Error(
+        `JSONError: cannot parse file "${file}": ${exception.message}`
+      )
+    }
   },
 }
 
