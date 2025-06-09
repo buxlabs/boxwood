@@ -1,4 +1,4 @@
-const { div, svg, tag } = require("../..")
+const { div, svg, tag } = require("../../..")
 
 const line = svg.load(__dirname, "line.svg")
 

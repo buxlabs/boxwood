@@ -573,6 +573,12 @@ nodes.img.load = function () {
 
 nodes.svg.load = function () {
   const path = join(...arguments)
+  const type = extension(path)
+  if (type !== "svg") {
+    throw new Error(
+      `SVGError: unsupported SVG type "${type}" for path "${path}"`
+    )
+  }
   const content = readFile(path, "utf8")
   return raw(content)
 }
