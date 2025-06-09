@@ -160,9 +160,17 @@ const ALIASES = {
   htmlFor: "for",
 }
 
+const isKeyValid = (key) => /^[a-zA-Z0-9\-_]+$/.test(key)
+
 const attributes = (options) => {
+  if (!options) {
+    return ""
+  }
   const result = []
   for (const key in options) {
+    if (!isKeyValid(key)) {
+      continue
+    }
     const value = options[key]
     if (
       typeof value === "string" ||
@@ -181,6 +189,9 @@ const attributes = (options) => {
     } else if (key === "style" && typeof value === "object") {
       const styles = []
       for (const param in value) {
+        if (!isKeyValid(param)) {
+          continue
+        }
         const result = value[param]
         if (result) {
           styles.push(`${decamelize(param)}:${escapeHTML(result)}`)
@@ -191,6 +202,7 @@ const attributes = (options) => {
       }
     }
   }
+
   return result.join(" ")
 }
 
@@ -250,9 +262,12 @@ const render = (input, escape = true) => {
     return `<${input.name}>`
   }
 
+  const string = input.attributes ? attributes(input.attributes) : ""
+  const attrs = string ? " " + string : ""
+
   return (
     `<${input.name}` +
-    (input.attributes ? " " + attributes(input.attributes) : "") +
+    attrs +
     ">" +
     render(input.children, isUnescapedTag(input.name)) +
     `</${input.name}>`
