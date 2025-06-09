@@ -678,6 +678,29 @@ nodes.img.load = function () {
 }
 
 /*
+  Never trust SVG files from untrusted sources.
+  This function is a basic sanitization of SVG content in case
+  you've accidentally included a "trusted", but malicious SVG file that was downloaded
+  from the internet or other untrusted sources.
+
+  This function removes script and style tags, inline event handlers,
+  and any href attributes that use JavaScript. It does not
+  guarantee complete security, but it helps to mitigate some common
+  XSS attacks that can be embedded in SVG files.
+
+  It is recommended to check all SVG files before using them
+  in your application.
+*/
+const sanitizeSVG = (content) => {
+  return content
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/\son\w+="[^"]*"/gi, "")
+    .replace(/\son\w+='[^']*'/gi, "")
+    .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+}
+
+/*
  * SVG files are a special case where we want to allow
  * unescaped SVG content to be rendered directly.
  * This is useful for cases where we want to
@@ -705,7 +728,9 @@ nodes.svg.load = function () {
     )
   }
   const content = readFile(path, "utf8")
-  return raw(content)
+  const sanitized = sanitizeSVG(content)
+
+  return raw(sanitized)
 }
 
 function classes() {
