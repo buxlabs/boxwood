@@ -166,14 +166,14 @@ const attributes = (options) => {
         const name = ALIASES[key] || key
         const value = options[key]
         const content = Array.isArray(value) ? classes(...value) : value
-        result.push(name + "=" + '"' + content + '"')
+        result.push(name + "=" + '"' + escapeHTML(content) + '"')
       }
     } else if (key === "style" && typeof value === "object") {
       const styles = []
       for (const param in value) {
         const result = value[param]
         if (result) {
-          styles.push(`${decamelize(param)}:${result}`)
+          styles.push(`${decamelize(param)}:${escapeHTML(result)}`)
         }
       }
       if (styles.length > 0) {
