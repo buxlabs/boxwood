@@ -168,6 +168,17 @@ const attributes = (options) => {
         const content = Array.isArray(value) ? classes(...value) : value
         result.push(name + "=" + '"' + content + '"')
       }
+    } else if (key === "style" && typeof value === "object") {
+      const styles = []
+      for (const param in value) {
+        const result = value[param]
+        if (result) {
+          styles.push(`${decamelize(param)}:${result}`)
+        }
+      }
+      if (styles.length > 0) {
+        result.push(`style="${styles.join(";")}"`)
+      }
     }
   }
   return result.join(" ")
