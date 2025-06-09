@@ -7,6 +7,6 @@ test("styles and scripts can be inlined is a function", async () => {
   const html = template()
   assert.deepEqual(
     html,
-    '<div style="color:red">foo</div><div style="color:blue">bar</div>'
+    '<div style="color:red">foo</div><div style="color:blue">bar</div><div style="color:blue;background:red">baz</div>'
   )
 })
