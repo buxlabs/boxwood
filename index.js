@@ -106,6 +106,16 @@ const escapeHTML = (string) => {
   })
 }
 
+function readFile(path, encoding) {
+  try {
+    return readFileSync(path, encoding)
+  } catch (exception) {
+    throw new Error(
+      `FileError: cannot read file "${path}": ${exception.message}`
+    )
+  }
+}
+
 const BOOLEAN_ATTRIBUTES = [
   "async",
   "autofocus",
@@ -255,7 +265,7 @@ const raw = (children) => {
 
 raw.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, "utf8")
+  const content = readFile(path, "utf8")
   return raw(content)
 }
 
@@ -343,7 +353,7 @@ function css(inputs) {
 css.load = function () {
   const path = join(...arguments)
   const file = path.endsWith(".css") ? path : join(path, "index.css")
-  const content = readFileSync(file, "utf8")
+  const content = readFile(file, "utf8")
   return css`
     ${content}
   `
@@ -382,7 +392,7 @@ js.load = function () {
   }
   const path = join(...parts)
   const file = path.endsWith(".js") ? path : join(path, "index.js")
-  const content = readFileSync(file, "utf8")
+  const content = readFile(file, "utf8")
 
   const options = arguments[arguments.length - 1]
   const attributes = options.target ? { target: options.target } : {}
@@ -540,7 +550,7 @@ nodes.img.load = function () {
       `ImageError: unsupported image type "${type}" for path "${path}"`
     )
   }
-  const content = readFileSync(path, "base64")
+  const content = readFile(path, "base64")
   return (options) => {
     return nodes.img({ src: base64({ content, path }), ...options })
   }
@@ -548,7 +558,7 @@ nodes.img.load = function () {
 
 nodes.svg.load = function () {
   const path = join(...arguments)
-  const content = readFileSync(path, "utf8")
+  const content = readFile(path, "utf8")
   return raw(content)
 }
 
@@ -579,7 +589,7 @@ const json = {
   load() {
     const path = join(...arguments)
     const file = path.endsWith(".json") ? path : join(path, "index.json")
-    const content = readFileSync(file, "utf8")
+    const content = readFile(file, "utf8")
     return JSON.parse(content)
   },
 }
