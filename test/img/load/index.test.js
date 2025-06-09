@@ -1,7 +1,7 @@
 const test = require("node:test")
 const assert = require("node:assert")
 const { join } = require("path")
-const { compile } = require("../..")
+const { compile } = require("../../..")
 
 test("#img.load: loads image as base64", () => {
   const { template } = compile(join(__dirname, "./index.js"))
