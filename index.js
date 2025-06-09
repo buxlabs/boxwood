@@ -278,8 +278,16 @@ const raw = (children) => {
   return { name: "raw", children }
 }
 
+const ALLOWED_RAW_EXTENSIONS = ["html", "txt"]
+
 raw.load = function () {
   const path = join(...arguments)
+  const type = extension(path)
+  if (!ALLOWED_RAW_EXTENSIONS.includes(type)) {
+    throw new Error(
+      `RawError: unsupported raw type "${type}" for path "${path}"`
+    )
+  }
   const content = readFile(path, "utf8")
   return raw(content)
 }
