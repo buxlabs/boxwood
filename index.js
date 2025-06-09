@@ -1,5 +1,5 @@
-const { join, resolve } = require("path")
-const { readFileSync, realpathSync } = require("fs")
+const { join, resolve, sep: separator } = require("path")
+const { readFileSync, realpathSync, lstatSync } = require("fs")
 const csstree = require("css-tree")
 
 function compile(path) {
@@ -106,7 +106,66 @@ const escapeHTML = (string) => {
   })
 }
 
-const normalizePath = (path) => path.replace(/\\/g, "/")
+const normalizePath = (path) => path.replace(/\\/g, "/").replace(/\/+$/, "")
+
+const ALLOWED_RAW_EXTENSIONS = ["html", "txt"]
+const ALLOWED_CODE_EXTENSIONS = ["js", "css", "json"]
+const ALLOWED_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "svg"]
+const ALLOWED_READ_EXTENSIONS = [
+  ...ALLOWED_RAW_EXTENSIONS,
+  ...ALLOWED_IMAGE_EXTENSIONS,
+  ...ALLOWED_CODE_EXTENSIONS,
+]
+
+function validateSymlinks(path, base) {
+  let relative = path.slice(base.length + 1).split(separator)
+  let current = base
+  for (const part of relative) {
+    if (!part) continue
+    current = resolve(current, part)
+    if (lstatSync(current).isSymbolicLink()) {
+      throw new Error(`FileError: symlinks are not allowed ("${current}")`)
+    }
+  }
+}
+
+function validateFile(path, base) {
+  const normalizedPath = normalizePath(path)
+  const normalizedBase = normalizePath(base)
+
+  const type = extension(normalizedPath)
+
+  if (!type) {
+    throw new Error(`FileError: path "${path}" has no extension`)
+  }
+
+  if (!ALLOWED_READ_EXTENSIONS.includes(type)) {
+    throw new Error(
+      `FileError: unsupported file type "${type}" for path "${path}"`
+    )
+  }
+
+  const stats = lstatSync(normalizedPath)
+  if (!stats.isFile()) {
+    throw new Error(`FileError: path "${path}" is not a file`)
+  }
+
+  if (stats.isSymbolicLink()) {
+    throw new Error(`FileError: path "${path}" is a symbolic link`)
+  }
+
+  if (normalizedPath === normalizedBase) {
+    throw new Error(
+      `FileError: path "${path}" is the same as the current working directory "${base}"`
+    )
+  }
+
+  if (!normalizedPath.startsWith(normalizedBase + "/")) {
+    throw new Error(
+      `FileError: real path "${realPath}" is not within the current working directory "${realBase}"`
+    )
+  }
+}
 
 function readFile(path, encoding) {
   try {
@@ -115,20 +174,9 @@ function readFile(path, encoding) {
     const absolutePath = resolve(path)
     const realBase = realpathSync(absoluteBase)
     const realPath = realpathSync(absolutePath)
-    const normalizedBase = normalizePath(realBase)
-    const normalizedPath = normalizePath(realPath)
 
-    if (normalizedPath === normalizedBase) {
-      throw new Error(
-        `FileError: path "${path}" is the same as the current working directory "${base}"`
-      )
-    }
-
-    if (!normalizedPath.startsWith(normalizedBase + "/")) {
-      throw new Error(
-        `FileError: real path "${realPath}" is not within the current working directory "${realBase}"`
-      )
-    }
+    validateSymlinks(realPath, realBase)
+    validateFile(realPath, realBase)
 
     return readFileSync(path, encoding)
   } catch (exception) {
@@ -299,8 +347,6 @@ const render = (input, escape = true) => {
 const raw = (children) => {
   return { name: "raw", children }
 }
-
-const ALLOWED_RAW_EXTENSIONS = ["html", "txt"]
 
 raw.load = function () {
   const path = join(...arguments)
@@ -584,8 +630,6 @@ function media(path) {
 function base64({ content, path }) {
   return `data:${media(path)};base64,${content}`
 }
-
-const ALLOWED_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "svg"]
 
 nodes.img.load = function () {
   const path = join(...arguments)
