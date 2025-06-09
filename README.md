@@ -16,7 +16,7 @@
 7. i18n support
 8. server side
 9. good for seo
-10. small (1 file, 700 LOC~)
+10. small (1 file, 890 LOC~)
 11. easy to start, familiar syntax
 12. easy to test
 
