@@ -1,4 +1,4 @@
-const { img } = require("../..")
+const { img } = require("../../..")
 
 const png = img.load(__dirname, "square.png")
 const svg = img.load(__dirname, "line.svg")

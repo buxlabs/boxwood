@@ -530,8 +530,16 @@ function base64({ content, path }) {
   return `data:${media(path)};base64,${content}`
 }
 
+const ALLOWED_IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "svg"]
+
 nodes.img.load = function () {
   const path = join(...arguments)
+  const type = extension(path)
+  if (!ALLOWED_IMAGE_EXTENSIONS.includes(type)) {
+    throw new Error(
+      `ImageError: unsupported image type "${type}" for path "${path}"`
+    )
+  }
   const content = readFileSync(path, "base64")
   return (options) => {
     return nodes.img({ src: base64({ content, path }), ...options })

@@ -4,15 +4,15 @@
   "description": "Compile HTML templates into JS",
   "main": "index.js",
   "scripts": {
-    "test": "node --test --test-reporter=dot",
-    "test:debug": "node --test --test-reporter=spec",
+    "test": "node --test --test-reporter=dot \"test/**/*.test.js\" \"test/**/*.spec.js\"",
+    "test:debug": "node --test --test-reporter=spec \"test/**/*.test.js\" \"test/**/*.spec.js\"",
     "coverage": "c8 npm test",
     "benchmark": "node --test benchmark/index.js",
     "watch": "npm test -- --watch",
     "prepush": "npm test"
   },
   "engines": {
-    "node": ">= 20.11.1"
+    "node": ">= 24.1.0"
   },
   "repository": {
     "type": "git",
