@@ -136,6 +136,16 @@ test("banner renders an optional description", async () => {
 
 You can check the `test` dir for more examples.
 
+## Security
+
+By default, boxwood sanitizes all HTML, SVG and i18n content loaded via its API to protect against basic XSS attacks.
+
+Disabling sanitization ({ sanitize: false }) is only safe for trusted, developer-controlled files. Never use it with user-generated or untrusted content.
+
+All file access is restricted to the project directory and symlinks are not allowed by default to prevent path traversal attacks.
+
+That said, the library is pretty small so please review it and suggest improvements if you have any.
+
 ## Maintainers
 
 [@emilos](https://github.com/emilos)
