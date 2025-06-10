@@ -493,9 +493,62 @@ function css(inputs) {
   }
 }
 
+function occurences(input, string) {
+  if (string.length <= 0) {
+    return input.length + 1
+  }
+
+  let count = 0
+  let position = 0
+  const step = string.length
+  while (true) {
+    position = input.indexOf(string, position)
+    if (position >= 0) {
+      count += 1
+      position += step
+    } else {
+      break
+    }
+  }
+  return count
+}
+
+const validateCSS = (content, character1, character2) => {
+  const count1 = occurences(content, character1)
+  const count2 = occurences(content, character2)
+  if (count1 !== count2) {
+    return {
+      valid: false,
+      message: `Mismatched count of ${character1} and ${character2}`,
+    }
+  }
+  return { valid: true }
+}
+
+const CSS_PAIRS = [
+  ["{", "}"],
+  ["(", ")"],
+  ["[", "]"],
+]
+
+function isCSSValid(content) {
+  for (const [left, right] of CSS_PAIRS) {
+    const { valid, message } = validateCSS(content, left, right)
+    if (!valid) {
+      return { valid, message: message }
+    }
+  }
+
+  return { valid: true }
+}
+
 css.load = function (path) {
   const file = path.endsWith(".css") ? path : join(path, "index.css")
   const content = readFile(file, "utf8")
+  const { valid, message } = isCSSValid(content)
+  if (!valid) {
+    throw new Error(`CSSError: invalid CSS for path "${file}": ${message}`)
+  }
   return css`
     ${content}
   `
