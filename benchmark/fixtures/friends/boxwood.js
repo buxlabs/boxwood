@@ -1,47 +1,47 @@
 const {
-  doctype,
-  html,
-  head,
-  body,
-  meta,
-  img,
-  title,
-  div,
-  ul,
-  li,
-  a,
+  Doctype,
+  Html,
+  Head,
+  Body,
+  Meta,
+  IMg,
+  Title,
+  Div,
+  Ul,
+  Li,
+  A,
 } = require("../../..")
 
 module.exports = function ({ friends }) {
   return [
-    doctype(),
-    html({ lang: "en" }, [
-      head([meta({ charset: "UTF-8" }), title("Friends")]),
-      body([
-        div(
+    Doctype(),
+    Html({ lang: "en" }, [
+      Head([Meta({ charset: "UTF-8" }), Title("Friends")]),
+      Body([
+        Div(
           { class: "friends" },
           friends.map((friend) => {
-            return div({ class: "friend" }, [
-              ul([
-                li(`Name: ${friend.name}`),
-                li(`Balance: ${friend.balance}`),
-                li(`Age: ${friend.age}`),
-                li(`Address: ${friend.address}`),
-                li(["Image: ", img({ src: friend.picture })]),
-                li(`Company: ${friend.company}`),
-                li([
+            return Div({ class: "friend" }, [
+              Ul([
+                Li(`Name: ${friend.name}`),
+                Li(`Balance: ${friend.balance}`),
+                Li(`Age: ${friend.age}`),
+                Li(`Address: ${friend.address}`),
+                Li(["Image: ", IMg({ src: friend.picture })]),
+                Li(`Company: ${friend.company}`),
+                Li([
                   "Email: ",
-                  a({ href: `mailto:${friend.email}` }, friend.email),
+                  A({ href: `mailto:${friend.email}` }, friend.email),
                 ]),
-                li(`About: ${friend.about}`),
+                Li(`About: ${friend.about}`),
                 friend.tags.length &&
-                  li(["Tags: ", ul(friend.tags.map((tag) => li(tag)))]),
+                  Li(["Tags: ", Ul(friend.tags.map((tag) => Li(tag)))]),
                 friend.friends.length &&
-                  li([
+                  Li([
                     "Friends: ",
-                    ul(
+                    Ul(
                       friend.friends.map((friend) =>
-                        li(`${friend.name} (${friend.id})`)
+                        Li(`${friend.name} (${friend.id})`)
                       )
                     ),
                   ]),
