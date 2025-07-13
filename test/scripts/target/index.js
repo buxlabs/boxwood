@@ -1,11 +1,11 @@
-const { component, doctype, div, js, html, head, body } = require("../../..")
+const { component, Doctype, Div, js, Html, Head, Body } = require("../../..")
 const { join } = require("path")
 
 const script = js.load(join(__dirname, "client.js"), { target: "head" })
 
 module.exports = component(
   () => {
-    return [doctype(), html([head([]), body([div(["hello, world!"])])])]
+    return [Doctype(), Html([Head([]), Body([Div(["hello, world!"])])])]
   },
   {
     scripts: [script],

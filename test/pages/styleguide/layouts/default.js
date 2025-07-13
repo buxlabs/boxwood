@@ -1,12 +1,12 @@
-const { component, html, head, tag, meta, style, body } = require("../../../..")
+const { component, Html, Head, tag, Meta, Style, Body } = require("../../../..")
 
 module.exports = component(({ title, description }, children) => {
-  return html([
-    head([
+  return Html([
+    Head([
       title && tag("title", title),
-      style("body { background: #ccc; }"),
-      description && meta({ name: "description", content: description }),
+      Style("body { background: #ccc; }"),
+      description && Meta({ name: "description", content: description }),
     ]),
-    body(children),
+    Body(children),
   ])
 })

@@ -1,9 +1,9 @@
-const { component, div } = require("../../..")
+const { component, Div } = require("../../..")
 const i18n = require("./i18n")
 
 module.exports = component(
   ({ translate }) => {
-    return div([translate()])
+    return Div([translate()])
   },
   { i18n }
 )

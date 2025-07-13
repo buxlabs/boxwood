@@ -1,9 +1,9 @@
-const { component, css, img } = require("../../..")
+const { component, css, Img } = require("../../..")
 const styles = css.load(__dirname)
 
 module.exports = component(
   (src) => {
-    return img({ className: styles.image, src })
+    return Img({ className: styles.image, src })
   },
   { styles }
 )

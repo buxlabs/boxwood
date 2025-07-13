@@ -1,9 +1,9 @@
-const { component, div, js, html, head, body } = require("../..")
+const { component, Div, js, Html, Head, Body } = require("../..")
 const { join } = require("path")
 
 module.exports = component(
   () => {
-    return html([head([]), body([div(["hello, world!"])])])
+    return Html([Head([]), Body([Div(["hello, world!"])])])
   },
   {
     scripts: [

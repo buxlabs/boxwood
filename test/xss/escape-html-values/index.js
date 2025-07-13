@@ -1,3 +1,3 @@
-const { input } = require("../../..")
+const { Input } = require("../../..")
 
-module.exports = () => input({ value: '" onfocus="alert(1)' })
+module.exports = () => Input({ value: '" onfocus="alert(1)' })

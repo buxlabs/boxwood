@@ -54,64 +54,66 @@ You can use [express-boxwood](https://www.npmjs.com/package/express-boxwood) for
 
 ```js
 // example/index.js
-const layout = require("./layout")
-const banner = require("./banner")
+const Layout = require("./layout")
+const Banner = require("./banner")
 
-module.exports = () => {
-  return layout({ language: "en" }, [
-    banner({
+const App = () => {
+  return Layout({ language: "en" }, [
+    Banner({
       title: "Hello, world!",
       description: "Lorem ipsum dolor sit amet",
     }),
   ])
 }
+
+module.exports = App
 ```
 
 ```js
 // example/layout/index.js
-const { component, css, doctype, html, body } = require("boxwood")
-const head = require("./head")
+const { component, css, Doctype, Html, Body } = require("boxwood")
+const Head = require("./head")
 
 const styles = css.load(__dirname)
 
-module.exports = component(
-  ({ language }, children) => {
-    return [
-      doctype(),
-      html({ lang: language }, [
-        head(),
-        body({ className: styles.layout }, children),
-      ]),
-    ]
-  },
-  { styles }
-)
+const Layout = ({ language }, children) => {
+  return [
+    Doctype(),
+    Html({ lang: language }, [
+      Head(),
+      Body({ className: styles.layout }, children),
+    ]),
+  ]
+}
+
+module.exports = component(Layout, { styles })
 ```
 
 ```js
 // example/layout/head/index.js
-const { head, title } = require("boxwood")
+const { Head: HeadTag, Title } = require("boxwood")
 
-module.exports = () => {
-  return head([title("example")])
+const Head = () => {
+  return HeadTag([Title("example")])
 }
+
+module.exports = Head
 ```
 
 ```js
 // example/banner/index.js
-const { component, css, h1, p, section } = require("boxwood")
+const { component, css, H1, P, Section } = require("boxwood")
 
 const styles = css.load(__dirname)
 
-module.exports = component(
-  ({ title, description }) => {
-    return section({ className: styles.banner }, [
-      h1(title),
-      description && p(description),
-    ])
-  },
-  { styles }
-)
+const Banner = ({ title, description }) => {
+  return Section({ className: styles.banner }, [
+    H1(title),
+    description && P(description),
+  ])
+}
+
+module.exports = component(Banner, { styles })
 ```
 
 ```js

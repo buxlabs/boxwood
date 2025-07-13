@@ -1,11 +1,11 @@
-const { component, css, div, js, h3 } = require("../../..")
+const { component, css, Div, js, H3 } = require("../../..")
 const styles = css.load(__dirname)
 
 module.exports = component(
   ({ title }, children) => {
     return [
-      h3({ class: styles.accordion }, title),
-      div({ class: [styles.content, styles.hidden] }, children),
+      H3({ class: styles.accordion }, title),
+      Div({ class: [styles.content, styles.hidden] }, children),
     ]
   },
   {

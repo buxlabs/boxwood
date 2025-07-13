@@ -1,15 +1,15 @@
-const { input } = require("../../..")
+const { Input } = require("../../..")
 
 module.exports = () => {
   return [
-    input({
+    Input({
       type: "text",
       name: "username",
       placeholder: "Enter your username",
       value: "John Doe",
       autofocus: true,
     }),
-    input({
+    Input({
       type: "text",
       name: "password",
       placeholder: "Enter your password",

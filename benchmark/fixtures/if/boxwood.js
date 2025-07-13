@@ -1,4 +1,4 @@
-const { div, span } = require("../../..")
+const { Div, Span } = require("../../..")
 
 function description(account) {
   if (account.status === "closed") {
@@ -9,7 +9,7 @@ function description(account) {
   }
   return (
     "Bank balance: " +
-    span(
+    Span(
       { class: account.balance >= 0 ? "positive" : "negative" },
       account.balance
     )
@@ -17,5 +17,5 @@ function description(account) {
 }
 
 module.exports = function ({ accounts }) {
-  return accounts.map((account) => div(description(account)))
+  return accounts.map((account) => Div(description(account)))
 }

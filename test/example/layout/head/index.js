@@ -1,5 +1,5 @@
-const { head, title } = require("../../../..")
+const { Head, Title } = require("../../../..")
 
 module.exports = () => {
-  return head([title("example")])
+  return Head([Title("example")])
 }

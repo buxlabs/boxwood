@@ -1,5 +1,5 @@
-const { hr } = require("../../..")
+const { Hr } = require("../../..")
 
 module.exports = () => {
-  return hr()
+  return Hr()
 }

@@ -1,5 +1,5 @@
-const { div, css, component } = require("../../..")
+const { Div, css, component } = require("../../..")
 
 const styles = css.load(__dirname)
 
-module.exports = component(() => div({ class: styles.foo }), { styles })
+module.exports = component(() => Div({ class: styles.foo }), { styles })

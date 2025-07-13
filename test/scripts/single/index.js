@@ -1,8 +1,8 @@
-const { component, div, css, js, html, head, body } = require("../../..")
+const { component, Div, css, js, Html, Head, Body } = require("../../..")
 
 module.exports = component(
   () => {
-    return html([head([]), body([div(["hello, world!"])])])
+    return Html([Head([]), Body([Div(["hello, world!"])])])
   },
   {
     styles: css`

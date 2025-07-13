@@ -605,7 +605,7 @@ js.load = function (path, options = {}) {
 }
 
 const node = (name) => (options, children) => tag(name, options, children)
-const doctype = node("!DOCTYPE html")
+const Doctype = node("!DOCTYPE html")
 
 const nodes = [
   "a",
@@ -719,7 +719,8 @@ const nodes = [
   "video",
   "wbr",
 ].reduce((result, name) => {
-  result[name] = node(name)
+  const pascalName = name.charAt(0).toUpperCase() + name.slice(1)
+  result[pascalName] = node(name)
   return result
 }, {})
 
@@ -740,7 +741,7 @@ function base64({ content, path }) {
   return `data:${media(path)};base64,${content}`
 }
 
-nodes.img.load = function (path) {
+nodes.Img.load = function (path) {
   const type = extension(path)
   if (!ALLOWED_IMAGE_EXTENSIONS.includes(type)) {
     throw new Error(
@@ -749,7 +750,7 @@ nodes.img.load = function (path) {
   }
   const content = readFile(path, "base64")
   return (options) => {
-    return nodes.img({ src: base64({ content, path }), ...options })
+    return nodes.Img({ src: base64({ content, path }), ...options })
   }
 }
 
@@ -795,7 +796,7 @@ const sanitizeSVG = (content) => {
  * Should not be used for user-generated content.
  */
 
-nodes.svg.load = function (path, options = {}) {
+nodes.Svg.load = function (path, options = {}) {
   const type = extension(path)
   if (type !== "svg") {
     throw new Error(
@@ -933,7 +934,7 @@ module.exports = {
   compile,
   component,
   classes,
-  doctype,
+  Doctype,
   escape: escapeHTML,
   raw,
   css,

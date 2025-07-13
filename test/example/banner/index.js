@@ -1,12 +1,12 @@
-const { component, css, h1, p, section } = require("../../..")
+const { component, css, H1, P, Section } = require("../../..")
 
 const styles = css.load(__dirname)
 
 module.exports = component(
   ({ title, description }) => {
-    return section({ className: styles.banner }, [
-      h1(title),
-      description && p(description),
+    return Section({ className: styles.banner }, [
+      H1(title),
+      description && P(description),
     ])
   },
   { styles }

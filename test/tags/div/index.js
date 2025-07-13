@@ -1,5 +1,5 @@
-const { div } = require("../../..")
+const { Div } = require("../../..")
 
 module.exports = () => {
-  return [div({ "data-foo": 1, "data-bar": 0 }, "baz")]
+  return [Div({ "data-foo": 1, "data-bar": 0 }, "baz")]
 }

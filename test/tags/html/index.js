@@ -1,5 +1,5 @@
-const { html } = require("../../..")
+const { Html } = require("../../..")
 
 module.exports = () => {
-  return html({ lang: "en" })
+  return Html({ lang: "en" })
 }

@@ -1,9 +1,9 @@
-const { div, br } = require("../../../..")
+const { Div, Br } = require("../../../..")
 
 module.exports = () => [
-  div("foo"),
-  br(),
-  div({ id: "bar" }),
-  br({ id: "baz" }),
-  div(),
+  Div("foo"),
+  Br(),
+  Div({ id: "bar" }),
+  Br({ id: "baz" }),
+  Div(),
 ]

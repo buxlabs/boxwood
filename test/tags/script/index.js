@@ -1,5 +1,5 @@
-const { script } = require("../../..")
+const { Script } = require("../../..")
 
 module.exports = () => {
-  return [script({ src: "https://foo.bar", async: true })]
+  return [Script({ src: "https://foo.bar", async: true })]
 }

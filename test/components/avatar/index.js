@@ -1,9 +1,9 @@
-const { css, div } = require("../../..")
+const { css, Div } = require("../../..")
 const styles = css.load(__dirname)
 
 module.exports = ({ image, text }) => {
   if (image) {
-    return div(
+    return Div(
       {
         class: [styles.avatar, styles.image],
         style: `background-image: url(${image})`,
@@ -11,5 +11,5 @@ module.exports = ({ image, text }) => {
       []
     )
   }
-  return div({ class: [styles.avatar, styles.text] }, text)
+  return Div({ class: [styles.avatar, styles.text] }, text)
 }

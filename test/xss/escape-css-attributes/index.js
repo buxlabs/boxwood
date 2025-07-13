@@ -1,4 +1,4 @@
-const { div } = require("../../..")
+const { Div } = require("../../..")
 
 module.exports = () =>
-  div({ style: { background: 'url("javascript:alert(1)")' } })
+  Div({ style: { background: 'url("javascript:alert(1)")' } })

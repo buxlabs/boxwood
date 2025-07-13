@@ -1,3 +1,3 @@
-const { div, raw } = require("../../..")
+const { Div, raw } = require("../../..")
 
-module.exports = () => [div({ "><script>alert(1)</script><div foo": "" })]
+module.exports = () => [Div({ "><script>alert(1)</script><div foo": "" })]

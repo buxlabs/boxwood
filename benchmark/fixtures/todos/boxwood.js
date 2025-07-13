@@ -1,9 +1,9 @@
-const { h1, h2, ul, li } = require("../../..")
+const { H1, H2, Ul, Li } = require("../../..")
 
 module.exports = function ({ title, subtitle, todos }) {
   return [
-    h1(title),
-    h2(subtitle),
-    ul(todos.map((todo) => li(todo.description))),
+    H1(title),
+    H2(subtitle),
+    Ul(todos.map((todo) => Li(todo.description))),
   ]
 }

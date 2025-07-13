@@ -1,7 +1,7 @@
-const { img } = require("../../..")
+const { Img } = require("../../..")
 
 module.exports = () => {
-  return img({
+  return Img({
     src: "https://example.com/image.jpg",
     alt: "Example image",
     width: 100,

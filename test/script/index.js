@@ -1,12 +1,12 @@
-const { html, head, body, script } = require("../..")
+const { Html, Head, Body, Script } = require("../..")
 
 module.exports = () => {
-  return html([
-    head([
-      script(),
-      script({ type: "application/json" }, "{}"),
-      script({ type: "application/ld+json" }, "{}"),
+  return Html([
+    Head([
+      Script(),
+      Script({ type: "application/json" }, "{}"),
+      Script({ type: "application/ld+json" }, "{}"),
     ]),
-    body(),
+    Body(),
   ])
 }

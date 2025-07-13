@@ -1,9 +1,9 @@
-const { component, div } = require("../../..")
+const { component, Div } = require("../../..")
 
 module.exports = component(() => {
   return [
-    div({ style: "color:red" }, "foo"),
-    div({ style: { color: "blue" } }, "bar"),
-    div({ style: { color: "blue", background: "red" } }, "baz"),
+    Div({ style: "color:red" }, "foo"),
+    Div({ style: { color: "blue" } }, "bar"),
+    Div({ style: { color: "blue", background: "red" } }, "baz"),
   ]
 })

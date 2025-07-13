@@ -1,5 +1,5 @@
-const { doctype } = require("../../..")
+const { Doctype } = require("../../..")
 
 module.exports = () => {
-  return doctype()
+  return Doctype()
 }

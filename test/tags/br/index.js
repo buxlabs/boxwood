@@ -1,5 +1,5 @@
-const { br } = require("../../..")
+const { Br } = require("../../..")
 
 module.exports = () => {
-  return br()
+  return Br()
 }

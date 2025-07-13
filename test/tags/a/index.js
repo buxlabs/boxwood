@@ -1,5 +1,5 @@
-const { a } = require("../../..")
+const { A } = require("../../..")
 
 module.exports = () => {
-  return [a({ href: "/foo" }, "bar"), a({ href: "/baz" }), a("qux")]
+  return [A({ href: "/foo" }, "bar"), A({ href: "/baz" }), A("qux")]
 }

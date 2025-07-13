@@ -1,5 +1,5 @@
-const { label } = require('../../..')
+const { Label } = require('../../..')
 
 module.exports = ({ className, htmlFor }, children) => {
-  return label({ className, htmlFor }, children)
+  return Label({ className, htmlFor }, children)
 }

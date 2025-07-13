@@ -1,5 +1,5 @@
-const { div } = require("../../../../..")
+const { Div } = require("../../../../..")
 
 module.exports = () => {
-  return div(["hello, world!"])
+  return Div(["hello, world!"])
 }

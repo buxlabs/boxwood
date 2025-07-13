@@ -1,3 +1,3 @@
-const { input } = require('../../../..')
+const { Input } = require('../../../..')
 
-module.exports = () => input({ checked: true })
+module.exports = () => Input({ checked: true })

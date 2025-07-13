@@ -1,16 +1,16 @@
-const { doctype, tag, html, head, body, p, a } = require("../../..")
+const { Doctype, tag, Html, Head, Body, P, A } = require("../../..")
 
 module.exports = ({ title, projects, text }) => {
   return [
-    doctype(),
-    html([
-      head([tag("title", title)]),
-      body([
-        p(text),
+    Doctype(),
+    Html([
+      Head([tag("title", title)]),
+      Body([
+        P(text),
         ...projects.map((project) => {
           return [
-            a({ href: project.url }, project.name),
-            p(project.description),
+            A({ href: project.url }, project.name),
+            P(project.description),
           ]
         }),
         projects.length === 0 && "No projects",

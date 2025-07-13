@@ -1,8 +1,8 @@
-const { component, js, html, head, body } = require("../../..")
+const { component, js, Html, Head, Body } = require("../../..")
 
 module.exports = component(
   () => {
-    return html([head([]), body([])])
+    return Html([Head([]), Body([])])
   },
   {
     scripts: [js`alert('foo');`, js`alert('bar');`],
