@@ -4,7 +4,7 @@ const {
   Head,
   Body,
   Meta,
-  IMg,
+  Img,
   Title,
   Div,
   Ul,
@@ -27,7 +27,7 @@ module.exports = function ({ friends }) {
                 Li(`Balance: ${friend.balance}`),
                 Li(`Age: ${friend.age}`),
                 Li(`Address: ${friend.address}`),
-                Li(["Image: ", IMg({ src: friend.picture })]),
+                Li(["Image: ", Img({ src: friend.picture })]),
                 Li(`Company: ${friend.company}`),
                 Li([
                   "Email: ",
