@@ -431,9 +431,14 @@ const tag = (a, b, c) => {
   }
 }
 
-let number = 1
-function sequence() {
-  return number++
+// DJB2 hash algorithm for CSS class names
+function hashDJB2(str) {
+  let hash = 5381
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 33) ^ str.charCodeAt(i)
+  }
+  // Convert to positive number and base36 for shorter string
+  return (hash >>> 0).toString(36)
 }
 
 function decamelize(string) {
@@ -475,12 +480,13 @@ function css(inputs) {
       result += input
     }
   }
-  const hash = sequence()
   const tree = csstree.parse(result)
   const classes = {}
 
   csstree.walk(tree, (node) => {
     if (node.type === "ClassSelector") {
+      // Generate hash based on the CSS content and class name
+      const hash = hashDJB2(result + node.name).slice(0, 6)
       const name = `${node.name}_${hash}`
       classes[node.name] = name
       node.name = name

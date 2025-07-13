@@ -8,6 +8,6 @@ test("#pages/landing: it returns a page with css", async () => {
 
   assert.deepEqual(
     template({ language: "en" }),
-    '<!DOCTYPE html><html lang="en"><head><title>Landing page</title><style>body{background:#ccc;font-family:"Lato"}.button_2{color:red}.button_2:hover{color:blue}</style></head><body><button class="button_2">Bar</button></body></html>'
+    '<!DOCTYPE html><html lang="en"><head><title>Landing page</title><style>body{background:#ccc;font-family:"Lato"}.button_1iwkij{color:red}.button_1iwkij:hover{color:blue}</style></head><body><button class="button_1iwkij">Bar</button></body></html>'
   )
 })

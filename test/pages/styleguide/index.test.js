@@ -8,7 +8,7 @@ test("#pages/styleguide: it returns a page with css", async () => {
   const html = template({ language: "pl" })
   assert(
     html.includes(
-      "@media only screen and (max-width:767px){.sidebar_1{display:none}}"
+      "@media only screen and (max-width:767px){.sidebar_1x0v6f{display:none}}"
     )
   )
   assert(!html.includes("undefined"))
