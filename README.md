@@ -3,24 +3,71 @@
 [![npm](https://img.shields.io/npm/v/boxwood.svg)](https://www.npmjs.com/package/boxwood)
 [![build](https://github.com/buxlabs/boxwood/workflows/build/badge.svg)](https://github.com/buxlabs/boxwood/actions)
 
-> Server side templating engine written in JavaScript
+> It's just JavaScript™ - A template engine that gets out of your way
 
-[boxwood](https://github.com/buxlabs/boxwood) was created to achieve the following design goals:
+## Why Boxwood?
 
-1. templates can be split into components
-2. css is hashed per component
-3. css is automatically minified
-4. critical css is inlined
-5. templates can import other dependencies
-6. inline images or svgs
-7. i18n support
-8. server side
-9. good for seo
-10. small (1 file, 890 LOC~)
-11. easy to start, familiar syntax
-12. easy to test
+Unlike traditional template engines, Boxwood templates are **just JavaScript functions**. No new syntax to learn, no parsing overhead, and full access to the JavaScript ecosystem.
 
-The template starts with a standard js file, which builds a tree of nodes, that get rendered to html.
+```javascript
+// This is your template - just a function that returns HTML nodes
+const HomePage = ({ posts }) => {
+  return Div([
+    H1("Blog"),
+    posts.map(post => Article([
+      H2(post.title),
+      P(post.summary)
+    ]))
+  ])
+}
+```
+
+## Key Advantages
+
+### Zero Learning Curve
+If you know JavaScript, you already know Boxwood. Use `map`, `filter`, `if/else`, and all standard JS features naturally.
+
+### IDE Support
+Get autocomplete, refactoring, and go-to-definition out of the box. Your templates are just code, so your editor understands them.
+
+### True Composition
+Components are functions. Compose them like functions. No slots, no special APIs - just parameters and return values.
+
+### Performance
+No template parsing at runtime. Templates are already JavaScript functions, eliminating parsing overhead.
+
+### Security Helpers
+- Automatic HTML escaping by default
+- Basic sanitization for loaded SVG/HTML files
+- Path traversal protection for file operations
+- Remember: security is ultimately your responsibility
+
+### Integrated CSS Management
+- Automatic CSS scoping with hash-based class names
+- CSS-in-JS with zero runtime
+- Critical CSS inlining
+- Automatic minification
+
+### Built-in i18n Support
+First-class internationalization support with a simple, component-friendly API for multi-language applications.
+
+### Asset Handling
+- Inline images as base64
+- SVG loading with automatic sanitization
+- JSON data loading
+- Raw HTML imports with XSS protection
+
+### SEO Friendly
+- Pure server-side rendering - search engines see fully rendered HTML
+- Lightning fast pages with inlined critical CSS
+- Minimal payload size improves Core Web Vitals scores
+- No client-side hydration delays
+
+### Minimal Footprint
+Single file implementation (~950 lines). No complex build process or heavy dependencies.
+
+### Testable by Design
+Templates are pure functions - easy to unit test with any testing framework.
 
 ## Table of Contents
 
@@ -37,124 +84,117 @@ The template starts with a standard js file, which builds a tree of nodes, that 
 
 ## Usage
 
-```js
-const { compile } = require("boxwood")
-const { join } = require("path")
-// ...
-const path = join(__dirname, "index.js")
-const { template } = compile(path)
-// ...
-const html = template({ foo: "bar" })
-console.log(html)
-```
-
-You can use [express-boxwood](https://www.npmjs.com/package/express-boxwood) for [express](https://www.npmjs.com/package/express).
-
-## Syntax
+Create a template file:
 
 ```js
-// example/index.js
-const Layout = require("./layout")
-const Banner = require("./banner")
+// templates/greeting.js
+const { Div, H1, P } = require("boxwood")
 
-const App = () => {
-  return Layout({ language: "en" }, [
-    Banner({
-      title: "Hello, world!",
-      description: "Lorem ipsum dolor sit amet",
-    }),
+module.exports = ({ name, message }) => {
+  return Div([
+    H1(`Hello, ${name}!`),
+    P(message)
   ])
 }
-
-module.exports = App
 ```
 
+Compile and render it:
+
 ```js
-// example/layout/index.js
-const { component, css, Doctype, Html, Body } = require("boxwood")
-const Head = require("./head")
+// app.js
+const { compile } = require("boxwood")
 
-const styles = css.load(__dirname)
+const { template } = compile("./templates/greeting.js")
+const html = template({ 
+  name: "World",
+  message: "Welcome to Boxwood"
+})
 
-const Layout = ({ language }, children) => {
+console.log(html)
+// <div><h1>Hello, World!</h1><p>Welcome to Boxwood</p></div>
+```
+
+For Express apps, use [express-boxwood](https://www.npmjs.com/package/express-boxwood).
+
+## Features
+
+### Components with CSS
+
+```js
+// button.js
+const { component, css, Button: ButtonTag } = require("boxwood")
+
+const styles = css`
+  .button {
+    padding: 8px 16px;
+    background: blue;
+    color: white;
+  }
+  .secondary {
+    background: gray;
+  }
+`
+
+const Button = ({ variant, children }) => {
+  return ButtonTag({ 
+    // className accepts arrays - falsy values are automatically filtered
+    className: [styles.button, variant === 'secondary' && styles.secondary]
+  }, children)
+}
+
+module.exports = component(Button, { styles })
+```
+
+### Internationalization
+
+```js
+// welcome.js
+const { component, i18n, H1, P } = require("boxwood")
+
+const Welcome = ({ translate, username }) => {
   return [
-    Doctype(),
-    Html({ lang: language }, [
-      Head(),
-      Body({ className: styles.layout }, children),
-    ]),
+    H1(translate("greeting").replace("{name}", username)),
+    P(translate("intro"))
   ]
 }
 
-module.exports = component(Layout, { styles })
-```
-
-```js
-// example/layout/head/index.js
-const { Head: HeadTag, Title } = require("boxwood")
-
-const Head = () => {
-  return HeadTag([Title("example")])
-}
-
-module.exports = Head
-```
-
-```js
-// example/banner/index.js
-const { component, css, H1, P, Section } = require("boxwood")
-
-const styles = css.load(__dirname)
-
-const Banner = ({ title, description }) => {
-  return Section({ className: styles.banner }, [
-    H1(title),
-    description && P(description),
-  ])
-}
-
-module.exports = component(Banner, { styles })
-```
-
-```js
-// example/banner/index.test.js
-const test = require("node:test")
-const assert = require("node:assert")
-const { compile } = require("boxwood")
-
-test("banner renders a title", async () => {
-  const { template } = compile(__dirname)
-  const html = template({ title: "foo" })
-  assert(html.includes("<h1>foo</h1>"))
-})
-
-test("banner renders an optional description", async () => {
-  const { template } = compile(__dirname)
-  const html = template({ title: "foo", description: "bar" })
-  assert(html.includes("<h1>foo</h1>"))
-  assert(html.includes("<p>bar</p>"))
+module.exports = component(Welcome, { 
+  i18n: i18n.load(__dirname) 
 })
 ```
 
-You can check the `test` dir for more examples.
+### Asset Loading
+
+```js
+const { Img, Svg } = require("boxwood")
+
+// Load and inline images
+const Logo = Img.load("./assets/logo.png")
+
+// Load and sanitize SVGs
+const Icon = Svg.load("./assets/icon.svg")
+
+module.exports = () => {
+  return [Logo(), Icon]
+}
+```
+
+Additional examples are available in the `test` directory.
 
 ## Security
 
-By default, boxwood sanitizes all HTML, SVG and i18n content loaded via its API to protect against basic XSS attacks.
+Boxwood provides basic security features:
 
-Disabling sanitization ({ sanitize: false }) is only safe for trusted, developer-controlled files. Never use it with user-generated or untrusted content.
+- HTML content is escaped by default
+- Loaded SVG and HTML files are sanitized
+- File access is restricted to the project directory
+- Symlinks are blocked to prevent directory traversal
 
-All file access is restricted to the project directory and symlinks are not allowed by default to prevent path traversal attacks.
-
-That said, the library is pretty small so please review it and suggest improvements if you have any.
-
-## Maintainers
-
-[@emilos](https://github.com/emilos)
+The `sanitize: false` option should only be used with trusted content. Security remains the developer's responsibility.
 
 ## Contributing
 
-All contributions are highly appreciated. Please feel free to open new issues and send PRs.
+Issues and pull requests are welcome. The codebase is intentionally small and focused.
 
 ## License
 
