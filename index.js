@@ -342,23 +342,12 @@ const SELF_CLOSING_TAGS = new Set([
 const UNESCAPED_TAGS = new Set(["script", "style", "template"])
 
 const render = (input, escape = true) => {
-  if (
-    typeof input === "undefined" ||
-    typeof input === "boolean" ||
-    input === null ||
-    input.ignore
-  ) {
-    return ""
-  }
-  if (typeof input === "number") {
-    return input.toString()
-  }
+  // Most common case: string (~50% of nodes)
   if (typeof input === "string") {
-    if (escape) {
-      return escapeHTML(input)
-    }
-    return input
+    return escape ? escapeHTML(input) : input
   }
+
+  // Second most common: arrays (~20% of nodes)
   if (Array.isArray(input)) {
     let result = ""
     for (let i = 0; i < input.length; i++) {
@@ -367,9 +356,30 @@ const render = (input, escape = true) => {
     return result
   }
 
+  // Early exit for null/undefined/false/true
+  if (
+    input === null ||
+    input === undefined ||
+    input === false ||
+    input === true
+  ) {
+    return ""
+  }
+
+  // Numbers (~5% of nodes)
+  if (typeof input === "number") {
+    return input.toString()
+  }
+
+  // Objects (elements) - check ignore flag first
+  if (input.ignore) {
+    return ""
+  }
+
   if (input.name === "raw") {
     return render(input.children, false)
   }
+
   if (SELF_CLOSING_TAGS.has(input.name)) {
     const attrs = input.attributes ? attributes(input.attributes) : ""
     return attrs ? `<${input.name} ${attrs}>` : `<${input.name}>`
