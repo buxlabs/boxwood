@@ -702,6 +702,7 @@ const nodes = [
   "pre",
   "progress",
   "q",
+  "radialGradient",
   "rect",
   "rp",
   "rt",
