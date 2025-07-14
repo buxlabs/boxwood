@@ -686,6 +686,7 @@ const nodes = [
   "output",
   "p",
   "param",
+  "path",
   "picture",
   "pre",
   "progress",
