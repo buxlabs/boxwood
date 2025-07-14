@@ -3,6 +3,7 @@
   "version": "1.1.1",
   "description": "Compile HTML templates into JS",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "node --test --test-reporter=dot \"test/**/*.test.js\" \"test/**/*.spec.js\"",
     "test:debug": "node --test --test-reporter=spec \"test/**/*.test.js\" \"test/**/*.spec.js\"",
