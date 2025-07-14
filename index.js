@@ -295,7 +295,7 @@ const attributes = (options) => {
         const name = ALIASES[key] || key
         const value = options[key]
         const content = Array.isArray(value) ? classes(...value) : value
-        result.push(name + "=" + '"' + escapeHTML(content) + '"')
+        result.push(`${name}="${escapeHTML(content)}"`)
       }
     } else if (key === "style" && typeof value === "object") {
       const styles = []
@@ -339,10 +339,6 @@ const SELF_CLOSING_TAGS = new Set([
 
 const UNESCAPED_TAGS = new Set(["script", "style", "template"])
 
-const isUnescapedTag = (name) => {
-  return !UNESCAPED_TAGS.has(name)
-}
-
 const render = (input, escape = true) => {
   if (
     typeof input === "undefined" ||
@@ -362,29 +358,27 @@ const render = (input, escape = true) => {
     return input
   }
   if (Array.isArray(input)) {
-    return input.map((input) => render(input)).join("")
+    let result = ""
+    for (let i = 0; i < input.length; i++) {
+      result += render(input[i])
+    }
+    return result
   }
 
   if (input.name === "raw") {
     return render(input.children, false)
   }
   if (SELF_CLOSING_TAGS.has(input.name)) {
-    if (input.attributes) {
-      return `<${input.name} ` + attributes(input.attributes) + ">"
-    }
-    return `<${input.name}>`
+    const attrs = input.attributes ? attributes(input.attributes) : ""
+    return attrs ? `<${input.name} ${attrs}>` : `<${input.name}>`
   }
 
-  const string = input.attributes ? attributes(input.attributes) : ""
-  const attrs = string ? " " + string : ""
+  const attrs = input.attributes ? attributes(input.attributes) : ""
+  const children = render(input.children, !UNESCAPED_TAGS.has(input.name))
 
-  return (
-    `<${input.name}` +
-    attrs +
-    ">" +
-    render(input.children, isUnescapedTag(input.name)) +
-    `</${input.name}>`
-  )
+  return attrs
+    ? `<${input.name} ${attrs}>${children}</${input.name}>`
+    : `<${input.name}>${children}</${input.name}>`
 }
 
 const raw = (children) => {
