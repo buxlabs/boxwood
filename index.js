@@ -90,20 +90,61 @@ function compile(path) {
   }
 }
 
-const ENTITIES = {
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  "'": "&#39;",
-  '"': "&quot;",
-}
-
-const REGEXP = /[&<>'"]/g
-
 const escapeHTML = (string) => {
-  return String.prototype.replace.call(string, REGEXP, function (character) {
-    return ENTITIES[character]
-  })
+  // Convert to string to handle non-string inputs safely
+  string = String(string)
+
+  // Fast path: if no special characters, return as-is
+  if (
+    !string.includes("&") &&
+    !string.includes("<") &&
+    !string.includes(">") &&
+    !string.includes("'") &&
+    !string.includes('"')
+  ) {
+    return string
+  }
+
+  const len = string.length
+  let result = ""
+  let lastIndex = 0
+
+  for (let i = 0; i < len; i++) {
+    const char = string[i]
+    let replacement
+
+    switch (char) {
+      case "&":
+        replacement = "&amp;"
+        break
+      case "<":
+        replacement = "&lt;"
+        break
+      case ">":
+        replacement = "&gt;"
+        break
+      case "'":
+        replacement = "&#39;"
+        break
+      case '"':
+        replacement = "&quot;"
+        break
+      default:
+        continue
+    }
+
+    if (lastIndex !== i) {
+      result += string.slice(lastIndex, i)
+    }
+    result += replacement
+    lastIndex = i + 1
+  }
+
+  if (lastIndex !== len) {
+    result += string.slice(lastIndex)
+  }
+
+  return result
 }
 
 const normalizePath = (path) => path.replace(/\\/g, "/").replace(/\/+$/, "")
