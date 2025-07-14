@@ -227,7 +227,7 @@ function readFile(path, encoding) {
   }
 }
 
-const BOOLEAN_ATTRIBUTES = [
+const BOOLEAN_ATTRIBUTES = new Set([
   "async",
   "autofocus",
   "autoplay",
@@ -264,7 +264,7 @@ const BOOLEAN_ATTRIBUTES = [
   "sortable",
   "spellcheck",
   "translate",
-]
+])
 
 const ALIASES = {
   className: "class",
@@ -289,7 +289,7 @@ const attributes = (options) => {
       value === true ||
       Array.isArray(value)
     ) {
-      if (BOOLEAN_ATTRIBUTES.includes(key)) {
+      if (BOOLEAN_ATTRIBUTES.has(key)) {
         result.push(key)
       } else {
         const name = ALIASES[key] || key
@@ -317,7 +317,7 @@ const attributes = (options) => {
   return result.join(" ")
 }
 
-const SELF_CLOSING_TAGS = [
+const SELF_CLOSING_TAGS = new Set([
   "area",
   "base",
   "br",
@@ -335,10 +335,12 @@ const SELF_CLOSING_TAGS = [
   "track",
   "wbr",
   "!DOCTYPE html",
-]
+])
+
+const UNESCAPED_TAGS = new Set(["script", "style", "template"])
 
 const isUnescapedTag = (name) => {
-  return !["script", "style", "template"].includes(name)
+  return !UNESCAPED_TAGS.has(name)
 }
 
 const render = (input, escape = true) => {
@@ -366,7 +368,7 @@ const render = (input, escape = true) => {
   if (input.name === "raw") {
     return render(input.children, false)
   }
-  if (SELF_CLOSING_TAGS.includes(input.name)) {
+  if (SELF_CLOSING_TAGS.has(input.name)) {
     if (input.attributes) {
       return `<${input.name} ` + attributes(input.attributes) + ">"
     }
