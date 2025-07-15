@@ -114,7 +114,76 @@ console.log(html)
 // <div><h1>Hello, World!</h1><p>Welcome to Boxwood</p></div>
 ```
 
-For Express apps, use [express-boxwood](https://www.npmjs.com/package/express-boxwood).
+### Express Integration
+
+Boxwood includes built-in Express support:
+
+```js
+import express from 'express'
+import engine from 'boxwood/adapters/express'
+import crypto from 'crypto'
+
+const app = express()
+
+// Register Boxwood as template engine
+app.engine('js', engine())
+app.set('views', './views')
+app.set('view engine', 'js')
+
+// CSP (Content Security Policy) nonce for inline scripts
+// A nonce is a unique random value generated for each request that allows
+// specific inline scripts to execute while blocking potential XSS attacks
+app.use((req, res, next) => {
+  // Generate a cryptographically secure random nonce
+  res.locals.nonce = crypto.randomBytes(16).toString('base64')
+  
+  // Set CSP header - only scripts with this exact nonce can execute
+  res.setHeader(
+    'Content-Security-Policy',
+    `script-src 'nonce-${res.locals.nonce}' 'strict-dynamic';`
+  )
+  next()
+})
+
+// Render templates - nonce is automatically injected into all inline scripts
+app.get('/', (req, res) => {
+  res.render('home', { title: 'Welcome' })
+  // Boxwood automatically adds nonce="${res.locals.nonce}" to script tags
+})
+```
+
+The Express adapter automatically:
+- Handles template caching in production
+- Hot reloads templates in development
+- Injects CSP nonces from `res.locals.nonce` into all inline scripts and styles
+
+#### Understanding CSP Nonces
+
+A Content Security Policy (CSP) nonce is a security feature that helps prevent Cross-Site Scripting (XSS) attacks:
+
+1. **Without CSP**: Any injected `<script>` tag can execute, making XSS attacks possible
+2. **With CSP nonce**: Only scripts with the correct nonce attribute can run
+3. **How it works**:
+   - Server generates a unique random nonce for each request
+   - Server adds this nonce to the CSP header: `script-src 'nonce-abc123'`
+   - Server adds the same nonce to legitimate scripts: `<script nonce="abc123">`
+   - Browser only executes scripts that have the matching nonce
+   - Attackers can't guess the nonce, so injected scripts are blocked
+
+Example output:
+```html
+<!-- HTTP Header -->
+Content-Security-Policy: script-src 'nonce-rAnd0m123' 'strict-dynamic';
+
+<!-- Generated HTML -->
+<script nonce="rAnd0m123">
+  console.log("This legitimate script will execute")
+</script>
+
+<script>
+  console.log("This injected script will be blocked!")
+</script>
+```
 
 ## Features
 
