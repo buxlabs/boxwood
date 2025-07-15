@@ -29,7 +29,11 @@ function engine({ compile, env = NODE_ENV }) {
   async function render(path, options, callback) {
     try {
       const template = await compileFile(path)
-      const html = template(options)
+      // Automatically inject nonce from res.locals if available
+      const templateOptions = options && options._locals && options._locals.nonce
+        ? { ...options, nonce: options._locals.nonce }
+        : options
+      const html = template(templateOptions)
       if (callback) return callback(null, html)
       return html
     } catch (error) {
