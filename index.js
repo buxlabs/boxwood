@@ -5,7 +5,8 @@ const csstree = require("css-tree")
 function compile(path) {
   const fn = require(path)
   return {
-    template() {
+    template(options) {
+      const nonce = options && options.nonce
       const tree = fn(...arguments)
       const nodes = {}
       const styles = []
@@ -65,24 +66,36 @@ function compile(path) {
       walk(tree)
       if (nodes.head) {
         if (styles.length > 0) {
-          nodes.head.children.push({
+          const styleNode = {
             name: "style",
             children: styles.join(""),
-          })
+          }
+          if (nonce) {
+            styleNode.attributes = { nonce }
+          }
+          nodes.head.children.push(styleNode)
         }
         if (scripts.head.length > 0) {
-          nodes.head.children.push({
+          const scriptNode = {
             name: "script",
             children: scripts.head.join(""),
-          })
+          }
+          if (nonce) {
+            scriptNode.attributes = { nonce }
+          }
+          nodes.head.children.push(scriptNode)
         }
       }
       if (nodes.body) {
         if (scripts.body.length > 0) {
-          nodes.body.children.push({
+          const scriptNode = {
             name: "script",
             children: scripts.body.join(""),
-          })
+          }
+          if (nonce) {
+            scriptNode.attributes = { nonce }
+          }
+          nodes.body.children.push(scriptNode)
         }
       }
       return render(tree)
