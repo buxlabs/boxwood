@@ -5,13 +5,12 @@ const { join } = require("path")
 const http = require("http")
 const crypto = require("crypto")
 
-const { compile } = require("../../..")
-const engine = require("..")
+const engine = require("../../../adapters/express")
 
-test("express-boxwood can renders views", async () => {
+test("express adapter renders views", async () => {
   const app = express()
 
-  app.engine("js", engine({ compile }))
+  app.engine("js", engine())
   app.set("views", join(__dirname, "fixtures/views"))
   app.set("view engine", "js")
   app.get("/", (_, response) => {
@@ -42,10 +41,10 @@ test("express-boxwood can renders views", async () => {
   })
 })
 
-test("express-boxwood works in production mode", async () => {
+test("express adapter works in production mode", async () => {
   const app = express()
 
-  app.engine("js", engine({ compile, env: "production" }))
+  app.engine("js", engine({ env: "production" }))
   app.set("views", join(__dirname, "fixtures/views"))
   app.set("view engine", "js")
   app.get("/", (_, response) => {
@@ -76,10 +75,10 @@ test("express-boxwood works in production mode", async () => {
   })
 })
 
-test("express-boxwood supports CSP nonce for inline scripts", async () => {
+test("express adapter supports CSP nonce for inline scripts", async () => {
   const app = express()
 
-  app.engine("js", engine({ compile }))
+  app.engine("js", engine())
   app.set("views", join(__dirname, "fixtures/views"))
   app.set("view engine", "js")
   
@@ -138,10 +137,10 @@ test("express-boxwood supports CSP nonce for inline scripts", async () => {
   })
 })
 
-test("express-boxwood automatically injects nonce with custom data", async () => {
+test("express adapter automatically injects nonce with custom data", async () => {
   const app = express()
 
-  app.engine("js", engine({ compile }))
+  app.engine("js", engine())
   app.set("views", join(__dirname, "fixtures/views"))
   app.set("view engine", "js")
   

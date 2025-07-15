@@ -1,4 +1,5 @@
 const NODE_ENV = process.env.NODE_ENV || "development"
+const { compile } = require("../..")
 
 function purge(path) {
   const name = require.resolve(path)
@@ -12,7 +13,8 @@ function purge(path) {
   }
 }
 
-function engine({ compile, env = NODE_ENV }) {
+function engine(options = {}) {
+  const env = options.env || NODE_ENV
   const cache = new Map()
   async function compileFile(path) {
     if (env === "development") {

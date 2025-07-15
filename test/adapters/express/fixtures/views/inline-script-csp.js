@@ -1,4 +1,4 @@
-const { component, Doctype, Html, Head, Body, Div, js } = require("../../../../..")
+const { component, Doctype, Html, Head, Body, Div, js } = require("../../../../../")
 
 const script = js`
   console.log("Hello from inline script")

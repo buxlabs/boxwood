@@ -1,4 +1,4 @@
-const { component, Doctype, Html, Head, Body, Div, H1, js } = require("../../../../..")
+const { component, Doctype, Html, Head, Body, Div, H1, js } = require("../../../../../")
 
 const script = js`
   console.log("Page loaded")
