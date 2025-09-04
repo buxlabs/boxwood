@@ -35,22 +35,10 @@ test('supports "none" gap', async () => {
   assert(!html.includes("gap:"))
 })
 
-test('supports undefined "gap" prop', async () => {
+test('supports default "gap" prop', async () => {
   const { template } = await compile(__dirname)
   let html = template({ gap: undefined })
-  assert(!html.includes("gap:"))
-})
-
-test('supports null "gap" prop', async () => {
-  const { template } = await compile(__dirname)
-  let html = template({ gap: null })
-  assert(!html.includes("gap:"))
-})
-
-test('supports empty string "gap" prop', async () => {
-  const { template } = await compile(__dirname)
-  let html = template({ gap: "" })
-  assert(!html.includes("gap:"))
+  assert(html.includes("gap:1rem"))
 })
 
 test("supports justify prop", async () => {

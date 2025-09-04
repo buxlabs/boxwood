@@ -1,6 +1,6 @@
 const { css, component, Div } = require("../..")
 
-function normalizeAlign(align) {
+function normalizeFlex(align) {
   switch (align) {
     case "start":
       return "flex-start"
@@ -11,62 +11,79 @@ function normalizeAlign(align) {
   }
 }
 
-function normalizeJustify(justify) {
-  switch (justify) {
-    case "start":
-      return "flex-start"
-    case "end":
-      return "flex-end"
-    default:
-      return justify
-  }
+const GAP_MAP = {
+  xs: "0.25rem",
+  sm: "0.5rem",
+  md: "1rem",
+  lg: "2rem",
+  xl: "4rem",
+  none: null,
 }
 
 function normalizeGap(gap) {
+  if (!gap) {
+    return "1rem"
+  }
   if (typeof gap === "number") {
     return `${gap}px`
   }
-  switch (gap) {
-    case "xs":
-      return "0.25rem"
-    case "sm":
-      return "0.5rem"
-    case "md":
-      return "1rem"
-    case "lg":
-      return "2rem"
-    case "xl":
-      return "4rem"
-    case "none":
-      return null
-    default:
-      return gap
+
+  if (GAP_MAP.hasOwnProperty(gap)) {
+    return GAP_MAP[gap]
   }
+
+  return gap
 }
 
-function Group({ align, justify, gap, style }, children) {
-  const stylesheet = css.create({
+const BREAKPOINT_MAP = {
+  xs: "575px",
+  sm: "767px",
+  md: "991px",
+  lg: "1199px",
+  xl: "1399px",
+}
+
+function normalizeBreakpoint(breakpoint) {
+  if (typeof breakpoint === "number") {
+    return `${breakpoint}px`
+  }
+  if (BREAKPOINT_MAP.hasOwnProperty(breakpoint)) {
+    return BREAKPOINT_MAP[breakpoint]
+  }
+  return breakpoint
+}
+
+function normalizeWidth(width) {
+  if (typeof width === "number") {
+    return `${width}px`
+  }
+  return width
+}
+
+function Group({ align, breakpoint, justify, gap, width, style }, children) {
+  gap = normalizeGap(gap)
+  align = normalizeFlex(align)
+  justify = normalizeFlex(justify)
+  breakpoint = normalizeBreakpoint(breakpoint)
+  width = normalizeWidth(width)
+
+  const styleObject = {
     display: "flex",
-  })
-
-  const normalizedGap = normalizeGap(gap)
-  if (normalizedGap) {
-    stylesheet.set("gap", normalizedGap)
-  }
-
-  const normalizedAlign = normalizeAlign(align)
-  if (normalizedAlign) {
-    stylesheet.set("align-items", normalizedAlign)
-  }
-
-  const normalizedJustify = normalizeJustify(justify)
-  if (normalizedJustify) {
-    stylesheet.set("justify-content", normalizedJustify)
+    "flex-direction": "row",
+    ...(gap && { gap }),
+    ...(align && { "align-items": align }),
+    ...(justify && { "justify-content": justify }),
+    ...(width && { width }),
+    ...(breakpoint && {
+      [`@media (max-width: ${breakpoint})`]: {
+        "flex-direction": "column",
+      },
+    }),
   }
 
   const styles = css`
     .group {
-      ${stylesheet.toString()}
+      ${css.create(styleObject).toString()}
     }
   `
 
