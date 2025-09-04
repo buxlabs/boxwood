@@ -1,11 +1,21 @@
 const { css, component, Div } = require("../..")
-const { normalizeGap, normalizeFlex, normalizeWidth } = require("../normalize")
+const {
+  normalizeGap,
+  normalizeFlex,
+  normalizeWidth,
+  normalizeSpacing,
+} = require("../normalize")
 
-function Stack({ align, justify, gap, width, style }, children) {
+function Stack(
+  { align, className, justify, gap, width, margin, padding, style },
+  children
+) {
   gap = normalizeGap(gap)
   align = normalizeFlex(align)
   justify = normalizeFlex(justify)
   width = normalizeWidth(width)
+  margin = normalizeSpacing(margin)
+  padding = normalizeSpacing(padding)
 
   const styleObject = {
     display: "flex",
@@ -14,6 +24,8 @@ function Stack({ align, justify, gap, width, style }, children) {
     ...(align && { "align-items": align }),
     ...(justify && { "justify-content": justify }),
     ...(width && { width }),
+    ...(margin && { margin }),
+    ...(padding && { padding }),
   }
 
   const styles = css`
@@ -22,7 +34,10 @@ function Stack({ align, justify, gap, width, style }, children) {
     }
   `
 
-  return [Div({ className: styles.stack, style }, children), styles.css]
+  return [
+    Div({ className: [styles.stack, className], style }, children),
+    styles.css,
+  ]
 }
 
 module.exports = component(Stack)

@@ -72,3 +72,38 @@ test("supports style prop", async () => {
   let html = template({ style: { "background-color": "red" } })
   assert(html.includes("red"))
 })
+test('supports "width" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ width: "50%" })
+  assert(html.includes("width:50%"))
+})
+
+test('supports numeric "width" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ width: 300 })
+  assert(html.includes("width:300px"))
+})
+
+test("supports padding prop", async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ padding: "md" })
+  assert(html.includes("padding:1rem"))
+})
+
+test("supports margin prop", async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ margin: "md" })
+  assert(html.includes("margin:1rem"))
+})
+
+test('supports numeric "padding" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ padding: 20 })
+  assert(html.includes("padding:20px"))
+})
+
+test('supports numeric "margin" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ margin: 20 })
+  assert(html.includes("margin:20px"))
+})

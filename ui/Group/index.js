@@ -4,14 +4,20 @@ const {
   normalizeFlex,
   normalizeBreakpoint,
   normalizeWidth,
+  normalizeSpacing,
 } = require("../normalize")
 
-function Group({ align, breakpoint, justify, gap, width, style }, children) {
+function Group(
+  { align, className, breakpoint, justify, gap, width, margin, padding, style },
+  children
+) {
   gap = normalizeGap(gap)
   align = normalizeFlex(align)
   justify = normalizeFlex(justify)
   breakpoint = normalizeBreakpoint(breakpoint)
   width = normalizeWidth(width)
+  margin = normalizeSpacing(margin)
+  padding = normalizeSpacing(padding)
 
   const styleObject = {
     display: "flex",
@@ -20,6 +26,8 @@ function Group({ align, breakpoint, justify, gap, width, style }, children) {
     ...(align && { "align-items": align }),
     ...(justify && { "justify-content": justify }),
     ...(width && { width }),
+    ...(margin && { margin }),
+    ...(padding && { padding }),
     ...(breakpoint && {
       [`@media (max-width: ${breakpoint})`]: {
         "flex-direction": "column",
@@ -33,7 +41,10 @@ function Group({ align, breakpoint, justify, gap, width, style }, children) {
     }
   `
 
-  return [Div({ className: styles.group, style }, children), styles.css]
+  return [
+    Div({ className: [styles.group, className], style }, children),
+    styles.css,
+  ]
 }
 
 module.exports = component(Group)

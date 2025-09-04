@@ -58,9 +58,29 @@ function normalizeWidth(width) {
   return width
 }
 
+const SPACING_MAP = {
+  xs: "0.25rem",
+  sm: "0.5rem",
+  md: "1rem",
+  lg: "2rem",
+  xl: "4rem",
+  none: null,
+}
+
+function normalizeSpacing(spacing) {
+  if (typeof spacing === "number") {
+    return `${spacing}px`
+  }
+  if (SPACING_MAP.hasOwnProperty(spacing)) {
+    return SPACING_MAP[spacing]
+  }
+  return spacing
+}
+
 module.exports = {
   normalizeFlex,
   normalizeGap,
   normalizeBreakpoint,
   normalizeWidth,
+  normalizeSpacing,
 }
