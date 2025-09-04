@@ -509,6 +509,27 @@ function decamelize(string) {
 
 function stylesheet(input) {
   const object = { ...input }
+  function render(object, selector = "") {
+    let result = []
+    for (const key in object) {
+      const value = object[key]
+      if (value && typeof value === "object") {
+        if (key.startsWith("@")) {
+          result.push(`${key}{${render(value, selector)}}`)
+        } else {
+          const nextSelector = selector ? `${selector} ${key}` : key
+          result.push(render(value, nextSelector))
+        }
+      } else {
+        if (selector) {
+          result.push(`${selector}{${decamelize(key)}:${value};}`)
+        } else {
+          result.push(`${decamelize(key)}:${value};`)
+        }
+      }
+    }
+    return result.join("")
+  }
   return {
     add(item) {
       for (const key in item) {
@@ -519,14 +540,7 @@ function stylesheet(input) {
       object[key] = value
     },
     toString() {
-      let result = []
-      for (const key in object) {
-        const value = object[key]
-        if (value) {
-          result.push(`${decamelize(key)}:${value}`)
-        }
-      }
-      return result.join(";")
+      return render(object)
     },
   }
 }
