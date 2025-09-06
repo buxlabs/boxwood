@@ -1,4 +1,4 @@
-const Group = require("../../../ui/groupx")
+const Group = require("../../../ui/group")
 const { Doctype, Html, Head, Body, Div } = require("../../..")
 
 module.exports = ({

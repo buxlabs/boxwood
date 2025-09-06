@@ -1,4 +1,4 @@
-const COntainer = require("../../../ui/containerx")
+const Container = require("../../../ui/container")
 const { Doctype, Html, Head, Body, Div } = require("../../..")
 
 module.exports = ({ className, width, padding, style } = {}) => {
@@ -7,7 +7,7 @@ module.exports = ({ className, width, padding, style } = {}) => {
     Html([
       Head(),
       Body([
-        COntainer({ className, width, padding, style }, [
+        Container({ className, width, padding, style }, [
           Div("foo"),
           Div("bar"),
         ]),
