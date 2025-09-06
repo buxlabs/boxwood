@@ -1,6 +1,6 @@
-const Container = require("./Container")
-const Group = require("./Group")
-const Stack = require("./Stack")
+const Container = require("./container")
+const Group = require("./group")
+const Stack = require("./stack")
 
 module.exports = {
   Container,
