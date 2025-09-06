@@ -20,6 +20,7 @@ function Group(
   padding = normalizeSpacing(padding)
 
   const styleObject = {
+    "box-sizing": "border-box",
     display: "flex",
     "flex-direction": "row",
     ...(gap && { gap }),

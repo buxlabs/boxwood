@@ -18,6 +18,7 @@ function Stack(
   padding = normalizeSpacing(padding)
 
   const styleObject = {
+    "box-sizing": "border-box",
     display: "flex",
     "flex-direction": "column",
     ...(gap && { gap }),
