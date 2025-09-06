@@ -1,4 +1,4 @@
-const Container = require("../../../ui/container")
+const { Container } = require("../../../ui")
 const { Doctype, Html, Head, Body, Div } = require("../../..")
 
 module.exports = ({ className, width, padding, style } = {}) => {

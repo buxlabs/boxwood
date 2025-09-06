@@ -1,4 +1,4 @@
-const Stack = require("../../../ui/stack")
+const { Stack } = require("../../../ui")
 const { Doctype, Html, Head, Body, Div } = require("../../..")
 
 module.exports = ({
