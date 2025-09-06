@@ -15,6 +15,7 @@ test("applies default styles", async () => {
   assert(html.includes("max-width:1200px;"))
   assert(html.includes("padding-left:16px;"))
   assert(html.includes("padding-right:16px;"))
+  assert(html.includes(`@media (max-width:1199px){`))
 })
 
 test("applies custom styles", async () => {

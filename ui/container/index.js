@@ -32,7 +32,7 @@ function Container(
       width: 100%;
     }
 
-    @media (max-width: ${width + padding * 2 - 1}px) {
+    @media (max-width: ${width - 1}px) {
       .container {
         max-width: 100%;
       }
