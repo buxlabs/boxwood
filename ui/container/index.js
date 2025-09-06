@@ -1,9 +1,26 @@
 const { css, component, Div } = require("../..")
 
+const normalizeValue = (value) => {
+  if (typeof value === "string") {
+    if (value.endsWith("px")) {
+      return parseInt(value, 10)
+    }
+    if (value.endsWith("rem")) {
+      return parseInt(value, 10) * 16
+    }
+    throw new Error(
+      "Width must be a number or a string ending with 'px' or 'rem'"
+    )
+  }
+  return value
+}
+
 function Container(
   { className, style, width = 1200, padding = 16 } = {},
   children
 ) {
+  width = normalizeValue(width)
+  padding = normalizeValue(padding)
   const styles = css`
     .container {
       box-sizing: border-box;

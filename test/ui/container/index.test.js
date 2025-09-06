@@ -12,5 +12,25 @@ test("renders children", async () => {
 test("applies default styles", async () => {
   const { template, css } = await compile(__dirname)
   const html = template()
-  console.log(html)
+  assert(html.includes("max-width:1200px;"))
+  assert(html.includes("padding-left:16px;"))
+  assert(html.includes("padding-right:16px;"))
+})
+
+test("applies custom styles", async () => {
+  const { template, css } = await compile(__dirname)
+  const html = template({ padding: 32, width: 800 })
+  assert(html.includes("max-width:800px;"))
+  assert(html.includes("padding-left:32px;"))
+  assert(html.includes("padding-right:32px;"))
+})
+
+test("accepts className and style props", async () => {
+  const { template, css } = await compile(__dirname)
+  const html = template({
+    className: "custom-class",
+    style: "background-color:red",
+  })
+  assert(html.includes("custom-class"))
+  assert(html.includes("background-color:red"))
 })
