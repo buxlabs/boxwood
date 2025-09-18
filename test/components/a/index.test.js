@@ -15,6 +15,6 @@ test("#components/a: it returns a component with css", () => {
       },
       "foo"
     ),
-    '<a class="link_e2caw foo" href="/bar" target="_blank">foo</a>'
+    '<a class="c1 foo" href="/bar" target="_blank">foo</a>'
   )
 })

@@ -553,7 +553,7 @@ function css(inputs) {
   csstree.walk(tree, (node) => {
     if (node.type === "ClassSelector") {
       const hash = createHash(result + node.name)
-      const name = `${node.name}_${hash}`
+      const name = hash
       classes[node.name] = name
       node.name = name
     }

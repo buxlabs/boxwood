@@ -1,13 +1,14 @@
-function hashDJB2(str) {
-  let hash = 5381
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 33) ^ str.charCodeAt(i)
-  }
-  return (hash >>> 0).toString(36)
-}
+let index = 0
+const map = new Map()
 
-function createHash(str) {
-  return hashDJB2(str).slice(0, 6)
+function createHash(string) {
+  if (map.has(string)) {
+    return map.get(string)
+  }
+  index++
+  const hash = "c" + index
+  map.set(string, hash)
+  return hash
 }
 
 module.exports = {
