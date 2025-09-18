@@ -14,10 +14,7 @@ Unlike traditional template engines, Boxwood templates are **just JavaScript fun
 const HomePage = ({ posts }) => {
   return Div([
     H1("Blog"),
-    posts.map(post => Article([
-      H2(post.title),
-      P(post.summary)
-    ]))
+    posts.map((post) => Article([H2(post.title), P(post.summary)])),
   ])
 }
 ```
@@ -25,48 +22,59 @@ const HomePage = ({ posts }) => {
 ## Key Advantages
 
 ### Zero Learning Curve
+
 If you know JavaScript, you already know Boxwood. Use `map`, `filter`, `if/else`, and all standard JS features naturally.
 
 ### IDE Support
+
 Get autocomplete, refactoring, and go-to-definition out of the box. Your templates are just code, so your editor understands them.
 
 ### True Composition
+
 Components are functions. Compose them like functions. No slots, no special APIs - just parameters and return values.
 
 ### Performance
+
 No template parsing at runtime. Templates are already JavaScript functions, eliminating parsing overhead.
 
 ### Security Helpers
+
 - Automatic HTML escaping by default
 - Basic sanitization for loaded SVG/HTML files
 - Path traversal protection for file operations
 - Remember: security is ultimately your responsibility
 
 ### Integrated CSS Management
+
 - Automatic CSS scoping with hash-based class names
 - CSS-in-JS with zero runtime
 - Critical CSS inlining
 - Automatic minification
 
 ### Built-in i18n Support
+
 First-class internationalization support with a simple, component-friendly API for multi-language applications.
 
 ### Asset Handling
+
 - Inline images as base64
 - SVG loading with automatic sanitization
 - JSON data loading
 - Raw HTML imports with XSS protection
 
 ### SEO Friendly
+
 - Pure server-side rendering - search engines see fully rendered HTML
 - Lightning fast pages with inlined critical CSS
 - Minimal payload size improves Core Web Vitals scores
 - No client-side hydration delays
 
 ### Minimal Footprint
-Single file implementation (~950 lines). No complex build process or heavy dependencies.
+
+Short implementation. No complex build process or heavy dependencies.
 
 ### Testable by Design
+
 Templates are pure functions - easy to unit test with any testing framework.
 
 ## Table of Contents
@@ -91,10 +99,7 @@ Create a template file:
 const { Div, H1, P } = require("boxwood")
 
 module.exports = ({ name, message }) => {
-  return Div([
-    H1(`Hello, ${name}!`),
-    P(message)
-  ])
+  return Div([H1(`Hello, ${name}!`), P(message)])
 }
 ```
 
@@ -105,9 +110,9 @@ Compile and render it:
 const { compile } = require("boxwood")
 
 const { template } = compile("./templates/greeting.js")
-const html = template({ 
+const html = template({
   name: "World",
-  message: "Welcome to Boxwood"
+  message: "Welcome to Boxwood",
 })
 
 console.log(html)
@@ -119,40 +124,41 @@ console.log(html)
 Boxwood includes built-in Express support:
 
 ```js
-import express from 'express'
-import engine from 'boxwood/adapters/express'
-import crypto from 'crypto'
+import express from "express"
+import engine from "boxwood/adapters/express"
+import crypto from "crypto"
 
 const app = express()
 
 // Register Boxwood as template engine
-app.engine('js', engine())
-app.set('views', './views')
-app.set('view engine', 'js')
+app.engine("js", engine())
+app.set("views", "./views")
+app.set("view engine", "js")
 
 // CSP (Content Security Policy) nonce for inline scripts
 // A nonce is a unique random value generated for each request that allows
 // specific inline scripts to execute while blocking potential XSS attacks
 app.use((req, res, next) => {
   // Generate a cryptographically secure random nonce
-  res.locals.nonce = crypto.randomBytes(16).toString('base64')
-  
+  res.locals.nonce = crypto.randomBytes(16).toString("base64")
+
   // Set CSP header - only scripts with this exact nonce can execute
   res.setHeader(
-    'Content-Security-Policy',
+    "Content-Security-Policy",
     `script-src 'nonce-${res.locals.nonce}' 'strict-dynamic';`
   )
   next()
 })
 
 // Render templates - nonce is automatically injected into all inline scripts
-app.get('/', (req, res) => {
-  res.render('home', { title: 'Welcome' })
+app.get("/", (req, res) => {
+  res.render("home", { title: "Welcome" })
   // Boxwood automatically adds nonce="${res.locals.nonce}" to script tags
 })
 ```
 
 The Express adapter automatically:
+
 - Handles template caching in production
 - Hot reloads templates in development
 - Injects CSP nonces from `res.locals.nonce` into all inline scripts and styles
@@ -171,6 +177,7 @@ A Content Security Policy (CSP) nonce is a security feature that helps prevent C
    - Attackers can't guess the nonce, so injected scripts are blocked
 
 Example output:
+
 ```html
 <!-- HTTP Header -->
 Content-Security-Policy: script-src 'nonce-rAnd0m123' 'strict-dynamic';
@@ -205,10 +212,13 @@ const styles = css`
 `
 
 const Button = ({ variant, children }) => {
-  return ButtonTag({ 
-    // className accepts arrays - falsy values are automatically filtered
-    className: [styles.button, variant === 'secondary' && styles.secondary]
-  }, children)
+  return ButtonTag(
+    {
+      // className accepts arrays - falsy values are automatically filtered
+      className: [styles.button, variant === "secondary" && styles.secondary],
+    },
+    children
+  )
 }
 
 module.exports = component(Button, { styles })
@@ -223,12 +233,12 @@ const { component, i18n, H1, P } = require("boxwood")
 const Welcome = ({ translate, username }) => {
   return [
     H1(translate("greeting").replace("{name}", username)),
-    P(translate("intro"))
+    P(translate("intro")),
   ]
 }
 
-module.exports = component(Welcome, { 
-  i18n: i18n.load(__dirname) 
+module.exports = component(Welcome, {
+  i18n: i18n.load(__dirname),
 })
 ```
 
