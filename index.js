@@ -1,6 +1,7 @@
 const { join, resolve, sep: separator } = require("path")
 const { readFileSync, realpathSync, lstatSync } = require("fs")
 const csstree = require("css-tree")
+const { createHash } = require("./utilities/hash")
 
 function compile(path) {
   const fn = require(path)
@@ -493,16 +494,6 @@ const tag = (a, b, c) => {
   }
 }
 
-// DJB2 hash algorithm for CSS class names
-function hashDJB2(str) {
-  let hash = 5381
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash * 33) ^ str.charCodeAt(i)
-  }
-  // Convert to positive number and base36 for shorter string
-  return (hash >>> 0).toString(36)
-}
-
 function decamelize(string) {
   return string.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase()
 }
@@ -561,8 +552,7 @@ function css(inputs) {
 
   csstree.walk(tree, (node) => {
     if (node.type === "ClassSelector") {
-      // Generate hash based on the CSS content and class name
-      const hash = hashDJB2(result + node.name).slice(0, 6)
+      const hash = createHash(result + node.name)
       const name = `${node.name}_${hash}`
       classes[node.name] = name
       node.name = name
