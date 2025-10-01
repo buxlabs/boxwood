@@ -486,7 +486,7 @@ const tag = (a, b, c) => {
   }
   const name = a
   const attributes = b
-  const children = c || []
+  const children = typeof c === "number" ? c : c || []
   return {
     name,
     children,
