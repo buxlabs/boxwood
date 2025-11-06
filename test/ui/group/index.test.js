@@ -108,3 +108,15 @@ test('supports numeric "margin" prop', async () => {
   let html = template({ margin: 20 })
   assert(html.includes("margin:20px"))
 })
+
+test('supports "breakpoint" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ breakpoint: "767px" })
+  assert(html.includes("@media (max-width:767px)"))
+})
+
+test('supports numeric "breakpoint" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ breakpoint: 1023 })
+  assert(html.includes("@media (max-width:1023px)"))
+})

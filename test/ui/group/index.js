@@ -3,6 +3,7 @@ const { Doctype, Html, Head, Body, Div } = require("../../..")
 
 module.exports = ({
   align,
+  breakpoint,
   justify,
   gap,
   width,
@@ -15,10 +16,10 @@ module.exports = ({
     Html([
       Head(),
       Body([
-        Group({ align, justify, gap, width, margin, padding, style }, [
-          Div("foo"),
-          Div("bar"),
-        ]),
+        Group(
+          { align, breakpoint, justify, gap, width, margin, padding, style },
+          [Div("foo"), Div("bar")]
+        ),
       ]),
     ]),
   ]
