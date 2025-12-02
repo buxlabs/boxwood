@@ -320,7 +320,20 @@ const attributes = (options) => {
           continue
         }
         const result = value[param]
-        if (result) {
+        if (
+          (param === "padding" || param === "margin") &&
+          typeof result === "object"
+        ) {
+          const top = result.top || "0"
+          const right = result.right || "0"
+          const bottom = result.bottom || "0"
+          const left = result.left || "0"
+          styles.push(
+            `${decamelize(param)}:${escapeHTML(
+              `${top} ${right} ${bottom} ${left}`
+            )}`
+          )
+        } else if (typeof result === "string" || typeof result === "number") {
           styles.push(`${decamelize(param)}:${escapeHTML(result)}`)
         }
       }
