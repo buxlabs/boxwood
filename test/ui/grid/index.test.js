@@ -66,6 +66,38 @@ test("applies columns as object with strings and default key", async () => {
   assert(html.includes("grid-template-columns:1fr"))
 })
 
+test("applies columns as object with strings and default key", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({
+    columns: {
+      default: "1fr 1fr 1fr 1fr",
+      "1023px": "1fr 1fr",
+      "767px": "1fr",
+    },
+  })
+  assert(html.includes("grid-template-columns:1fr 1fr 1fr 1fr"))
+  assert(html.includes("@media (max-width:1023px)"))
+  assert(html.includes("grid-template-columns:1fr 1fr"))
+  assert(html.includes("@media (max-width:767px)"))
+  assert(html.includes("grid-template-columns:1fr"))
+})
+
+test("applies columns as object with string as breakpoints and default key", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({
+    columns: {
+      default: "1fr 1fr 1fr 1fr",
+      lg: "1fr 1fr",
+      md: "1fr",
+    },
+  })
+  assert(html.includes("grid-template-columns:1fr 1fr 1fr 1fr"))
+  assert(html.includes("@media (max-width:1023px)"))
+  assert(html.includes("grid-template-columns:1fr 1fr"))
+  assert(html.includes("@media (max-width:767px)"))
+  assert(html.includes("grid-template-columns:1fr"))
+})
+
 test("applies gap", async () => {
   const { template } = await compile(__dirname)
   const html = template({ gap: "16px" })
