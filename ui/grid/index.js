@@ -24,13 +24,18 @@ function Grid({ className, columns = 3, gap, breakpoint, style }, children) {
     }),
     ...(typeof columns === "object" &&
       Object.keys(columns).reduce((object, key) => {
+        const value =
+          typeof columns[key] === "number"
+            ? `repeat(${columns[key]}, 1fr)`
+            : columns[key]
         if (key === "default") {
-          object["grid-template-columns"] = columns[key]
+          object["grid-template-columns"] = value
         } else if (typeof key === "string") {
-          const value =
+          const maxWidth =
             BREAKPOINTS[key] || (key.endsWith("px") ? key : `${key}px`)
-          object[`@media (max-width: ${value})`] = {
-            "grid-template-columns": columns[key],
+
+          object[`@media (max-width: ${maxWidth})`] = {
+            "grid-template-columns": value,
           }
         }
         return object
