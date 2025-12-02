@@ -34,20 +34,36 @@ test("applies columns as string", async () => {
   assert(html.includes("grid-template-columns:1fr 2fr 1fr"))
 })
 
-test("applies columns as object", async () => {
+test("applies columns as object with numbers and default key", async () => {
   const { template } = await compile(__dirname)
   const html = template({
     columns: {
-      default: "1fr",
-      600: "1fr 1fr",
-      900: "1fr 1fr 1fr",
+      default: "1fr 1fr 1fr 1fr",
+      1023: "1fr 1fr",
+      767: "1fr",
     },
   })
-  assert(html.includes("grid-template-columns:1fr"))
-  assert(html.includes("@media (min-width:600px)"))
+  assert(html.includes("grid-template-columns:1fr 1fr 1fr 1fr"))
+  assert(html.includes("@media (max-width:1023px)"))
   assert(html.includes("grid-template-columns:1fr 1fr"))
-  assert(html.includes("@media (min-width:900px)"))
-  assert(html.includes("grid-template-columns:1fr 1fr 1fr"))
+  assert(html.includes("@media (max-width:767px)"))
+  assert(html.includes("grid-template-columns:1fr"))
+})
+
+test("applies columns as object with strings and default key", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({
+    columns: {
+      default: "1fr 1fr 1fr 1fr",
+      "1023px": "1fr 1fr",
+      "767px": "1fr",
+    },
+  })
+  assert(html.includes("grid-template-columns:1fr 1fr 1fr 1fr"))
+  assert(html.includes("@media (max-width:1023px)"))
+  assert(html.includes("grid-template-columns:1fr 1fr"))
+  assert(html.includes("@media (max-width:767px)"))
+  assert(html.includes("grid-template-columns:1fr"))
 })
 
 test("applies gap", async () => {

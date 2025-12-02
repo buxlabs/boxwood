@@ -19,8 +19,9 @@ function Grid({ className, columns = 3, gap, breakpoint, style }, children) {
       Object.keys(columns).reduce((object, key) => {
         if (key === "default") {
           object["grid-template-columns"] = columns[key]
-        } else {
-          object[`@media (min-width: ${key}px)`] = {
+        } else if (typeof key === "string") {
+          const value = key.endsWith("px") ? key : `${key}px`
+          object[`@media (max-width: ${value})`] = {
             "grid-template-columns": columns[key],
           }
         }
