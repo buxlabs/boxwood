@@ -16,7 +16,7 @@ const normalizeValue = (value) => {
 }
 
 function Container(
-  { className, style, width = 1200, padding = 16 } = {},
+  { className, style, id, width = 1200, padding = 16 } = {},
   children
 ) {
   width = normalizeValue(width)
@@ -39,7 +39,7 @@ function Container(
     }
   `
   return [
-    Div({ className: [styles.container, className], style }, children),
+    Div({ className: [styles.container, className], id, style }, children),
     styles.css,
   ]
 }

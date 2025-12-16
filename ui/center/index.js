@@ -1,6 +1,6 @@
 const { css, component, Div } = require("../..")
 
-function Center({ className, style, height, width } = {}, children) {
+function Center({ className, id, style, height, width } = {}, children) {
   const styleObject = {
     display: "flex",
     "justify-content": "center",
@@ -17,7 +17,7 @@ function Center({ className, style, height, width } = {}, children) {
   `
 
   return [
-    Div({ className: [className, styles.center], style }, children),
+    Div({ className: [className, styles.center], id, style }, children),
     styles.css,
   ]
 }
