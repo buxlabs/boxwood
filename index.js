@@ -377,7 +377,7 @@ const render = (input, escape = true) => {
   // Second most common: arrays (~20% of nodes)
   if (Array.isArray(input)) {
     let result = ""
-    for (let i = 0; i < input.length; i++) {
+    for (let i = 0, ilen = input.length; i < ilen; i++) {
       result += render(input[i])
     }
     return result
@@ -391,11 +391,6 @@ const render = (input, escape = true) => {
     input === true
   ) {
     return ""
-  }
-
-  // Numbers (~5% of nodes)
-  if (typeof input === "number") {
-    return input.toString()
   }
 
   // Objects (elements) - check ignore flag first
@@ -412,12 +407,24 @@ const render = (input, escape = true) => {
     return attrs ? `<${input.name} ${attrs}>` : `<${input.name}>`
   }
 
-  const attrs = input.attributes ? attributes(input.attributes) : ""
-  const children = render(input.children, !UNESCAPED_TAGS.has(input.name))
+  if (input.name) {
+    const attrs = input.attributes ? attributes(input.attributes) : ""
+    const children = render(input.children, !UNESCAPED_TAGS.has(input.name))
 
-  return attrs
-    ? `<${input.name} ${attrs}>${children}</${input.name}>`
-    : `<${input.name}>${children}</${input.name}>`
+    return attrs
+      ? `<${input.name} ${attrs}>${children}</${input.name}>`
+      : `<${input.name}>${children}</${input.name}>`
+  }
+
+  if (typeof input === "number") {
+    return input.toString()
+  }
+
+  if (typeof input === "object" && input instanceof Date) {
+    return input.toString()
+  }
+
+  return ""
 }
 
 const raw = (children) => {
