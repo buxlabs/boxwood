@@ -15,6 +15,12 @@ test("applies className", async () => {
   assert(html.includes("custom-class"))
 })
 
+test("applies id", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ id: "custom-id" })
+  assert(html.includes("custom-id"))
+})
+
 test("applies style", async () => {
   const { template } = await compile(__dirname)
   const html = template({ style: { backgroundColor: "red" } })

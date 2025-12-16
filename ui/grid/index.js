@@ -8,7 +8,10 @@ const BREAKPOINTS = {
   sm: "575px",
 }
 
-function Grid({ className, columns = 3, gap, breakpoint, style }, children) {
+function Grid(
+  { className, columns = 3, gap, id, breakpoint, style },
+  children
+) {
   gap = normalizeGap(gap)
   breakpoint = normalizeBreakpoint(breakpoint)
 
@@ -55,7 +58,7 @@ function Grid({ className, columns = 3, gap, breakpoint, style }, children) {
   `
 
   return [
-    Div({ className: [styles.grid, className], style }, children),
+    Div({ className: [styles.grid, className], id, style }, children),
     styles.css,
   ]
 }
