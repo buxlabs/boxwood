@@ -11,29 +11,31 @@ function Markdown(params, children) {
     return lines.map((line) => {
       if (line.startsWith("# ")) {
         const text = line.substring(2)
-        return H1(text)
+        return H1(params, text)
       } else if (line.startsWith("## ")) {
         const text = line.substring(3)
-        return H2(text)
+        return H2(params, text)
       } else if (line.startsWith("### ")) {
         const text = line.substring(4)
-        return H3(text)
+        return H3(params, text)
       } else if (line.startsWith("#### ")) {
         const text = line.substring(5)
-        return H4(text)
+        return H4(params, text)
       } else if (line.startsWith("##### ")) {
         const text = line.substring(6)
-        return H5(text)
+        return H5(params, text)
       } else if (line.startsWith("###### ")) {
         const text = line.substring(7)
-        return H6(text)
+        return H6(params, text)
       } else if (line.startsWith("> ")) {
         const text = line.substring(2)
-        return Blockquote(text)
+        return Blockquote(params, text)
       }
 
-      return P(line)
+      return P(params, line)
     })
+  } else {
+    return null
   }
 }
 
