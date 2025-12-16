@@ -17,6 +17,12 @@ test("has styles", async () => {
   assert(html.includes("</style>"))
 })
 
+test('supports "id" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ id: "hello" })
+  assert(html.includes("hello"))
+})
+
 test('supports "gap" prop', async () => {
   const { template } = await compile(__dirname)
   let html = template({ gap: "sm" })

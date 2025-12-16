@@ -7,7 +7,7 @@ const {
 } = require("../normalize")
 
 function Stack(
-  { align, className, justify, gap, width, margin, padding, style },
+  { align, className, id, justify, gap, width, margin, padding, style },
   children
 ) {
   gap = normalizeGap(gap)
@@ -36,7 +36,7 @@ function Stack(
   `
 
   return [
-    Div({ className: [styles.stack, className], style }, children),
+    Div({ className: [styles.stack, className], id, style }, children),
     styles.css,
   ]
 }
