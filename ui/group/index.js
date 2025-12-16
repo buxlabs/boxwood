@@ -8,7 +8,18 @@ const {
 } = require("../normalize")
 
 function Group(
-  { align, className, breakpoint, justify, gap, width, margin, padding, style },
+  {
+    align,
+    className,
+    breakpoint,
+    id,
+    justify,
+    gap,
+    width,
+    margin,
+    padding,
+    style,
+  },
   children
 ) {
   gap = normalizeGap(gap)
@@ -43,7 +54,7 @@ function Group(
   `
 
   return [
-    Div({ className: [styles.group, className], style }, children),
+    Div({ className: [styles.group, className], id, style }, children),
     styles.css,
   ]
 }

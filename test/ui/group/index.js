@@ -5,6 +5,7 @@ module.exports = ({
   align,
   breakpoint,
   justify,
+  id,
   gap,
   width,
   margin,
@@ -17,7 +18,17 @@ module.exports = ({
       Head(),
       Body([
         Group(
-          { align, breakpoint, justify, gap, width, margin, padding, style },
+          {
+            align,
+            breakpoint,
+            id,
+            justify,
+            gap,
+            width,
+            margin,
+            padding,
+            style,
+          },
           [Div("foo"), Div("bar")]
         ),
       ]),
