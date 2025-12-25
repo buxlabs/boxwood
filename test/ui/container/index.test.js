@@ -35,3 +35,34 @@ test("accepts className and style props", async () => {
   assert(html.includes("custom-class"))
   assert(html.includes("background-color:red"))
 })
+
+test("accepts width as px string", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ width: "960px" })
+  assert(html.includes("max-width:960px;"))
+})
+
+test("accepts width as rem string", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ width: "50rem" })
+  assert(html.includes("max-width:800px;")) // 50 * 16 = 800
+})
+
+test("accepts padding as px string", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ padding: "24px" })
+  assert(html.includes("padding-left:24px;"))
+})
+
+test("accepts padding as rem string", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ padding: "2rem" })
+  assert(html.includes("padding-left:32px;")) // 2 * 16 = 32
+})
+
+test("throws error for invalid width string", async () => {
+  const { template } = await compile(__dirname)
+  assert.throws(() => {
+    template({ width: "100%" })
+  }, /Width must be a number or a string ending with 'px' or 'rem'/)
+})

@@ -56,6 +56,7 @@ test("express adapter works in production mode", async () => {
     server = app.listen(0, resolve)
   })
 
+  // First request - should compile and cache
   const html = await new Promise((resolve) => {
     http.get(`http://localhost:${server.address().port}`, (response) => {
       let data = ""
@@ -69,6 +70,21 @@ test("express adapter works in production mode", async () => {
   })
 
   assert(html.includes("<div>hello, world!</div>"))
+
+  // Second request - should use cached template
+  const html2 = await new Promise((resolve) => {
+    http.get(`http://localhost:${server.address().port}`, (response) => {
+      let data = ""
+      response.on("data", (chunk) => {
+        data += chunk
+      })
+      response.on("end", () => {
+        resolve(data)
+      })
+    })
+  })
+
+  assert(html2.includes("<div>hello, world!</div>"))
 
   await new Promise((resolve) => {
     server.close(resolve)
@@ -188,5 +204,53 @@ test("express adapter automatically injects nonce with custom data", async () =>
 
   await new Promise((resolve) => {
     server.close(resolve)
+  })
+})
+
+test("express adapter purges require cache in development mode", async () => {
+  const engine = require("../../../adapters/express")
+  const render = engine({ env: "development" })
+  const viewPath = join(__dirname, "fixtures/views/index.js")
+  
+  // First render
+  const html1 = await render(viewPath, {})
+  assert(html1.includes("<div>hello, world!</div>"))
+  
+  // The view should be purged from cache and re-loaded on second render
+  const html2 = await render(viewPath, {})
+  assert(html2.includes("<div>hello, world!</div>"))
+})
+
+test("express adapter returns html without callback", async () => {
+  const engine = require("../../../adapters/express")
+  const render = engine()
+  const viewPath = join(__dirname, "fixtures/views/index.js")
+  
+  const html = await render(viewPath, {})
+  assert(typeof html === "string")
+  assert(html.includes("<div>hello, world!</div>"))
+})
+
+test("express adapter handles errors without callback", async () => {
+  const engine = require("../../../adapters/express")
+  const render = engine()
+  const viewPath = join(__dirname, "fixtures/views/nonexistent.js")
+  
+  const result = await render(viewPath, {})
+  assert(typeof result === "string")
+  // Should return error message when no callback is provided
+})
+
+test("express adapter handles errors with callback", async () => {
+  const engine = require("../../../adapters/express")
+  const render = engine()
+  const viewPath = join(__dirname, "fixtures/views/nonexistent.js")
+  
+  await new Promise((resolve) => {
+    render(viewPath, {}, (error, html) => {
+      assert(error)
+      assert(!html)
+      resolve()
+    })
   })
 })

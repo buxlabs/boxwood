@@ -1,7 +1,6 @@
 const { Markdown } = require("../../../ui")
 
-module.exports = () => {
-  return Markdown(`
+module.exports = (text = `
         # h1
         ## h2
         ### h3
@@ -12,5 +11,6 @@ module.exports = () => {
         paragraph
 
         > blockquote
-    `)
+    `) => {
+  return Markdown(text)
 }
