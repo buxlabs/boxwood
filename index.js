@@ -217,7 +217,7 @@ function validateFile(path, base) {
 
   if (!normalizedPath.startsWith(normalizedBase + "/")) {
     throw new Error(
-      `FileError: real path "${realPath}" is not within the current working directory "${realBase}"`
+      `FileError: path "${normalizedPath}" is not within the current working directory "${normalizedBase}"`
     )
   }
 }
@@ -286,7 +286,8 @@ const ALIASES = {
 }
 
 // Pre-compiled regex for better performance
-const KEY_VALIDATION_REGEX = /^[a-zA-Z0-9\-_]+$/
+// Allow colons for namespaced attributes (xml:lang, xlink:href, xmlns:xlink)
+const KEY_VALIDATION_REGEX = /^[a-zA-Z0-9\-_:]+$/
 const isKeyValid = (key) => KEY_VALIDATION_REGEX.test(key)
 
 const attributes = (options) => {
@@ -309,7 +310,6 @@ const attributes = (options) => {
         result.push(key)
       } else {
         const name = ALIASES[key] || key
-        const value = options[key]
         const content = Array.isArray(value) ? classes(...value) : value
         result.push(`${name}="${escapeHTML(content)}"`)
       }
@@ -378,7 +378,7 @@ const render = (input, escape = true) => {
   if (Array.isArray(input)) {
     let result = ""
     for (let i = 0, ilen = input.length; i < ilen; i++) {
-      result += render(input[i])
+      result += render(input[i], escape)
     }
     return result
   }
@@ -451,11 +451,20 @@ const raw = (children) => {
 
 const sanitizeHTML = (content) => {
   return content
+    // Remove script tags
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    // Remove style tags
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
-    .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+    // Remove event handlers with double quotes
+    .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
+    // Remove event handlers with single quotes
+    .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
+    // Remove event handlers without quotes
+    .replace(/\son\w+\s*=\s*[^\s>]*/gi, "")
+    // Remove javascript: protocol in href/xlink:href
+    .replace(/(href|xlink:href|src|action|formaction)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+    // Remove data: protocol in href/src (potential XSS vector)
+    .replace(/(href|xlink:href|src|action|formaction)\s*=\s*(['"])data:[^'"]*\2/gi, "")
 }
 
 /*
@@ -585,7 +594,7 @@ function css(inputs) {
   }
 }
 
-function occurences(input, string) {
+function occurrences(input, string) {
   if (string.length <= 0) {
     return input.length + 1
   }
@@ -606,8 +615,8 @@ function occurences(input, string) {
 }
 
 const validateCSS = (content, character1, character2) => {
-  const count1 = occurences(content, character1)
-  const count2 = occurences(content, character2)
+  const count1 = occurrences(content, character1)
+  const count2 = occurrences(content, character2)
   if (count1 !== count2) {
     return {
       valid: false,
@@ -852,7 +861,18 @@ const nodes = [
 }, {})
 
 function extension(path) {
-  const parts = path.split(".")
+  // Extract filename from path to handle paths with dots correctly
+  const filename = path.split("/").pop().split("\\").pop()
+  const parts = filename.split(".")
+  
+  // Handle files without extension
+  if (parts.length === 1) {
+    return "" // No extension
+  }
+  // Handle hidden files like ".hidden" (no extension after the dot)
+  if (parts.length === 2 && parts[0] === "") {
+    return "" // Hidden file with no extension
+  }
   return parts[parts.length - 1].toLowerCase()
 }
 
@@ -897,11 +917,20 @@ nodes.Img.load = function (path) {
 */
 const sanitizeSVG = (content) => {
   return content
+    // Remove script tags
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    // Remove style tags
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
+    // Remove event handlers with double quotes
+    .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
+    // Remove event handlers with single quotes
+    .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
+    // Remove event handlers without quotes
+    .replace(/\son\w+\s*=\s*[^\s>]*/gi, "")
+    // Remove javascript: protocol in href/xlink:href
     .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+    // Remove data: protocol in href (potential XSS vector)
+    .replace(/(href|xlink:href)\s*=\s*(['"])data:[^'"]*\2/gi, "")
 }
 
 /*
@@ -977,6 +1006,20 @@ const json = {
 
 function i18n(translations) {
   return function translate(language, key) {
+    if (!language) {
+      throw new Error(`TranslationError: language is undefined`)
+    }
+    if (!key) {
+      throw new Error(`TranslationError: key is undefined`)
+    }
+    if (!translations[key]) {
+      throw new Error(`TranslationError: translation key "${key}" is undefined`)
+    }
+    if (!translations[key][language]) {
+      throw new Error(
+        `TranslationError: translation [${key}][${language}] is undefined`
+      )
+    }
     return translations[key][language]
   }
 }
@@ -1045,12 +1088,16 @@ function component(fn, { styles, i18n, scripts } = {}) {
 
     if (styles) {
       const data = Array.isArray(styles) ? styles : [styles]
-      nodes = nodes.concat(data.map((style) => style.css))
+      nodes = nodes.concat(
+        data.map((style) => style.css).filter((css) => css !== undefined)
+      )
     }
 
     if (scripts) {
       const data = Array.isArray(scripts) ? scripts : [scripts]
-      nodes = nodes.concat(data.map((script) => script.js))
+      nodes = nodes.concat(
+        data.map((script) => script.js).filter((js) => js !== undefined)
+      )
     }
 
     return nodes
