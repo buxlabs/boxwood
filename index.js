@@ -434,19 +434,29 @@ const raw = (children) => {
 /**
  * Never trust HTML files from untrusted sources.
  *
- * This function is a basic sanitization of HTML content in case
- * you've accidentally included a "trusted", but malicious HTML file that was downloaded
- * from the internet or other untrusted sources.
+ * This function provides basic sanitization of HTML content to help protect against
+ * common XSS attack vectors when loading HTML files. It is designed as a defense-in-depth
+ * measure for cases where you've accidentally included a malicious HTML file.
  *
- * This function removes script and style tags, inline event handlers,
- * and any href attributes that use JavaScript. It does not
- * guarantee complete security, but it helps to mitigate some common
- * XSS attacks that can be embedded in HTML files.
+ * Security measures implemented:
+ * - Removes <script> and <style> tags (case-insensitive)
+ * - Removes inline event handlers (onclick, onerror, onload, etc.) with quoted or unquoted values
+ * - Removes dangerous URL protocols: javascript:, vbscript:, data:text/html
+ * - Applies to href, xlink:href, src, action, formaction, and data attributes
  *
- * It is recommended to check all HTML files before using them
- * in your application.
+ * Limitations:
+ * - This is NOT a complete HTML sanitizer and does NOT guarantee security
+ * - It may not catch all XSS vectors or encoding bypass techniques
+ * - data: URLs with other content types (e.g., images) are not blocked but could be risky
+ * - Does not validate or sanitize CSS content within HTML
+ * - Does not protect against DOM-based XSS in client-side code
  *
- * Never trust user-generated content.
+ * Best practices:
+ * - Only load HTML files from trusted sources
+ * - Review all HTML files before deploying to production
+ * - Use Content Security Policy (CSP) headers as an additional security layer
+ * - Never use sanitize: false with user-generated or untrusted content
+ * - Consider using a dedicated HTML sanitization library for high-security requirements
  */
 
 const sanitizeHTML = (content) => {
@@ -884,20 +894,35 @@ nodes.Img.load = function (path) {
   }
 }
 
-/*
-  Never trust SVG files from untrusted sources.
-  This function is a basic sanitization of SVG content in case
-  you've accidentally included a "trusted", but malicious SVG file that was downloaded
-  from the internet or other untrusted sources.
-
-  This function removes script and style tags, inline event handlers,
-  and any href attributes that use JavaScript. It does not
-  guarantee complete security, but it helps to mitigate some common
-  XSS attacks that can be embedded in SVG files.
-
-  It is recommended to check all SVG files before using them
-  in your application.
-*/
+/**
+ * Never trust SVG files from untrusted sources.
+ *
+ * This function provides basic sanitization of SVG content to help protect against
+ * common XSS attack vectors when loading SVG files. SVG files are particularly risky
+ * as they can contain embedded scripts and event handlers.
+ *
+ * Security measures implemented (same as sanitizeHTML):
+ * - Removes <script> and <style> tags (case-insensitive)
+ * - Removes inline event handlers (onclick, onerror, onload, etc.) with quoted or unquoted values
+ * - Removes dangerous URL protocols: javascript:, vbscript:, data:text/html
+ * - Applies to href, xlink:href, src, action, formaction, and data attributes
+ *
+ * SVG-specific risks:
+ * - SVG can contain <foreignObject> which can embed HTML
+ * - Animation elements can trigger scripts
+ * - Use elements can include external resources
+ *
+ * Limitations:
+ * - This is NOT a complete SVG sanitizer and does NOT guarantee security
+ * - Does not remove potentially dangerous SVG-specific elements
+ * - May not catch all XSS vectors or encoding bypass techniques
+ *
+ * Best practices:
+ * - Only load SVG files from trusted sources
+ * - Review all SVG files before deploying to production
+ * - Consider using a dedicated SVG sanitization library for user-uploaded content
+ * - Never use sanitize: false with user-generated or untrusted content
+ */
 const sanitizeSVG = (content) => {
   return content
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
