@@ -1,0 +1,16 @@
+<SCRIPT>alert('xss')</SCRIPT>
+<script>alert('xss')</script>
+<ScRiPt>alert('xss')</ScRiPt>
+<script src="evil.js"></script>
+<img src=x onerror=alert('xss')>
+<img src=x OnError=alert('xss')>
+<img src=x ONERROR=alert('xss')>
+<a href="javascript:alert('xss')">click</a>
+<a href="JavaScript:alert('xss')">click</a>
+<a href="JAVASCRIPT:alert('xss')">click</a>
+<svg onload=alert('xss')>
+<svg OnLoad=alert('xss')>
+<body onload=alert('xss')>
+<div onclick="alert('xss')">click</div>
+<iframe src="javascript:alert('xss')"></iframe>
+<p>Safe content</p>

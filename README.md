@@ -262,14 +262,55 @@ Additional examples are available in the `test` directory.
 
 ## Security
 
-Boxwood provides basic security features:
+Boxwood implements multiple layers of security to protect against common web vulnerabilities:
 
-- HTML content is escaped by default
-- Loaded SVG and HTML files are sanitized
-- File access is restricted to the project directory
-- Symlinks are blocked to prevent directory traversal
+### Built-in Protections
 
-The `sanitize: false` option should only be used with trusted content. Security remains the developer's responsibility.
+- **HTML Escaping**: All dynamic content is escaped by default, preventing XSS attacks
+- **File Sanitization**: Loaded SVG and HTML files are automatically sanitized to remove:
+  - Script tags and inline event handlers
+  - Dangerous URL protocols (javascript:, vbscript:, data:text/html)
+  - Case-insensitive attack variants
+- **Path Traversal Protection**: File access is restricted to the project directory
+- **Symlink Blocking**: Prevents directory traversal via symbolic links
+- **Attribute Validation**: Prevents prototype pollution and attribute injection
+
+### Content Security Policy (CSP)
+
+The Express adapter includes built-in CSP nonce support:
+
+```javascript
+app.use((req, res, next) => {
+  res.locals.nonce = crypto.randomBytes(16).toString("base64")
+  res.setHeader(
+    "Content-Security-Policy",
+    `script-src 'nonce-${res.locals.nonce}' 'strict-dynamic';`
+  )
+  next()
+})
+```
+
+Nonces are automatically injected into all inline scripts and styles.
+
+### Best Practices
+
+⚠️ **Important Security Guidelines:**
+
+- **Only load files from trusted sources** - sanitization is a defense-in-depth measure, not a complete solution
+- **Never use `sanitize: false`** with user-generated or untrusted content
+- **Always use CSP headers** in production environments
+- **Review all files** before deploying to production
+- **Validate user input** on the server side
+
+### Security Review
+
+A comprehensive security review has been completed. See [SECURITY_REVIEW.md](SECURITY_REVIEW.md) for:
+- Identified and fixed vulnerabilities
+- Security test coverage
+- Known limitations
+- Recommendations for secure usage
+
+**Security remains the developer's responsibility.** Use appropriate security measures for your specific use case.
 
 ## Contributing
 
