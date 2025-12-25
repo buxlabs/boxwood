@@ -1,0 +1,6 @@
+{
+  "greeting": {
+    "en": "<script>alert('xss')</script>Hello",
+    "pl": "<script>alert('xss')</script>Cześć"
+  }
+}
