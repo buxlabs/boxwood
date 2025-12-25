@@ -1,6 +1,7 @@
 const { Markdown } = require("../../../ui")
 
-module.exports = (text = `
+// Default markdown content for testing
+const DEFAULT_MARKDOWN = `
         # h1
         ## h2
         ### h3
@@ -11,6 +12,8 @@ module.exports = (text = `
         paragraph
 
         > blockquote
-    `) => {
+    `
+
+module.exports = (text = DEFAULT_MARKDOWN) => {
   return Markdown(text)
 }
