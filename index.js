@@ -459,8 +459,8 @@ const sanitizeHTML = (content) => {
     .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
     // Remove event handlers with single quotes
     .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
-    // Remove event handlers without quotes
-    .replace(/\son\w+\s*=\s*[^\s>]*/gi, "")
+    // Remove event handlers without quotes (up to whitespace or tag end)
+    .replace(/\son\w+\s*=\s*[^\s>"']+/gi, "")
     // Remove javascript: protocol in href/xlink:href
     .replace(/(href|xlink:href|src|action|formaction)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
     // Remove data: protocol in href/src (potential XSS vector)
@@ -925,8 +925,8 @@ const sanitizeSVG = (content) => {
     .replace(/\son\w+\s*=\s*"[^"]*"/gi, "")
     // Remove event handlers with single quotes
     .replace(/\son\w+\s*=\s*'[^']*'/gi, "")
-    // Remove event handlers without quotes
-    .replace(/\son\w+\s*=\s*[^\s>]*/gi, "")
+    // Remove event handlers without quotes (up to whitespace or tag end)
+    .replace(/\son\w+\s*=\s*[^\s>"']+/gi, "")
     // Remove javascript: protocol in href/xlink:href
     .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
     // Remove data: protocol in href (potential XSS vector)
