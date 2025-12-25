@@ -453,9 +453,12 @@ const sanitizeHTML = (content) => {
   return content
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
-    .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+    .replace(/\s+on\w+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\s+on\w+\s*=\s*'[^']*'/gi, "")
+    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, "")
+    .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*"[^"]*(javascript|vbscript|data:text\/html)[^"]*"/gi, "")
+    .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*'[^']*(javascript|vbscript|data:text\/html)[^']*'/gi, "")
+    .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*(javascript|vbscript|data:text\/html):[^\s>]*/gi, "")
 }
 
 /*
@@ -899,9 +902,12 @@ const sanitizeSVG = (content) => {
   return content
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/\son\w+="[^"]*"/gi, "")
-    .replace(/\son\w+='[^']*'/gi, "")
-    .replace(/(href|xlink:href)\s*=\s*(['"])javascript:[^'"]*\2/gi, "")
+    .replace(/\s+on\w+\s*=\s*"[^"]*"/gi, "")
+    .replace(/\s+on\w+\s*=\s*'[^']*'/gi, "")
+    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, "")
+    .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*"[^"]*(javascript|vbscript|data:text\/html)[^"]*"/gi, "")
+    .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*'[^']*(javascript|vbscript|data:text\/html)[^']*'/gi, "")
+    .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*(javascript|vbscript|data:text\/html):[^\s>]*/gi, "")
 }
 
 /*

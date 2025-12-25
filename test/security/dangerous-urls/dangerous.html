@@ -1,0 +1,8 @@
+<a href="javascript:alert('xss')">JS URL</a>
+<a href="data:text/html,<script>alert('xss')</script>">Data URL</a>
+<a href="vbscript:msgbox('xss')">VBScript URL</a>
+<iframe src="javascript:alert('xss')"></iframe>
+<object data="javascript:alert('xss')"></object>
+<embed src="javascript:alert('xss')">
+<form action="javascript:alert('xss')"><button>Submit</button></form>
+<p>Safe content</p>
