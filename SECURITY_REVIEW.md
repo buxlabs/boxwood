@@ -111,22 +111,29 @@ Created comprehensive test suites in `test/security/`:
 - May not catch all XSS vectors or encoding bypass techniques
 - Should only be used with files from trusted sources
 
-### 2. Data URLs
+### 2. URL Encoding Bypasses
+- HTML entity encoding (e.g., `&#106;avascript:`) can bypass sanitization
+- URL encoding (e.g., `%6a%61vascript:`) may bypass sanitization
+- Whitespace encoding in URLs (e.g., `jav&#x09;ascript:`) may bypass sanitization
+- **Mitigation**: Only load files from trusted sources and use CSP headers
+- **Impact**: Low when combined with CSP and trusted sources
+
+### 3. Data URLs
 - `data:image/*` URLs are not blocked (needed for legitimate use)
 - Could potentially be used for phishing or data exfiltration
 - Users should be cautious with data URLs from untrusted sources
 
-### 3. CSS Content
+### 4. CSS Content
 - CSS content within HTML/SVG is not validated for XSS
 - CSS can contain `expression()` (IE) or other dangerous constructs
 - Recommendation: Use Content Security Policy (CSP) headers
 
-### 4. DOM-Based XSS
+### 5. DOM-Based XSS
 - The library only protects server-side rendering
 - Client-side JavaScript manipulating the DOM is not protected
 - Users must implement their own client-side XSS prevention
 
-### 5. Sequential Replacement Artifacts
+### 6. Sequential Replacement Artifacts
 - As flagged by CodeQL, sequential replacements could theoretically leave artifacts
 - No practical exploits found in testing
 - Proper mitigation would require a full HTML parser

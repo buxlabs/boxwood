@@ -446,7 +446,9 @@ const raw = (children) => {
  *
  * Limitations:
  * - This is NOT a complete HTML sanitizer and does NOT guarantee security
- * - It may not catch all XSS vectors or encoding bypass techniques
+ * - URL encoding bypasses: HTML entities (&#106;avascript:), URL encoding (%6a%61vascript:),
+ *   and whitespace encoding (jav&#x09;ascript:) may bypass pattern matching
+ * - Sequential replacements could theoretically leave artifacts (no known exploits)
  * - data: URLs with other content types (e.g., images) are not blocked but could be risky
  * - Does not validate or sanitize CSS content within HTML
  * - Does not protect against DOM-based XSS in client-side code
@@ -465,7 +467,7 @@ const sanitizeHTML = (content) => {
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/\s+on\w+\s*=\s*"[^"]*"/gi, "")
     .replace(/\s+on\w+\s*=\s*'[^']*'/gi, "")
-    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, "")
+    .replace(/\s+on\w+\s*=\s*[^\s>=]*/gi, "")
     .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*"[^"]*(javascript|vbscript|data:text\/html)[^"]*"/gi, "")
     .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*'[^']*(javascript|vbscript|data:text\/html)[^']*'/gi, "")
     .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*(javascript|vbscript|data:text\/html):[^\s>]*/gi, "")
@@ -929,7 +931,7 @@ const sanitizeSVG = (content) => {
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
     .replace(/\s+on\w+\s*=\s*"[^"]*"/gi, "")
     .replace(/\s+on\w+\s*=\s*'[^']*'/gi, "")
-    .replace(/\s+on\w+\s*=\s*[^\s>]*/gi, "")
+    .replace(/\s+on\w+\s*=\s*[^\s>=]*/gi, "")
     .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*"[^"]*(javascript|vbscript|data:text\/html)[^"]*"/gi, "")
     .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*'[^']*(javascript|vbscript|data:text\/html)[^']*'/gi, "")
     .replace(/(href|xlink:href|src|action|formaction|data)\s*=\s*(javascript|vbscript|data:text\/html):[^\s>]*/gi, "")

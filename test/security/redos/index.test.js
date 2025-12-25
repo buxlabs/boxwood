@@ -42,6 +42,13 @@ test("sanitizeHTML regex: no ReDoS with nested tags", () => {
     // Should complete in reasonable time (< 1000ms for 100 levels)
     assert.ok(duration < 1000, `Sanitization took ${duration}ms, possible ReDoS`)
   } finally {
-    try { unlinkSync(path) } catch {}
+    try { 
+      unlinkSync(path) 
+    } catch (err) {
+      // Ignore ENOENT (file doesn't exist) errors, but log others
+      if (err.code !== 'ENOENT') {
+        console.warn('Failed to clean up test file:', err.message)
+      }
+    }
   }
 })
