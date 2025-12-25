@@ -14,3 +14,10 @@ test("renders children", async () => {
   assert(html.includes("<p>paragraph</p>"))
   assert(html.includes("<blockquote>blockquote</blockquote>"), html)
 })
+
+test("returns empty for null input", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(null)
+  // When explicitly passing null, it should render nothing
+  assert.strictEqual(html, "")
+})

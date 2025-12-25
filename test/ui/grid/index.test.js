@@ -141,3 +141,10 @@ test("applies gap", async () => {
   const html = template({ gap: "16px" })
   assert(html.includes("gap:16px"))
 })
+
+test("applies breakpoint", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ breakpoint: "768px" })
+  assert(html.includes("@media (max-width:768px)"))
+  assert(html.includes("grid-template-columns:1fr"))
+})
