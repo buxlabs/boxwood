@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { compile } = require("../../..")
+const { compile, CSSError } = require("../../..")
 
 test("#css.load: throws when a broken css is loaded", () => {
   try {
@@ -9,6 +9,7 @@ test("#css.load: throws when a broken css is loaded", () => {
     assert.fail("Expected an error to be thrown")
   } catch (error) {
     assert.ok(error)
-    assert.ok(error.message.includes("CSSError: invalid CSS for path"))
+    assert.ok(error instanceof CSSError)
+    assert.ok(error.message.includes("invalid CSS for path"))
   }
 })
