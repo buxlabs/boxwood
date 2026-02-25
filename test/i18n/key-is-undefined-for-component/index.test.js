@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { compile } = require("../../..")
+const { compile, TranslationError } = require("../../..")
 
 test("i18n is going to throw when key is undefined", async () => {
   const { template } = await compile(__dirname)
@@ -10,7 +10,6 @@ test("i18n is going to throw when key is undefined", async () => {
   } catch (exception) {
     error = exception
   }
-  assert(
-    error.message.includes("TranslationError: key is undefined for component")
-  )
+  assert(error instanceof TranslationError)
+  assert(error.message.includes("key is undefined for component"))
 })

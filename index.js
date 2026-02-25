@@ -3,6 +3,14 @@ const { readFileSync, realpathSync, lstatSync } = require("fs")
 const csstree = require("css-tree")
 const { createHash } = require("./utilities/hash")
 
+class TranslationError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'TranslationError'
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
 function compile(path) {
   const fn = require(path)
   return {
@@ -978,16 +986,16 @@ const json = {
 function i18n(translations) {
   return function translate(language, key) {
     if (key === undefined) {
-      throw new Error('TranslationError: key is undefined')
+      throw new TranslationError('key is undefined')
     }
     if (language === undefined) {
-      throw new Error('TranslationError: language is undefined')
+      throw new TranslationError('language is undefined')
     }
     if (translations[key] === undefined) {
-      throw new Error(`TranslationError: translation [${key}][${language}] is undefined`)
+      throw new TranslationError(`translation [${key}][${language}] is undefined`)
     }
     if (translations[key][language] === undefined) {
-      throw new Error(`TranslationError: translation [${key}][${language}] is undefined`)
+      throw new TranslationError(`translation [${key}][${language}] is undefined`)
     }
     return translations[key][language]
   }
@@ -1007,14 +1015,14 @@ i18n.load = function (path, options = {}) {
 
   return function translate(language, key) {
     if (!language) {
-      throw new Error(`TranslationError: language is undefined`)
+      throw new TranslationError(`language is undefined`)
     }
     if (!key) {
-      throw new Error(`TranslationError: key is undefined`)
+      throw new TranslationError(`key is undefined`)
     }
     if (!data[key] || !data[key][language]) {
-      throw new Error(
-        `TranslationError: translation [${key}][${language}] is undefined`
+      throw new TranslationError(
+        `translation [${key}][${language}] is undefined`
       )
     }
     return data[key][language]
@@ -1028,20 +1036,20 @@ function component(fn, { styles, i18n, scripts } = {}) {
     }
     if (i18n) {
       if (!a || !a.language) {
-        throw new Error(
-          `TranslationError: language is undefined for component:\n${fn.toString()}`
+        throw new TranslationError(
+          `language is undefined for component:\n${fn.toString()}`
         )
       }
       const { language } = a
       function translate(key) {
         if (!key) {
-          throw new Error(
-            `TranslationError: key is undefined for component:\n${fn.toString()}`
+          throw new TranslationError(
+            `key is undefined for component:\n${fn.toString()}`
           )
         }
         if (!i18n[key] || !i18n[key][language]) {
-          throw new Error(
-            `TranslationError: translation [${key}][${language}] is undefined for component:\n${fn.toString()}`
+          throw new TranslationError(
+            `translation [${key}][${language}] is undefined for component:\n${fn.toString()}`
           )
         }
         const translation = i18n[key][language]
@@ -1081,5 +1089,6 @@ module.exports = {
   json,
   tag,
   i18n,
+  TranslationError,
   ...nodes,
 }
