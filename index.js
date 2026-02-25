@@ -6,7 +6,55 @@ const { createHash } = require("./utilities/hash")
 class TranslationError extends Error {
   constructor(message) {
     super(message)
-    this.name = 'TranslationError'
+    this.name = "TranslationError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class FileError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "FileError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class RawError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "RawError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class CSSError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "CSSError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class ImageError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "ImageError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class SVGError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "SVGError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class JSONError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "JSONError"
     Error.captureStackTrace(this, this.constructor)
   }
 }
@@ -45,7 +93,7 @@ function compile(path) {
           if (
             attributes.src ||
             ["application/json", "application/ld+json"].includes(
-              attributes.type
+              attributes.type,
             )
           ) {
             node.ignore = false
@@ -187,7 +235,7 @@ function validateSymlinks(path, base) {
     if (!part) continue
     current = resolve(current, part)
     if (lstatSync(current).isSymbolicLink()) {
-      throw new Error(`FileError: symlinks are not allowed ("${current}")`)
+      throw new FileError(`symlinks are not allowed ("${current}")`)
     }
   }
 }
@@ -199,33 +247,31 @@ function validateFile(path, base) {
   const type = extension(normalizedPath)
 
   if (!type) {
-    throw new Error(`FileError: path "${path}" has no extension`)
+    throw new FileError(`path "${path}" has no extension`)
   }
 
   if (!ALLOWED_READ_EXTENSIONS.includes(type)) {
-    throw new Error(
-      `FileError: unsupported file type "${type}" for path "${path}"`
-    )
+    throw new FileError(`unsupported file type "${type}" for path "${path}"`)
   }
 
   const stats = lstatSync(normalizedPath)
   if (!stats.isFile()) {
-    throw new Error(`FileError: path "${path}" is not a file`)
+    throw new FileError(`path "${path}" is not a file`)
   }
 
   if (stats.isSymbolicLink()) {
-    throw new Error(`FileError: path "${path}" is a symbolic link`)
+    throw new FileError(`path "${path}" is a symbolic link`)
   }
 
   if (normalizedPath === normalizedBase) {
-    throw new Error(
-      `FileError: path "${path}" is the same as the current working directory "${base}"`
+    throw new FileError(
+      `path "${path}" is the same as the current working directory "${base}"`,
     )
   }
 
   if (!normalizedPath.startsWith(normalizedBase + "/")) {
-    throw new Error(
-      `FileError: real path "${realPath}" is not within the current working directory "${realBase}"`
+    throw new FileError(
+      `real path "${realPath}" is not within the current working directory "${realBase}"`,
     )
   }
 }
@@ -243,9 +289,7 @@ function readFile(path, encoding) {
 
     return readFileSync(path, encoding)
   } catch (exception) {
-    throw new Error(
-      `FileError: cannot read file "${path}": ${exception.message}`
-    )
+    throw new FileError(`cannot read file "${path}": ${exception.message}`)
   }
 }
 
@@ -338,8 +382,8 @@ const attributes = (options) => {
           const left = result.left || "0"
           styles.push(
             `${decamelize(param)}:${escapeHTML(
-              `${top} ${right} ${bottom} ${left}`
-            )}`
+              `${top} ${right} ${bottom} ${left}`,
+            )}`,
           )
         } else if (typeof result === "string" || typeof result === "number") {
           styles.push(`${decamelize(param)}:${escapeHTML(result)}`)
@@ -488,9 +532,7 @@ const sanitizeHTML = (content) => {
 raw.load = function (path, options = {}) {
   const type = extension(path)
   if (!ALLOWED_RAW_EXTENSIONS.includes(type)) {
-    throw new Error(
-      `RawError: unsupported raw type "${type}" for path "${path}"`
-    )
+    throw new RawError(`unsupported raw type "${type}" for path "${path}"`)
   }
 
   let content = readFile(path, "utf8")
@@ -647,7 +689,7 @@ css.load = function (path) {
   const content = readFile(file, "utf8")
   const { valid, message } = isCSSValid(content)
   if (!valid) {
-    throw new Error(`CSSError: invalid CSS for path "${file}": ${message}`)
+    throw new CSSError(`invalid CSS for path "${file}": ${message}`)
   }
   return css`
     ${content}
@@ -879,9 +921,7 @@ function base64({ content, path }) {
 nodes.Img.load = function (path) {
   const type = extension(path)
   if (!ALLOWED_IMAGE_EXTENSIONS.includes(type)) {
-    throw new Error(
-      `ImageError: unsupported image type "${type}" for path "${path}"`
-    )
+    throw new ImageError(`unsupported image type "${type}" for path "${path}"`)
   }
   const content = readFile(path, "base64")
   return (options) => {
@@ -934,9 +974,7 @@ const sanitizeSVG = (content) => {
 nodes.Svg.load = function (path, options = {}) {
   const type = extension(path)
   if (type !== "svg") {
-    throw new Error(
-      `SVGError: unsupported SVG type "${type}" for path "${path}"`
-    )
+    throw new SVGError(`unsupported SVG type "${type}" for path "${path}"`)
   }
   let content = readFile(path, "utf8")
   if (options.sanitize !== false) {
@@ -976,9 +1014,7 @@ const json = {
     try {
       return JSON.parse(content)
     } catch (exception) {
-      throw new Error(
-        `JSONError: cannot parse file "${file}": ${exception.message}`
-      )
+      throw new JSONError(`cannot parse file "${file}": ${exception.message}`)
     }
   },
 }
@@ -986,16 +1022,20 @@ const json = {
 function i18n(translations) {
   return function translate(language, key) {
     if (key === undefined) {
-      throw new TranslationError('key is undefined')
+      throw new TranslationError("key is undefined")
     }
     if (language === undefined) {
-      throw new TranslationError('language is undefined')
+      throw new TranslationError("language is undefined")
     }
     if (translations[key] === undefined) {
-      throw new TranslationError(`translation [${key}][${language}] is undefined`)
+      throw new TranslationError(
+        `translation [${key}][${language}] is undefined`,
+      )
     }
     if (translations[key][language] === undefined) {
-      throw new TranslationError(`translation [${key}][${language}] is undefined`)
+      throw new TranslationError(
+        `translation [${key}][${language}] is undefined`,
+      )
     }
     return translations[key][language]
   }
@@ -1022,7 +1062,7 @@ i18n.load = function (path, options = {}) {
     }
     if (!data[key] || !data[key][language]) {
       throw new TranslationError(
-        `translation [${key}][${language}] is undefined`
+        `translation [${key}][${language}] is undefined`,
       )
     }
     return data[key][language]
@@ -1037,19 +1077,19 @@ function component(fn, { styles, i18n, scripts } = {}) {
     if (i18n) {
       if (!a || !a.language) {
         throw new TranslationError(
-          `language is undefined for component:\n${fn.toString()}`
+          `language is undefined for component:\n${fn.toString()}`,
         )
       }
       const { language } = a
       function translate(key) {
         if (!key) {
           throw new TranslationError(
-            `key is undefined for component:\n${fn.toString()}`
+            `key is undefined for component:\n${fn.toString()}`,
           )
         }
         if (!i18n[key] || !i18n[key][language]) {
           throw new TranslationError(
-            `translation [${key}][${language}] is undefined for component:\n${fn.toString()}`
+            `translation [${key}][${language}] is undefined for component:\n${fn.toString()}`,
           )
         }
         const translation = i18n[key][language]
@@ -1090,5 +1130,11 @@ module.exports = {
   tag,
   i18n,
   TranslationError,
+  FileError,
+  RawError,
+  CSSError,
+  ImageError,
+  SVGError,
+  JSONError,
   ...nodes,
 }

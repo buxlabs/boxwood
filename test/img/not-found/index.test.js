@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { compile } = require("../../..")
+const { compile, FileError } = require("../../..")
 
 test("#img.load: throws when an image is not found", () => {
   try {
@@ -9,6 +9,7 @@ test("#img.load: throws when an image is not found", () => {
     assert.fail("Expected an error to be thrown")
   } catch (error) {
     assert.ok(error)
-    assert.ok(error.message.includes("FileError: cannot read file"))
+    assert.ok(error instanceof FileError)
+    assert.ok(error.message.includes("cannot read file"))
   }
 })

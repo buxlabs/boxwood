@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { compile } = require("../../..")
+const { compile, SVGError } = require("../../..")
 
 test("#svg.load: throws when an unsupported SVG type is loaded", () => {
   try {
@@ -9,6 +9,7 @@ test("#svg.load: throws when an unsupported SVG type is loaded", () => {
     assert.fail("Expected an error to be thrown")
   } catch (error) {
     assert.ok(error)
-    assert.ok(error.message.includes("SVGError: unsupported SVG type"))
+    assert.ok(error instanceof SVGError)
+    assert.ok(error.message.includes("unsupported SVG type"))
   }
 })

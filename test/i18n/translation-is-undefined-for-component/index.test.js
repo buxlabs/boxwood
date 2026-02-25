@@ -11,5 +11,7 @@ test("i18n is going to throw if a translation is missing", async () => {
     error = exception
   }
   assert(error instanceof TranslationError)
-  assert(error.message.includes("translation [bar][en] is undefined for component"))
+  assert(
+    error.message.includes("translation [bar][en] is undefined for component"),
+  )
 })
