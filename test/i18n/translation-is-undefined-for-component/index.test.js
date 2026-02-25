@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { compile } = require("../../..")
+const { compile, TranslationError } = require("../../..")
 
 test("i18n is going to throw if a translation is missing", async () => {
   const { template } = await compile(__dirname)
@@ -10,9 +10,6 @@ test("i18n is going to throw if a translation is missing", async () => {
   } catch (exception) {
     error = exception
   }
-  assert(
-    error.message.includes(
-      "TranslationError: translation [bar][en] is undefined for component"
-    )
-  )
+  assert(error instanceof TranslationError)
+  assert(error.message.includes("translation [bar][en] is undefined for component"))
 })

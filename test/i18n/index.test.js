@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { i18n } = require("../..")
+const { i18n, TranslationError } = require("../..")
 
 test("i18n: should return correct translation when all parameters are valid", () => {
   const translations = {
@@ -41,7 +41,7 @@ test("i18n: should throw TranslationError when key is undefined", () => {
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("key is undefined"))
 })
 
@@ -63,7 +63,7 @@ test("i18n: should throw TranslationError when language is undefined", () => {
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("language is undefined"))
 })
 
@@ -84,7 +84,7 @@ test("i18n: should throw TranslationError when both language and key are undefin
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("key is undefined"))
 })
 
@@ -106,7 +106,7 @@ test("i18n: should throw TranslationError when translation key does not exist", 
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("[nonexistent][en]"))
   assert(error.message.includes("is undefined"))
 })
@@ -129,7 +129,7 @@ test("i18n: should throw TranslationError when language does not exist for key",
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("[greeting][fr]"))
   assert(error.message.includes("is undefined"))
 })
@@ -146,7 +146,7 @@ test("i18n: should handle empty translations object", () => {
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("[greeting][en]"))
 })
 
@@ -220,7 +220,7 @@ test("i18n: should throw when translation value is explicitly undefined", () => 
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
   assert(error.message.includes("[greeting][pl]"))
 })
 
@@ -276,7 +276,7 @@ test("i18n: should handle null key (edge case)", () => {
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
 })
 
 test("i18n: should handle null language (edge case)", () => {
@@ -296,7 +296,7 @@ test("i18n: should handle null language (edge case)", () => {
   }
 
   assert(error)
-  assert(error.message.includes("TranslationError"))
+  assert(error instanceof TranslationError)
 })
 
 test("i18n: error message format should match existing tests", () => {
@@ -309,34 +309,33 @@ test("i18n: error message format should match existing tests", () => {
 
   const translate = i18n(translations)
 
+  // Test missing translation
   let error1
   try {
     translate("en", "bar")
   } catch (e) {
     error1 = e
   }
-  assert(error1)
-  assert(
-    error1.message.includes(
-      "TranslationError: translation [bar][en] is undefined",
-    ),
-  )
+  assert(error1 instanceof TranslationError)
+  assert(error1.message.includes("translation [bar][en] is undefined"))
 
+  // Test missing key
   let error2
   try {
     translate("en")
   } catch (e) {
     error2 = e
   }
-  assert(error2)
-  assert(error2.message.includes("TranslationError: key is undefined"))
+  assert(error2 instanceof TranslationError)
+  assert(error2.message.includes("key is undefined"))
 
+  // Test missing language
   let error3
   try {
     translate(undefined, "foo")
   } catch (e) {
     error3 = e
   }
-  assert(error3)
-  assert(error3.message.includes("TranslationError: language is undefined"))
+  assert(error3 instanceof TranslationError)
+  assert(error3.message.includes("language is undefined"))
 })

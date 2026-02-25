@@ -1,6 +1,6 @@
 const test = require("node:test")
 const assert = require("node:assert")
-const { compile } = require("../../..")
+const { compile, TranslationError } = require("../../..")
 
 test("i18n is going to throw if the language is not defined in params", async () => {
   const { template } = await compile(__dirname)
@@ -10,11 +10,8 @@ test("i18n is going to throw if the language is not defined in params", async ()
   } catch (exception) {
     error = exception
   }
-  assert(
-    error.message.includes(
-      "TranslationError: language is undefined for component"
-    )
-  )
+  assert(error instanceof TranslationError)
+  assert(error.message.includes("language is undefined for component"))
 })
 
 test("i18n is going to throw if the params are not set", async () => {
@@ -25,9 +22,6 @@ test("i18n is going to throw if the params are not set", async () => {
   } catch (exception) {
     error = exception
   }
-  assert(
-    error.message.includes(
-      "TranslationError: language is undefined for component"
-    )
-  )
+  assert(error instanceof TranslationError)
+  assert(error.message.includes("language is undefined for component"))
 })
