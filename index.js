@@ -977,6 +977,18 @@ const json = {
 
 function i18n(translations) {
   return function translate(language, key) {
+    if (key === undefined) {
+      throw new Error('TranslationError: key is undefined')
+    }
+    if (language === undefined) {
+      throw new Error('TranslationError: language is undefined')
+    }
+    if (translations[key] === undefined) {
+      throw new Error(`TranslationError: translation [${key}][${language}] is undefined`)
+    }
+    if (translations[key][language] === undefined) {
+      throw new Error(`TranslationError: translation [${key}][${language}] is undefined`)
+    }
     return translations[key][language]
   }
 }
