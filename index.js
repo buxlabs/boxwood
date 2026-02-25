@@ -585,7 +585,7 @@ function css(inputs) {
   }
 }
 
-function occurences(input, string) {
+function occurrences(input, string) {
   if (string.length <= 0) {
     return input.length + 1
   }
@@ -606,8 +606,8 @@ function occurences(input, string) {
 }
 
 const validateCSS = (content, character1, character2) => {
-  const count1 = occurences(content, character1)
-  const count2 = occurences(content, character2)
+  const count1 = occurrences(content, character1)
+  const count2 = occurrences(content, character2)
   if (count1 !== count2) {
     return {
       valid: false,
