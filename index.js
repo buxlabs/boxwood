@@ -338,7 +338,7 @@ const ALIASES = {
 }
 
 // Pre-compiled regex for better performance
-const KEY_VALIDATION_REGEX = /^[a-zA-Z0-9\-_]+$/
+const KEY_VALIDATION_REGEX = /^[a-zA-Z0-9\-_:]+$/
 const isKeyValid = (key) => KEY_VALIDATION_REGEX.test(key)
 
 const attributes = (options) => {
