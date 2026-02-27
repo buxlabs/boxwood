@@ -59,6 +59,14 @@ class JSONError extends Error {
   }
 }
 
+class ComponentError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "ComponentError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
 function compile(path) {
   const fn = require(path)
   return {
@@ -1104,11 +1112,27 @@ function component(fn, { styles, i18n, scripts } = {}) {
 
     if (styles) {
       const data = Array.isArray(styles) ? styles : [styles]
+      data.forEach((style, index) => {
+        if (!style || typeof style !== 'object' || !style.css) {
+          throw new ComponentError(
+            `Invalid style object at index ${index}: missing .css property. ` +
+            `Styles must be created using the css\`...\` template tag or css.load() function.`
+          )
+        }
+      })
       nodes = nodes.concat(data.map((style) => style.css))
     }
 
     if (scripts) {
       const data = Array.isArray(scripts) ? scripts : [scripts]
+      data.forEach((script, index) => {
+        if (!script || typeof script !== 'object' || !script.js) {
+          throw new ComponentError(
+            `Invalid script object at index ${index}: missing .js property. ` +
+            `Scripts must be created using the js\`...\` template tag or js.load() function.`
+          )
+        }
+      })
       nodes = nodes.concat(data.map((script) => script.js))
     }
 
@@ -1129,6 +1153,7 @@ module.exports = {
   tag,
   i18n,
   TranslationError,
+  ComponentError,
   FileError,
   RawError,
   CSSError,
