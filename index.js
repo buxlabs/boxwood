@@ -430,7 +430,7 @@ const render = (input, escape = true) => {
   if (Array.isArray(input)) {
     let result = ""
     for (let i = 0, ilen = input.length; i < ilen; i++) {
-      result += render(input[i])
+      result += render(input[i], escape)
     }
     return result
   }
