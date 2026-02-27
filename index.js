@@ -279,7 +279,7 @@ function validateFile(path, base) {
 
   if (!normalizedPath.startsWith(normalizedBase + "/")) {
     throw new FileError(
-      `real path "${realPath}" is not within the current working directory "${realBase}"`,
+      `real path "${normalizedPath}" is not within the current working directory "${normalizedBase}"`,
     )
   }
 }
@@ -1113,10 +1113,10 @@ function component(fn, { styles, i18n, scripts } = {}) {
     if (styles) {
       const data = Array.isArray(styles) ? styles : [styles]
       data.forEach((style, index) => {
-        if (!style || typeof style !== 'object' || !style.css) {
+        if (!style || typeof style !== "object" || !style.css) {
           throw new ComponentError(
             `Invalid style object at index ${index}: missing .css property. ` +
-            `Styles must be created using the css\`...\` template tag or css.load() function.`
+              `Styles must be created using the css\`...\` template tag or css.load() function.`,
           )
         }
       })
@@ -1126,10 +1126,10 @@ function component(fn, { styles, i18n, scripts } = {}) {
     if (scripts) {
       const data = Array.isArray(scripts) ? scripts : [scripts]
       data.forEach((script, index) => {
-        if (!script || typeof script !== 'object' || !script.js) {
+        if (!script || typeof script !== "object" || !script.js) {
           throw new ComponentError(
             `Invalid script object at index ${index}: missing .js property. ` +
-            `Scripts must be created using the js\`...\` template tag or js.load() function.`
+              `Scripts must be created using the js\`...\` template tag or js.load() function.`,
           )
         }
       })
