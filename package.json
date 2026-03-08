@@ -62,7 +62,7 @@
     ]
   },
   "dependencies": {
-    "css-tree": "^3.1.0"
+    "css-tree": "^3.2.1"
   },
   "prettier": {
     "semi": false
