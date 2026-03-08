@@ -553,7 +553,12 @@ raw.load = function (path, options = {}) {
 }
 
 const tag = (a, b, c) => {
-  if (typeof b === "string" || typeof b === "number" || Array.isArray(b)) {
+  if (
+    typeof b === "string" ||
+    typeof b === "number" ||
+    Array.isArray(b) ||
+    (b && typeof b === "object" && "name" in b && "children" in b)
+  ) {
     const name = a
     const children = b
     return {
