@@ -552,27 +552,48 @@ raw.load = function (path, options = {}) {
   return raw(content)
 }
 
-const tag = (a, b, c) => {
-  if (
-    typeof b === "string" ||
-    typeof b === "number" ||
-    Array.isArray(b) ||
-    (b && typeof b === "object" && "name" in b && "children" in b)
-  ) {
-    const name = a
-    const children = b
-    return {
-      name,
-      children: children,
+const tag = (tagName, attrsOrChildren, ...restChildren) => {
+  // Check if second argument is children (not attributes)
+  const isChildrenNotAttributes =
+    typeof attrsOrChildren === "string" ||
+    typeof attrsOrChildren === "number" ||
+    Array.isArray(attrsOrChildren) ||
+    (attrsOrChildren &&
+      typeof attrsOrChildren === "object" &&
+      "name" in attrsOrChildren &&
+      "children" in attrsOrChildren)
+
+  // If we have rest arguments, they must be additional children
+  if (restChildren.length > 0) {
+    if (isChildrenNotAttributes) {
+      // tagName is name, attrsOrChildren is first child, restChildren are more children
+      return {
+        name: tagName,
+        children: [attrsOrChildren, ...restChildren],
+      }
+    } else {
+      // tagName is name, attrsOrChildren is attributes, restChildren are children
+      return {
+        name: tagName,
+        attributes: attrsOrChildren,
+        children: restChildren,
+      }
     }
   }
-  const name = a
-  const attributes = b
-  const children = typeof c === "number" ? c : c || []
+
+  // Original two-argument logic
+  if (isChildrenNotAttributes) {
+    return {
+      name: tagName,
+      children: attrsOrChildren,
+    }
+  }
+
+  // attrsOrChildren is attributes, no children provided
   return {
-    name,
-    children,
-    attributes,
+    name: tagName,
+    children: [],
+    attributes: attrsOrChildren,
   }
 }
 
@@ -758,7 +779,10 @@ js.load = function (path, options = {}) {
   return { js: tag("script", attributes, content) }
 }
 
-const node = (name) => (options, children) => tag(name, options, children)
+const node =
+  (name) =>
+  (options, ...children) =>
+    tag(name, options, ...children)
 const Doctype = node("!DOCTYPE html")
 
 const nodes = [
