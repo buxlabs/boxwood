@@ -13,103 +13,102 @@ const {
   Li,
 } = require("../..")
 
-function Markdown(params, children) {
-  if (typeof children === "string") {
-    const lines = children
-      .trim()
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
+const ORDERED_LIST_REGEXP = /^\d+\.\s/
+const UNORDERED_MARKERS = ["- ", "— ", "– ", "• "]
+const HEADINGS = [
+  { prefix: "###### ", type: "h6" },
+  { prefix: "##### ", type: "h5" },
+  { prefix: "#### ", type: "h4" },
+  { prefix: "### ", type: "h3" },
+  { prefix: "## ", type: "h2" },
+  { prefix: "# ", type: "h1" },
+]
+const COMPONENTS = {
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: H4,
+  h5: H5,
+  h6: H6,
+  blockquote: Blockquote,
+}
 
-    const items = lines.map((line) => {
-      if (line.startsWith("- ") || line.startsWith("— ") || line.startsWith("– ") || line.startsWith("• ")) {
+function Markdown(params, children) {
+  if (Array.isArray(children)) {
+    return children.map((child) => Markdown(params, child))
+  }
+
+  if (typeof children !== "string") {
+    return null
+  }
+
+  const lines = children
+    .trim()
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+
+  const items = lines
+    .map((line) => {
+      if (UNORDERED_MARKERS.some((marker) => line.startsWith(marker))) {
         const content = line.substring(2)
         if (!content) return null
         return { type: "li", list: "ul", content }
-      } else if (/^\d+\.\s/.test(line)) {
-        const content = line.replace(/^\d+\.\s/, "")
+      }
+
+      if (ORDERED_LIST_REGEXP.test(line)) {
+        const content = line.replace(ORDERED_LIST_REGEXP, "")
         if (!content) return null
         return { type: "li", list: "ol", content }
-      } else if (line.startsWith("# ")) {
-        return { type: "h1", content: line.substring(2) }
-      } else if (line.startsWith("## ")) {
-        return { type: "h2", content: line.substring(3) }
-      } else if (line.startsWith("### ")) {
-        return { type: "h3", content: line.substring(4) }
-      } else if (line.startsWith("#### ")) {
-        return { type: "h4", content: line.substring(5) }
-      } else if (line.startsWith("##### ")) {
-        return { type: "h5", content: line.substring(6) }
-      } else if (line.startsWith("###### ")) {
-        return { type: "h6", content: line.substring(7) }
-      } else if (line.startsWith("> ")) {
-        return { type: "blockquote", content: line.substring(2) }
-      } else {
-        return { type: "p", content: line }
       }
-    }).filter(Boolean)
 
-    const nodes = []
-    let i = 0
-
-    while (i < items.length) {
-      const item = items[i]
-
-      if (item.type === "li") {
-        const list = []
-        const parent = item.list
-
-        while (
-          i < items.length &&
-          items[i].type === "li" &&
-          items[i].list === parent
-        ) {
-          list.push(Li(params, items[i].content))
-          i++
+      for (const { prefix, type } of HEADINGS) {
+        if (line.startsWith(prefix)) {
+          return { type, content: line.substring(prefix.length) }
         }
+      }
 
-        if (parent === "ul") {
-          nodes.push(Ul(params, list))
-        } else if (parent === "ol") {
-          nodes.push(Ol(params, list))
-        }
-      } else {
-        const { type, content } = item
+      if (line.startsWith("> ")) {
+        return { type: "blockquote", content: line.substring(2) }
+      }
 
-        switch (type) {
-          case "h1":
-            nodes.push(H1(params, content))
-            break
-          case "h2":
-            nodes.push(H2(params, content))
-            break
-          case "h3":
-            nodes.push(H3(params, content))
-            break
-          case "h4":
-            nodes.push(H4(params, content))
-            break
-          case "h5":
-            nodes.push(H5(params, content))
-            break
-          case "h6":
-            nodes.push(H6(params, content))
-            break
-          case "blockquote":
-            nodes.push(Blockquote(params, content))
-            break
-          default:
-            nodes.push(P(params, content))
-        }
+      return { type: "p", content: line }
+    })
+    .filter(Boolean)
 
+  const nodes = []
+  let i = 0
+
+  while (i < items.length) {
+    const item = items[i]
+
+    if (item.type === "li") {
+      const list = []
+      const parent = item.list
+
+      while (
+        i < items.length &&
+        items[i].type === "li" &&
+        items[i].list === parent
+      ) {
+        list.push(Li(params, items[i].content))
         i++
       }
-    }
 
-    return nodes
-  } else {
-    return null
+      if (parent === "ul") {
+        nodes.push(Ul(params, list))
+      } else if (parent === "ol") {
+        nodes.push(Ol(params, list))
+      }
+    } else {
+      const { type, content } = item
+      const Component = COMPONENTS[type] || P
+      nodes.push(Component(params, content))
+      i++
+    }
   }
+
+  return nodes
 }
 
 module.exports = component(Markdown)

@@ -180,3 +180,11 @@ test("filters out empty list items", async () => {
   assert(html.includes("<li>Another item</li>"))
   assert(!html.includes("<li></li>"))
 })
+
+test("handles array of markdown strings", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = ["# First", "# Second"]
+  const html = template(markdown)
+  assert(html.includes("<h1>First</h1>"))
+  assert(html.includes("<h1>Second</h1>"))
+})
