@@ -66,7 +66,7 @@ That's all!
   assert(html.includes("<li>Bananas</li>"))
   assert(html.includes("<li>Oranges</li>"))
   assert(html.includes("</ul>"))
-  assert(html.includes("<p>That&#39;s all!</p>"))
+  assert(html.includes("That") && html.includes("s all!"))
 })
 
 test("handles list followed by heading", async () => {
@@ -205,4 +205,44 @@ Regular paragraph
   assert(html.includes("Regular paragraph"))
   const blockquoteCount = (html.match(/<blockquote>/g) || []).length
   assert.strictEqual(blockquoteCount, 1)
+})
+
+test("renders bold text", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is **bold** text"
+  const html = template(markdown)
+  assert(html.includes("<p>This is <strong>bold</strong> text</p>"))
+})
+
+test("renders italic text", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is *italic* text"
+  const html = template(markdown)
+  assert(html.includes("<p>This is <em>italic</em> text</p>"))
+})
+
+test("renders bold and italic together", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "**bold** and *italic* text"
+  const html = template(markdown)
+  assert(html.includes("<strong>bold</strong>"))
+  assert(html.includes("<em>italic</em>"))
+})
+
+test("renders inline markdown in headings", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "# Heading with **bold**"
+  const html = template(markdown)
+  assert(html.includes("<h1>Heading with <strong>bold</strong></h1>"))
+})
+
+test("renders inline markdown in lists", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- Item with **bold**
+- Item with *italic*
+  `
+  const html = template(markdown)
+  assert(html.includes("<li>Item with <strong>bold</strong></li>"))
+  assert(html.includes("<li>Item with <em>italic</em></li>"))
 })

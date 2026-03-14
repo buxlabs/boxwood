@@ -11,6 +11,8 @@ const {
   Ul,
   Ol,
   Li,
+  Strong,
+  Em,
 } = require("../..")
 
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
@@ -31,6 +33,45 @@ const COMPONENTS = {
   h5: H5,
   h6: H6,
   blockquote: Blockquote,
+}
+
+function format(text) {
+  const result = []
+  let i = 0
+
+  while (i < text.length) {
+    if (text[i] === "*" && text[i + 1] === "*") {
+      const start = i + 2
+      const end = text.indexOf("**", start)
+      if (end === -1) {
+        result.push(text[i])
+        i++
+      } else {
+        result.push(Strong(text.substring(start, end)))
+        i = end + 2
+      }
+    } else if (text[i] === "*") {
+      const start = i + 1
+      const end = text.indexOf("*", start)
+      if (end === -1) {
+        result.push(text[i])
+        i++
+      } else {
+        result.push(Em(text.substring(start, end)))
+        i = end + 1
+      }
+    } else {
+      const next = text.indexOf("*", i)
+      if (next === -1) {
+        result.push(text.substring(i))
+        break
+      }
+      result.push(text.substring(i, next))
+      i = next
+    }
+  }
+
+  return result.length > 0 ? result : text
 }
 
 function Markdown(params, children) {
@@ -91,7 +132,7 @@ function Markdown(params, children) {
         items[i].type === "li" &&
         items[i].list === parent
       ) {
-        list.push(Li(params, items[i].content))
+        list.push(Li(params, format(items[i].content)))
         i++
       }
 
@@ -108,11 +149,11 @@ function Markdown(params, children) {
         i++
       }
 
-      nodes.push(Blockquote(params, P(params, lines.join("\n"))))
+      nodes.push(Blockquote(params, P(params, format(lines.join("\n")))))
     } else {
       const { type, content } = item
       const Component = COMPONENTS[type] || P
-      nodes.push(Component(params, content))
+      nodes.push(Component(params, format(content)))
       i++
     }
   }
