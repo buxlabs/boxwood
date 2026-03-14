@@ -13,6 +13,7 @@ const {
   Li,
   Strong,
   Em,
+  Code,
 } = require("../..")
 
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
@@ -36,11 +37,24 @@ const COMPONENTS = {
 }
 
 function format(text) {
+  if (!text.includes("*") && !text.includes("`")) {
+    return text
+  }
+
   const result = []
   let i = 0
-
   while (i < text.length) {
-    if (text[i] === "*" && text[i + 1] === "*") {
+    if (text[i] === "`") {
+      const start = i + 1
+      const end = text.indexOf("`", start)
+      if (end === -1) {
+        result.push(text[i])
+        i++
+      } else {
+        result.push(Code({}, text.substring(start, end)))
+        i = end + 1
+      }
+    } else if (text[i] === "*" && text[i + 1] === "*") {
       const start = i + 2
       const end = text.indexOf("**", start)
       if (end === -1) {
@@ -61,8 +75,12 @@ function format(text) {
         i = end + 1
       }
     } else {
-      const next = text.indexOf("*", i)
-      if (next === -1) {
+      let next = text.length
+      const nextCode = text.indexOf("`", i)
+      const nextStar = text.indexOf("*", i)
+      if (nextCode !== -1 && nextCode < next) next = nextCode
+      if (nextStar !== -1 && nextStar < next) next = nextStar
+      if (next === text.length) {
         result.push(text.substring(i))
         break
       }
@@ -70,7 +88,6 @@ function format(text) {
       i = next
     }
   }
-
   return result.length > 0 ? result : text
 }
 

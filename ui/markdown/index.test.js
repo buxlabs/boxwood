@@ -246,3 +246,21 @@ test("renders inline markdown in lists", async () => {
   assert(html.includes("<li>Item with <strong>bold</strong></li>"))
   assert(html.includes("<li>Item with <em>italic</em></li>"))
 })
+
+test("renders inline code with backticks", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is `inline code` in a sentence."
+  const html = template(markdown)
+  assert(html.includes("<code>inline code</code>"))
+  assert(html.includes("This is "))
+  assert(html.includes(" in a sentence."))
+})
+
+test("renders inline code mixed with bold and italic", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Mix `code` and **bold** and *italic* together."
+  const html = template(markdown)
+  assert(html.includes("<code>code</code>"))
+  assert(html.includes("<strong>bold</strong>"))
+  assert(html.includes("<em>italic</em>"))
+})
