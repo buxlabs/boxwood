@@ -188,3 +188,21 @@ test("handles array of markdown strings", async () => {
   assert(html.includes("<h1>First</h1>"))
   assert(html.includes("<h1>Second</h1>"))
 })
+
+test("groups consecutive blockquotes", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+> First line
+> Second line
+> Third line
+
+Regular paragraph
+  `
+  const html = template(markdown)
+  assert(html.includes("<blockquote>"))
+  assert(html.includes("<p>First line\nSecond line\nThird line</p>"))
+  assert(html.includes("</blockquote>"))
+  assert(html.includes("Regular paragraph"))
+  const blockquoteCount = (html.match(/<blockquote>/g) || []).length
+  assert.strictEqual(blockquoteCount, 1)
+})

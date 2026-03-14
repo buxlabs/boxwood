@@ -12,7 +12,7 @@ test("renders children", async () => {
   assert(html.includes("<h5>h5</h5>"))
   assert(html.includes("<h6>h6</h6>"))
   assert(html.includes("<p>paragraph</p>"))
-  assert(html.includes("<blockquote>blockquote</blockquote>"), html)
+  assert(html.includes("<blockquote><p>blockquote</p></blockquote>"), html)
 })
 
 test("returns empty for null input", async () => {

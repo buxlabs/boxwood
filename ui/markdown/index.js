@@ -100,6 +100,15 @@ function Markdown(params, children) {
       } else if (parent === "ol") {
         nodes.push(Ol(params, list))
       }
+    } else if (item.type === "blockquote") {
+      const lines = []
+
+      while (i < items.length && items[i].type === "blockquote") {
+        lines.push(items[i].content)
+        i++
+      }
+
+      nodes.push(Blockquote(params, P(params, lines.join("\n"))))
     } else {
       const { type, content } = item
       const Component = COMPONENTS[type] || P
