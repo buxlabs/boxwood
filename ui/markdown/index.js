@@ -9,6 +9,7 @@ const {
   P,
   Blockquote,
   Ul,
+  Ol,
   Li,
 } = require("../..")
 
@@ -20,54 +21,81 @@ function Markdown(params, children) {
       .map((line) => line.trim())
       .filter(Boolean)
 
-    const nodes = []
-    let list = null
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-
+    const items = lines.map((line) => {
       if (line.startsWith("- ") || line.startsWith("— ")) {
-        if (!list) {
-          list = []
-        }
-
-        list.push(Li(params, line.substring(2)))
+        return { type: "li", list: "ul", content: line.substring(2) }
+      } else if (/^\d+\.\s/.test(line)) {
+        return { type: "li", list: "ol", content: line.replace(/^\d+\.\s/, "") }
+      } else if (line.startsWith("# ")) {
+        return { type: "h1", content: line.substring(2) }
+      } else if (line.startsWith("## ")) {
+        return { type: "h2", content: line.substring(3) }
+      } else if (line.startsWith("### ")) {
+        return { type: "h3", content: line.substring(4) }
+      } else if (line.startsWith("#### ")) {
+        return { type: "h4", content: line.substring(5) }
+      } else if (line.startsWith("##### ")) {
+        return { type: "h5", content: line.substring(6) }
+      } else if (line.startsWith("###### ")) {
+        return { type: "h6", content: line.substring(7) }
+      } else if (line.startsWith("> ")) {
+        return { type: "blockquote", content: line.substring(2) }
       } else {
-        if (list) {
-          nodes.push(Ul(params, list))
-          list = null
-        }
-
-        if (line.startsWith("# ")) {
-          const text = line.substring(2)
-          nodes.push(H1(params, text))
-        } else if (line.startsWith("## ")) {
-          const text = line.substring(3)
-          nodes.push(H2(params, text))
-        } else if (line.startsWith("### ")) {
-          const text = line.substring(4)
-          nodes.push(H3(params, text))
-        } else if (line.startsWith("#### ")) {
-          const text = line.substring(5)
-          nodes.push(H4(params, text))
-        } else if (line.startsWith("##### ")) {
-          const text = line.substring(6)
-          nodes.push(H5(params, text))
-        } else if (line.startsWith("###### ")) {
-          const text = line.substring(7)
-          nodes.push(H6(params, text))
-        } else if (line.startsWith("> ")) {
-          const text = line.substring(2)
-          nodes.push(Blockquote(params, text))
-        } else {
-          nodes.push(P(params, line))
-        }
+        return { type: "p", content: line }
       }
-    }
+    })
 
-    // Close any remaining list
-    if (list) {
-      nodes.push(Ul(params, list))
+    const nodes = []
+    let i = 0
+
+    while (i < items.length) {
+      const item = items[i]
+
+      if (item.type === "li") {
+        const list = []
+        const parent = item.list
+
+        while (i < items.length && items[i].type === "li" && items[i].list === parent) {
+          list.push(Li(params, items[i].content))
+          i++
+        }
+
+        if (parent === "ul") {
+          nodes.push(Ul(params, list))
+        } else if (parent === "ol") {
+          nodes.push(Ol(params, list))
+        }
+      } else {
+        const { type, content } = item
+
+        switch (type) {
+          case "h1":
+            nodes.push(H1(params, content))
+            break
+          case "h2":
+            nodes.push(H2(params, content))
+            break
+          case "h3":
+            nodes.push(H3(params, content))
+            break
+          case "h4":
+            nodes.push(H4(params, content))
+            break
+          case "h5":
+            nodes.push(H5(params, content))
+            break
+          case "h6":
+            nodes.push(H6(params, content))
+            break
+          case "blockquote":
+            nodes.push(Blockquote(params, content))
+            break
+          default:
+            nodes.push(P(params, content))
+        }
+
+        i++
+      }
     }
 
     return nodes

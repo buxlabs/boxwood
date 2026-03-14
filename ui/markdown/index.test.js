@@ -98,3 +98,66 @@ test("handles both dash types in same list", async () => {
   assert(html.includes("<li>Regular again</li>"))
   assert(html.includes("</ul>"))
 })
+
+test("renders ordered list", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+1. First item
+2. Second item
+3. Third item
+  `
+  const html = template(markdown)
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>First item</li>"))
+  assert(html.includes("<li>Second item</li>"))
+  assert(html.includes("<li>Third item</li>"))
+  assert(html.includes("</ol>"))
+})
+
+test("renders mixed unordered and ordered lists", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+# Shopping List
+
+Buy these items:
+
+- Apples
+- Bananas
+- Oranges
+
+Follow these steps:
+
+1. Go to store
+2. Buy items
+3. Return home
+  `
+  const html = template(markdown)
+  assert(html.includes("<h1>Shopping List</h1>"))
+  assert(html.includes("<p>Buy these items:</p>"))
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>Apples</li>"))
+  assert(html.includes("</ul>"))
+  assert(html.includes("<p>Follow these steps:</p>"))
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>Go to store</li>"))
+  assert(html.includes("</ol>"))
+})
+
+test("handles transition from ordered to unordered list", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+1. First ordered
+2. Second ordered
+- First unordered
+- Second unordered
+  `
+  const html = template(markdown)
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>First ordered</li>"))
+  assert(html.includes("<li>Second ordered</li>"))
+  assert(html.includes("</ol>"))
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>First unordered</li>"))
+  assert(html.includes("<li>Second unordered</li>"))
+  assert(html.includes("</ul>"))
+})
