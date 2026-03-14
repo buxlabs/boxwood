@@ -89,12 +89,16 @@ test("handles both dash types in same list", async () => {
   const markdown = `
 - Regular dash
 — Em dash
+– En dash
+• Bullet
 - Regular again
   `
   const html = template(markdown)
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Regular dash</li>"))
   assert(html.includes("<li>Em dash</li>"))
+  assert(html.includes("<li>En dash</li>"))
+  assert(html.includes("<li>Bullet</li>"))
   assert(html.includes("<li>Regular again</li>"))
   assert(html.includes("</ul>"))
 })
@@ -160,4 +164,19 @@ test("handles transition from ordered to unordered list", async () => {
   assert(html.includes("<li>First unordered</li>"))
   assert(html.includes("<li>Second unordered</li>"))
   assert(html.includes("</ul>"))
+})
+
+test("filters out empty list items", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- Item with content
+- 
+• 
+- Another item
+  `
+  const html = template(markdown)
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>Item with content</li>"))
+  assert(html.includes("<li>Another item</li>"))
+  assert(!html.includes("<li></li>"))
 })

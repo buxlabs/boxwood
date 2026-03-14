@@ -22,10 +22,14 @@ function Markdown(params, children) {
       .filter(Boolean)
 
     const items = lines.map((line) => {
-      if (line.startsWith("- ") || line.startsWith("— ")) {
-        return { type: "li", list: "ul", content: line.substring(2) }
+      if (line.startsWith("- ") || line.startsWith("— ") || line.startsWith("– ") || line.startsWith("• ")) {
+        const content = line.substring(2)
+        if (!content) return null
+        return { type: "li", list: "ul", content }
       } else if (/^\d+\.\s/.test(line)) {
-        return { type: "li", list: "ol", content: line.replace(/^\d+\.\s/, "") }
+        const content = line.replace(/^\d+\.\s/, "")
+        if (!content) return null
+        return { type: "li", list: "ol", content }
       } else if (line.startsWith("# ")) {
         return { type: "h1", content: line.substring(2) }
       } else if (line.startsWith("## ")) {
@@ -43,7 +47,7 @@ function Markdown(params, children) {
       } else {
         return { type: "p", content: line }
       }
-    })
+    }).filter(Boolean)
 
     const nodes = []
     let i = 0
@@ -55,7 +59,11 @@ function Markdown(params, children) {
         const list = []
         const parent = item.list
 
-        while (i < items.length && items[i].type === "li" && items[i].list === parent) {
+        while (
+          i < items.length &&
+          items[i].type === "li" &&
+          items[i].list === parent
+        ) {
           list.push(Li(params, items[i].content))
           i++
         }
