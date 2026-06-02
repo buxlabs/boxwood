@@ -254,3 +254,44 @@ test("express adapter handles errors with callback", async () => {
     })
   })
 })
+
+test("express adapter enhances error with view path metadata", async () => {
+  const engine = require("../../../adapters/express")
+  const render = engine()
+  const viewPath = join(__dirname, "fixtures/views/nonexistent.js")
+
+  await new Promise((resolve) => {
+    render(viewPath, {}, (error, html) => {
+      assert(error)
+      assert(!html)
+
+      // Check that error message includes the view path
+      assert(error.message.includes(viewPath))
+      assert(error.message.includes("Error rendering view"))
+
+      // Check that error has viewPath property
+      assert.strictEqual(error.viewPath, viewPath)
+
+      // Check that error has originalError property
+      assert(error.originalError)
+
+      // Check that stack trace is preserved
+      assert(error.stack)
+
+      resolve()
+    })
+  })
+})
+
+test("express adapter error message includes view path when no callback", async () => {
+  const engine = require("../../../adapters/express")
+  const render = engine()
+  const viewPath = join(__dirname, "fixtures/views/nonexistent.js")
+
+  const result = await render(viewPath, {})
+  assert(typeof result === "string")
+
+  // Should return enhanced error message
+  assert(result.includes(viewPath))
+  assert(result.includes("Error rendering view"))
+})

@@ -32,15 +32,23 @@ function engine(options = {}) {
     try {
       const template = await compileFile(path)
       // Automatically inject nonce from res.locals if available
-      const templateOptions = options && options._locals && options._locals.nonce
-        ? { ...options, nonce: options._locals.nonce }
-        : options
+      const templateOptions =
+        options && options._locals && options._locals.nonce
+          ? { ...options, nonce: options._locals.nonce }
+          : options
       const html = template(templateOptions)
       if (callback) return callback(null, html)
       return html
     } catch (error) {
-      if (callback) return callback(error)
-      return error.message
+      // Enhance error message with file path for better debugging
+      const exception = new Error(
+        `Error rendering view "${path}": ${error.message}`,
+      )
+      exception.stack = error.stack
+      exception.originalError = error
+      exception.viewPath = path
+      if (callback) return callback(exception)
+      return exception.message
     }
   }
   return render
