@@ -264,3 +264,149 @@ test("renders inline code mixed with bold and italic", async () => {
   assert(html.includes("<strong>bold</strong>"))
   assert(html.includes("<em>italic</em>"))
 })
+
+test("renders nested ordered list with unordered list", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+1. hello
+  - world
+2. what happened
+  `
+  const html = template(markdown)
+
+  // The expected structure should be:
+  // <ol>
+  //   <li>hello
+  //     <ul>
+  //       <li>world</li>
+  //     </ul>
+  //   </li>
+  //   <li>what happened</li>
+  // </ol>
+
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>hello"))
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>world</li>"))
+  assert(html.includes("</ul>"))
+  assert(html.includes("</li>"))
+  assert(html.includes("<li>what happened</li>"))
+  assert(html.includes("</ol>"))
+
+  // Verify proper nesting: ul should appear between the first li's opening and closing tags
+  const olCount = (html.match(/<ol>/g) || []).length
+  assert.strictEqual(olCount, 1, "Should have exactly one <ol> tag")
+
+  const ulCount = (html.match(/<ul>/g) || []).length
+  assert.strictEqual(ulCount, 1, "Should have exactly one <ul> tag")
+
+  // Check structure: the ul should be nested inside the first li
+  const pattern =
+    /<ol><li>hello<ul><li>world<\/li><\/ul><\/li><li>what happened<\/li><\/ol>/
+  assert(
+    pattern.test(html),
+    `HTML structure doesn't match expected nested pattern. Got: ${html}`,
+  )
+})
+
+test("renders nested unordered list with ordered list", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- First item
+  1. Nested one
+  2. Nested two
+- Second item
+  `
+  const html = template(markdown)
+
+  const ulCount = (html.match(/<ul>/g) || []).length
+  assert.strictEqual(ulCount, 1, "Should have exactly one <ul> tag")
+
+  const olCount = (html.match(/<ol>/g) || []).length
+  assert.strictEqual(olCount, 1, "Should have exactly one <ol> tag")
+
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>First item"))
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>Nested one</li>"))
+  assert(html.includes("<li>Nested two</li>"))
+  assert(html.includes("</ol>"))
+  assert(html.includes("<li>Second item</li>"))
+})
+
+test("renders multiple nested items in same list", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+1. First
+  - Nested A
+  - Nested B
+2. Second
+  - Nested C
+  `
+  const html = template(markdown)
+
+  const olCount = (html.match(/<ol>/g) || []).length
+  assert.strictEqual(olCount, 1, "Should have exactly one <ol> tag")
+
+  const ulCount = (html.match(/<ul>/g) || []).length
+  assert.strictEqual(
+    ulCount,
+    2,
+    "Should have exactly two <ul> tags (one for each nested list)",
+  )
+
+  assert(html.includes("<li>First"))
+  assert(html.includes("<li>Nested A</li>"))
+  assert(html.includes("<li>Nested B</li>"))
+  assert(html.includes("<li>Second"))
+  assert(html.includes("<li>Nested C</li>"))
+})
+
+test("renders deeply nested lists", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+1. Level 1
+  - Level 2
+    1. Level 3
+  `
+  const html = template(markdown)
+
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>Level 1"))
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>Level 2"))
+  assert(html.includes("<li>Level 3</li>"))
+
+  // Should have 2 ol tags (outer and nested)
+  const olCount = (html.match(/<ol>/g) || []).length
+  assert.strictEqual(olCount, 2, "Should have exactly two <ol> tags")
+})
+
+test("handles mixed content with nested lists", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+# Title
+
+Some text
+
+1. First item
+  - Nested bullet
+  - Another bullet
+2. Second item
+
+More text
+  `
+  const html = template(markdown)
+
+  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes("<p>Some text</p>"))
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>First item"))
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>Nested bullet</li>"))
+  assert(html.includes("<li>Another bullet</li>"))
+  assert(html.includes("</ul>"))
+  assert(html.includes("<li>Second item</li>"))
+  assert(html.includes("</ol>"))
+  assert(html.includes("<p>More text</p>"))
+})

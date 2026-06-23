@@ -103,61 +103,96 @@ function Markdown(params, children) {
   const lines = children
     .trim()
     .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
+    .filter((line) => line.trim().length > 0)
+    .map((line) => {
+      // Preserve leading spaces for indentation tracking
+      const trimmed = line.trim()
+      const leadingSpaces = line.length - line.trimStart().length
+      return { text: trimmed, indent: leadingSpaces }
+    })
 
   const items = lines
-    .map((line) => {
-      if (UNORDERED_MARKERS.some((marker) => line.startsWith(marker))) {
-        const content = line.substring(2)
+    .map(({ text, indent }) => {
+      if (UNORDERED_MARKERS.some((marker) => text.startsWith(marker))) {
+        const content = text.substring(2)
         if (!content) return null
-        return { type: "li", list: "ul", content }
+        return { type: "li", list: "ul", content, indent }
       }
 
-      if (ORDERED_LIST_REGEXP.test(line)) {
-        const content = line.replace(ORDERED_LIST_REGEXP, "")
+      if (ORDERED_LIST_REGEXP.test(text)) {
+        const content = text.replace(ORDERED_LIST_REGEXP, "")
         if (!content) return null
-        return { type: "li", list: "ol", content }
+        return { type: "li", list: "ol", content, indent }
       }
 
       for (const { prefix, type } of HEADINGS) {
-        if (line.startsWith(prefix)) {
-          return { type, content: line.substring(prefix.length) }
+        if (text.startsWith(prefix)) {
+          return { type, content: text.substring(prefix.length), indent }
         }
       }
 
-      if (line.startsWith("> ")) {
-        return { type: "blockquote", content: line.substring(2) }
+      if (text.startsWith("> ")) {
+        return { type: "blockquote", content: text.substring(2), indent }
       }
 
-      return { type: "p", content: line }
+      return { type: "p", content: text, indent }
     })
     .filter(Boolean)
 
   const nodes = []
   let i = 0
 
+  function parseList(startIndex, parentIndent) {
+    const list = []
+    let currentIndex = startIndex
+    const parentListType = items[startIndex].list
+
+    while (currentIndex < items.length) {
+      const item = items[currentIndex]
+
+      // Stop if not a list item or indent is less than expected
+      if (item.type !== "li" || item.indent < parentIndent) {
+        break
+      }
+
+      // Stop if indent matches but list type differs
+      if (item.indent === parentIndent && item.list !== parentListType) {
+        break
+      }
+
+      // Skip items with greater indent (they belong to nested lists)
+      if (item.indent > parentIndent) {
+        break
+      }
+
+      // Process current item at the correct indent level
+      const content = [format(item.content)]
+      currentIndex++
+
+      // Check if next item is a nested list
+      const nextItem = items[currentIndex]
+      if (nextItem?.type === "li" && nextItem.indent > item.indent) {
+        const nestedResult = parseList(currentIndex, nextItem.indent)
+        content.push(nestedResult.list)
+        currentIndex = nestedResult.nextIndex
+      }
+
+      list.push(Li(params, content))
+    }
+
+    const listElement =
+      parentListType === "ul" ? Ul(params, list) : Ol(params, list)
+
+    return { list: listElement, nextIndex: currentIndex }
+  }
+
   while (i < items.length) {
     const item = items[i]
 
     if (item.type === "li") {
-      const list = []
-      const parent = item.list
-
-      while (
-        i < items.length &&
-        items[i].type === "li" &&
-        items[i].list === parent
-      ) {
-        list.push(Li(params, format(items[i].content)))
-        i++
-      }
-
-      if (parent === "ul") {
-        nodes.push(Ul(params, list))
-      } else if (parent === "ol") {
-        nodes.push(Ol(params, list))
-      }
+      const result = parseList(i, item.indent)
+      nodes.push(result.list)
+      i = result.nextIndex
     } else if (item.type === "blockquote") {
       const lines = []
 
