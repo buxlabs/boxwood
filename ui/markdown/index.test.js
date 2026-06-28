@@ -410,3 +410,67 @@ More text
   assert(html.includes("</ol>"))
   assert(html.includes("<p>More text</p>"))
 })
+
+test("renders markdown links", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[some test](/some-link)"
+  const html = template(markdown)
+  assert(html.includes('<a href="/some-link">some test</a>'))
+})
+
+test("renders multiple links in same paragraph", async () => {
+  const { template } = await compile(__dirname)
+  const markdown =
+    "Check out [Google](https://google.com) and [GitHub](https://github.com)"
+  const html = template(markdown)
+  assert(html.includes('<a href="https://google.com">Google</a>'))
+  assert(html.includes('<a href="https://github.com">GitHub</a>'))
+})
+
+test("renders links in headings", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "# Heading with [link](/url)"
+  const html = template(markdown)
+  assert(html.includes('<h1>Heading with <a href="/url">link</a></h1>'))
+})
+
+test("renders links in list items", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- Item with [link](/url)
+- Another [item](/path) here
+  `
+  const html = template(markdown)
+  assert(html.includes('<li>Item with <a href="/url">link</a></li>'))
+  assert(html.includes('<li>Another <a href="/path">item</a> here</li>'))
+})
+
+test("renders links mixed with bold and italic", async () => {
+  const { template } = await compile(__dirname)
+  const markdown =
+    "Visit **bold [link](https://example.com)** or *italic [link](/path)*"
+  const html = template(markdown)
+  assert(html.includes('<a href="https://example.com">link</a>'))
+  assert(html.includes('<a href="/path">link</a>'))
+  assert(html.includes("<strong>"))
+  assert(html.includes("<em>"))
+})
+
+test("handles invalid link syntax", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[text without closing paren](/url or [incomplete"
+  const html = template(markdown)
+  // Should render as plain text when link syntax is invalid
+  assert(html.includes("[text without closing paren](/url"))
+  assert(html.includes("[incomplete"))
+})
+
+test("renders links with bold and italic inside link text", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[**bold** and *italic*](/url)"
+  const html = template(markdown)
+  assert(html.includes('<a href="/url">'))
+  assert(html.includes("<strong>bold</strong>"))
+  assert(html.includes("<em>italic</em>"))
+  assert(html.includes("</a>"))
+})

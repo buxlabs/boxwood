@@ -14,6 +14,7 @@ const {
   Strong,
   Em,
   Code,
+  A,
 } = require("../..")
 
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
@@ -37,57 +38,76 @@ const COMPONENTS = {
 }
 
 function format(text) {
-  if (!text.includes("*") && !text.includes("`")) {
+  if (!text.includes("*") && !text.includes("`") && !text.includes("[")) {
     return text
   }
 
   const result = []
   let i = 0
+
   while (i < text.length) {
-    if (text[i] === "`") {
-      const start = i + 1
-      const end = text.indexOf("`", start)
+    if (text[i] === "[") {
+      // Try to parse markdown link [text](url)
+      const textEnd = text.indexOf("]", i + 1)
+
+      if (textEnd !== -1 && text[textEnd + 1] === "(") {
+        const urlEnd = text.indexOf(")", textEnd + 2)
+
+        if (urlEnd !== -1) {
+          const linkText = text.substring(i + 1, textEnd)
+          const url = text.substring(textEnd + 2, urlEnd)
+          result.push(A({ href: url }, format(linkText)))
+          i = urlEnd + 1
+          continue
+        }
+      }
+
+      // Not a valid link, treat as regular text
+      result.push(text[i])
+      i++
+    } else if (text[i] === "`") {
+      const end = text.indexOf("`", i + 1)
       if (end === -1) {
         result.push(text[i])
         i++
       } else {
-        result.push(Code({}, text.substring(start, end)))
+        result.push(Code({}, text.substring(i + 1, end)))
         i = end + 1
       }
     } else if (text[i] === "*" && text[i + 1] === "*") {
-      const start = i + 2
-      const end = text.indexOf("**", start)
+      const end = text.indexOf("**", i + 2)
       if (end === -1) {
         result.push(text[i])
         i++
       } else {
-        result.push(Strong(text.substring(start, end)))
+        result.push(Strong(format(text.substring(i + 2, end))))
         i = end + 2
       }
     } else if (text[i] === "*") {
-      const start = i + 1
-      const end = text.indexOf("*", start)
+      const end = text.indexOf("*", i + 1)
       if (end === -1) {
         result.push(text[i])
         i++
       } else {
-        result.push(Em(text.substring(start, end)))
+        result.push(Em(format(text.substring(i + 1, end))))
         i = end + 1
       }
     } else {
-      let next = text.length
-      const nextCode = text.indexOf("`", i)
-      const nextStar = text.indexOf("*", i)
-      if (nextCode !== -1 && nextCode < next) next = nextCode
-      if (nextStar !== -1 && nextStar < next) next = nextStar
-      if (next === text.length) {
-        result.push(text.substring(i))
-        break
-      }
+      // Find next special character
+      const positions = [
+        text.indexOf("`", i),
+        text.indexOf("*", i),
+        text.indexOf("[", i),
+      ].filter((pos) => pos !== -1)
+
+      const next = positions.length > 0 ? Math.min(...positions) : text.length
+
       result.push(text.substring(i, next))
+      if (next === text.length) break
       i = next
     }
   }
+
   return result.length > 0 ? result : text
 }
 
