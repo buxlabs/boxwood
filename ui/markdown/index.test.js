@@ -952,4 +952,93 @@ test("escapes in headings", async () => {
   assert(!html.includes("<strong>"))
 })
 
+// Regression tests - escapes work correctly with all markdown features
+
+test("bold with escaped asterisk inside still renders bold", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "**bold \\* text**"
+  const html = template(markdown)
+  assert(html.includes("<strong>"))
+  assert(html.includes("*"))
+  assert(!html.includes("\\"))
+})
+
+test("link with escaped bracket in text still renders link", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[link \\[ text](https://example.com)"
+  const html = template(markdown)
+  assert(html.includes('<a href="https://example.com">'))
+  assert(html.includes("["))
+  assert(!html.includes("\\"))
+})
+
+test("escaped opening bracket prevents link formation", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "\\[not a link](url)"
+  const html = template(markdown)
+  assert(html.includes("[not a link](url)"))
+  assert(!html.includes("<a"))
+})
+
+test("escaped exclamation with following link creates link not image", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "\\![text](url)"
+  const html = template(markdown)
+  assert(html.includes("!"))
+  assert(html.includes('<a href="url">'))
+  assert(!html.includes("<img"))
+})
+
+test("escapes work in lists without breaking list rendering", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "- Item \\*one\\*\n- Item **two**"
+  const html = template(markdown)
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>Item *one*</li>"))
+  assert(html.includes("<strong>two</strong>"))
+})
+
+test("escapes work in blockquotes without breaking blockquote", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "> Quote \\*with\\* asterisks"
+  const html = template(markdown)
+  assert(html.includes("<blockquote>"))
+  assert(html.includes("*with*"))
+  assert(!html.includes("<em>"))
+})
+
+test("multiple escapes across paragraphs don't interfere", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Para \\*one\\*\n\nPara **two**"
+  const html = template(markdown)
+  assert(html.includes("*one*"))
+  assert(html.includes("<strong>two</strong>"))
+})
+
+test("escaped backslash before markdown character", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Text \\\\*italic*"
+  const html = template(markdown)
+  assert(html.includes("\\"))
+  assert(html.includes("<em>italic</em>"))
+})
+
+test("code blocks preserve backslashes", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "```\ncode \\* with \\[ escapes\n```"
+  const html = template(markdown)
+  assert(html.includes("<pre>"))
+  assert(html.includes("\\*"))
+  assert(html.includes("\\["))
+})
+
+test("nested markdown with escapes - bold link with escaped bracket", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "**[link \\] text](url)**"
+  const html = template(markdown)
+  assert(html.includes("<strong>"))
+  assert(html.includes('<a href="url">'))
+  assert(html.includes("]"))
+})
+
 

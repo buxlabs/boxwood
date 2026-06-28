@@ -358,4 +358,79 @@ test("multiple escapes in sequence", () => {
   assert.strictEqual(result[4], "*")
 })
 
+// Regression tests - escapes work with existing markdown features
+
+test("bold text with escaped asterisk inside remains bold", () => {
+  const result = format("**bold \\* text**", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0].type, "strong")
+  assert(result[0].children.includes("*"))
+})
+
+test("link with escaped bracket in text remains link", () => {
+  const result = format("[link \\[ text](url)", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0].type, "a")
+  assert(result[0].children.includes("["))
+})
+
+test("escaped opening bracket prevents link", () => {
+  const result = format("\\[text](url)", mockComponents)
+  const hasLink = result.some(item => typeof item === "object" && item.type === "a")
+  assert.strictEqual(hasLink, false)
+})
+
+test("escaped exclamation allows following link to work", () => {
+  const result = format("\\![text](url)", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "!")
+  assert.strictEqual(result[1].type, "a")
+})
+
+test("escaped backslash before asterisk shows backslash and italic", () => {
+  const result = format("\\\\*text*", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "\\")
+  assert.strictEqual(result[1].type, "em")
+})
+
+test("multiple independent escapes don't interfere", () => {
+  const result = format("\\*a\\* **b** \\`c\\`", mockComponents)
+  assert(Array.isArray(result))
+  const hasBold = result.some(item => typeof item === "object" && item.type === "strong")
+  assert.strictEqual(hasBold, true)
+  assert(result.includes("*"))
+  assert(result.includes("`"))
+})
+
+test("escape in nested markdown - bold link with escaped asterisk", () => {
+  const result = format("**[link \\* text](url)**", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0].type, "strong")
+  assert.strictEqual(result[0].children[0].type, "a")
+  assert(result[0].children[0].children.includes("*"))
+})
+
+test("non-markdown character escape preserves backslash", () => {
+  const result = format("path\\:value", mockComponents)
+  assert(Array.isArray(result))
+  assert(result.includes("\\"))
+  assert(result.includes(":"))
+})
+
+test("escaped closing bracket inside link text still creates link", () => {
+  const result = format("[text\\]more](url)", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0].type, "a")
+  assert(result[0].children.includes("]"))
+})
+
+test("escape at end followed by markdown on next parse", () => {
+  const result = format("end\\\\ **bold**", mockComponents)
+  assert(Array.isArray(result))
+  assert(result.includes("\\"))
+  const hasBold = result.some(item => typeof item === "object" && item.type === "strong")
+  assert.strictEqual(hasBold, true)
+})
+
 
