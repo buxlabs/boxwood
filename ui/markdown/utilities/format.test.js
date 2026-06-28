@@ -266,3 +266,96 @@ test("handles autolink with invalid email", () => {
   assert.strictEqual(result[0], "<")
 })
 
+test("escapes asterisk with backslash", () => {
+  const result = format("\\*not bold\\*", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "*")
+  assert.strictEqual(result[1], "not bold")
+  assert.strictEqual(result[2], "*")
+})
+
+test("escapes backtick with backslash", () => {
+  const result = format("\\`not code\\`", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "`")
+  assert.strictEqual(result[1], "not code")
+  assert.strictEqual(result[2], "`")
+})
+
+test("escapes bracket with backslash", () => {
+  const result = format("\\[not a link\\]", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "[")
+  assert.strictEqual(result[1], "not a link")
+  assert.strictEqual(result[2], "]")
+})
+
+test("escapes backslash itself", () => {
+  const result = format("backslash: \\\\", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "backslash: ")
+  assert.strictEqual(result[1], "\\")
+})
+
+test("escapes exclamation mark", () => {
+  const result = format("\\!not an image", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "!")
+  assert.strictEqual(result[1], "not an image")
+})
+
+test("handles mixed escaped and unescaped asterisks", () => {
+  const result = format("**bold** and \\*not\\*", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0].type, "strong")
+  assert.strictEqual(result[1], " and ")
+  assert.strictEqual(result[2], "*")
+  assert.strictEqual(result[3], "not")
+  assert.strictEqual(result[4], "*")
+})
+
+test("preserves backslash for non-special characters", () => {
+  const result = format("keep\\nthis", mockComponents)
+  assert(Array.isArray(result))
+  // \n is not a special markdown char, so both \ and n are kept
+  assert.strictEqual(result[0], "keep")
+  assert.strictEqual(result[1], "\\")
+  assert.strictEqual(result[2], "n")
+  assert.strictEqual(result[3], "this")
+})
+
+test("escapes angle brackets", () => {
+  const result = format("\\<not autolink\\>", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "<")
+  assert.strictEqual(result[1], "not autolink")
+  assert.strictEqual(result[2], ">")
+})
+
+test("handles escape at end of string", () => {
+  const result = format("text\\", mockComponents)
+  assert(Array.isArray(result))
+  // Backslash at end is kept as separate element
+  assert.strictEqual(result[0], "text")
+  assert.strictEqual(result[1], "\\")
+})
+
+test("escapes parentheses", () => {
+  const result = format("\\(not\\)", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "(")
+  assert.strictEqual(result[1], "not")
+  assert.strictEqual(result[2], ")")
+})
+
+test("multiple escapes in sequence", () => {
+  const result = format("\\*\\*not bold\\*\\*", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "*")
+  assert.strictEqual(result[1], "*")
+  assert.strictEqual(result[2], "not bold")
+  assert.strictEqual(result[3], "*")
+  assert.strictEqual(result[4], "*")
+})
+
+

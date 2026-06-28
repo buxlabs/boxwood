@@ -852,3 +852,104 @@ test("renders autolinks mixed with other formatting", async () => {
   assert(html.includes("<strong>details</strong>"))
 })
 
+test("escapes asterisks with backslash", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is \\*not bold\\*"
+  const html = template(markdown)
+  assert(html.includes("<p>This is *not bold*</p>"))
+  assert(!html.includes("<strong>"))
+})
+
+test("escapes brackets with backslash", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is \\[not a link\\](url)"
+  const html = template(markdown)
+  assert(html.includes("[not a link](url)"))
+  assert(!html.includes("<a "))
+})
+
+test("escapes backticks with backslash", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is \\`not code\\`"
+  const html = template(markdown)
+  assert(html.includes("`not code`"))
+  assert(!html.includes("<code>"))
+})
+
+test("escapes backslash itself", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is a backslash: \\\\"
+  const html = template(markdown)
+  assert(html.includes("backslash: \\"))
+})
+
+test("escapes exclamation mark for images", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is \\!\\[not an image\\](url)"
+  const html = template(markdown)
+  assert(html.includes("![not an image](url)"))
+  assert(!html.includes("<img"))
+  assert(!html.includes("<a "))
+})
+
+test("escapes angle brackets for autolinks", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is \\<not an autolink\\>"
+  const html = template(markdown)
+  // Angle brackets are HTML-escaped in output
+  assert(html.includes("&lt;not an autolink&gt;") || html.includes("<not an autolink>"))
+  assert(!html.includes('<a href'))
+})
+
+test("handles mixed escaped and unescaped formatting", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "**bold** and \\*not bold\\* and **more bold**"
+  const html = template(markdown)
+  assert(html.includes("<strong>bold</strong>"))
+  assert(html.includes("*not bold*"))
+  assert(html.includes("<strong>more bold</strong>"))
+})
+
+test("escapes only special markdown characters", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Normal backslash\\n should stay"
+  const html = template(markdown)
+  // \n is not a special markdown char, so backslash should remain
+  assert(html.includes("backslash\\n"))
+})
+
+test("handles escape at end of string", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Text ends with \\"
+  const html = template(markdown)
+  assert(html.includes("ends with \\"))
+})
+
+test("escapes parentheses", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[link]\\(not url\\)"
+  const html = template(markdown)
+  assert(html.includes("[link](not url)"))
+  assert(!html.includes("<a "))
+})
+
+test("escapes in lists", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- Item with \\*escaped asterisks\\*
+- Item with \\[escaped brackets\\]
+  `
+  const html = template(markdown)
+  assert(html.includes("<li>Item with *escaped asterisks*</li>"))
+  assert(html.includes("<li>Item with [escaped brackets]</li>"))
+})
+
+test("escapes in headings", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "# Heading with \\*escaped\\* text"
+  const html = template(markdown)
+  assert(html.includes("<h1>Heading with *escaped* text</h1>"))
+  assert(!html.includes("<strong>"))
+})
+
+

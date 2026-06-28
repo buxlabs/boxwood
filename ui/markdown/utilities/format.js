@@ -15,7 +15,8 @@ function format(text, components) {
     !text.includes("`") &&
     !text.includes("[") &&
     !text.includes("!") &&
-    !text.includes("<")
+    !text.includes("<") &&
+    !text.includes("\\")
   ) {
     return text
   }
@@ -24,6 +25,41 @@ function format(text, components) {
   let i = 0
 
   while (i < text.length) {
+    // Handle escape characters
+    if (text[i] === "\\") {
+      if (i + 1 < text.length) {
+        const nextChar = text[i + 1]
+        // Check if next char is a special markdown character
+        if (
+          nextChar === "*" ||
+          nextChar === "`" ||
+          nextChar === "[" ||
+          nextChar === "]" ||
+          nextChar === "(" ||
+          nextChar === ")" ||
+          nextChar === "!" ||
+          nextChar === "<" ||
+          nextChar === ">" ||
+          nextChar === "\\"
+        ) {
+          // Escape the next character - just add it as literal text
+          result.push(nextChar)
+          i += 2 // Skip both \ and the escaped character
+          continue
+        }
+        // If not a special char, keep both the backslash and the next character
+        result.push(text[i])
+        result.push(nextChar)
+        i += 2
+        continue
+      } else {
+        // Backslash at end of string
+        result.push(text[i])
+        i++
+        continue
+      }
+    }
+    
     if (text[i] === "!" && text[i + 1] === "[") {
       // Try to parse markdown image ![alt](url)
       const altEnd = text.indexOf("]", i + 2)
@@ -122,6 +158,7 @@ function format(text, components) {
         text.indexOf("*", i),
         text.indexOf("[", i),
         text.indexOf("<", i),
+        text.indexOf("\\", i),
       ].filter((pos) => pos !== -1)
 
       // Look for image pattern ![
