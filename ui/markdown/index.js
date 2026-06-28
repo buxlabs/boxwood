@@ -16,6 +16,7 @@ const {
   Code,
   A,
   Hr,
+  Img,
 } = require("../..")
 
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
@@ -41,7 +42,7 @@ const COMPONENTS = {
 }
 
 function format(text) {
-  if (!text.includes("*") && !text.includes("`") && !text.includes("[")) {
+  if (!text.includes("*") && !text.includes("`") && !text.includes("[") && !text.includes("!")) {
     return text
   }
 
@@ -49,7 +50,26 @@ function format(text) {
   let i = 0
 
   while (i < text.length) {
-    if (text[i] === "[") {
+    if (text[i] === "!" && text[i + 1] === "[") {
+      // Try to parse markdown image ![alt](url)
+      const altEnd = text.indexOf("]", i + 2)
+      
+      if (altEnd !== -1 && text[altEnd + 1] === "(") {
+        const urlEnd = text.indexOf(")", altEnd + 2)
+        
+        if (urlEnd !== -1) {
+          const alt = text.substring(i + 2, altEnd)
+          const src = text.substring(altEnd + 2, urlEnd)
+          result.push(Img({ src, alt }))
+          i = urlEnd + 1
+          continue
+        }
+      }
+      
+      // Not a valid image, treat as regular text (skip both ! and [)
+      result.push(text[i])
+      i++
+    } else if (text[i] === "[") {
       // Try to parse markdown link [text](url)
       const textEnd = text.indexOf("]", i + 1)
 
@@ -102,6 +122,12 @@ function format(text) {
         text.indexOf("*", i),
         text.indexOf("[", i),
       ].filter((pos) => pos !== -1)
+      
+      // Look for image pattern ![
+      const exclamPos = text.indexOf("!", i)
+      if (exclamPos !== -1 && text[exclamPos + 1] === "[") {
+        positions.push(exclamPos)
+      }
 
       const next = positions.length > 0 ? Math.min(...positions) : text.length
 

@@ -546,3 +546,74 @@ Section 3
   assert(html.includes("<p>Section 3</p>"))
 })
 
+test("renders basic image", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "![alt text](/image.png)"
+  const html = template(markdown)
+  assert(html.includes('<img src="/image.png" alt="alt text">'))
+})
+
+test("renders image without alt text", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "![](/image.jpg)"
+  const html = template(markdown)
+  assert(html.includes('<img src="/image.jpg" alt="">'))
+})
+
+test("renders multiple images in paragraph", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Look at ![first](/1.png) and ![second](/2.png)"
+  const html = template(markdown)
+  assert(html.includes('<img src="/1.png" alt="first">'))
+  assert(html.includes('<img src="/2.png" alt="second">'))
+})
+
+test("renders images in headings", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "# Heading with ![icon](/icon.svg)"
+  const html = template(markdown)
+  assert(html.includes("<h1>"))
+  assert(html.includes('<img src="/icon.svg" alt="icon">'))
+  assert(html.includes("</h1>"))
+})
+
+test("renders images in list items", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- Item with ![image](/img.png)
+- Another ![pic](/pic.jpg) here
+  `
+  const html = template(markdown)
+  assert(html.includes('<li>Item with <img src="/img.png" alt="image"></li>'))
+  assert(html.includes('<li>Another <img src="/pic.jpg" alt="pic"> here</li>'))
+})
+
+test("renders image with URL containing special characters", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "![logo](https://example.com/images/logo.png)"
+  const html = template(markdown)
+  assert(html.includes('<img src="https://example.com/images/logo.png" alt="logo">'))
+})
+
+test("handles invalid image syntax", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "![alt text without closing paren(/url or ![incomplete"
+  const html = template(markdown)
+  // Should render as plain text when image syntax is invalid
+  assert(html.includes("![alt text without closing paren(/url"))
+  assert(html.includes("![incomplete"))
+})
+
+test("distinguishes between images and links", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "This is a [link](/url) and this is an ![image](/img.png)"
+  const html = template(markdown)
+  assert(html.includes('<a href="/url">link</a>'))
+  assert(html.includes('<img src="/img.png" alt="image">'))
+})
+
+// TODO: Implement support for images inside links [![alt](img)](link)
+// This requires recursive parsing of link content
+
+
+
