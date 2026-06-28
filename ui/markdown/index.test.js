@@ -650,3 +650,147 @@ test("renders link with image and text", async () => {
   assert(html.includes(" here"))
   assert(html.includes("</a>"))
 })
+
+test("renders basic code block", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`
+const x = 1
+console.log(x)
+\`\`\`
+  `
+  const html = template(markdown)
+  assert(html.includes("<pre>"))
+  assert(html.includes("<code>"))
+  assert(html.includes("const x = 1"))
+  assert(html.includes("console.log(x)"))
+  assert(html.includes("</code>"))
+  assert(html.includes("</pre>"))
+})
+
+test("renders code block with language", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`javascript
+function hello() {
+  return "world"
+}
+\`\`\`
+  `
+  const html = template(markdown)
+  assert(html.includes("<pre>"))
+  assert(html.includes('class="language-javascript"'))
+  assert(html.includes("function hello()"))
+  // Quotes are HTML-escaped
+  assert(
+    html.includes("return &quot;world&quot;") ||
+      html.includes('return "world"'),
+  )
+})
+
+test("renders code block with empty lines", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`
+line 1
+
+line 3
+\`\`\`
+  `
+  const html = template(markdown)
+  assert(html.includes("line 1"))
+  assert(html.includes("line 3"))
+  // Empty line should be preserved
+  assert(html.includes("line 1\n\nline 3"))
+})
+
+test("renders multiple code blocks", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`javascript
+const x = 1
+\`\`\`
+
+Some text
+
+\`\`\`python
+y = 2
+\`\`\`
+  `
+  const html = template(markdown)
+  const preCount = (html.match(/<pre>/g) || []).length
+  assert.strictEqual(preCount, 2)
+  assert(html.includes('class="language-javascript"'))
+  assert(html.includes('class="language-python"'))
+})
+
+test("renders code block between other content", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+# Title
+
+Some paragraph text
+
+\`\`\`
+code here
+\`\`\`
+
+More text
+  `
+  const html = template(markdown)
+  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes("<p>Some paragraph text</p>"))
+  assert(html.includes("<pre>"))
+  assert(html.includes("code here"))
+  assert(html.includes("<p>More text</p>"))
+})
+
+test("handles code block with special markdown characters", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`
+**not bold**
+*not italic*
+[not a link](url)
+\`\`\`
+  `
+  const html = template(markdown)
+  assert(html.includes("**not bold**"))
+  assert(html.includes("*not italic*"))
+  assert(html.includes("[not a link](url)"))
+  // Should not contain formatted elements
+  assert(!html.includes("<strong>"))
+  assert(!html.includes("<em>"))
+  assert(!html.includes("<a "))
+})
+
+test("handles unclosed code block", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`
+code without closing
+more code
+  `
+  const html = template(markdown)
+  // Should still create a code block with all remaining content
+  assert(html.includes("<pre>"))
+  assert(html.includes("code without closing"))
+  assert(html.includes("more code"))
+})
+
+test("handles code block with indentation preserved", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+\`\`\`
+function test() {
+  if (true) {
+    return 1
+  }
+}
+\`\`\`
+  `
+  const html = template(markdown)
+  assert(html.includes("function test()"))
+  assert(html.includes("  if (true)"))
+  assert(html.includes("    return 1"))
+})

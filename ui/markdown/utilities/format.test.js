@@ -72,7 +72,7 @@ test("formats bold and italic mixed", () => {
   const result = format("**bold with *italic* inside**", mockComponents)
   assert.strictEqual(result[0].type, "strong")
   // Due to parsing order, nested elements work when bold is outer
-  const children = result[0].children  
+  const children = result[0].children
   assert(Array.isArray(children))
 })
 
@@ -177,7 +177,10 @@ test("handles bracket not part of link", () => {
 })
 
 test("handles multiple images", () => {
-  const result = format("![first](/1.png) and ![second](/2.png)", mockComponents)
+  const result = format(
+    "![first](/1.png) and ![second](/2.png)",
+    mockComponents,
+  )
   assert(Array.isArray(result))
   assert.strictEqual(result[0].type, "img")
   assert.strictEqual(result[2].type, "img")

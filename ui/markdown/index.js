@@ -17,6 +17,7 @@ const {
   A,
   Hr,
   Img,
+  Pre,
 } = require("../..")
 
 const { format } = require("./utilities/format")
@@ -54,51 +55,95 @@ function Markdown(params, children) {
     return null
   }
 
-  const lines = children
-    .trim()
-    .split("\n")
-    .filter((line) => line.trim().length > 0)
-    .map((line) => {
-      // Preserve leading spaces for indentation tracking
-      const trimmed = line.trim()
-      const leadingSpaces = line.length - line.trimStart().length
-      return { text: trimmed, indent: leadingSpaces }
-    })
+  // First pass: detect code blocks before processing lines
+  const allLines = children.trim().split("\n")
+  const items = []
+  let i = 0
 
-  const items = lines
-    .map(({ text, indent }) => {
-      if (HORIZONTAL_RULE_REGEXP.test(text)) {
-        return { type: "hr", indent }
+  while (i < allLines.length) {
+    const line = allLines[i]
+    const trimmed = line.trim()
+
+    // Check for code block start
+    if (trimmed.startsWith("```")) {
+      const language = trimmed.substring(3).trim()
+      const codeLines = []
+      i++ // Move past the opening ```
+
+      // Collect code block lines until closing ```
+      while (i < allLines.length) {
+        const codeLine = allLines[i]
+        if (codeLine.trim().startsWith("```")) {
+          // Found closing ```, don't include it
+          i++
+          break
+        }
+        codeLines.push(codeLine)
+        i++
       }
 
-      if (UNORDERED_MARKERS.some((marker) => text.startsWith(marker))) {
-        const content = text.substring(2)
-        if (!content) return null
-        return { type: "li", list: "ul", content, indent }
-      }
+      items.push({
+        type: "pre",
+        content: codeLines.join("\n"),
+        language: language || undefined,
+        indent: 0,
+      })
+      continue
+    }
 
-      if (ORDERED_LIST_REGEXP.test(text)) {
-        const content = text.replace(ORDERED_LIST_REGEXP, "")
-        if (!content) return null
-        return { type: "li", list: "ol", content, indent }
-      }
+    // Skip empty lines
+    if (trimmed.length === 0) {
+      i++
+      continue
+    }
 
+    const leadingSpaces = line.length - line.trimStart().length
+
+    // Check for other block types
+    if (HORIZONTAL_RULE_REGEXP.test(trimmed)) {
+      items.push({ type: "hr", indent: leadingSpaces })
+    } else if (UNORDERED_MARKERS.some((marker) => trimmed.startsWith(marker))) {
+      const content = trimmed.substring(2)
+      if (content) {
+        items.push({ type: "li", list: "ul", content, indent: leadingSpaces })
+      }
+    } else if (ORDERED_LIST_REGEXP.test(trimmed)) {
+      const content = trimmed.replace(ORDERED_LIST_REGEXP, "")
+      if (content) {
+        items.push({ type: "li", list: "ol", content, indent: leadingSpaces })
+      }
+    } else {
+      let matched = false
       for (const { prefix, type } of HEADINGS) {
-        if (text.startsWith(prefix)) {
-          return { type, content: text.substring(prefix.length), indent }
+        if (trimmed.startsWith(prefix)) {
+          items.push({
+            type,
+            content: trimmed.substring(prefix.length),
+            indent: leadingSpaces,
+          })
+          matched = true
+          break
         }
       }
 
-      if (text.startsWith("> ")) {
-        return { type: "blockquote", content: text.substring(2), indent }
+      if (!matched) {
+        if (trimmed.startsWith("> ")) {
+          items.push({
+            type: "blockquote",
+            content: trimmed.substring(2),
+            indent: leadingSpaces,
+          })
+        } else {
+          items.push({ type: "p", content: trimmed, indent: leadingSpaces })
+        }
       }
+    }
 
-      return { type: "p", content: text, indent }
-    })
-    .filter(Boolean)
+    i++
+  }
 
   const nodes = []
-  let i = 0
+  i = 0
 
   function parseList(startIndex, parentIndent) {
     const list = []
@@ -159,9 +204,21 @@ function Markdown(params, children) {
         i++
       }
 
-      nodes.push(Blockquote(params, P(params, format(lines.join("\n"), INLINE_COMPONENTS))))
+      nodes.push(
+        Blockquote(
+          params,
+          P(params, format(lines.join("\n"), INLINE_COMPONENTS)),
+        ),
+      )
     } else if (item.type === "hr") {
       nodes.push(Hr(params))
+      i++
+    } else if (item.type === "pre") {
+      // Code blocks - wrap in <pre><code>
+      const codeParams = item.language
+        ? { class: `language-${item.language}` }
+        : {}
+      nodes.push(Pre(params, Code(codeParams, item.content)))
       i++
     } else {
       const { type, content } = item
