@@ -41,6 +41,26 @@ const COMPONENTS = {
   hr: Hr,
 }
 
+// Find the matching closing bracket, accounting for nested brackets
+function findMatchingBracket(text, startPos) {
+  let depth = 1
+  let i = startPos + 1
+  
+  while (i < text.length && depth > 0) {
+    if (text[i] === "[" && text[i - 1] !== "\\") {
+      depth++
+    } else if (text[i] === "]" && text[i - 1] !== "\\") {
+      depth--
+      if (depth === 0) {
+        return i
+      }
+    }
+    i++
+  }
+  
+  return -1
+}
+
 function format(text) {
   if (!text.includes("*") && !text.includes("`") && !text.includes("[") && !text.includes("!")) {
     return text
@@ -71,7 +91,7 @@ function format(text) {
       i++
     } else if (text[i] === "[") {
       // Try to parse markdown link [text](url)
-      const textEnd = text.indexOf("]", i + 1)
+      const textEnd = findMatchingBracket(text, i)
 
       if (textEnd !== -1 && text[textEnd + 1] === "(") {
         const urlEnd = text.indexOf(")", textEnd + 2)
@@ -79,6 +99,7 @@ function format(text) {
         if (urlEnd !== -1) {
           const linkText = text.substring(i + 1, textEnd)
           const url = text.substring(textEnd + 2, urlEnd)
+          // Recursively format the link text to support images, bold, italic inside links
           result.push(A({ href: url }, format(linkText)))
           i = urlEnd + 1
           continue

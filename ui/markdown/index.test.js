@@ -612,8 +612,43 @@ test("distinguishes between images and links", async () => {
   assert(html.includes('<img src="/img.png" alt="image">'))
 })
 
-// TODO: Implement support for images inside links [![alt](img)](link)
-// This requires recursive parsing of link content
+test("renders image inside link", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[![alt text](/image.png)](/link)"
+  const html = template(markdown)
+  assert(html.includes('<a href="/link">'))
+  assert(html.includes('<img src="/image.png" alt="alt text">'))
+  assert(html.includes('</a>'))
+})
+
+test("renders image inside link with surrounding text", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Click [![icon](/icon.png)](/home) to go home"
+  const html = template(markdown)
+  assert(html.includes('<a href="/home">'))
+  assert(html.includes('<img src="/icon.png" alt="icon">'))
+  assert(html.includes('</a>'))
+})
+
+test("renders multiple images inside links", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[![first](/1.png)](/url1) and [![second](/2.png)](/url2)"
+  const html = template(markdown)
+  assert(html.includes('<a href="/url1"><img src="/1.png" alt="first"></a>'))
+  assert(html.includes('<a href="/url2"><img src="/2.png" alt="second"></a>'))
+})
+
+test("renders link with image and text", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "[Click ![icon](/icon.png) here](/url)"
+  const html = template(markdown)
+  assert(html.includes('<a href="/url">'))
+  assert(html.includes('Click '))
+  assert(html.includes('<img src="/icon.png" alt="icon">'))
+  assert(html.includes(' here'))
+  assert(html.includes('</a>'))
+})
+
 
 
 
