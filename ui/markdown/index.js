@@ -15,10 +15,12 @@ const {
   Em,
   Code,
   A,
+  Hr,
 } = require("../..")
 
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
 const UNORDERED_MARKERS = ["- ", "— ", "– ", "• "]
+const HORIZONTAL_RULE_REGEXP = /^(?:\*\s*\*\s*\*+|-\s*-\s*-+|_\s*_\s*_+)\s*$/
 const HEADINGS = [
   { prefix: "###### ", type: "h6" },
   { prefix: "##### ", type: "h5" },
@@ -35,6 +37,7 @@ const COMPONENTS = {
   h5: H5,
   h6: H6,
   blockquote: Blockquote,
+  hr: Hr,
 }
 
 function format(text) {
@@ -133,6 +136,10 @@ function Markdown(params, children) {
 
   const items = lines
     .map(({ text, indent }) => {
+      if (HORIZONTAL_RULE_REGEXP.test(text)) {
+        return { type: "hr", indent }
+      }
+
       if (UNORDERED_MARKERS.some((marker) => text.startsWith(marker))) {
         const content = text.substring(2)
         if (!content) return null
@@ -222,6 +229,9 @@ function Markdown(params, children) {
       }
 
       nodes.push(Blockquote(params, P(params, format(lines.join("\n")))))
+    } else if (item.type === "hr") {
+      nodes.push(Hr(params))
+      i++
     } else {
       const { type, content } = item
       const Component = COMPONENTS[type] || P

@@ -474,3 +474,75 @@ test("renders links with bold and italic inside link text", async () => {
   assert(html.includes("<em>italic</em>"))
   assert(html.includes("</a>"))
 })
+
+test("renders horizontal rule with dashes", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "---"
+  const html = template(markdown)
+  assert(html.includes("<hr>"))
+})
+
+test("renders horizontal rule with asterisks", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "***"
+  const html = template(markdown)
+  assert(html.includes("<hr>"))
+})
+
+test("renders horizontal rule with underscores", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "___"
+  const html = template(markdown)
+  assert(html.includes("<hr>"))
+})
+
+test("renders horizontal rule with spaces", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "* * *"
+  const html = template(markdown)
+  assert(html.includes("<hr>"))
+})
+
+test("renders horizontal rule with many characters", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "-------"
+  const html = template(markdown)
+  assert(html.includes("<hr>"))
+})
+
+test("renders horizontal rule between paragraphs", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+First paragraph
+
+---
+
+Second paragraph
+  `
+  const html = template(markdown)
+  assert(html.includes("<p>First paragraph</p>"))
+  assert(html.includes("<hr>"))
+  assert(html.includes("<p>Second paragraph</p>"))
+})
+
+test("renders multiple horizontal rules", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+Section 1
+
+---
+
+Section 2
+
+***
+
+Section 3
+  `
+  const html = template(markdown)
+  const hrCount = (html.match(/<hr>/g) || []).length
+  assert.strictEqual(hrCount, 2, "Should have exactly two <hr> tags")
+  assert(html.includes("<p>Section 1</p>"))
+  assert(html.includes("<p>Section 2</p>"))
+  assert(html.includes("<p>Section 3</p>"))
+})
+
