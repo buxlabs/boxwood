@@ -212,3 +212,57 @@ test("handles double asterisk at end", () => {
   assert.strictEqual(result[0], "text")
   assert.strictEqual(result[1], "*")
 })
+
+test("formats autolink with URL", () => {
+  const result = format("Visit <https://example.com> here", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "Visit ")
+  assert.strictEqual(result[1].type, "a")
+  assert.strictEqual(result[1].props.href, "https://example.com")
+  assert.strictEqual(result[1].children, "https://example.com")
+  assert.strictEqual(result[2], " here")
+})
+
+test("formats autolink with email", () => {
+  const result = format("Email <user@example.com> now", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[1].type, "a")
+  assert.strictEqual(result[1].props.href, "mailto:user@example.com")
+  assert.strictEqual(result[1].children, "user@example.com")
+})
+
+test("formats autolink with http protocol", () => {
+  const result = format("<http://example.com>", mockComponents)
+  assert.strictEqual(result[0].type, "a")
+  assert.strictEqual(result[0].props.href, "http://example.com")
+})
+
+test("handles invalid autolink (no protocol)", () => {
+  const result = format("<not-a-url>", mockComponents)
+  assert(Array.isArray(result))
+  // Should treat as regular text
+  assert.strictEqual(result[0], "<")
+})
+
+test("handles incomplete autolink", () => {
+  const result = format("<https://example.com", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0], "<")
+})
+
+test("formats multiple autolinks", () => {
+  const result = format("<https://a.com> and <https://b.com>", mockComponents)
+  assert(Array.isArray(result))
+  assert.strictEqual(result[0].type, "a")
+  assert.strictEqual(result[0].props.href, "https://a.com")
+  assert.strictEqual(result[2].type, "a")
+  assert.strictEqual(result[2].props.href, "https://b.com")
+})
+
+test("handles autolink with invalid email", () => {
+  const result = format("<not-an-email>", mockComponents)
+  assert(Array.isArray(result))
+  // Should not create a link
+  assert.strictEqual(result[0], "<")
+})
+

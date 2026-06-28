@@ -14,7 +14,8 @@ function format(text, components) {
     !text.includes("*") &&
     !text.includes("`") &&
     !text.includes("[") &&
-    !text.includes("!")
+    !text.includes("!") &&
+    !text.includes("<")
   ) {
     return text
   }
@@ -62,6 +63,31 @@ function format(text, components) {
       // Not a valid link, treat as regular text
       result.push(text[i])
       i++
+    } else if (text[i] === "<") {
+      // Try to parse autolink <url> or <email>
+      const end = text.indexOf(">", i + 1)
+      
+      if (end !== -1) {
+        const content = text.substring(i + 1, end)
+        
+        // Check if it's a URL (starts with http:// or https://)
+        if (content.startsWith("http://") || content.startsWith("https://")) {
+          result.push(A({ href: content }, content))
+          i = end + 1
+          continue
+        }
+        
+        // Check if it's an email (contains @ and looks like email)
+        if (content.includes("@") && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content)) {
+          result.push(A({ href: `mailto:${content}` }, content))
+          i = end + 1
+          continue
+        }
+      }
+      
+      // Not a valid autolink, treat as regular text
+      result.push(text[i])
+      i++
     } else if (text[i] === "`") {
       const end = text.indexOf("`", i + 1)
       if (end === -1) {
@@ -95,6 +121,7 @@ function format(text, components) {
         text.indexOf("`", i),
         text.indexOf("*", i),
         text.indexOf("[", i),
+        text.indexOf("<", i),
       ].filter((pos) => pos !== -1)
 
       // Look for image pattern ![

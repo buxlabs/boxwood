@@ -794,3 +794,61 @@ function test() {
   assert(html.includes("  if (true)"))
   assert(html.includes("    return 1"))
 })
+
+test("renders autolink with angle brackets (URL)", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Visit <https://example.com> for more"
+  const html = template(markdown)
+  assert(html.includes('<a href="https://example.com">https://example.com</a>'))
+})
+
+test("renders autolink with angle brackets (email)", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Contact <user@example.com> for help"
+  const html = template(markdown)
+  assert(html.includes('<a href="mailto:user@example.com">user@example.com</a>'))
+})
+
+test("renders multiple autolinks", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "See <https://a.com> and <https://b.com>"
+  const html = template(markdown)
+  assert(html.includes('<a href="https://a.com">https://a.com</a>'))
+  assert(html.includes('<a href="https://b.com">https://b.com</a>'))
+})
+
+test("renders autolinks in lists", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+- Check <https://example.com>
+- Email <admin@example.com>
+  `
+  const html = template(markdown)
+  assert(html.includes('<a href="https://example.com">https://example.com</a>'))
+  assert(html.includes('<a href="mailto:admin@example.com">admin@example.com</a>'))
+})
+
+test("renders autolinks with http protocol", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "Visit <http://example.com>"
+  const html = template(markdown)
+  assert(html.includes('<a href="http://example.com">http://example.com</a>'))
+})
+
+test("handles invalid autolink syntax", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "<not a url or email>"
+  const html = template(markdown)
+  // Should be treated as plain text and HTML-escaped
+  assert(html.includes("&lt;not a url or email&gt;"))
+})
+
+test("renders autolinks mixed with other formatting", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = "**Important**: visit <https://example.com> for **details**"
+  const html = template(markdown)
+  assert(html.includes("<strong>Important</strong>"))
+  assert(html.includes('<a href="https://example.com">https://example.com</a>'))
+  assert(html.includes("<strong>details</strong>"))
+})
+
