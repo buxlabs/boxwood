@@ -592,7 +592,9 @@ test("renders image with URL containing special characters", async () => {
   const { template } = await compile(__dirname)
   const markdown = "![logo](https://example.com/images/logo.png)"
   const html = template(markdown)
-  assert(html.includes('<img src="https://example.com/images/logo.png" alt="logo">'))
+  assert(
+    html.includes('<img src="https://example.com/images/logo.png" alt="logo">'),
+  )
 })
 
 test("handles invalid image syntax", async () => {
@@ -618,7 +620,7 @@ test("renders image inside link", async () => {
   const html = template(markdown)
   assert(html.includes('<a href="/link">'))
   assert(html.includes('<img src="/image.png" alt="alt text">'))
-  assert(html.includes('</a>'))
+  assert(html.includes("</a>"))
 })
 
 test("renders image inside link with surrounding text", async () => {
@@ -627,7 +629,7 @@ test("renders image inside link with surrounding text", async () => {
   const html = template(markdown)
   assert(html.includes('<a href="/home">'))
   assert(html.includes('<img src="/icon.png" alt="icon">'))
-  assert(html.includes('</a>'))
+  assert(html.includes("</a>"))
 })
 
 test("renders multiple images inside links", async () => {
@@ -643,12 +645,8 @@ test("renders link with image and text", async () => {
   const markdown = "[Click ![icon](/icon.png) here](/url)"
   const html = template(markdown)
   assert(html.includes('<a href="/url">'))
-  assert(html.includes('Click '))
+  assert(html.includes("Click "))
   assert(html.includes('<img src="/icon.png" alt="icon">'))
-  assert(html.includes(' here'))
-  assert(html.includes('</a>'))
+  assert(html.includes(" here"))
+  assert(html.includes("</a>"))
 })
-
-
-
-

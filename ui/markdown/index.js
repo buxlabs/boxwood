@@ -19,6 +19,8 @@ const {
   Img,
 } = require("../..")
 
+const { findMatchingBracket } = require("./utilities/brackets")
+
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
 const UNORDERED_MARKERS = ["- ", "— ", "– ", "• "]
 const HORIZONTAL_RULE_REGEXP = /^(?:\*\s*\*\s*\*+|-\s*-\s*-+|_\s*_\s*_+)\s*$/
@@ -41,28 +43,13 @@ const COMPONENTS = {
   hr: Hr,
 }
 
-// Find the matching closing bracket, accounting for nested brackets
-function findMatchingBracket(text, startPos) {
-  let depth = 1
-  let i = startPos + 1
-  
-  while (i < text.length && depth > 0) {
-    if (text[i] === "[" && text[i - 1] !== "\\") {
-      depth++
-    } else if (text[i] === "]" && text[i - 1] !== "\\") {
-      depth--
-      if (depth === 0) {
-        return i
-      }
-    }
-    i++
-  }
-  
-  return -1
-}
-
 function format(text) {
-  if (!text.includes("*") && !text.includes("`") && !text.includes("[") && !text.includes("!")) {
+  if (
+    !text.includes("*") &&
+    !text.includes("`") &&
+    !text.includes("[") &&
+    !text.includes("!")
+  ) {
     return text
   }
 
@@ -73,10 +60,10 @@ function format(text) {
     if (text[i] === "!" && text[i + 1] === "[") {
       // Try to parse markdown image ![alt](url)
       const altEnd = text.indexOf("]", i + 2)
-      
+
       if (altEnd !== -1 && text[altEnd + 1] === "(") {
         const urlEnd = text.indexOf(")", altEnd + 2)
-        
+
         if (urlEnd !== -1) {
           const alt = text.substring(i + 2, altEnd)
           const src = text.substring(altEnd + 2, urlEnd)
@@ -85,7 +72,7 @@ function format(text) {
           continue
         }
       }
-      
+
       // Not a valid image, treat as regular text (skip both ! and [)
       result.push(text[i])
       i++
@@ -143,7 +130,7 @@ function format(text) {
         text.indexOf("*", i),
         text.indexOf("[", i),
       ].filter((pos) => pos !== -1)
-      
+
       // Look for image pattern ![
       const exclamPos = text.indexOf("!", i)
       if (exclamPos !== -1 && text[exclamPos + 1] === "[") {
