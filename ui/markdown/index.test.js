@@ -806,7 +806,9 @@ test("renders autolink with angle brackets (email)", async () => {
   const { template } = await compile(__dirname)
   const markdown = "Contact <user@example.com> for help"
   const html = template(markdown)
-  assert(html.includes('<a href="mailto:user@example.com">user@example.com</a>'))
+  assert(
+    html.includes('<a href="mailto:user@example.com">user@example.com</a>'),
+  )
 })
 
 test("renders multiple autolinks", async () => {
@@ -825,7 +827,9 @@ test("renders autolinks in lists", async () => {
   `
   const html = template(markdown)
   assert(html.includes('<a href="https://example.com">https://example.com</a>'))
-  assert(html.includes('<a href="mailto:admin@example.com">admin@example.com</a>'))
+  assert(
+    html.includes('<a href="mailto:admin@example.com">admin@example.com</a>'),
+  )
 })
 
 test("renders autolinks with http protocol", async () => {
@@ -897,8 +901,11 @@ test("escapes angle brackets for autolinks", async () => {
   const markdown = "This is \\<not an autolink\\>"
   const html = template(markdown)
   // Angle brackets are HTML-escaped in output
-  assert(html.includes("&lt;not an autolink&gt;") || html.includes("<not an autolink>"))
-  assert(!html.includes('<a href'))
+  assert(
+    html.includes("&lt;not an autolink&gt;") ||
+      html.includes("<not an autolink>"),
+  )
+  assert(!html.includes("<a href"))
 })
 
 test("handles mixed escaped and unescaped formatting", async () => {
@@ -1041,4 +1048,344 @@ test("nested markdown with escapes - bold link with escaped bracket", async () =
   assert(html.includes("]"))
 })
 
+// Custom components and data variables tests
+const Markdown = require("./index")
+const { Div, Span } = require("../..")
 
+// Helper to convert tree to HTML
+function toHTML(tree) {
+  if (Array.isArray(tree)) {
+    return tree.map(toHTML).join("")
+  }
+  if (tree === null || tree === undefined) {
+    return ""
+  }
+  if (typeof tree !== "object") {
+    return String(tree)
+  }
+  if (tree.name) {
+    const attrs = tree.attributes
+      ? Object.entries(tree.attributes)
+          .map(([k, v]) => {
+            if (v === null || v === undefined) return ""
+            return ` ${k}="${v}"`
+          })
+          .filter(Boolean)
+          .join("")
+      : ""
+    const children = tree.children ? toHTML(tree.children) : ""
+    if (tree.void) {
+      return `<${tree.name}${attrs}>`
+    }
+    return `<${tree.name}${attrs}>${children}</${tree.name}>`
+  }
+  return ""
+}
+
+// Test components
+const Alert = (props, children) => {
+  const type = (props && props.type) || "info"
+  return Div({ class: `alert alert-${type}` }, children)
+}
+
+const Button = (props) => {
+  const variant = (props && props.variant) || "default"
+  const text = (props && props.text) || "Button"
+  return Div({ class: `btn btn-${variant}` }, text)
+}
+
+const Card = (props, children) => {
+  const title = props && props.title
+  const content = title
+    ? [
+        Div({ class: "card-title" }, title),
+        ...(Array.isArray(children) ? children : [children]),
+      ]
+    : children
+  return Div({ class: "card" }, content)
+}
+
+test("renders custom self-closing component", () => {
+  const result = Markdown(
+    {
+      components: { Button },
+    },
+    "<Button />",
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="btn btn-default">Button</div>'))
+})
+
+test("renders custom self-closing component with attributes", () => {
+  const result = Markdown(
+    {
+      components: { Button },
+    },
+    '<Button variant="primary" text="Click me" />',
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="btn btn-primary">Click me</div>'))
+})
+
+test("renders custom component with children", () => {
+  const result = Markdown(
+    {
+      components: { Alert },
+    },
+    `
+<Alert type="warning">
+This is a warning message!
+</Alert>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="alert alert-warning">'))
+  assert(html.includes("This is a warning message!"))
+})
+
+test("renders custom component with markdown in children", () => {
+  const result = Markdown(
+    {
+      components: { Alert },
+    },
+    `
+<Alert type="info">
+This is **bold** and *italic* text.
+</Alert>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="alert alert-info">'))
+  assert(html.includes("<strong>bold</strong>"))
+  assert(html.includes("<em>italic</em>"))
+})
+
+test("renders variable in text", () => {
+  const result = Markdown(
+    {
+      data: { name: "John" },
+    },
+    "Hello {name}!",
+  )
+  const html = toHTML(result)
+  assert(html.includes("Hello John!"))
+})
+
+test("renders multiple variables", () => {
+  const result = Markdown(
+    {
+      data: { name: "Alice", count: 5 },
+    },
+    "Hello {name}, you have {count} messages.",
+  )
+  const html = toHTML(result)
+  assert(html.includes("Hello Alice, you have 5 messages."))
+})
+
+test("renders variable in component attribute", () => {
+  const result = Markdown(
+    {
+      components: { Alert },
+      data: { alertType: "warning" },
+    },
+    `
+<Alert type={alertType}>
+Message
+</Alert>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="alert alert-warning">'))
+})
+
+test("renders variables in text and components together", () => {
+  const result = Markdown(
+    {
+      components: { Alert },
+      data: { userName: "Bob", alertType: "success" },
+    },
+    `
+# Welcome {userName}!
+
+<Alert type={alertType}>
+Hello **{userName}**!
+</Alert>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes("<h1>Welcome Bob!</h1>"))
+  assert(html.includes('<div class="alert alert-success">'))
+  assert(html.includes("Hello <strong>Bob</strong>!"))
+})
+
+test("handles missing variable in text", () => {
+  const result = Markdown(
+    {
+      data: {},
+    },
+    "Hello {name}!",
+  )
+  const html = toHTML(result)
+  assert(html.includes("Hello {name}!"))
+})
+
+test("handles escaped variable", () => {
+  const result = Markdown(
+    {
+      data: { name: "John" },
+    },
+    "Literal \\{name} and actual {name}",
+  )
+  const html = toHTML(result)
+  assert(html.includes("Literal {name} and actual John"))
+})
+
+test("renders custom component with nested markdown", () => {
+  const result = Markdown(
+    {
+      components: { Card },
+    },
+    `
+<Card title="My Card">
+## Heading
+
+This is a paragraph with a [link](http://example.com).
+
+- Item 1
+- Item 2
+</Card>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="card">'))
+  assert(html.includes('<div class="card-title">My Card</div>'))
+  assert(html.includes("<h2>Heading</h2>"))
+  assert(html.includes('<a href="http://example.com">link</a>'))
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>Item 1</li>"))
+})
+
+test("renders multiple custom components", () => {
+  const result = Markdown(
+    {
+      components: { Alert, Button },
+    },
+    `
+# Title
+
+<Alert type="info">
+Important information
+</Alert>
+
+<Button variant="primary" text="Click" />
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<div class="alert alert-info">'))
+  assert(html.includes("Important information"))
+  assert(html.includes('<div class="btn btn-primary">Click</div>'))
+})
+
+test("renders kebab-case component names", () => {
+  const CustomTag = (props) => Div({ class: "custom" }, "Custom")
+  const result = Markdown(
+    {
+      components: { "custom-tag": CustomTag },
+    },
+    "<custom-tag />",
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="custom">Custom</div>'))
+})
+
+test("renders nested custom components", () => {
+  const Outer = (props, children) => Div({ class: "outer" }, children)
+  const Inner = (props, children) => Span({ class: "inner" }, children)
+  const result = Markdown(
+    {
+      components: { Outer, Inner },
+    },
+    `
+<Outer>
+<Inner>
+Nested content
+</Inner>
+</Outer>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="outer">'))
+  assert(html.includes('<span class="inner">'))
+  assert(html.includes("Nested content"))
+})
+
+test("handles numeric data values", () => {
+  const result = Markdown(
+    {
+      data: { count: 42, price: 99.99, zero: 0 },
+    },
+    "Count: {count}, Price: {price}, Zero: {zero}",
+  )
+  const html = toHTML(result)
+  assert(html.includes("Count: 42, Price: 99.99, Zero: 0"))
+})
+
+test("handles boolean attributes", () => {
+  const Widget = (props) => {
+    const disabled = props && props.disabled
+    const className = disabled ? "widget disabled" : "widget"
+    return Div({ class: className }, "Widget")
+  }
+  const result = Markdown(
+    {
+      components: { Widget },
+    },
+    "<Widget disabled />",
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="widget disabled">'))
+})
+
+test("ignores unknown component tags", () => {
+  const result = Markdown(
+    {
+      components: { Alert },
+    },
+    `
+<UnknownComponent />
+
+<Alert type="info">
+Known component
+</Alert>
+  `,
+  )
+  const html = toHTML(result)
+  // Unknown components are treated as regular text
+  assert(html.includes("UnknownComponent"))
+  assert(html.includes('<div class="alert alert-info">'))
+  assert(html.includes("Known component"))
+})
+
+test("works without custom components", () => {
+  const result = Markdown({}, "# Title\n\nRegular markdown content")
+  const html = toHTML(result)
+  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes("Regular markdown content"))
+})
+
+test("works without data", () => {
+  const result = Markdown(
+    {
+      components: { Alert },
+    },
+    `
+<Alert type="info">
+No variables here
+</Alert>
+  `,
+  )
+  const html = toHTML(result)
+  assert(html.includes('<div class="alert alert-info">'))
+  assert(html.includes("No variables here"))
+})

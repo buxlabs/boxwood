@@ -21,6 +21,11 @@ const {
 } = require("../..")
 
 const { format } = require("./utilities/format")
+const {
+  parseCustomTag,
+  resolveAttributes,
+} = require("./utilities/parseCustomTag")
+const { replaceVariables } = require("./utilities/replaceVariables")
 
 const ORDERED_LIST_REGEXP = /^\d+\.\s/
 const UNORDERED_MARKERS = ["- ", "— ", "– ", "• "]
@@ -55,6 +60,19 @@ function Markdown(params, children) {
     return null
   }
 
+  const customComponents = params && params.components
+  const data = params && params.data
+
+  // Filter out special params that shouldn't be passed to HTML elements
+  const htmlParams = params
+    ? Object.keys(params).reduce((acc, key) => {
+        if (key !== "components" && key !== "data") {
+          acc[key] = params[key]
+        }
+        return acc
+      }, {})
+    : {}
+
   // First pass: detect code blocks before processing lines
   const allLines = children.trim().split("\n")
   const items = []
@@ -63,6 +81,68 @@ function Markdown(params, children) {
   while (i < allLines.length) {
     const line = allLines[i]
     const trimmed = line.trim()
+
+    // Check for custom component tags first
+    const customTag = parseCustomTag(line, customComponents)
+    if (customTag) {
+      if (customTag.type === "custom-component" && customTag.selfClosing) {
+        // Self-closing custom component
+        items.push({
+          type: "custom-component",
+          tagName: customTag.tagName,
+          component: customTag.component,
+          attributes: customTag.attributes,
+          selfClosing: true,
+          indent: line.length - line.trimStart().length,
+        })
+        i++
+        continue
+      } else if (customTag.type === "custom-component-open") {
+        // Opening tag of a custom component
+        const openIndent = line.length - line.trimStart().length
+        const tagName = customTag.tagName
+        const componentFn = customTag.component
+        const attributes = customTag.attributes
+        const contentLines = []
+        i++ // Move past opening tag
+
+        // Collect content until closing tag
+        let depth = 1
+        while (i < allLines.length && depth > 0) {
+          const contentLine = allLines[i]
+          const contentTag = parseCustomTag(contentLine, customComponents)
+
+          if (contentTag && contentTag.tagName === tagName) {
+            if (contentTag.type === "custom-component-open") {
+              depth++
+              contentLines.push(contentLine)
+            } else if (contentTag.type === "custom-component-close") {
+              depth--
+              if (depth === 0) {
+                // Found matching closing tag
+                i++
+                break
+              }
+              contentLines.push(contentLine)
+            }
+          } else {
+            contentLines.push(contentLine)
+          }
+          i++
+        }
+
+        items.push({
+          type: "custom-component",
+          tagName,
+          component: componentFn,
+          attributes,
+          content: contentLines.join("\n"),
+          selfClosing: false,
+          indent: openIndent,
+        })
+        continue
+      }
+    }
 
     // Check for code block start
     if (trimmed.startsWith("```")) {
@@ -169,7 +249,8 @@ function Markdown(params, children) {
       }
 
       // Process current item at the correct indent level
-      const content = [format(item.content, INLINE_COMPONENTS)]
+      const processedContent = replaceVariables(item.content, data)
+      const content = [format(processedContent, INLINE_COMPONENTS)]
       currentIndex++
 
       // Check if next item is a nested list
@@ -180,11 +261,11 @@ function Markdown(params, children) {
         currentIndex = nestedResult.nextIndex
       }
 
-      list.push(Li(params, content))
+      list.push(Li(htmlParams, content))
     }
 
     const listElement =
-      parentListType === "ul" ? Ul(params, list) : Ol(params, list)
+      parentListType === "ul" ? Ul(htmlParams, list) : Ol(htmlParams, list)
 
     return { list: listElement, nextIndex: currentIndex }
   }
@@ -192,7 +273,20 @@ function Markdown(params, children) {
   while (i < items.length) {
     const item = items[i]
 
-    if (item.type === "li") {
+    if (item.type === "custom-component") {
+      // Handle custom component
+      const resolvedAttrs = resolveAttributes(item.attributes, data)
+
+      if (item.selfClosing) {
+        // Self-closing component
+        nodes.push(item.component(resolvedAttrs))
+      } else {
+        // Component with children - recursively process markdown content
+        const childContent = item.content ? Markdown(params, item.content) : []
+        nodes.push(item.component(resolvedAttrs, childContent))
+      }
+      i++
+    } else if (item.type === "li") {
       const result = parseList(i, item.indent)
       nodes.push(result.list)
       i = result.nextIndex
@@ -204,26 +298,30 @@ function Markdown(params, children) {
         i++
       }
 
+      const content = replaceVariables(lines.join("\n"), data)
       nodes.push(
         Blockquote(
-          params,
-          P(params, format(lines.join("\n"), INLINE_COMPONENTS)),
+          htmlParams,
+          P(htmlParams, format(content, INLINE_COMPONENTS)),
         ),
       )
     } else if (item.type === "hr") {
-      nodes.push(Hr(params))
+      nodes.push(Hr(htmlParams))
       i++
     } else if (item.type === "pre") {
       // Code blocks - wrap in <pre><code>
       const codeParams = item.language
         ? { class: `language-${item.language}` }
         : {}
-      nodes.push(Pre(params, Code(codeParams, item.content)))
+      nodes.push(Pre(htmlParams, Code(codeParams, item.content)))
       i++
     } else {
       const { type, content } = item
       const Component = COMPONENTS[type] || P
-      nodes.push(Component(params, format(content, INLINE_COMPONENTS)))
+      const processedContent = replaceVariables(content, data)
+      nodes.push(
+        Component(htmlParams, format(processedContent, INLINE_COMPONENTS)),
+      )
       i++
     }
   }
