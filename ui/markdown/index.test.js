@@ -1093,7 +1093,7 @@ test("renders custom self-closing component with attributes", async () => {
     },
     '<Button variant="primary" text="Click me" />',
   )
-  
+
   assert(html.includes('<div class="btn btn-primary">Click me</div>'))
 })
 
@@ -1109,7 +1109,7 @@ This is a warning message!
 </Alert>
   `,
   )
-  
+
   assert(html.includes('<div class="alert alert-warning">'))
   assert(html.includes("This is a warning message!"))
 })
@@ -1126,7 +1126,7 @@ This is **bold** and *italic* text.
 </Alert>
   `,
   )
-  
+
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("<strong>bold</strong>"))
   assert(html.includes("<em>italic</em>"))
@@ -1140,7 +1140,7 @@ test("renders variable in text", async () => {
     },
     "Hello {name}!",
   )
-  
+
   assert(html.includes("Hello John!"))
 })
 
@@ -1168,7 +1168,7 @@ Message
 </Alert>
   `,
   )
-  
+
   assert(html.includes('<div class="alert alert-warning">'))
 })
 
@@ -1187,7 +1187,7 @@ Hello **{userName}**!
 </Alert>
   `,
   )
-  
+
   assert(html.includes("<h1>Welcome Bob!</h1>"))
   assert(html.includes('<div class="alert alert-success">'))
   assert(html.includes("Hello <strong>Bob</strong>!"))
@@ -1201,7 +1201,7 @@ test("handles missing variable in text", async () => {
     },
     "Hello {name}!",
   )
-  
+
   assert(html.includes("Hello {name}!"))
 })
 
@@ -1213,7 +1213,7 @@ test("handles escaped variable", async () => {
     },
     "Literal \\{name} and actual {name}",
   )
-  
+
   assert(html.includes("Literal {name} and actual John"))
 })
 
@@ -1234,7 +1234,7 @@ This is a paragraph with a [link](http://example.com).
 </Card>
   `,
   )
-  
+
   assert(html.includes('<div class="card">'))
   assert(html.includes('<div class="card-title">My Card</div>'))
   assert(html.includes("<h2>Heading</h2>"))
@@ -1306,7 +1306,7 @@ test("handles numeric data values", async () => {
     },
     "Count: {count}, Price: {price}, Zero: {zero}",
   )
-  
+
   assert(html.includes("Count: 42, Price: 99.99, Zero: 0"))
 })
 
@@ -1323,7 +1323,7 @@ test("handles boolean attributes", async () => {
     },
     "<Widget disabled />",
   )
-  
+
   assert(html.includes('<div class="widget disabled">'))
 })
 
@@ -1341,7 +1341,7 @@ Known component
 </Alert>
   `,
   )
-  
+
   // Unknown components are treated as regular text
   assert(html.includes("UnknownComponent"))
   assert(html.includes('<div class="alert alert-info">'))
@@ -1351,7 +1351,7 @@ Known component
 test("works without custom components", async () => {
   const { template } = await compile(__dirname)
   const html = template({}, "# Title\n\nRegular markdown content")
-  
+
   assert(html.includes("<h1>Title</h1>"))
   assert(html.includes("Regular markdown content"))
 })
@@ -1368,7 +1368,7 @@ No variables here
 </Alert>
   `,
   )
-  
+
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("No variables here"))
 })
