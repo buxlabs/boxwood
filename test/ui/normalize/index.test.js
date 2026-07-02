@@ -24,6 +24,12 @@ test("normalizeBreakpoint: returns other strings as-is", () => {
   assert.strictEqual(normalizeBreakpoint("500px"), "500px")
 })
 
+test("normalizeBreakpoint: converts string numbers to px string", () => {
+  assert.strictEqual(normalizeBreakpoint("768"), "768px")
+  assert.strictEqual(normalizeBreakpoint("1024"), "1024px")
+  assert.strictEqual(normalizeBreakpoint("0"), "0px")
+})
+
 test("normalizeGap: converts number to px string", () => {
   assert.strictEqual(normalizeGap(16), "16px")
 })
@@ -41,12 +47,35 @@ test("normalizeGap: returns other strings as-is", () => {
   assert.strictEqual(normalizeGap("20px"), "20px")
 })
 
+test("normalizeGap: converts string numbers to px string", () => {
+  assert.strictEqual(normalizeGap("16"), "16px")
+  assert.strictEqual(normalizeGap("32"), "32px")
+  assert.strictEqual(normalizeGap("0"), "0px")
+})
+
+test("normalizeGap: preserves complex string values", () => {
+  assert.strictEqual(normalizeGap("1rem 2rem"), "1rem 2rem")
+  assert.strictEqual(normalizeGap("10px 20px"), "10px 20px")
+})
+
 test("normalizeWidth: converts number to px string", () => {
   assert.strictEqual(normalizeWidth(1200), "1200px")
 })
 
 test("normalizeWidth: returns strings as-is", () => {
   assert.strictEqual(normalizeWidth("100%"), "100%")
+})
+
+test("normalizeWidth: converts string numbers to px string", () => {
+  assert.strictEqual(normalizeWidth("1200"), "1200px")
+  assert.strictEqual(normalizeWidth("500"), "500px")
+  assert.strictEqual(normalizeWidth("0"), "0px")
+})
+
+test("normalizeWidth: preserves complex string values", () => {
+  assert.strictEqual(normalizeWidth("50%"), "50%")
+  assert.strictEqual(normalizeWidth("calc(100% - 20px)"), "calc(100% - 20px)")
+  assert.strictEqual(normalizeWidth("auto"), "auto")
 })
 
 test("normalizeSpacing: converts number to px string", () => {
@@ -64,6 +93,18 @@ test("normalizeSpacing: maps named spacing", () => {
 
 test("normalizeSpacing: returns other strings as-is", () => {
   assert.strictEqual(normalizeSpacing("1.5rem"), "1.5rem")
+})
+
+test("normalizeSpacing: converts string numbers to px string", () => {
+  assert.strictEqual(normalizeSpacing("32"), "32px")
+  assert.strictEqual(normalizeSpacing("16"), "16px")
+  assert.strictEqual(normalizeSpacing("0"), "0px")
+})
+
+test("normalizeSpacing: preserves complex string values", () => {
+  assert.strictEqual(normalizeSpacing("1rem 2rem"), "1rem 2rem")
+  assert.strictEqual(normalizeSpacing("10px 20px 30px 40px"), "10px 20px 30px 40px")
+  assert.strictEqual(normalizeSpacing("auto"), "auto")
 })
 
 test("normalizeFlex: maps start and end", () => {

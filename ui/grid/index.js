@@ -1,5 +1,6 @@
 const { component, css, Div } = require("../..")
 const { normalizeGap, normalizeBreakpoint } = require("../normalize")
+const { toNumber } = require("../normalize")
 
 const BREAKPOINTS = {
   xl: "1199px",
@@ -15,6 +16,9 @@ function Grid(
   gap = normalizeGap(gap)
   breakpoint = normalizeBreakpoint(breakpoint)
 
+  // Normalize columns: convert string numbers to numbers
+  columns = toNumber(columns)
+
   const styleObject = {
     "box-sizing": "border-box",
     display: "grid",
@@ -27,10 +31,11 @@ function Grid(
     }),
     ...(typeof columns === "object" &&
       Object.keys(columns).reduce((object, key) => {
-        const value =
-          typeof columns[key] === "number"
-            ? `repeat(${columns[key]}, 1fr)`
-            : columns[key]
+        let value = toNumber(columns[key])
+        value =
+          typeof value === "number"
+            ? `repeat(${value}, 1fr)`
+            : value
         if (key === "default") {
           object["grid-template-columns"] = value
         } else if (typeof key === "string") {

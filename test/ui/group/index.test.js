@@ -126,3 +126,43 @@ test('supports numeric "breakpoint" prop', async () => {
   let html = template({ breakpoint: 1023 })
   assert(html.includes("@media (max-width:1023px)"))
 })
+
+test('supports string number "gap" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ gap: "40" })
+  assert(html.includes("gap:40px"))
+})
+
+test('supports string number "width" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ width: "300" })
+  assert(html.includes("width:300px"))
+})
+
+test('supports string number "padding" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ padding: "20" })
+  assert(html.includes("padding:20px"))
+})
+
+test('supports string number "margin" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ margin: "15" })
+  assert(html.includes("margin:15px"))
+})
+
+test('supports string number "breakpoint" prop', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ breakpoint: "1023" })
+  assert(html.includes("@media (max-width:1023px)"))
+})
+
+test('preserves non-numeric string values', async () => {
+  const { template } = await compile(__dirname)
+  let html = template({ gap: "1rem 2rem", width: "100%", padding: "1em", margin: "auto" })
+  assert(html.includes("gap:1rem 2rem"))
+  assert(html.includes("width:100%"))
+  assert(html.includes("padding:1em"))
+  assert(html.includes("margin:auto"))
+})
+

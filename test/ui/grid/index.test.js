@@ -148,3 +148,35 @@ test("applies breakpoint", async () => {
   assert(html.includes("@media (max-width:768px)"))
   assert(html.includes("grid-template-columns:1fr"))
 })
+
+test("applies columns as object with mixed string and number values", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({
+    columns: {
+      default: "3",
+      lg: 2,
+      md: "1",
+    },
+  })
+  assert(html.includes("grid-template-columns:repeat(3,1fr)"))
+  assert(html.includes("@media (max-width:1023px)"))
+  assert(html.includes("grid-template-columns:repeat(2,1fr)"))
+  assert(html.includes("@media (max-width:767px)"))
+  assert(html.includes("grid-template-columns:repeat(1,1fr)"))
+})
+
+test("distinguishes string numbers from template strings in responsive columns", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({
+    columns: {
+      default: "3",
+      lg: "200px 1fr",
+      md: "2",
+    },
+  })
+  assert(html.includes("grid-template-columns:repeat(3,1fr)"))
+  assert(html.includes("@media (max-width:1023px)"))
+  assert(html.includes("grid-template-columns:200px 1fr"))
+  assert(html.includes("@media (max-width:767px)"))
+  assert(html.includes("grid-template-columns:repeat(2,1fr)"))
+})

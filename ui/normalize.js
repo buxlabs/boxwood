@@ -1,3 +1,28 @@
+/**
+ * Converts string numbers to integers
+ * @param {string|number} value - The value to convert
+ * @returns {number|string} - Integer if string is numeric, otherwise original value
+ */
+function toNumber(value) {
+  if (typeof value === "string" && /^\d+$/.test(value)) {
+    return parseInt(value, 10)
+  }
+  return value
+}
+
+/**
+ * Converts number or string number to pixel value
+ * @param {string|number} value - The value to convert
+ * @returns {string|number} - Value with px suffix if numeric, otherwise original value
+ */
+function toPixels(value) {
+  value = toNumber(value)
+  if (typeof value === "number") {
+    return `${value}px`
+  }
+  return value
+}
+
 function normalizeFlex(align) {
   switch (align) {
     case "start":
@@ -22,15 +47,12 @@ function normalizeGap(gap) {
   if (!gap) {
     return "1rem"
   }
-  if (typeof gap === "number") {
-    return `${gap}px`
-  }
-
+  
   if (GAP_MAP.hasOwnProperty(gap)) {
     return GAP_MAP[gap]
   }
 
-  return gap
+  return toPixels(gap)
 }
 
 const BREAKPOINT_MAP = {
@@ -42,20 +64,14 @@ const BREAKPOINT_MAP = {
 }
 
 function normalizeBreakpoint(breakpoint) {
-  if (typeof breakpoint === "number") {
-    return `${breakpoint}px`
-  }
   if (BREAKPOINT_MAP.hasOwnProperty(breakpoint)) {
     return BREAKPOINT_MAP[breakpoint]
   }
-  return breakpoint
+  return toPixels(breakpoint)
 }
 
 function normalizeWidth(width) {
-  if (typeof width === "number") {
-    return `${width}px`
-  }
-  return width
+  return toPixels(width)
 }
 
 const SPACING_MAP = {
@@ -68,16 +84,15 @@ const SPACING_MAP = {
 }
 
 function normalizeSpacing(spacing) {
-  if (typeof spacing === "number") {
-    return `${spacing}px`
-  }
   if (SPACING_MAP.hasOwnProperty(spacing)) {
     return SPACING_MAP[spacing]
   }
-  return spacing
+  return toPixels(spacing)
 }
 
 module.exports = {
+  toNumber,
+  toPixels,
   normalizeFlex,
   normalizeGap,
   normalizeBreakpoint,
