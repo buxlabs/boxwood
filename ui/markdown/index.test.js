@@ -1049,40 +1049,9 @@ test("nested markdown with escapes - bold link with escaped bracket", async () =
 })
 
 // Custom components and data variables tests
-const Markdown = require("./index")
 const { Div, Span } = require("../..")
 
-// Helper to convert tree to HTML
-function toHTML(tree) {
-  if (Array.isArray(tree)) {
-    return tree.map(toHTML).join("")
-  }
-  if (tree === null || tree === undefined) {
-    return ""
-  }
-  if (typeof tree !== "object") {
-    return String(tree)
-  }
-  if (tree.name) {
-    const attrs = tree.attributes
-      ? Object.entries(tree.attributes)
-          .map(([k, v]) => {
-            if (v === null || v === undefined) return ""
-            return ` ${k}="${v}"`
-          })
-          .filter(Boolean)
-          .join("")
-      : ""
-    const children = tree.children ? toHTML(tree.children) : ""
-    if (tree.void) {
-      return `<${tree.name}${attrs}>`
-    }
-    return `<${tree.name}${attrs}>${children}</${tree.name}>`
-  }
-  return ""
-}
-
-// Test components
+// Test components for custom component tests
 const Alert = (props, children) => {
   const type = (props && props.type) || "info"
   return Div({ class: `alert alert-${type}` }, children)
@@ -1105,30 +1074,32 @@ const Card = (props, children) => {
   return Div({ class: "card" }, content)
 }
 
-test("renders custom self-closing component", () => {
-  const result = Markdown(
+test("renders custom self-closing component", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Button },
     },
     "<Button />",
   )
-  const html = toHTML(result)
   assert(html.includes('<div class="btn btn-default">Button</div>'))
 })
 
-test("renders custom self-closing component with attributes", () => {
-  const result = Markdown(
+test("renders custom self-closing component with attributes", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Button },
     },
     '<Button variant="primary" text="Click me" />',
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="btn btn-primary">Click me</div>'))
 })
 
-test("renders custom component with children", () => {
-  const result = Markdown(
+test("renders custom component with children", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert },
     },
@@ -1138,13 +1109,14 @@ This is a warning message!
 </Alert>
   `,
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="alert alert-warning">'))
   assert(html.includes("This is a warning message!"))
 })
 
-test("renders custom component with markdown in children", () => {
-  const result = Markdown(
+test("renders custom component with markdown in children", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert },
     },
@@ -1154,36 +1126,38 @@ This is **bold** and *italic* text.
 </Alert>
   `,
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("<strong>bold</strong>"))
   assert(html.includes("<em>italic</em>"))
 })
 
-test("renders variable in text", () => {
-  const result = Markdown(
+test("renders variable in text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       data: { name: "John" },
     },
     "Hello {name}!",
   )
-  const html = toHTML(result)
+  
   assert(html.includes("Hello John!"))
 })
 
-test("renders multiple variables", () => {
-  const result = Markdown(
+test("renders multiple variables", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       data: { name: "Alice", count: 5 },
     },
     "Hello {name}, you have {count} messages.",
   )
-  const html = toHTML(result)
   assert(html.includes("Hello Alice, you have 5 messages."))
 })
 
-test("renders variable in component attribute", () => {
-  const result = Markdown(
+test("renders variable in component attribute", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert },
       data: { alertType: "warning" },
@@ -1194,12 +1168,13 @@ Message
 </Alert>
   `,
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="alert alert-warning">'))
 })
 
-test("renders variables in text and components together", () => {
-  const result = Markdown(
+test("renders variables in text and components together", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert },
       data: { userName: "Bob", alertType: "success" },
@@ -1212,36 +1187,39 @@ Hello **{userName}**!
 </Alert>
   `,
   )
-  const html = toHTML(result)
+  
   assert(html.includes("<h1>Welcome Bob!</h1>"))
   assert(html.includes('<div class="alert alert-success">'))
   assert(html.includes("Hello <strong>Bob</strong>!"))
 })
 
-test("handles missing variable in text", () => {
-  const result = Markdown(
+test("handles missing variable in text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       data: {},
     },
     "Hello {name}!",
   )
-  const html = toHTML(result)
+  
   assert(html.includes("Hello {name}!"))
 })
 
-test("handles escaped variable", () => {
-  const result = Markdown(
+test("handles escaped variable", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       data: { name: "John" },
     },
     "Literal \\{name} and actual {name}",
   )
-  const html = toHTML(result)
+  
   assert(html.includes("Literal {name} and actual John"))
 })
 
-test("renders custom component with nested markdown", () => {
-  const result = Markdown(
+test("renders custom component with nested markdown", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Card },
     },
@@ -1256,7 +1234,7 @@ This is a paragraph with a [link](http://example.com).
 </Card>
   `,
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="card">'))
   assert(html.includes('<div class="card-title">My Card</div>'))
   assert(html.includes("<h2>Heading</h2>"))
@@ -1265,8 +1243,9 @@ This is a paragraph with a [link](http://example.com).
   assert(html.includes("<li>Item 1</li>"))
 })
 
-test("renders multiple custom components", () => {
-  const result = Markdown(
+test("renders multiple custom components", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert, Button },
     },
@@ -1280,29 +1259,29 @@ Important information
 <Button variant="primary" text="Click" />
   `,
   )
-  const html = toHTML(result)
   assert(html.includes("<h1>Title</h1>"))
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("Important information"))
   assert(html.includes('<div class="btn btn-primary">Click</div>'))
 })
 
-test("renders kebab-case component names", () => {
+test("renders kebab-case component names", async () => {
   const CustomTag = (props) => Div({ class: "custom" }, "Custom")
-  const result = Markdown(
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { "custom-tag": CustomTag },
     },
     "<custom-tag />",
   )
-  const html = toHTML(result)
   assert(html.includes('<div class="custom">Custom</div>'))
 })
 
-test("renders nested custom components", () => {
+test("renders nested custom components", async () => {
   const Outer = (props, children) => Div({ class: "outer" }, children)
   const Inner = (props, children) => Span({ class: "inner" }, children)
-  const result = Markdown(
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Outer, Inner },
     },
@@ -1314,41 +1293,43 @@ Nested content
 </Outer>
   `,
   )
-  const html = toHTML(result)
   assert(html.includes('<div class="outer">'))
   assert(html.includes('<span class="inner">'))
   assert(html.includes("Nested content"))
 })
 
-test("handles numeric data values", () => {
-  const result = Markdown(
+test("handles numeric data values", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       data: { count: 42, price: 99.99, zero: 0 },
     },
     "Count: {count}, Price: {price}, Zero: {zero}",
   )
-  const html = toHTML(result)
+  
   assert(html.includes("Count: 42, Price: 99.99, Zero: 0"))
 })
 
-test("handles boolean attributes", () => {
+test("handles boolean attributes", async () => {
   const Widget = (props) => {
     const disabled = props && props.disabled
     const className = disabled ? "widget disabled" : "widget"
     return Div({ class: className }, "Widget")
   }
-  const result = Markdown(
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Widget },
     },
     "<Widget disabled />",
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="widget disabled">'))
 })
 
-test("ignores unknown component tags", () => {
-  const result = Markdown(
+test("ignores unknown component tags", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert },
     },
@@ -1360,22 +1341,24 @@ Known component
 </Alert>
   `,
   )
-  const html = toHTML(result)
+  
   // Unknown components are treated as regular text
   assert(html.includes("UnknownComponent"))
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("Known component"))
 })
 
-test("works without custom components", () => {
-  const result = Markdown({}, "# Title\n\nRegular markdown content")
-  const html = toHTML(result)
+test("works without custom components", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "# Title\n\nRegular markdown content")
+  
   assert(html.includes("<h1>Title</h1>"))
   assert(html.includes("Regular markdown content"))
 })
 
-test("works without data", () => {
-  const result = Markdown(
+test("works without data", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
     {
       components: { Alert },
     },
@@ -1385,7 +1368,7 @@ No variables here
 </Alert>
   `,
   )
-  const html = toHTML(result)
+  
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("No variables here"))
 })
