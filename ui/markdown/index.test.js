@@ -1372,3 +1372,1379 @@ No variables here
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("No variables here"))
 })
+
+// Builtin HTML tags tests - one test per tag to ensure comprehensive coverage
+// Note: Tags work in multi-line format or self-closing format
+
+test("renders div tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<div class="container">
+Content
+</div>
+  `,
+  )
+  assert(html.includes('<div class="container">'))
+  assert(html.includes("Content"))
+})
+
+test("renders span tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<span class="highlight">
+Text
+</span>
+  `,
+  )
+  assert(html.includes('<span class="highlight">'))
+  assert(html.includes("Text"))
+})
+
+test("renders article tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<article>
+Article content
+</article>
+  `,
+  )
+  assert(html.includes("<article>"))
+  assert(html.includes("Article content"))
+})
+
+test("renders section tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<section>
+Section content
+</section>
+  `,
+  )
+  assert(html.includes("<section>"))
+  assert(html.includes("Section content"))
+})
+
+test("renders header tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<header>
+Header content
+</header>
+  `,
+  )
+  assert(html.includes("<header>"))
+  assert(html.includes("Header content"))
+})
+
+test("renders footer tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<footer>
+Footer content
+</footer>
+  `,
+  )
+  assert(html.includes("<footer>"))
+  assert(html.includes("Footer content"))
+})
+
+test("renders main tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<main>
+Main content
+</main>
+  `,
+  )
+  assert(html.includes("<main>"))
+  assert(html.includes("Main content"))
+})
+
+test("renders aside tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<aside>
+Sidebar content
+</aside>
+  `,
+  )
+  assert(html.includes("<aside>"))
+  assert(html.includes("Sidebar content"))
+})
+
+test("renders nav tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<nav>
+Navigation
+</nav>
+  `,
+  )
+  assert(html.includes("<nav>"))
+  assert(html.includes("Navigation"))
+})
+
+test("renders h1 tag (alternative to # syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<h1>
+Heading 1
+</h1>
+  `,
+  )
+  assert(html.includes("<h1>"))
+  assert(html.includes("Heading 1"))
+})
+
+test("renders h2 tag (alternative to ## syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<h2>
+Heading 2
+</h2>
+  `,
+  )
+  assert(html.includes("<h2>"))
+  assert(html.includes("Heading 2"))
+})
+
+test("renders h3 tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<h3>
+Heading 3
+</h3>
+  `,
+  )
+  assert(html.includes("<h3>"))
+  assert(html.includes("Heading 3"))
+})
+
+test("renders h4 tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<h4>
+Heading 4
+</h4>
+  `,
+  )
+  assert(html.includes("<h4>"))
+  assert(html.includes("Heading 4"))
+})
+
+test("renders h5 tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<h5>
+Heading 5
+</h5>
+  `,
+  )
+  assert(html.includes("<h5>"))
+  assert(html.includes("Heading 5"))
+})
+
+test("renders h6 tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<h6>
+Heading 6
+</h6>
+  `,
+  )
+  assert(html.includes("<h6>"))
+  assert(html.includes("Heading 6"))
+})
+
+test("renders p tag (alternative to markdown paragraph)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<p>
+Paragraph content
+</p>
+  `,
+  )
+  assert(html.includes("<p>"))
+  assert(html.includes("Paragraph content"))
+})
+
+test("renders strong tag (alternative to **bold**)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<strong>
+Bold text
+</strong>
+  `,
+  )
+  assert(html.includes("<strong>"))
+  assert(html.includes("Bold text"))
+})
+
+test("renders em tag (alternative to *italic*)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<em>
+Italic text
+</em>
+  `,
+  )
+  assert(html.includes("<em>"))
+  assert(html.includes("Italic text"))
+})
+
+test("renders b tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<b>
+Bold text
+</b>
+  `,
+  )
+  assert(html.includes("<b>"))
+  assert(html.includes("Bold text"))
+})
+
+test("renders i tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<i>
+Italic text
+</i>
+  `,
+  )
+  assert(html.includes("<i>"))
+  assert(html.includes("Italic text"))
+})
+
+test("renders u tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<u>
+Underlined text
+</u>
+  `,
+  )
+  assert(html.includes("<u>"))
+  assert(html.includes("Underlined text"))
+})
+
+test("renders s tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<s>
+Strikethrough text
+</s>
+  `,
+  )
+  assert(html.includes("<s>"))
+  assert(html.includes("Strikethrough text"))
+})
+
+test("renders small tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<small>
+Small text
+</small>
+  `,
+  )
+  assert(html.includes("<small>"))
+  assert(html.includes("Small text"))
+})
+
+test("renders mark tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<mark>
+Highlighted text
+</mark>
+  `,
+  )
+  assert(html.includes("<mark>"))
+  assert(html.includes("Highlighted text"))
+})
+
+test("renders sub tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<sub>
+2
+</sub>
+  `,
+  )
+  assert(html.includes("<sub>"))
+  assert(html.includes("2"))
+})
+
+test("renders sup tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<sup>
+2
+</sup>
+  `,
+  )
+  assert(html.includes("<sup>"))
+  assert(html.includes("2"))
+})
+
+test("renders br tag (self-closing)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<br />")
+  assert(html.includes("<br>"))
+})
+
+test("renders wbr tag (self-closing)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<wbr />")
+  assert(html.includes("<wbr>"))
+})
+
+test("renders abbr tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<abbr title="HyperText Markup Language">
+HTML
+</abbr>
+  `,
+  )
+  assert(html.includes('<abbr title="HyperText Markup Language">'))
+  assert(html.includes("HTML"))
+})
+
+test("renders cite tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<cite>
+The Great Gatsby
+</cite>
+  `,
+  )
+  assert(html.includes("<cite>"))
+  assert(html.includes("The Great Gatsby"))
+})
+
+test("renders q tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<q>
+Quoted text
+</q>
+  `,
+  )
+  assert(html.includes("<q>"))
+  assert(html.includes("Quoted text"))
+})
+
+test("renders kbd tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<kbd>
+Ctrl
+</kbd>
+  `,
+  )
+  assert(html.includes("<kbd>"))
+  assert(html.includes("Ctrl"))
+})
+
+test("renders samp tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<samp>
+Sample output
+</samp>
+  `,
+  )
+  assert(html.includes("<samp>"))
+  assert(html.includes("Sample output"))
+})
+
+test("renders var tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<var>
+x
+</var>
+  `,
+  )
+  assert(html.includes("<var>"))
+  assert(html.includes("x"))
+})
+
+test("renders del tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<del>
+Deleted text
+</del>
+  `,
+  )
+  assert(html.includes("<del>"))
+  assert(html.includes("Deleted text"))
+})
+
+test("renders ins tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<ins>
+Inserted text
+</ins>
+  `,
+  )
+  assert(html.includes("<ins>"))
+  assert(html.includes("Inserted text"))
+})
+
+test("renders dfn tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<dfn>
+Definition term
+</dfn>
+  `,
+  )
+  assert(html.includes("<dfn>"))
+  assert(html.includes("Definition term"))
+})
+
+test("renders ul tag (alternative to - syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<ul>
+<li>
+Item
+</li>
+</ul>
+  `,
+  )
+  assert(html.includes("<ul>"))
+  assert(html.includes("<li>"))
+  assert(html.includes("Item"))
+})
+
+test("renders ol tag (alternative to 1. syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<ol>
+<li>
+Item
+</li>
+</ol>
+  `,
+  )
+  assert(html.includes("<ol>"))
+  assert(html.includes("<li>"))
+  assert(html.includes("Item"))
+})
+
+test("renders li tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<ul>
+<li>
+List item
+</li>
+</ul>
+  `,
+  )
+  assert(html.includes("<li>"))
+  assert(html.includes("List item"))
+})
+
+test("renders dl tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<dl>
+<dt>
+Term
+</dt>
+<dd>
+Definition
+</dd>
+</dl>
+  `,
+  )
+  assert(html.includes("<dl>"))
+  assert(html.includes("<dt>"))
+  assert(html.includes("<dd>"))
+})
+
+test("renders dt tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<dl>
+<dt>
+Term
+</dt>
+</dl>
+  `,
+  )
+  assert(html.includes("<dt>"))
+  assert(html.includes("Term"))
+})
+
+test("renders dd tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<dl>
+<dd>
+Definition
+</dd>
+</dl>
+  `,
+  )
+  assert(html.includes("<dd>"))
+  assert(html.includes("Definition"))
+})
+
+test("renders a tag (alternative to [text](url) syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<a href="/page">
+Link
+</a>
+  `,
+  )
+  assert(html.includes('<a href="/page">'))
+  assert(html.includes("Link"))
+})
+
+test("renders img tag (self-closing)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, '<img src="image.jpg" alt="Description" />')
+  assert(html.includes('<img src="image.jpg" alt="Description">'))
+})
+
+test("renders picture tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<picture>
+<img src="image.jpg" alt="Image" />
+</picture>
+  `,
+  )
+  assert(html.includes("<picture>"))
+  assert(html.includes('<img src="image.jpg" alt="Image">'))
+})
+
+test("renders source tag (self-closing)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<picture>
+<source srcset="image.webp" type="image/webp" />
+<img src="image.jpg" alt="Image" />
+</picture>
+  `,
+  )
+  assert(html.includes('<source srcset="image.webp" type="image/webp">'))
+})
+
+test("renders code tag (alternative to backtick syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<code>
+inline code
+</code>
+  `,
+  )
+  assert(html.includes("<code>"))
+  assert(html.includes("inline code"))
+})
+
+test("renders pre tag (alternative to ``` syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<pre>
+Preformatted text
+</pre>
+  `,
+  )
+  assert(html.includes("<pre>"))
+  assert(html.includes("Preformatted text"))
+})
+
+test("renders table tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<tr>
+<td>
+Cell
+</td>
+</tr>
+</table>
+  `,
+  )
+  assert(html.includes("<table>"))
+  assert(html.includes("<tr>"))
+  assert(html.includes("<td>"))
+})
+
+test("renders thead tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<thead>
+<tr>
+<th>
+Header
+</th>
+</tr>
+</thead>
+</table>
+  `,
+  )
+  assert(html.includes("<thead>"))
+  assert(html.includes("<th>"))
+})
+
+test("renders tbody tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<tbody>
+<tr>
+<td>
+Data
+</td>
+</tr>
+</tbody>
+</table>
+  `,
+  )
+  assert(html.includes("<tbody>"))
+  assert(html.includes("<td>"))
+})
+
+test("renders tfoot tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<tfoot>
+<tr>
+<td>
+Footer
+</td>
+</tr>
+</tfoot>
+</table>
+  `,
+  )
+  assert(html.includes("<tfoot>"))
+})
+
+test("renders tr tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<tr>
+<td>
+Cell
+</td>
+</tr>
+</table>
+  `,
+  )
+  assert(html.includes("<tr>"))
+})
+
+test("renders th tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<tr>
+<th>
+Header
+</th>
+</tr>
+</table>
+  `,
+  )
+  assert(html.includes("<th>"))
+  assert(html.includes("Header"))
+})
+
+test("renders td tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<tr>
+<td>
+Data
+</td>
+</tr>
+</table>
+  `,
+  )
+  assert(html.includes("<td>"))
+  assert(html.includes("Data"))
+})
+
+test("renders caption tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<caption>
+Table caption
+</caption>
+</table>
+  `,
+  )
+  assert(html.includes("<caption>"))
+  assert(html.includes("Table caption"))
+})
+
+test("renders colgroup tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<colgroup>
+<col />
+</colgroup>
+</table>
+  `,
+  )
+  assert(html.includes("<colgroup>"))
+  assert(html.includes("<col>"))
+})
+
+test("renders col tag (self-closing)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<colgroup>
+<col span="2" />
+</colgroup>
+</table>
+  `,
+  )
+  assert(html.includes('<col span="2">'))
+})
+
+test("renders blockquote tag (alternative to > syntax)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<blockquote>
+Quote
+</blockquote>
+  `,
+  )
+  assert(html.includes("<blockquote>"))
+  assert(html.includes("Quote"))
+})
+
+test("renders hr tag (self-closing)", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<hr />")
+  assert(html.includes("<hr>"))
+})
+
+test("renders figure tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<figure>
+<img src="image.jpg" alt="Image" />
+</figure>
+  `,
+  )
+  assert(html.includes("<figure>"))
+  assert(html.includes('<img src="image.jpg" alt="Image">'))
+})
+
+test("renders figcaption tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<figure>
+<img src="image.jpg" alt="Image" />
+<figcaption>
+Caption
+</figcaption>
+</figure>
+  `,
+  )
+  assert(html.includes("<figcaption>"))
+  assert(html.includes("Caption"))
+})
+
+test("renders details tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<details>
+<summary>
+Summary
+</summary>
+Details
+</details>
+  `,
+  )
+  assert(html.includes("<details>"))
+  assert(html.includes("<summary>"))
+  assert(html.includes("Summary"))
+})
+
+test("renders summary tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<details>
+<summary>
+Click to expand
+</summary>
+</details>
+  `,
+  )
+  assert(html.includes("<summary>"))
+  assert(html.includes("Click to expand"))
+})
+
+test("renders address tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<address>
+Contact info
+</address>
+  `,
+  )
+  assert(html.includes("<address>"))
+  assert(html.includes("Contact info"))
+})
+
+test("renders time tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<time datetime="2026-07-03">
+July 3, 2026
+</time>
+  `,
+  )
+  assert(html.includes('<time datetime="2026-07-03">'))
+  assert(html.includes("July 3, 2026"))
+})
+
+test("renders data tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<data value="12345">
+Product code
+</data>
+  `,
+  )
+  assert(html.includes('<data value="12345">'))
+  assert(html.includes("Product code"))
+})
+
+// Integration tests - mixing builtin tags with markdown
+
+test("mixes builtin HTML tags with markdown syntax", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+# Markdown Heading
+
+<div class="container">
+  
+Regular **markdown** formatting works inside HTML tags.
+
+<article>
+<header>
+<time datetime="2026-07-03">
+July 3, 2026
+</time>
+</header>
+
+Content with **bold** text.
+
+</article>
+
+</div>
+  `
+  const html = template({}, markdown)
+  assert(html.includes("<h1>Markdown Heading</h1>"))
+  assert(html.includes('<div class="container">'))
+  assert(html.includes("<strong>markdown</strong>"))
+  assert(html.includes("<article>"))
+  assert(html.includes('<time datetime="2026-07-03">'))
+  assert(html.includes("<strong>bold</strong>"))
+})
+
+test("renders nested builtin HTML tags", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<section>
+<article>
+<header>
+<h2>
+Title
+</h2>
+</header>
+<p>
+Content
+</p>
+<footer>
+Footer
+</footer>
+</article>
+</section>
+  `,
+  )
+  assert(html.includes("<section>"))
+  assert(html.includes("<article>"))
+  assert(html.includes("<header>"))
+  assert(html.includes("<h2>"))
+  assert(html.includes("Title"))
+  assert(html.includes("<p>"))
+  assert(html.includes("Content"))
+  assert(html.includes("<footer>"))
+})
+
+test("renders table with all table elements", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<table>
+<caption>
+Sample Table
+</caption>
+<colgroup>
+<col span="2" />
+</colgroup>
+<thead>
+<tr>
+<th>
+Header 1
+</th>
+<th>
+Header 2
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Data 1
+</td>
+<td>
+Data 2
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td>
+Footer 1
+</td>
+<td>
+Footer 2
+</td>
+</tr>
+</tfoot>
+</table>
+  `,
+  )
+  assert(html.includes("<caption>"))
+  assert(html.includes("Sample Table"))
+  assert(html.includes("<colgroup>"))
+  assert(html.includes("<thead>"))
+  assert(html.includes("<tbody>"))
+  assert(html.includes("<tfoot>"))
+})
+
+test("renders description list", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<dl>
+<dt>
+Term 1
+</dt>
+<dd>
+Definition 1
+</dd>
+<dt>
+Term 2
+</dt>
+<dd>
+Definition 2
+</dd>
+</dl>
+  `,
+  )
+  assert(html.includes("<dl>"))
+  assert(html.includes("Term 1"))
+  assert(html.includes("Definition 1"))
+  assert(html.includes("Term 2"))
+  assert(html.includes("Definition 2"))
+})
+
+test("mixes builtin tags with custom components", async () => {
+  const { template } = await compile(__dirname)
+  const CustomAlert = (props, children) => {
+    const { Div } = require("../..")
+    return Div({ class: "custom-alert" }, children)
+  }
+
+  const html = template(
+    { components: { CustomAlert } },
+    `
+<div class="wrapper">
+<CustomAlert>
+
+This is a **custom** component
+
+</CustomAlert>
+
+<article>
+
+Regular HTML with **markdown** formatting
+
+</article>
+</div>
+  `,
+  )
+
+  assert(html.includes('<div class="wrapper">'))
+  assert(html.includes('<div class="custom-alert">'))
+  assert(html.includes("<strong>custom</strong>"))
+  assert(html.includes("<article>"))
+  assert(html.includes("<strong>markdown</strong>"))
+})
+
+test("builtin tags work with attributes", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<div id="main" class="container" data-test="value">
+<span style="color: red;">
+Styled text
+</span>
+</div>
+  `,
+  )
+  assert(html.includes('id="main"'))
+  assert(html.includes('class="container"'))
+  assert(html.includes('data-test="value"'))
+  assert(html.includes('style="color: red;"'))
+})
+
+test("custom components can override builtin tags", async () => {
+  const { template } = await compile(__dirname)
+  const CustomDiv = (props, children) => {
+    const { Div } = require("../..")
+    return Div({ class: "custom-override", ...props }, children)
+  }
+
+  const html = template(
+    { components: { div: CustomDiv } },
+    `
+<div>
+Content
+</div>
+`,
+  )
+
+  assert(html.includes('<div class="custom-override">'))
+  assert(html.includes("Content"))
+})
+
+// Security tests - ensure unsafe tags are NOT available as builtin components
+
+test("script tag is not available as builtin component", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<script>
+alert('xss')
+</script>
+  `,
+  )
+  // Script tag should be escaped/treated as text, not rendered as component
+  assert(!html.includes("<script>"))
+  assert(html.includes("&lt;"))
+})
+
+test("iframe tag is not available as builtin component", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<iframe src="evil.com">
+</iframe>
+  `,
+  )
+  // Iframe should be escaped/treated as text
+  assert(!html.includes("<iframe"))
+  assert(html.includes("&lt;"))
+})
+
+test("form tag is not available as builtin component", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<form>
+<input type="text" />
+</form>
+  `,
+  )
+  // Form should be escaped/treated as text
+  assert(!html.includes("<form"))
+  assert(html.includes("&lt;"))
+})
+
+test("style tag is not available as builtin component", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<style>
+body { background: red; }
+</style>
+  `,
+  )
+  // Style should be escaped/treated as text
+  assert(!html.includes("<style>"))
+  assert(html.includes("&lt;"))
+})
+
+// Real-world example test
+
+test("renders a complete article with builtin tags and markdown", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<article>
+<header>
+<h1>
+Understanding Web Development
+</h1>
+<address>
+<time datetime="2026-07-03">
+July 3, 2026
+</time>
+</address>
+</header>
+
+<section>
+
+## Introduction
+
+Web development combines **HTML**, **CSS**, and **JavaScript** to create modern web applications.
+
+<figure>
+<img src="/images/web-dev.jpg" alt="Web Development" />
+<figcaption>
+The three pillars of web development
+</figcaption>
+</figure>
+
+</section>
+
+<section>
+
+## Key Concepts
+
+<dl>
+<dt>
+HTML
+</dt>
+<dd>
+HyperText Markup Language - the structure of web pages
+</dd>
+<dt>
+CSS
+</dt>
+<dd>
+Cascading Style Sheets - the presentation layer
+</dd>
+<dt>
+JavaScript
+</dt>
+<dd>
+The programming language of the web
+</dd>
+</dl>
+
+</section>
+
+<section>
+
+## Code Example
+
+Here's a simple example:
+
+<pre>
+<code>
+function hello() {
+  console.log("Hello, World!");
+}
+</code>
+</pre>
+
+You can also use inline code like \`const x = 5;\`
+
+</section>
+
+<footer>
+<small>
+Copyright © 2026
+</small>
+</footer>
+
+</article>
+  `,
+  )
+
+  // Verify structure
+  assert(html.includes("<article>"))
+  assert(html.includes("<header>"))
+  assert(html.includes("<h1>"))
+  assert(html.includes("Understanding Web Development"))
+  assert(html.includes('<time datetime="2026-07-03">'))
+  assert(html.includes("<section>"))
+  assert(html.includes("<h2>Introduction</h2>"))
+  assert(html.includes("<strong>HTML</strong>"))
+  assert(html.includes("<figure>"))
+  assert(html.includes("<figcaption>"))
+  assert(html.includes("<dl>"))
+  assert(html.includes("<dt>"))
+  assert(html.includes("<dd>"))
+  assert(html.includes("<pre>"))
+  assert(html.includes("<code>"))
+  assert(html.includes("function hello()"))
+  assert(html.includes("<footer>"))
+  assert(html.includes("<small>"))
+})

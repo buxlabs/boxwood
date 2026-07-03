@@ -18,6 +18,57 @@ const {
   Hr,
   Img,
   Pre,
+  // Additional safe HTML tags for custom components
+  Div,
+  Span,
+  Article,
+  Section,
+  Header,
+  Footer,
+  Main,
+  Aside,
+  Nav,
+  B,
+  I,
+  U,
+  S,
+  Small,
+  Mark,
+  Sub,
+  Sup,
+  Br,
+  Wbr,
+  Abbr,
+  Cite,
+  Q,
+  Kbd,
+  Samp,
+  Var,
+  Del,
+  Ins,
+  Dfn,
+  Dl,
+  Dt,
+  Dd,
+  Picture,
+  Source,
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Tr,
+  Th,
+  Td,
+  Caption,
+  Colgroup,
+  Col,
+  Figure,
+  Figcaption,
+  Details,
+  Summary,
+  Address,
+  Time,
+  Data,
 } = require("../..")
 
 const { format } = require("./utilities/format")
@@ -51,6 +102,91 @@ const COMPONENTS = {
 
 const INLINE_COMPONENTS = { A, Img, Code, Strong, Em }
 
+// Safe builtin HTML tags that can be used as custom components in markdown
+// These are always available and don't need to be explicitly passed in params.components
+const BUILTIN_HTML_TAGS = {
+  // Containers
+  div: Div,
+  span: Span,
+  // Semantic structure
+  article: Article,
+  section: Section,
+  header: Header,
+  footer: Footer,
+  main: Main,
+  aside: Aside,
+  nav: Nav,
+  // Headings (alternative to # syntax)
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: H4,
+  h5: H5,
+  h6: H6,
+  // Text formatting (alternative to markdown syntax)
+  p: P,
+  strong: Strong,
+  em: Em,
+  b: B,
+  i: I,
+  u: U,
+  s: S,
+  small: Small,
+  mark: Mark,
+  sub: Sub,
+  sup: Sup,
+  br: Br,
+  wbr: Wbr,
+  abbr: Abbr,
+  cite: Cite,
+  q: Q,
+  kbd: Kbd,
+  samp: Samp,
+  var: Var,
+  del: Del,
+  ins: Ins,
+  dfn: Dfn,
+  // Lists (alternative to - or 1. syntax)
+  ul: Ul,
+  ol: Ol,
+  li: Li,
+  dl: Dl,
+  dt: Dt,
+  dd: Dd,
+  // Links & media (alternative to []() syntax)
+  a: A,
+  img: Img,
+  picture: Picture,
+  source: Source,
+  // Code (alternative to backtick syntax)
+  code: Code,
+  pre: Pre,
+  // Tables
+  table: Table,
+  thead: Thead,
+  tbody: Tbody,
+  tfoot: Tfoot,
+  tr: Tr,
+  th: Th,
+  td: Td,
+  caption: Caption,
+  colgroup: Colgroup,
+  col: Col,
+  // Block elements (alternative to > or --- syntax)
+  blockquote: Blockquote,
+  hr: Hr,
+  // Figures
+  figure: Figure,
+  figcaption: Figcaption,
+  // Interactive (safe)
+  details: Details,
+  summary: Summary,
+  // Other semantic
+  address: Address,
+  time: Time,
+  data: Data,
+}
+
 function Markdown(params, children) {
   if (Array.isArray(children)) {
     return children.map((child) => Markdown(params, child))
@@ -62,6 +198,13 @@ function Markdown(params, children) {
 
   const customComponents = params && params.components
   const data = params && params.data
+
+  // Merge builtin HTML tags with custom components
+  // Custom components can override builtin tags if needed
+  const allComponents = {
+    ...BUILTIN_HTML_TAGS,
+    ...customComponents,
+  }
 
   // Filter out special params that shouldn't be passed to HTML elements
   const htmlParams = params
@@ -83,7 +226,7 @@ function Markdown(params, children) {
     const trimmed = line.trim()
 
     // Check for custom component tags first
-    const customTag = parseCustomTag(line, customComponents)
+    const customTag = parseCustomTag(line, allComponents)
     if (customTag) {
       if (customTag.type === "custom-component" && customTag.selfClosing) {
         // Self-closing custom component
@@ -110,7 +253,7 @@ function Markdown(params, children) {
         let depth = 1
         while (i < allLines.length && depth > 0) {
           const contentLine = allLines[i]
-          const contentTag = parseCustomTag(contentLine, customComponents)
+          const contentTag = parseCustomTag(contentLine, allComponents)
 
           if (contentTag && contentTag.tagName === tagName) {
             if (contentTag.type === "custom-component-open") {
