@@ -20,12 +20,13 @@ All standard markdown features:
 
 - **Variable replacement**: `{variable}`, `{user.name}`, `{images[0].src}`
 - **Conditionals**: `{#if variable}...{/if}` blocks for conditional rendering
+- **Loops**: `{#each items}...{/each}` for iteration over arrays
 - **Custom components**: `<Alert type="warning">...</Alert>`
 - **Builtin HTML tags**: `<article>`, `<section>`, `<div>`, etc.
 
 ### Planned Features
 
-- **Loops**: `{#each items}...{/each}` for iteration
+None at the moment - all core features are implemented!
 
 ## Usage
 
@@ -170,9 +171,177 @@ Falsy values (removes content):
 - `""` (empty string)
 - `[]` (empty array)
 
+## Loops
+
+Use `{#each}` blocks to iterate over arrays and render content for each item:
+
+### Basic Loop Syntax
+
+```markdown
+{#each items}
+- {item}
+{/each}
+```
+
+By default, the current item is available as `{item}`. For arrays of primitives (strings, numbers, etc.), this is the value itself.
+
+### Custom Variable Names
+
+You can specify a custom variable name for better clarity:
+
+```markdown
+{#each users as user}
+- {user.name} ({user.email})
+{/each}
+```
+
+### Loop with Index
+
+Access the current index by providing a second variable name:
+
+```markdown
+{#each items as item, i}
+{i}. {item}
+{/each}
+```
+
+The index is zero-based (starts at 0).
+
+### Nested Properties
+
+Loop items can be objects with nested properties:
+
+```markdown
+{#each products as product}
+**{product.name}**
+
+Price: ${product.price}
+{/each}
+```
+
+### Accessing External Variables
+
+Variables from outside the loop are still accessible:
+
+```markdown
+{#each items as item}
+- {prefix}{item}{suffix}
+{/each}
+```
+
+### Nested Loops
+
+Loops can be nested to create complex structures:
+
+```markdown
+{#each categories as category}
+## {category.name}
+
+{#each category.items as item}
+- {item}
+{/each}
+{/each}
+```
+
+### Combining Loops with Conditionals
+
+You can use conditionals inside loops to filter or conditionally render content:
+
+```markdown
+{#each users as user}
+**{user.name}**
+
+{#if user.verified}
+✓ Verified user
+{/if}
+
+{#if user.role == 'admin'}
+👑 Administrator
+{/if}
+{/each}
+```
+
+### Loop Examples
+
+**Simple list:**
+
+```javascript
+Prose(
+  { data: { fruits: ["Apple", "Banana", "Cherry"] } },
+  `
+{#each fruits as fruit}
+- {fruit}
+{/each}
+`,
+)
+```
+
+**User cards with conditionals:**
+
+```javascript
+Prose(
+  {
+    data: {
+      users: [
+        { name: "Alice", verified: true, role: "admin" },
+        { name: "Bob", verified: false, role: "user" },
+        { name: "Charlie", verified: true, role: "user" },
+      ],
+    },
+  },
+  `
+{#each users as user}
+### {user.name}
+
+{#if user.verified}
+✓ Verified
+{/if}
+
+{#if user.role == 'admin'}
+**Role:** Administrator
+{/if}
+
+---
+
+{/each}
+`,
+)
+```
+
+**Numbered list with index:**
+
+```javascript
+Prose(
+  { data: { steps: ["Create account", "Verify email", "Complete profile"] } },
+  `
+{#each steps as step, i}
+**Step {i + 1}:** {step}
+{/each}
+`,
+)
+```
+
+Note: Since template literals evaluate expressions like `{i + 1}`, you may need to use alternative approaches if you want to perform calculations. In this case, pre-process your data.
+
+**Empty arrays:**
+
+When an array is empty, the loop content is not rendered:
+
+```javascript
+Prose(
+  { data: { items: [] } },
+  `
+{#each items as item}
+- {item}
+{/each}
+`,
+)
+// Renders nothing
+```
+
 ## Difference from Markdown Component
 
 - **Markdown**: Pure markdown rendering, no variables or custom components
-- **Prose**: Markdown + templating (variables, custom components, conditionals)
+- **Prose**: Markdown + templating (variables, custom components, conditionals, loops)
 
 Use `Markdown` for simple, static content. Use `Prose` for dynamic content in blogs, CMS, or documentation systems.

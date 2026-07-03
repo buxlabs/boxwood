@@ -3244,3 +3244,267 @@ Value increased
   const html = template({ data: { current: 100, previous: 50 } }, prose)
   assert(html.includes("Value increased"))
 })
+
+// Loop rendering tests
+test("renders simple loop with {#each items}", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each items}
+- {item}
+{/each}
+`
+  const html = template({ data: { items: ["Apple", "Banana", "Cherry"] } }, prose)
+  assert(html.includes("<li>Apple</li>"))
+  assert(html.includes("<li>Banana</li>"))
+  assert(html.includes("<li>Cherry</li>"))
+})
+
+test("renders loop with custom item name", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each fruits as fruit}
+- {fruit}
+{/each}
+`
+  const html = template({ data: { fruits: ["Apple", "Banana"] } }, prose)
+  assert(html.includes("<li>Apple</li>"))
+  assert(html.includes("<li>Banana</li>"))
+})
+
+test("renders loop with item and index", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each items as item, i}
+Item {i}: {item}
+{/each}
+`
+  const html = template({ data: { items: ["First", "Second", "Third"] } }, prose)
+  assert(html.includes("Item 0: First"))
+  assert(html.includes("Item 1: Second"))
+  assert(html.includes("Item 2: Third"))
+})
+
+test("renders loop with object properties", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each users as user}
+**{user.name}** - {user.email}
+{/each}
+`
+  const html = template({
+    data: {
+      users: [
+        { name: "Alice", email: "alice@example.com" },
+        { name: "Bob", email: "bob@example.com" },
+      ],
+    },
+  }, prose)
+  assert(html.includes("<strong>Alice</strong>"))
+  assert(html.includes("alice@example.com"))
+  assert(html.includes("<strong>Bob</strong>"))
+  assert(html.includes("bob@example.com"))
+})
+
+test("renders loop with headings", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each sections as section}
+## {section.title}
+
+{section.content}
+
+{/each}
+`
+  const html = template({
+    data: {
+      sections: [
+        { title: "Introduction", content: "Welcome to the guide." },
+        { title: "Conclusion", content: "Thank you for reading." },
+      ],
+    },
+  }, prose)
+  assert(html.includes("<h2>Introduction</h2>"))
+  assert(html.includes("Welcome to the guide."))
+  assert(html.includes("<h2>Conclusion</h2>"))
+  assert(html.includes("Thank you for reading."))
+})
+
+test("handles empty array in loop", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each items}
+- {item}
+{/each}
+`
+  const html = template({ data: { items: [] } }, prose)
+  // Should not include any list items
+  assert(!html.includes("<li>"))
+})
+
+test("handles nested loops", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each categories as category}
+### {category}
+
+{#each items}
+- {item}
+{/each}
+
+{/each}
+`
+  const html = template({
+    data: {
+      categories: ["Fruits", "Vegetables"],
+      items: ["Apple", "Carrot"],
+    },
+  }, prose)
+  assert(html.includes("<h3>Fruits</h3>"))
+  assert(html.includes("<h3>Vegetables</h3>"))
+  // Items should be repeated for each category
+  const appleMatches = (html.match(/Apple/g) || []).length
+  assert(appleMatches === 2)
+})
+
+test("handles loops with markdown formatting", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each products as product}
+**{product.name}**
+
+Price: $\{product.price}
+
+---
+
+{/each}
+`
+  const html = template({
+    data: {
+      products: [
+        { name: "Widget", price: 10 },
+        { name: "Gadget", price: 20 },
+      ],
+    },
+  }, prose)
+  assert(html.includes("<strong>Widget</strong>"))
+  assert(html.includes("Price: $10"))
+  assert(html.includes("<strong>Gadget</strong>"))
+  assert(html.includes("Price: $20"))
+  assert(html.includes("<hr>"))
+})
+
+test("handles loops combined with conditionals", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each users as user}
+**{user.name}**
+
+{#if user.verified}
+✓ Verified user
+{/if}
+
+{/each}
+`
+  const html = template({
+    data: {
+      users: [
+        { name: "Alice", verified: true },
+        { name: "Bob", verified: false },
+        { name: "Charlie", verified: true },
+      ],
+    },
+  }, prose)
+  assert(html.includes("<strong>Alice</strong>"))
+  assert(html.includes("<strong>Bob</strong>"))
+  assert(html.includes("<strong>Charlie</strong>"))
+  // Only Alice and Charlie should have the verified badge
+  const verifiedMatches = (html.match(/✓ Verified user/g) || []).length
+  assert(verifiedMatches === 2)
+})
+
+test("handles loop with nested property access", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each users as user}
+- {user.profile.name} ({user.profile.role})
+{/each}
+`
+  const html = template({
+    data: {
+      users: [
+        { profile: { name: "Alice", role: "Admin" } },
+        { profile: { name: "Bob", role: "User" } },
+      ],
+    },
+  }, prose)
+  assert(html.includes("Alice (Admin)"))
+  assert(html.includes("Bob (User)"))
+})
+
+test("handles loop with array property access", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each users as user}
+- {user.name}: {user.tags[0]}, {user.tags[1]}
+{/each}
+`
+  const html = template({
+    data: {
+      users: [
+        { name: "Alice", tags: ["developer", "designer"] },
+        { name: "Bob", tags: ["manager", "analyst"] },
+      ],
+    },
+  }, prose)
+  assert(html.includes("Alice: developer, designer"))
+  assert(html.includes("Bob: manager, analyst"))
+})
+
+test("handles loop accessing external data variables", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each items as item}
+- {prefix}{item}{suffix}
+{/each}
+`
+  const html = template({
+    data: {
+      items: ["A", "B", "C"],
+      prefix: ">>",
+      suffix: "<<",
+    },
+  }, prose)
+  // HTML entities are encoded
+  assert(html.includes("&gt;&gt;A&lt;&lt;"))
+  assert(html.includes("&gt;&gt;B&lt;&lt;"))
+  assert(html.includes("&gt;&gt;C&lt;&lt;"))
+})
+
+test("handles multiple separate loops", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+# Fruits
+
+{#each fruits}
+- {item}
+{/each}
+
+# Vegetables
+
+{#each vegetables}
+- {item}
+{/each}
+`
+  const html = template({
+    data: {
+      fruits: ["Apple", "Banana"],
+      vegetables: ["Carrot", "Broccoli"],
+    },
+  }, prose)
+  assert(html.includes("<h1>Fruits</h1>"))
+  assert(html.includes("Apple"))
+  assert(html.includes("Banana"))
+  assert(html.includes("<h1>Vegetables</h1>"))
+  assert(html.includes("Carrot"))
+  assert(html.includes("Broccoli"))
+})
