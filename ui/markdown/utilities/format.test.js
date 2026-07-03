@@ -4,11 +4,11 @@ const { format } = require("./format")
 
 // Mock components for testing
 const mockComponents = {
-  A: (props, children) => ({ type: "a", props, children }),
-  Img: (props) => ({ type: "img", props }),
-  Code: (props, children) => ({ type: "code", props, children }),
-  Strong: (children) => ({ type: "strong", children }),
-  Em: (children) => ({ type: "em", children }),
+  a: (props, children) => ({ type: "a", props, children }),
+  img: (props) => ({ type: "img", props }),
+  code: (props, children) => ({ type: "code", props, children }),
+  strong: (children) => ({ type: "strong", children }),
+  em: (children) => ({ type: "em", children }),
 }
 
 test("returns text unchanged when no special characters", () => {

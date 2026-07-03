@@ -4,11 +4,11 @@ const { findMatchingBracket } = require("./brackets")
  * Format inline markdown elements within text
  * Handles: images, links, code, bold, italic
  * @param {string} text - The text to format
- * @param {Object} components - HTML component functions (A, Img, Code, Strong, Em)
+ * @param {Object} allComponents - HTML component functions (contains a, img, code, strong, em, etc.)
  * @returns {Array|string} - Formatted content as array of components and strings
  */
-function format(text, components) {
-  const { A, Img, Code, Strong, Em } = components
+function format(text, allComponents) {
+  const { a: A, img: Img, code: Code, strong: Strong, em: Em } = allComponents
 
   if (
     !text.includes("*") &&
@@ -90,7 +90,7 @@ function format(text, components) {
           const linkText = text.substring(i + 1, textEnd)
           const url = text.substring(textEnd + 2, urlEnd)
           // Recursively format the link text to support images, bold, italic inside links
-          result.push(A({ href: url }, format(linkText, components)))
+          result.push(A({ href: url }, format(linkText, allComponents)))
           i = urlEnd + 1
           continue
         }
@@ -139,7 +139,7 @@ function format(text, components) {
         result.push(text[i])
         i++
       } else {
-        result.push(Strong(format(text.substring(i + 2, end), components)))
+        result.push(Strong(format(text.substring(i + 2, end), allComponents)))
         i = end + 2
       }
     } else if (text[i] === "*") {
@@ -148,7 +148,7 @@ function format(text, components) {
         result.push(text[i])
         i++
       } else {
-        result.push(Em(format(text.substring(i + 1, end), components)))
+        result.push(Em(format(text.substring(i + 1, end), allComponents)))
         i = end + 1
       }
     } else {
