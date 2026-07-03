@@ -41,88 +41,97 @@ const INLINE_COMPONENTS = {
 
 // Safe builtin HTML tags that can be used as custom components in markdown
 // These are always available and don't need to be explicitly passed in params.components
-const BUILTIN_HTML_TAGS = {
+const SAFE_TAG_NAMES = [
   // Containers
-  div: nodes.Div,
-  span: nodes.Span,
+  "div",
+  "span",
   // Semantic structure
-  article: nodes.Article,
-  section: nodes.Section,
-  header: nodes.Header,
-  footer: nodes.Footer,
-  main: nodes.Main,
-  aside: nodes.Aside,
-  nav: nodes.Nav,
-  // Headings (alternative to # syntax)
-  h1: nodes.H1,
-  h2: nodes.H2,
-  h3: nodes.H3,
-  h4: nodes.H4,
-  h5: nodes.H5,
-  h6: nodes.H6,
-  // Text formatting (alternative to markdown syntax)
-  p: nodes.P,
-  strong: nodes.Strong,
-  em: nodes.Em,
-  b: nodes.B,
-  i: nodes.I,
-  u: nodes.U,
-  s: nodes.S,
-  small: nodes.Small,
-  mark: nodes.Mark,
-  sub: nodes.Sub,
-  sup: nodes.Sup,
-  br: nodes.Br,
-  wbr: nodes.Wbr,
-  abbr: nodes.Abbr,
-  cite: nodes.Cite,
-  q: nodes.Q,
-  kbd: nodes.Kbd,
-  samp: nodes.Samp,
-  var: nodes.Var,
-  del: nodes.Del,
-  ins: nodes.Ins,
-  dfn: nodes.Dfn,
-  // Lists (alternative to - or 1. syntax)
-  ul: nodes.Ul,
-  ol: nodes.Ol,
-  li: nodes.Li,
-  dl: nodes.Dl,
-  dt: nodes.Dt,
-  dd: nodes.Dd,
-  // Links & media (alternative to []() syntax)
-  a: nodes.A,
-  img: nodes.Img,
-  picture: nodes.Picture,
-  source: nodes.Source,
-  // Code (alternative to backtick syntax)
-  code: nodes.Code,
-  pre: nodes.Pre,
+  "article",
+  "section",
+  "header",
+  "footer",
+  "main",
+  "aside",
+  "nav",
+  // Headings
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  // Text formatting
+  "p",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "u",
+  "s",
+  "small",
+  "mark",
+  "sub",
+  "sup",
+  "br",
+  "wbr",
+  "abbr",
+  "cite",
+  "q",
+  "kbd",
+  "samp",
+  "var",
+  "del",
+  "ins",
+  "dfn",
+  // Lists
+  "ul",
+  "ol",
+  "li",
+  "dl",
+  "dt",
+  "dd",
+  // Links & media
+  "a",
+  "img",
+  "picture",
+  "source",
+  // Code
+  "code",
+  "pre",
   // Tables
-  table: nodes.Table,
-  thead: nodes.Thead,
-  tbody: nodes.Tbody,
-  tfoot: nodes.Tfoot,
-  tr: nodes.Tr,
-  th: nodes.Th,
-  td: nodes.Td,
-  caption: nodes.Caption,
-  colgroup: nodes.Colgroup,
-  col: nodes.Col,
-  // Block elements (alternative to > or --- syntax)
-  blockquote: nodes.Blockquote,
-  hr: nodes.Hr,
+  "table",
+  "thead",
+  "tbody",
+  "tfoot",
+  "tr",
+  "th",
+  "td",
+  "caption",
+  "colgroup",
+  "col",
+  // Block elements
+  "blockquote",
+  "hr",
   // Figures
-  figure: nodes.Figure,
-  figcaption: nodes.Figcaption,
-  // Interactive (safe)
-  details: nodes.Details,
-  summary: nodes.Summary,
+  "figure",
+  "figcaption",
+  // Interactive
+  "details",
+  "summary",
   // Other semantic
-  address: nodes.Address,
-  time: nodes.Time,
-  data: nodes.Data,
-}
+  "address",
+  "time",
+  "data",
+]
+
+// Build BUILTIN_HTML_TAGS dynamically from tag names
+const BUILTIN_HTML_TAGS = SAFE_TAG_NAMES.reduce((acc, tagName) => {
+  const componentName = tagName.charAt(0).toUpperCase() + tagName.slice(1)
+  if (nodes[componentName]) {
+    acc[tagName] = nodes[componentName]
+  }
+  return acc
+}, {})
 
 function Markdown(params, children) {
   if (Array.isArray(children)) {
@@ -166,10 +175,7 @@ function Markdown(params, children) {
     const customTag = parseCustomTag(line, allComponents)
     if (customTag) {
       if (customTag.type === "custom-component-single-line") {
-        // Single-line tag: <tag>content</tag>
-        const resolvedAttrs = resolveAttributes(customTag.attributes, data)
         const processedContent = replaceVariables(customTag.content, data)
-        // Process the content as markdown (for inline formatting)
         const formattedContent = format(processedContent, INLINE_COMPONENTS)
         items.push({
           type: "custom-component",
@@ -187,7 +193,6 @@ function Markdown(params, children) {
         customTag.type === "custom-component" &&
         customTag.selfClosing
       ) {
-        // Self-closing custom component
         items.push({
           type: "custom-component",
           tagName: customTag.tagName,
@@ -199,7 +204,6 @@ function Markdown(params, children) {
         i++
         continue
       } else if (customTag.type === "custom-component-open") {
-        // Opening tag of a custom component
         const openIndent = line.length - line.trimStart().length
         const tagName = customTag.tagName
         const componentFn = customTag.component
@@ -220,7 +224,6 @@ function Markdown(params, children) {
             } else if (contentTag.type === "custom-component-close") {
               depth--
               if (depth === 0) {
-                // Found matching closing tag
                 i++
                 break
               }
