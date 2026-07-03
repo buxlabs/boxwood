@@ -250,3 +250,109 @@ test("processConditionals: handles decimal numbers", () => {
   const result = processConditionals(text, { price: 19.99 })
   assert.strictEqual(result, "Expensive")
 })
+
+// {#else} tests
+test("processConditionals: renders if content when condition is true with else", () => {
+  const text = "{#if show}Show this{#else}Show that{/if}"
+  const result = processConditionals(text, { show: true })
+  assert.strictEqual(result, "Show this")
+})
+
+test("processConditionals: renders else content when condition is false", () => {
+  const text = "{#if show}Show this{#else}Show that{/if}"
+  const result = processConditionals(text, { show: false })
+  assert.strictEqual(result, "Show that")
+})
+
+test("processConditionals: handles else with comparison operators", () => {
+  const text = "{#if age >= 18}Adult{#else}Minor{/if}"
+  const result1 = processConditionals(text, { age: 21 })
+  assert.strictEqual(result1, "Adult")
+  const result2 = processConditionals(text, { age: 15 })
+  assert.strictEqual(result2, "Minor")
+})
+
+test("processConditionals: handles else with undefined variable", () => {
+  const text = "{#if user}Welcome {user}{#else}Please log in{/if}"
+  const result = processConditionals(text, {})
+  assert.strictEqual(result, "Please log in")
+})
+
+test("processConditionals: handles else with empty string", () => {
+  const text = "{#if name}Hello {name}{#else}Hello stranger{/if}"
+  const result = processConditionals(text, { name: "" })
+  assert.strictEqual(result, "Hello stranger")
+})
+
+test("processConditionals: handles else with zero", () => {
+  const text = "{#if count}You have {count} items{#else}No items{/if}"
+  const result = processConditionals(text, { count: 0 })
+  assert.strictEqual(result, "No items")
+})
+
+test("processConditionals: handles else with empty array", () => {
+  const text = "{#if items.length > 0}Has items{#else}Empty list{/if}"
+  const result = processConditionals(text, { items: [] })
+  assert.strictEqual(result, "Empty list")
+})
+
+test("processConditionals: handles multiple if-else blocks", () => {
+  const text = "{#if a}A{#else}Not A{/if} and {#if b}B{#else}Not B{/if}"
+  const result = processConditionals(text, { a: true, b: false })
+  assert.strictEqual(result, "A and Not B")
+})
+
+test("processConditionals: handles nested if with else", () => {
+  const text = "{#if outer}Outer: {#if inner}Inner{#else}Not inner{/if}{#else}Not outer{/if}"
+  const result1 = processConditionals(text, { outer: true, inner: true })
+  assert.strictEqual(result1, "Outer: Inner")
+  const result2 = processConditionals(text, { outer: true, inner: false })
+  assert.strictEqual(result2, "Outer: Not inner")
+  const result3 = processConditionals(text, { outer: false, inner: true })
+  assert.strictEqual(result3, "Not outer")
+})
+
+test("processConditionals: handles else with whitespace and newlines", () => {
+  const text = `{#if show}
+Line 1
+Line 2
+{#else}
+Alternative 1
+Alternative 2
+{/if}`
+  const result = processConditionals(text, { show: false })
+  assert.strictEqual(result, `
+Alternative 1
+Alternative 2
+`)
+})
+
+test("processConditionals: handles else with markdown content", () => {
+  const text = "{#if premium}**Premium** content{#else}*Basic* content{/if}"
+  const result = processConditionals(text, { premium: false })
+  assert.strictEqual(result, "*Basic* content")
+})
+
+test("processConditionals: handles else when no data object", () => {
+  const text = "{#if show}Visible{#else}Hidden{/if}"
+  const result = processConditionals(text, null)
+  assert.strictEqual(result, "Hidden")
+})
+
+test("processConditionals: handles else with complex nested structure", () => {
+  const text = "{#if status == 'active'}Active{#else}{#if status == 'pending'}Pending{#else}Inactive{/if}{/if}"
+  const result1 = processConditionals(text, { status: "active" })
+  assert.strictEqual(result1, "Active")
+  const result2 = processConditionals(text, { status: "pending" })
+  assert.strictEqual(result2, "Pending")
+  const result3 = processConditionals(text, { status: "inactive" })
+  assert.strictEqual(result3, "Inactive")
+})
+
+test("processConditionals: handles else with variables in both branches", () => {
+  const text = "{#if isPremium}Premium: {price}{#else}Standard: {basePrice}{/if}"
+  const result1 = processConditionals(text, { isPremium: true, price: 100, basePrice: 50 })
+  assert.strictEqual(result1, "Premium: {price}")
+  const result2 = processConditionals(text, { isPremium: false, price: 100, basePrice: 50 })
+  assert.strictEqual(result2, "Standard: {basePrice}")
+})

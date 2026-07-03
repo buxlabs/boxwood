@@ -171,6 +171,45 @@ Falsy values (removes content):
 - `""` (empty string)
 - `[]` (empty array)
 
+### Else Blocks
+
+Use `{#else}` to provide alternative content when a condition is false:
+
+```markdown
+{#if isPremium}
+**Premium Content**
+
+Access exclusive features
+{#else}
+**Standard Content**
+
+Upgrade for more features
+{/if}
+```
+
+```markdown
+{#if age >= 18}
+You can vote
+{#else}
+You cannot vote yet
+{/if}
+```
+
+```markdown
+{#if items.length > 0}
+You have {items.length} items
+{#else}
+Your cart is empty
+{/if}
+```
+
+Else blocks work with all conditional features:
+
+- Simple conditions: `{#if show}...{#else}...{/if}`
+- Comparison operators: `{#if count > 5}...{#else}...{/if}`
+- Nested conditions: `{#if outer}{#if inner}...{#else}...{/if}{#else}...{/if}`
+- Inside loops: Conditionally render content for each item
+
 ## Loops
 
 Use `{#each}` blocks to iterate over arrays and render content for each item:

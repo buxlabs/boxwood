@@ -110,8 +110,9 @@ function processConditionals(text, data) {
 
   // If no data, treat all conditions as falsy
   if (!data || typeof data !== "object") {
-    // Remove all {#if}...{/if} blocks
-    return text.replace(/\{#if\s+[^}]+\}[\s\S]*?\{\/if\}/g, "")
+    // Remove all {#if}...{/if} blocks, but keep {#else} content
+    return text.replace(/\{#if\s+[^}]+\}[\s\S]*?\{#else\}([\s\S]*?)\{\/if\}/g, "$1")
+      .replace(/\{#if\s+[^}]+\}[\s\S]*?\{\/if\}/g, "")
   }
 
   let result = text
@@ -131,10 +132,11 @@ function processConditionals(text, data) {
     const ifStart = result.indexOf(fullIfTag)
     const contentStart = ifStart + fullIfTag.length
 
-    // Find the matching {/if}
+    // Find the matching {/if} and look for {#else}
     let depth = 1
     let i = contentStart
     let endIfStart = -1
+    let elseStart = -1
 
     while (i < result.length && depth > 0) {
       if (result.substring(i, i + 4) === "{#if") {
@@ -147,6 +149,10 @@ function processConditionals(text, data) {
           break
         }
         i += 5
+      } else if (result.substring(i, i + 7) === "{#else}" && depth === 1) {
+        // Only capture {#else} at the same depth level
+        elseStart = i
+        i += 7
       } else {
         i++
       }
@@ -157,20 +163,31 @@ function processConditionals(text, data) {
       break
     }
 
-    const blockContent = result.substring(contentStart, endIfStart)
     const endIfEnd = endIfStart + 5 // length of "{/if}"
+    let ifContent, elseContent
+
+    if (elseStart !== -1) {
+      // Has {#else} - split content
+      ifContent = result.substring(contentStart, elseStart)
+      elseContent = result.substring(elseStart + 7, endIfStart) // +7 for "{#else}"
+    } else {
+      // No {#else}
+      ifContent = result.substring(contentStart, endIfStart)
+      elseContent = ""
+    }
 
     // Evaluate the condition
     const shouldRender = evaluateCondition(condition, data)
 
     // Replace the entire {#if}...{/if} block
     if (shouldRender) {
-      // Keep the content, remove the tags
+      // Keep the if content, remove the tags
       result =
-        result.substring(0, ifStart) + blockContent + result.substring(endIfEnd)
+        result.substring(0, ifStart) + ifContent + result.substring(endIfEnd)
     } else {
-      // Remove the entire block
-      result = result.substring(0, ifStart) + result.substring(endIfEnd)
+      // Keep the else content (or remove if no else), remove the tags
+      result =
+        result.substring(0, ifStart) + elseContent + result.substring(endIfEnd)
     }
   }
 

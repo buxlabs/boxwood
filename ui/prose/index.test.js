@@ -3245,6 +3245,190 @@ Value increased
   assert(html.includes("Value increased"))
 })
 
+// {#else} tests
+test("renders if content when condition is true with else", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if isPremium}
+# Premium Content
+
+Access exclusive features
+{#else}
+# Standard Content
+
+Upgrade for more features
+{/if}
+`
+  const html = template({ data: { isPremium: true } }, prose)
+  assert(html.includes("<h1>Premium Content</h1>"))
+  assert(html.includes("Access exclusive features"))
+  assert(!html.includes("Standard Content"))
+})
+
+test("renders else content when condition is false", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if isPremium}
+# Premium Content
+
+Access exclusive features
+{#else}
+# Standard Content
+
+Upgrade for more features
+{/if}
+`
+  const html = template({ data: { isPremium: false } }, prose)
+  assert(html.includes("<h1>Standard Content</h1>"))
+  assert(html.includes("Upgrade for more features"))
+  assert(!html.includes("Premium Content"))
+})
+
+test("handles else with comparison operators", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if age >= 18}
+**Status:** Adult
+{#else}
+**Status:** Minor
+{/if}
+`
+  const html1 = template({ data: { age: 21 } }, prose)
+  assert(html1.includes("Adult"))
+  assert(!html1.includes("Minor"))
+
+  const html2 = template({ data: { age: 15 } }, prose)
+  assert(html2.includes("Minor"))
+  assert(!html2.includes("Adult"))
+})
+
+test("handles else with undefined variable", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if user}
+Welcome back, {user}!
+{#else}
+Please log in to continue
+{/if}
+`
+  const html = template({ data: {} }, prose)
+  assert(html.includes("Please log in to continue"))
+  assert(!html.includes("Welcome back"))
+})
+
+test("handles multiple if-else blocks", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showTitle}
+# {title}
+{#else}
+# Untitled Document
+{/if}
+
+{#if showAuthor}
+By {author}
+{#else}
+Author unknown
+{/if}
+`
+  const html = template({
+    data: {
+      showTitle: true,
+      title: "My Article",
+      showAuthor: false,
+      author: "John",
+    },
+  }, prose)
+  assert(html.includes("<h1>My Article</h1>"))
+  assert(html.includes("Author unknown"))
+  assert(!html.includes("Untitled Document"))
+  assert(!html.includes("By John"))
+})
+
+test("handles nested if-else blocks", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if userType == 'premium'}
+**Premium User**
+{#if verified}
+✓ Verified
+{#else}
+⚠ Not verified
+{/if}
+{#else}
+**Free User**
+{/if}
+`
+  const html1 = template({ data: { userType: "premium", verified: true } }, prose)
+  assert(html1.includes("Premium User"))
+  assert(html1.includes("✓ Verified"))
+  assert(!html1.includes("Not verified"))
+
+  const html2 = template({ data: { userType: "premium", verified: false } }, prose)
+  assert(html2.includes("Premium User"))
+  assert(html2.includes("⚠ Not verified"))
+  assert(!html2.includes("✓ Verified"))
+
+  const html3 = template({ data: { userType: "free", verified: true } }, prose)
+  assert(html3.includes("Free User"))
+  assert(!html3.includes("Premium User"))
+  assert(!html3.includes("Verified"))
+})
+
+test("handles else within loops", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each users as user}
+**{user.name}**
+
+{#if user.email}
+Email: {user.email}
+{#else}
+No email provided
+{/if}
+
+---
+
+{/each}
+`
+  const html = template({
+    data: {
+      users: [
+        { name: "Alice", email: "alice@example.com" },
+        { name: "Bob", email: "" },
+        { name: "Charlie" },
+      ],
+    },
+  }, prose)
+  assert(html.includes("Alice"))
+  assert(html.includes("alice@example.com"))
+  assert(html.includes("Bob"))
+  assert(html.includes("No email provided"))
+  assert(html.includes("Charlie"))
+  // Count "No email provided" occurrences (Bob and Charlie)
+  const noEmailMatches = (html.match(/No email provided/g) || []).length
+  assert(noEmailMatches === 2)
+})
+
+test("handles else with array length check", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if tags.length > 0}
+**Tags:** {tags[0]}, {tags[1]}
+{#else}
+*No tags available*
+{/if}
+`
+  const html1 = template({ data: { tags: ["tutorial", "beginner"] } }, prose)
+  assert(html1.includes("Tags:"))
+  assert(html1.includes("tutorial"))
+  assert(!html1.includes("No tags available"))
+
+  const html2 = template({ data: { tags: [] } }, prose)
+  assert(html2.includes("No tags available"))
+  assert(!html2.includes("Tags:"))
+})
+
 // Loop rendering tests
 test("renders simple loop with {#each items}", async () => {
   const { template } = await compile(__dirname)
