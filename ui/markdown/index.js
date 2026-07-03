@@ -1,75 +1,5 @@
-const {
-  component,
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  P,
-  Blockquote,
-  Ul,
-  Ol,
-  Li,
-  Strong,
-  Em,
-  Code,
-  A,
-  Hr,
-  Img,
-  Pre,
-  // Additional safe HTML tags for custom components
-  Div,
-  Span,
-  Article,
-  Section,
-  Header,
-  Footer,
-  Main,
-  Aside,
-  Nav,
-  B,
-  I,
-  U,
-  S,
-  Small,
-  Mark,
-  Sub,
-  Sup,
-  Br,
-  Wbr,
-  Abbr,
-  Cite,
-  Q,
-  Kbd,
-  Samp,
-  Var,
-  Del,
-  Ins,
-  Dfn,
-  Dl,
-  Dt,
-  Dd,
-  Picture,
-  Source,
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  Caption,
-  Colgroup,
-  Col,
-  Figure,
-  Figcaption,
-  Details,
-  Summary,
-  Address,
-  Time,
-  Data,
-} = require("../..")
+const nodes = require("../..")
+const { component } = nodes
 
 const { format } = require("./utilities/format")
 const {
@@ -89,102 +19,109 @@ const HEADINGS = [
   { prefix: "## ", type: "h2" },
   { prefix: "# ", type: "h1" },
 ]
+
 const COMPONENTS = {
-  h1: H1,
-  h2: H2,
-  h3: H3,
-  h4: H4,
-  h5: H5,
-  h6: H6,
-  blockquote: Blockquote,
-  hr: Hr,
+  h1: nodes.H1,
+  h2: nodes.H2,
+  h3: nodes.H3,
+  h4: nodes.H4,
+  h5: nodes.H5,
+  h6: nodes.H6,
+  blockquote: nodes.Blockquote,
+  hr: nodes.Hr,
 }
 
-const INLINE_COMPONENTS = { A, Img, Code, Strong, Em }
+const INLINE_COMPONENTS = {
+  A: nodes.A,
+  Img: nodes.Img,
+  Code: nodes.Code,
+  Strong: nodes.Strong,
+  Em: nodes.Em,
+}
 
 // Safe builtin HTML tags that can be used as custom components in markdown
 // These are always available and don't need to be explicitly passed in params.components
 const BUILTIN_HTML_TAGS = {
   // Containers
-  div: Div,
-  span: Span,
+  div: nodes.Div,
+  span: nodes.Span,
   // Semantic structure
-  article: Article,
-  section: Section,
-  header: Header,
-  footer: Footer,
-  main: Main,
-  aside: Aside,
-  nav: Nav,
+  article: nodes.Article,
+  section: nodes.Section,
+  header: nodes.Header,
+  footer: nodes.Footer,
+  main: nodes.Main,
+  aside: nodes.Aside,
+  nav: nodes.Nav,
   // Headings (alternative to # syntax)
-  h1: H1,
-  h2: H2,
-  h3: H3,
-  h4: H4,
-  h5: H5,
-  h6: H6,
+  h1: nodes.H1,
+  h2: nodes.H2,
+  h3: nodes.H3,
+  h4: nodes.H4,
+  h5: nodes.H5,
+  h6: nodes.H6,
   // Text formatting (alternative to markdown syntax)
-  p: P,
-  strong: Strong,
-  em: Em,
-  b: B,
-  i: I,
-  u: U,
-  s: S,
-  small: Small,
-  mark: Mark,
-  sub: Sub,
-  sup: Sup,
-  br: Br,
-  wbr: Wbr,
-  abbr: Abbr,
-  cite: Cite,
-  q: Q,
-  kbd: Kbd,
-  samp: Samp,
-  var: Var,
-  del: Del,
-  ins: Ins,
-  dfn: Dfn,
+  p: nodes.P,
+  strong: nodes.Strong,
+  em: nodes.Em,
+  b: nodes.B,
+  i: nodes.I,
+  u: nodes.U,
+  s: nodes.S,
+  small: nodes.Small,
+  mark: nodes.Mark,
+  sub: nodes.Sub,
+  sup: nodes.Sup,
+  br: nodes.Br,
+  wbr: nodes.Wbr,
+  abbr: nodes.Abbr,
+  cite: nodes.Cite,
+  q: nodes.Q,
+  kbd: nodes.Kbd,
+  samp: nodes.Samp,
+  var: nodes.Var,
+  del: nodes.Del,
+  ins: nodes.Ins,
+  dfn: nodes.Dfn,
   // Lists (alternative to - or 1. syntax)
-  ul: Ul,
-  ol: Ol,
-  li: Li,
-  dl: Dl,
-  dt: Dt,
-  dd: Dd,
+  ul: nodes.Ul,
+  ol: nodes.Ol,
+  li: nodes.Li,
+  dl: nodes.Dl,
+  dt: nodes.Dt,
+  dd: nodes.Dd,
   // Links & media (alternative to []() syntax)
-  a: A,
-  img: Img,
-  picture: Picture,
-  source: Source,
+  a: nodes.A,
+  img: nodes.Img,
+  picture: nodes.Picture,
+  source: nodes.Source,
   // Code (alternative to backtick syntax)
-  code: Code,
-  pre: Pre,
+  code: nodes.Code,
+  pre: nodes.Pre,
   // Tables
-  table: Table,
-  thead: Thead,
-  tbody: Tbody,
-  tfoot: Tfoot,
-  tr: Tr,
-  th: Th,
-  td: Td,
-  caption: Caption,
-  colgroup: Colgroup,
-  col: Col,
+  table: nodes.Table,
+  thead: nodes.Thead,
+  tbody: nodes.Tbody,
+  tfoot: nodes.Tfoot,
+  tr: nodes.Tr,
+  th: nodes.Th,
+  td: nodes.Td,
+  caption: nodes.Caption,
+  colgroup: nodes.Colgroup,
+  col: nodes.Col,
   // Block elements (alternative to > or --- syntax)
-  blockquote: Blockquote,
-  hr: Hr,
+  blockquote: nodes.Blockquote,
+  hr: nodes.Hr,
   // Figures
-  figure: Figure,
-  figcaption: Figcaption,
+  figure: nodes.Figure,
+  figcaption: nodes.Figcaption,
   // Interactive (safe)
-  details: Details,
-  summary: Summary,
+  details: nodes.Details,
+  summary: nodes.Summary,
   // Other semantic
-  address: Address,
-  time: Time,
-  data: Data,
+  address: nodes.Address,
+  time: nodes.Time,
+  data: nodes.Data,
 }
 
 function Markdown(params, children) {
@@ -386,7 +323,7 @@ function Markdown(params, children) {
     i++
   }
 
-  const nodes = []
+  const result = []
   i = 0
 
   function parseList(startIndex, parentIndent) {
@@ -425,11 +362,13 @@ function Markdown(params, children) {
         currentIndex = nestedResult.nextIndex
       }
 
-      list.push(Li(htmlParams, content))
+      list.push(nodes.Li(htmlParams, content))
     }
 
     const listElement =
-      parentListType === "ul" ? Ul(htmlParams, list) : Ol(htmlParams, list)
+      parentListType === "ul"
+        ? nodes.Ul(htmlParams, list)
+        : nodes.Ol(htmlParams, list)
 
     return { list: listElement, nextIndex: currentIndex }
   }
@@ -443,20 +382,20 @@ function Markdown(params, children) {
 
       if (item.selfClosing) {
         // Self-closing component
-        nodes.push(item.component(resolvedAttrs))
+        result.push(item.component(resolvedAttrs))
       } else if (item.singleLine) {
         // Single-line component: content is already formatted
-        nodes.push(item.component(resolvedAttrs, item.content))
+        result.push(item.component(resolvedAttrs, item.content))
       } else {
         // Multi-line component with children - recursively process markdown content
         const childContent = item.content ? Markdown(params, item.content) : []
-        nodes.push(item.component(resolvedAttrs, childContent))
+        result.push(item.component(resolvedAttrs, childContent))
       }
       i++
     } else if (item.type === "li") {
-      const result = parseList(i, item.indent)
-      nodes.push(result.list)
-      i = result.nextIndex
+      const listResult = parseList(i, item.indent)
+      result.push(listResult.list)
+      i = listResult.nextIndex
     } else if (item.type === "blockquote") {
       const lines = []
 
@@ -466,34 +405,34 @@ function Markdown(params, children) {
       }
 
       const content = replaceVariables(lines.join("\n"), data)
-      nodes.push(
-        Blockquote(
+      result.push(
+        nodes.Blockquote(
           htmlParams,
-          P(htmlParams, format(content, INLINE_COMPONENTS)),
+          nodes.P(htmlParams, format(content, INLINE_COMPONENTS)),
         ),
       )
     } else if (item.type === "hr") {
-      nodes.push(Hr(htmlParams))
+      result.push(nodes.Hr(htmlParams))
       i++
     } else if (item.type === "pre") {
       // Code blocks - wrap in <pre><code>
       const codeParams = item.language
         ? { class: `language-${item.language}` }
         : {}
-      nodes.push(Pre(htmlParams, Code(codeParams, item.content)))
+      result.push(nodes.Pre(htmlParams, nodes.Code(codeParams, item.content)))
       i++
     } else {
       const { type, content } = item
-      const Component = COMPONENTS[type] || P
+      const Component = COMPONENTS[type] || nodes.P
       const processedContent = replaceVariables(content, data)
-      nodes.push(
+      result.push(
         Component(htmlParams, format(processedContent, INLINE_COMPONENTS)),
       )
       i++
     }
   }
 
-  return nodes
+  return result
 }
 
 module.exports = component(Markdown)
