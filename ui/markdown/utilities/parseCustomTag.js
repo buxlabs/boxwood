@@ -12,6 +12,26 @@ function parseCustomTag(line, customComponents) {
 
   const trimmed = line.trim()
 
+  // Check for single-line tag: <tag>content</tag> or <tag attr="value">content</tag>
+  const singleLineMatch = trimmed.match(
+    /^<([A-Za-z][A-Za-z0-9-]*)(\s+[^>]*)?>(.+?)<\/\1>\s*$/,
+  )
+  if (singleLineMatch) {
+    const [, tagName, attributesStr, content] = singleLineMatch
+    const component = customComponents[tagName]
+    if (component) {
+      const attributes = parseAttributes(attributesStr || "")
+      return {
+        type: "custom-component-single-line",
+        tagName,
+        component,
+        attributes,
+        content,
+        selfClosing: false,
+      }
+    }
+  }
+
   // Check for self-closing tag: <ComponentName ... /> (space before / is optional)
   const selfClosingMatch = trimmed.match(
     /^<([A-Za-z][A-Za-z0-9-]*)(\s+[^>]*)?\s*\/>\s*$/,

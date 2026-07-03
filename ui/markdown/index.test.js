@@ -2578,6 +2578,188 @@ Content
   assert(html.includes("Content"))
 })
 
+// Single-line tag tests - ensure tags work on one line
+
+test("renders single-line p tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<p>Hello world</p>")
+  assert(html.includes("<p>Hello world</p>"))
+})
+
+test("renders single-line div tag with attributes", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, '<div class="container">Content</div>')
+  assert(html.includes('<div class="container">Content</div>'))
+})
+
+test("renders single-line tag with markdown formatting", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<p>Hello **bold** world</p>")
+  assert(html.includes("<p>Hello <strong>bold</strong> world</p>"))
+})
+
+test("renders single-line tag with inline code", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<p>Use the `console.log()` function</p>")
+  assert(html.includes("<code>console.log()</code>"))
+})
+
+test("renders single-line tag with link", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<p>Visit [example](https://example.com)</p>")
+  assert(html.includes('<a href="https://example.com">example</a>'))
+})
+
+test("renders multiple single-line tags", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<p>First</p>\n<p>Second</p>\n<p>Third</p>")
+  assert(html.includes("<p>First</p>"))
+  assert(html.includes("<p>Second</p>"))
+  assert(html.includes("<p>Third</p>"))
+})
+
+test("renders single-line span tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, '<span class="highlight">Important</span>')
+  assert(html.includes('<span class="highlight">Important</span>'))
+})
+
+test("renders single-line strong tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<strong>Bold text</strong>")
+  assert(html.includes("<strong>Bold text</strong>"))
+})
+
+test("renders single-line em tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<em>Italic text</em>")
+  assert(html.includes("<em>Italic text</em>"))
+})
+
+test("renders single-line small tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<small>Fine print</small>")
+  assert(html.includes("<small>Fine print</small>"))
+})
+
+test("renders single-line mark tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<mark>Highlighted</mark>")
+  assert(html.includes("<mark>Highlighted</mark>"))
+})
+
+test("renders single-line kbd tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<kbd>Ctrl+C</kbd>")
+  assert(html.includes("<kbd>Ctrl+C</kbd>"))
+})
+
+test("renders single-line code tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<code>const x = 5;</code>")
+  assert(html.includes("<code>const x = 5;</code>"))
+})
+
+test("renders single-line cite tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<cite>Book Title</cite>")
+  assert(html.includes("<cite>Book Title</cite>"))
+})
+
+test("renders single-line abbr tag", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    '<abbr title="Hypertext Markup Language">HTML</abbr>',
+  )
+  assert(html.includes('<abbr title="Hypertext Markup Language">HTML</abbr>'))
+})
+
+test("mixes single-line and multi-line tags", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+<article>
+
+<p>Single line paragraph</p>
+
+<div>
+Multi-line div
+</div>
+
+<p>Another **single** line</p>
+
+</article>
+  `,
+  )
+  assert(html.includes("<article>"))
+  assert(html.includes("<p>Single line paragraph</p>"))
+  assert(html.includes("<div>"))
+  assert(html.includes("Multi-line div"))
+  assert(html.includes("<p>Another <strong>single</strong> line</p>"))
+})
+
+test("single-line tags work within markdown content", async () => {
+  const { template } = await compile(__dirname)
+  const html = template(
+    {},
+    `
+# Heading
+
+<p>This is a **single-line** paragraph</p>
+
+Regular markdown paragraph here.
+
+<div class="box">Single-line div content</div>
+
+- List item 1
+- List item 2
+  `,
+  )
+  assert(html.includes("<h1>Heading</h1>"))
+  assert(
+    html.includes("<p>This is a <strong>single-line</strong> paragraph</p>"),
+  )
+  assert(html.includes("Regular markdown paragraph here"))
+  assert(html.includes('<div class="box">Single-line div content</div>'))
+  assert(html.includes("<li>List item 1</li>"))
+})
+
+test("single-line tag with nested HTML entities", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({}, "<p>Price: &lt;span&gt;$10&lt;/span&gt;</p>")
+  // HTML entities in content get double-escaped for security
+  assert(
+    html.includes("<p>Price: &amp;lt;span&amp;gt;$10&amp;lt;/span&amp;gt;</p>"),
+  )
+})
+
+test("single-line custom component", async () => {
+  const { template } = await compile(__dirname)
+  const Alert = (props, children) => {
+    const { Div } = require("../..")
+    return Div({ class: "alert" }, children)
+  }
+
+  const html = template(
+    { components: { Alert } },
+    "<Alert>This is an alert message</Alert>",
+  )
+  assert(html.includes('<div class="alert">This is an alert message</div>'))
+})
+
+test("single-line builtin tag can override with custom component", async () => {
+  const { template } = await compile(__dirname)
+  const CustomP = (props, children) => {
+    const { P } = require("../..")
+    return P({ class: "custom-p", ...props }, children)
+  }
+
+  const html = template({ components: { p: CustomP } }, "<p>Content</p>")
+  assert(html.includes('<p class="custom-p">Content</p>'))
+})
+
 // Security tests - ensure unsafe tags are NOT available as builtin components
 
 test("script tag is not available as builtin component", async () => {

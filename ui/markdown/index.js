@@ -228,7 +228,28 @@ function Markdown(params, children) {
     // Check for custom component tags first
     const customTag = parseCustomTag(line, allComponents)
     if (customTag) {
-      if (customTag.type === "custom-component" && customTag.selfClosing) {
+      if (customTag.type === "custom-component-single-line") {
+        // Single-line tag: <tag>content</tag>
+        const resolvedAttrs = resolveAttributes(customTag.attributes, data)
+        const processedContent = replaceVariables(customTag.content, data)
+        // Process the content as markdown (for inline formatting)
+        const formattedContent = format(processedContent, INLINE_COMPONENTS)
+        items.push({
+          type: "custom-component",
+          tagName: customTag.tagName,
+          component: customTag.component,
+          attributes: customTag.attributes,
+          content: formattedContent,
+          selfClosing: false,
+          singleLine: true,
+          indent: line.length - line.trimStart().length,
+        })
+        i++
+        continue
+      } else if (
+        customTag.type === "custom-component" &&
+        customTag.selfClosing
+      ) {
         // Self-closing custom component
         items.push({
           type: "custom-component",
@@ -423,8 +444,11 @@ function Markdown(params, children) {
       if (item.selfClosing) {
         // Self-closing component
         nodes.push(item.component(resolvedAttrs))
+      } else if (item.singleLine) {
+        // Single-line component: content is already formatted
+        nodes.push(item.component(resolvedAttrs, item.content))
       } else {
-        // Component with children - recursively process markdown content
+        // Multi-line component with children - recursively process markdown content
         const childContent = item.content ? Markdown(params, item.content) : []
         nodes.push(item.component(resolvedAttrs, childContent))
       }
