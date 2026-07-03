@@ -2,6 +2,19 @@ const { parseCustomTag } = require("./parseCustomTag")
 const { replaceVariables } = require("./replaceVariables")
 const { format } = require("./format")
 
+// Markdown patterns
+const ORDERED_LIST_REGEXP = /^\d+\.\s/
+const UNORDERED_MARKERS = ["- ", "— ", "– ", "• "]
+const HORIZONTAL_RULE_REGEXP = /^(?:\*\s*\*\s*\*+|-\s*-\s*-+|_\s*_\s*_+)\s*$/
+const HEADINGS = [
+  { prefix: "###### ", type: "h6" },
+  { prefix: "##### ", type: "h5" },
+  { prefix: "#### ", type: "h4" },
+  { prefix: "### ", type: "h3" },
+  { prefix: "## ", type: "h2" },
+  { prefix: "# ", type: "h1" },
+]
+
 /**
  * Checks if a line is a code block delimiter (```)
  */
@@ -153,23 +166,17 @@ function processCustomComponent(
 /**
  * Determines the type and content of a markdown line
  */
-function parseMarkdownLine(
-  line,
-  orderedListRegexp,
-  unorderedMarkers,
-  horizontalRuleRegexp,
-  headings,
-) {
+function parseMarkdownLine(line) {
   const trimmed = line.trim()
   const leadingSpaces = line.length - line.trimStart().length
 
   // Horizontal rule
-  if (horizontalRuleRegexp.test(trimmed)) {
+  if (HORIZONTAL_RULE_REGEXP.test(trimmed)) {
     return { type: "hr", indent: leadingSpaces }
   }
 
   // Unordered list
-  const unorderedMarker = unorderedMarkers.find((marker) =>
+  const unorderedMarker = UNORDERED_MARKERS.find((marker) =>
     trimmed.startsWith(marker),
   )
   if (unorderedMarker) {
@@ -180,15 +187,15 @@ function parseMarkdownLine(
   }
 
   // Ordered list
-  if (orderedListRegexp.test(trimmed)) {
-    const content = trimmed.replace(orderedListRegexp, "")
+  if (ORDERED_LIST_REGEXP.test(trimmed)) {
+    const content = trimmed.replace(ORDERED_LIST_REGEXP, "")
     if (content) {
       return { type: "li", list: "ol", content, indent: leadingSpaces }
     }
   }
 
   // Headings
-  for (const { prefix, type } of headings) {
+  for (const { prefix, type } of HEADINGS) {
     if (trimmed.startsWith(prefix)) {
       return {
         type,
@@ -214,12 +221,7 @@ function parseMarkdownLine(
 /**
  * Parses all lines of markdown into structured items
  */
-function parseMarkdownLines(
-  children,
-  allComponents,
-  data,
-  patterns,
-) {
+function parseMarkdownLines(children, allComponents, data) {
   const allLines = children.trim().split("\n")
   const items = []
   let i = 0
@@ -261,13 +263,7 @@ function parseMarkdownLines(
     }
 
     // Parse regular markdown line
-    const item = parseMarkdownLine(
-      line,
-      patterns.orderedListRegexp,
-      patterns.unorderedMarkers,
-      patterns.horizontalRuleRegexp,
-      patterns.headings,
-    )
+    const item = parseMarkdownLine(line)
     if (item) {
       items.push(item)
     }

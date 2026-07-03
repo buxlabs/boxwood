@@ -376,7 +376,9 @@ test("link with escaped bracket in text remains link", () => {
 
 test("escaped opening bracket prevents link", () => {
   const result = format("\\[text](url)", mockComponents)
-  const hasLink = result.some(item => typeof item === "object" && item.type === "a")
+  const hasLink = result.some(
+    (item) => typeof item === "object" && item.type === "a",
+  )
   assert.strictEqual(hasLink, false)
 })
 
@@ -397,7 +399,9 @@ test("escaped backslash before asterisk shows backslash and italic", () => {
 test("multiple independent escapes don't interfere", () => {
   const result = format("\\*a\\* **b** \\`c\\`", mockComponents)
   assert(Array.isArray(result))
-  const hasBold = result.some(item => typeof item === "object" && item.type === "strong")
+  const hasBold = result.some(
+    (item) => typeof item === "object" && item.type === "strong",
+  )
   assert.strictEqual(hasBold, true)
   assert(result.includes("*"))
   assert(result.includes("`"))
@@ -429,8 +433,8 @@ test("escape at end followed by markdown on next parse", () => {
   const result = format("end\\\\ **bold**", mockComponents)
   assert(Array.isArray(result))
   assert(result.includes("\\"))
-  const hasBold = result.some(item => typeof item === "object" && item.type === "strong")
+  const hasBold = result.some(
+    (item) => typeof item === "object" && item.type === "strong",
+  )
   assert.strictEqual(hasBold, true)
 })
-
-

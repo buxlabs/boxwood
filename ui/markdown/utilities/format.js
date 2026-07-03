@@ -59,7 +59,7 @@ function format(text, allComponents) {
         continue
       }
     }
-    
+
     if (text[i] === "!" && text[i + 1] === "[") {
       // Try to parse markdown image ![alt](url)
       const altEnd = text.indexOf("]", i + 2)
@@ -102,25 +102,28 @@ function format(text, allComponents) {
     } else if (text[i] === "<") {
       // Try to parse autolink <url> or <email>
       const end = text.indexOf(">", i + 1)
-      
+
       if (end !== -1) {
         const content = text.substring(i + 1, end)
-        
+
         // Check if it's a URL (starts with http:// or https://)
         if (content.startsWith("http://") || content.startsWith("https://")) {
           result.push(A({ href: content }, content))
           i = end + 1
           continue
         }
-        
+
         // Check if it's an email (contains @ and looks like email)
-        if (content.includes("@") && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content)) {
+        if (
+          content.includes("@") &&
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(content)
+        ) {
           result.push(A({ href: `mailto:${content}` }, content))
           i = end + 1
           continue
         }
       }
-      
+
       // Not a valid autolink, treat as regular text
       result.push(text[i])
       i++

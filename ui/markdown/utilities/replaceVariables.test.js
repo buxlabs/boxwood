@@ -148,3 +148,115 @@ test("replaceVariables: handles complex text with multiple patterns", () => {
     "User Alice has 10 items. Visit example.com for Alice's profile.",
   )
 })
+
+test("replaceVariables: handles array indexing", () => {
+  const result = replaceVariables("First image: {images[0]}", {
+    images: ["image1.jpg", "image2.jpg"],
+  })
+  assert.strictEqual(result, "First image: image1.jpg")
+})
+
+test("replaceVariables: handles array indexing with property access", () => {
+  const result = replaceVariables("First image source: {images[0].src}", {
+    images: [
+      { src: "image1.jpg", alt: "First" },
+      { src: "image2.jpg", alt: "Second" },
+    ],
+  })
+  assert.strictEqual(result, "First image source: image1.jpg")
+})
+
+test("replaceVariables: handles multiple array indexes", () => {
+  const result = replaceVariables("{videos[0]} and {videos[1]}", {
+    videos: ["video1.mp4", "video2.mp4", "video3.mp4"],
+  })
+  assert.strictEqual(result, "video1.mp4 and video2.mp4")
+})
+
+test("replaceVariables: handles array indexing with nested property access", () => {
+  const result = replaceVariables("Video: {videos[0].src}", {
+    videos: [
+      { src: "video1.mp4", duration: 120 },
+      { src: "video2.mp4", duration: 180 },
+    ],
+  })
+  assert.strictEqual(result, "Video: video1.mp4")
+})
+
+test("replaceVariables: handles dot notation for object properties", () => {
+  const result = replaceVariables("User name: {user.name}", {
+    user: { name: "Alice", age: 30 },
+  })
+  assert.strictEqual(result, "User name: Alice")
+})
+
+test("replaceVariables: handles nested dot notation", () => {
+  const result = replaceVariables("City: {user.address.city}", {
+    user: { name: "Alice", address: { city: "New York", zip: "10001" } },
+  })
+  assert.strictEqual(result, "City: New York")
+})
+
+test("replaceVariables: handles mixed array and object access", () => {
+  const result = replaceVariables(
+    "First comment: {posts[0].comments[0].text}",
+    {
+      posts: [
+        {
+          title: "Post 1",
+          comments: [
+            { text: "Great!", author: "Bob" },
+            { text: "Nice", author: "Charlie" },
+          ],
+        },
+      ],
+    },
+  )
+  assert.strictEqual(result, "First comment: Great!")
+})
+
+test("replaceVariables: handles array index out of bounds", () => {
+  const result = replaceVariables("Image: {images[5]}", {
+    images: ["image1.jpg", "image2.jpg"],
+  })
+  assert.strictEqual(result, "Image: {images[5]}")
+})
+
+test("replaceVariables: handles missing property in path", () => {
+  const result = replaceVariables("Source: {images[0].src}", {
+    images: [{ alt: "First" }],
+  })
+  assert.strictEqual(result, "Source: {images[0].src}")
+})
+
+test("replaceVariables: handles undefined intermediate value", () => {
+  const result = replaceVariables("City: {user.address.city}", {
+    user: { name: "Alice" },
+  })
+  assert.strictEqual(result, "City: {user.address.city}")
+})
+
+test("replaceVariables: handles array access on non-array", () => {
+  const result = replaceVariables("Value: {name[0]}", {
+    name: "Alice",
+  })
+  assert.strictEqual(result, "Value: A")
+})
+
+test("replaceVariables: handles property access on null", () => {
+  const result = replaceVariables("City: {user.address}", {
+    user: null,
+  })
+  assert.strictEqual(result, "City: {user.address}")
+})
+
+test("replaceVariables: combines simple and complex paths", () => {
+  const result = replaceVariables(
+    "Hello {name}, your first image is {images[0].src}",
+    {
+      name: "Alice",
+      images: [{ src: "photo1.jpg" }, { src: "photo2.jpg" }],
+    },
+  )
+  assert.strictEqual(result, "Hello Alice, your first image is photo1.jpg")
+})

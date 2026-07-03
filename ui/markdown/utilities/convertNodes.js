@@ -88,7 +88,13 @@ function processCustomComponentItem(item, params, data, markdownRenderer) {
 /**
  * Processes blockquote items into a single blockquote node
  */
-function processBlockquotes(items, startIndex, htmlParams, data, allComponents) {
+function processBlockquotes(
+  items,
+  startIndex,
+  htmlParams,
+  data,
+  allComponents,
+) {
   const lines = []
   let i = startIndex
 
@@ -158,7 +164,12 @@ function convertItemsToNodes(
       const codeParams = item.language
         ? { class: `language-${item.language}` }
         : {}
-      result.push(allComponents.pre(htmlParams, allComponents.code(codeParams, item.content)))
+      result.push(
+        allComponents.pre(
+          htmlParams,
+          allComponents.code(codeParams, item.content),
+        ),
+      )
       i++
     } else {
       // Regular block elements (h1-h6, p, etc.)

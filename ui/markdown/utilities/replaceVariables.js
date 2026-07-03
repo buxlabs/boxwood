@@ -1,5 +1,40 @@
 /**
+ * Resolve a path like "images[0].src" or "user.name" from a data object
+ * @param {Object} data - The data object to resolve the path from
+ * @param {string} path - The path to resolve (e.g., "images[0].src", "user.name")
+ * @returns {*} - The resolved value or undefined
+ */
+function resolvePath(data, path) {
+  // Handle simple variable names (backwards compatibility)
+  if (!/[.\[]/.test(path)) {
+    return data[path]
+  }
+
+  // Split the path into parts, handling both dot notation and bracket notation
+  // e.g., "images[0].src" -> ["images", "0", "src"]
+  const parts = path
+    .replace(/\[(\d+)\]/g, ".$1") // Convert [0] to .0
+    .split(".")
+    .filter(Boolean)
+
+  let current = data
+  for (const part of parts) {
+    if (current === null || current === undefined) {
+      return undefined
+    }
+    current = current[part]
+  }
+
+  return current
+}
+
+/**
  * Replace {variableName} placeholders in text with actual values from data
+ * Supports:
+ * - Simple variables: {name}
+ * - Array indexing: {images[0]}
+ * - Property access: {user.name}
+ * - Combined: {images[0].src}
  * @param {string} text - Text containing variable placeholders
  * @param {Object} data - Data object with variable values
  * @returns {string|Array} - Text with variables replaced, or array if mixed content
@@ -37,16 +72,16 @@ function replaceVariables(text, data) {
 
       if (closeIndex !== -1) {
         // Found a variable placeholder
-        const variableName = text.substring(i + 1, closeIndex).trim()
+        const variablePath = text.substring(i + 1, closeIndex).trim()
 
-        if (variableName) {
+        if (variablePath) {
           // Add text before the variable
           if (i > lastIndex) {
             result.push(text.substring(lastIndex, i))
           }
 
-          // Add the variable value
-          const value = data[variableName]
+          // Resolve the variable value (supports paths like "images[0].src")
+          const value = resolvePath(data, variablePath)
           if (value !== undefined && value !== null) {
             result.push(String(value))
           } else {

@@ -5,18 +5,6 @@ const { extractHtmlParams, mergeComponents } = require("./utilities/params")
 const { parseMarkdownLines } = require("./utilities/parseBlock")
 const { convertItemsToNodes } = require("./utilities/convertNodes")
 
-const ORDERED_LIST_REGEXP = /^\d+\.\s/
-const UNORDERED_MARKERS = ["- ", "— ", "– ", "• "]
-const HORIZONTAL_RULE_REGEXP = /^(?:\*\s*\*\s*\*+|-\s*-\s*-+|_\s*_\s*_+)\s*$/
-const HEADINGS = [
-  { prefix: "###### ", type: "h6" },
-  { prefix: "##### ", type: "h5" },
-  { prefix: "#### ", type: "h4" },
-  { prefix: "### ", type: "h3" },
-  { prefix: "## ", type: "h2" },
-  { prefix: "# ", type: "h1" },
-]
-
 const COMPONENTS = {
   h1: nodes.H1,
   h2: nodes.H2,
@@ -139,17 +127,7 @@ function Markdown(params, children) {
   const htmlParams = extractHtmlParams(params)
 
   // Parse all markdown lines into structured items
-  const items = parseMarkdownLines(
-    children,
-    allComponents,
-    data,
-    {
-      orderedListRegexp: ORDERED_LIST_REGEXP,
-      unorderedMarkers: UNORDERED_MARKERS,
-      horizontalRuleRegexp: HORIZONTAL_RULE_REGEXP,
-      headings: HEADINGS,
-    },
-  )
+  const items = parseMarkdownLines(children, allComponents, data)
 
   // Convert parsed items into final node tree
   return convertItemsToNodes(
