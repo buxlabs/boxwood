@@ -11,7 +11,7 @@ const BREAKPOINTS = {
 
 function Grid(
   { className, columns = 3, gap, id, breakpoint, style },
-  children
+  children,
 ) {
   gap = normalizeGap(gap)
   breakpoint = normalizeBreakpoint(breakpoint)
@@ -32,10 +32,7 @@ function Grid(
     ...(typeof columns === "object" &&
       Object.keys(columns).reduce((object, key) => {
         let value = toNumber(columns[key])
-        value =
-          typeof value === "number"
-            ? `repeat(${value}, 1fr)`
-            : value
+        value = typeof value === "number" ? `repeat(${value}, 1fr)` : value
         if (key === "default") {
           object["grid-template-columns"] = value
         } else if (typeof key === "string") {

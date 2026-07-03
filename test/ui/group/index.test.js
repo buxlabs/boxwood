@@ -157,12 +157,16 @@ test('supports string number "breakpoint" prop', async () => {
   assert(html.includes("@media (max-width:1023px)"))
 })
 
-test('preserves non-numeric string values', async () => {
+test("preserves non-numeric string values", async () => {
   const { template } = await compile(__dirname)
-  let html = template({ gap: "1rem 2rem", width: "100%", padding: "1em", margin: "auto" })
+  let html = template({
+    gap: "1rem 2rem",
+    width: "100%",
+    padding: "1em",
+    margin: "auto",
+  })
   assert(html.includes("gap:1rem 2rem"))
   assert(html.includes("width:100%"))
   assert(html.includes("padding:1em"))
   assert(html.includes("margin:auto"))
 })
-

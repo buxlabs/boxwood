@@ -5,7 +5,7 @@ const {
   normalizeGap,
   normalizeSpacing,
   normalizeWidth,
-  normalizeFlex
+  normalizeFlex,
 } = require("../../../ui/normalize")
 
 test("normalizeBreakpoint: converts number to px string", () => {
@@ -103,7 +103,10 @@ test("normalizeSpacing: converts string numbers to px string", () => {
 
 test("normalizeSpacing: preserves complex string values", () => {
   assert.strictEqual(normalizeSpacing("1rem 2rem"), "1rem 2rem")
-  assert.strictEqual(normalizeSpacing("10px 20px 30px 40px"), "10px 20px 30px 40px")
+  assert.strictEqual(
+    normalizeSpacing("10px 20px 30px 40px"),
+    "10px 20px 30px 40px",
+  )
   assert.strictEqual(normalizeSpacing("auto"), "auto")
 })
 

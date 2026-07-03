@@ -47,7 +47,7 @@ function normalizeGap(gap) {
   if (!gap) {
     return "1rem"
   }
-  
+
   if (GAP_MAP.hasOwnProperty(gap)) {
     return GAP_MAP[gap]
   }
