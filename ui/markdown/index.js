@@ -133,36 +133,246 @@ const BUILTIN_HTML_TAGS = SAFE_TAG_NAMES.reduce((acc, tagName) => {
   return acc
 }, {})
 
+/**
+ * Extracts HTML parameters from params object by filtering out special keys
+ */
+function extractHtmlParams(params) {
+  if (!params) return {}
+  
+  return Object.keys(params).reduce((acc, key) => {
+    if (key !== "components" && key !== "data") {
+      acc[key] = params[key]
+    }
+    return acc
+  }, {})
+}
+
+/**
+ * Merges builtin HTML tags with custom components
+ */
+function mergeComponents(customComponents) {
+  return {
+    ...BUILTIN_HTML_TAGS,
+    ...customComponents,
+  }
+}
+
 function Markdown(params, children) {
+  // Handle array of children recursively
   if (Array.isArray(children)) {
     return children.map((child) => Markdown(params, child))
   }
 
+  // Only process string content
   if (typeof children !== "string") {
     return null
   }
 
   const customComponents = params && params.components
   const data = params && params.data
+  const allComponents = mergeComponents(customComponents)
+  const htmlParams = extractHtmlParams(params)
 
-  // Merge builtin HTML tags with custom components
-  // Custom components can override builtin tags if needed
-  const allComponents = {
-    ...BUILTIN_HTML_TAGS,
-    ...customComponents,
+/**
+ * Checks if a line is a code block delimiter (```)
+ */
+function isCodeBlockDelimiter(trimmedLine) {
+  return trimmedLine.startsWith("```")
+}
+
+/**
+ * Parses a code block starting from the current index
+ * Returns the code block item and the next index to process
+ */
+function parseCodeBlock(allLines, startIndex) {
+  const line = allLines[startIndex]
+  const language = line.trim().substring(3).trim()
+  const codeLines = []
+  let i = startIndex + 1
+
+  // Collect lines until closing ```
+  while (i < allLines.length) {
+    const codeLine = allLines[i]
+    if (isCodeBlockDelimiter(codeLine.trim())) {
+      i++ // Skip closing delimiter
+      break
+    }
+    codeLines.push(codeLine)
+    i++
   }
 
-  // Filter out special params that shouldn't be passed to HTML elements
-  const htmlParams = params
-    ? Object.keys(params).reduce((acc, key) => {
-        if (key !== "components" && key !== "data") {
-          acc[key] = params[key]
-        }
-        return acc
-      }, {})
-    : {}
+  return {
+    item: {
+      type: "pre",
+      content: codeLines.join("\n"),
+      language: language || undefined,
+      indent: 0,
+    },
+    nextIndex: i,
+  }
+}
 
-  // First pass: detect code blocks before processing lines
+/**
+ * Collects content lines for a multi-line custom component
+ */
+function collectComponentContent(allLines, startIndex, tagName, allComponents) {
+  const contentLines = []
+  let i = startIndex
+  let depth = 1
+
+  while (i < allLines.length && depth > 0) {
+    const contentLine = allLines[i]
+    const contentTag = parseCustomTag(contentLine, allComponents)
+
+    if (contentTag && contentTag.tagName === tagName) {
+      if (contentTag.type === "custom-component-open") {
+        depth++
+        contentLines.push(contentLine)
+      } else if (contentTag.type === "custom-component-close") {
+        depth--
+        if (depth === 0) {
+          i++
+          break
+        }
+        contentLines.push(contentLine)
+      }
+    } else {
+      contentLines.push(contentLine)
+    }
+    i++
+  }
+
+  return {
+    content: contentLines.join("\n"),
+    nextIndex: i,
+  }
+}
+
+/**
+ * Processes a custom component tag and returns the appropriate item
+ */
+function processCustomComponent(line, allLines, currentIndex, customTag, data, allComponents) {
+  const indent = line.length - line.trimStart().length
+
+  // Single-line component with content
+  if (customTag.type === "custom-component-single-line") {
+    const processedContent = replaceVariables(customTag.content, data)
+    const formattedContent = format(processedContent, INLINE_COMPONENTS)
+    return {
+      item: {
+        type: "custom-component",
+        tagName: customTag.tagName,
+        component: customTag.component,
+        attributes: customTag.attributes,
+        content: formattedContent,
+        selfClosing: false,
+        singleLine: true,
+        indent,
+      },
+      nextIndex: currentIndex + 1,
+    }
+  }
+
+  // Self-closing component
+  if (customTag.type === "custom-component" && customTag.selfClosing) {
+    return {
+      item: {
+        type: "custom-component",
+        tagName: customTag.tagName,
+        component: customTag.component,
+        attributes: customTag.attributes,
+        selfClosing: true,
+        indent,
+      },
+      nextIndex: currentIndex + 1,
+    }
+  }
+
+  // Multi-line component
+  if (customTag.type === "custom-component-open") {
+    const { content, nextIndex } = collectComponentContent(
+      allLines,
+      currentIndex + 1,
+      customTag.tagName,
+      allComponents
+    )
+
+    return {
+      item: {
+        type: "custom-component",
+        tagName: customTag.tagName,
+        component: customTag.component,
+        attributes: customTag.attributes,
+        content,
+        selfClosing: false,
+        indent,
+      },
+      nextIndex,
+    }
+  }
+
+  return null
+}
+
+/**
+ * Determines the type and content of a markdown line
+ */
+function parseMarkdownLine(line) {
+  const trimmed = line.trim()
+  const leadingSpaces = line.length - line.trimStart().length
+
+  // Horizontal rule
+  if (HORIZONTAL_RULE_REGEXP.test(trimmed)) {
+    return { type: "hr", indent: leadingSpaces }
+  }
+
+  // Unordered list
+  const unorderedMarker = UNORDERED_MARKERS.find((marker) =>
+    trimmed.startsWith(marker)
+  )
+  if (unorderedMarker) {
+    const content = trimmed.substring(2)
+    if (content) {
+      return { type: "li", list: "ul", content, indent: leadingSpaces }
+    }
+  }
+
+  // Ordered list
+  if (ORDERED_LIST_REGEXP.test(trimmed)) {
+    const content = trimmed.replace(ORDERED_LIST_REGEXP, "")
+    if (content) {
+      return { type: "li", list: "ol", content, indent: leadingSpaces }
+    }
+  }
+
+  // Headings
+  for (const { prefix, type } of HEADINGS) {
+    if (trimmed.startsWith(prefix)) {
+      return {
+        type,
+        content: trimmed.substring(prefix.length),
+        indent: leadingSpaces,
+      }
+    }
+  }
+
+  // Blockquote
+  if (trimmed.startsWith("> ")) {
+    return {
+      type: "blockquote",
+      content: trimmed.substring(2),
+      indent: leadingSpaces,
+    }
+  }
+
+  // Default to paragraph
+  return { type: "p", content: trimmed, indent: leadingSpaces }
+}
+
+/**
+ * Parses all lines of markdown into structured items
+ */
+function parseMarkdownLines(children, allComponents, data) {
   const allLines = children.trim().split("\n")
   const items = []
   let i = 0
@@ -171,249 +381,155 @@ function Markdown(params, children) {
     const line = allLines[i]
     const trimmed = line.trim()
 
-    // Check for custom component tags first
-    const customTag = parseCustomTag(line, allComponents)
-    if (customTag) {
-      if (customTag.type === "custom-component-single-line") {
-        const processedContent = replaceVariables(customTag.content, data)
-        const formattedContent = format(processedContent, INLINE_COMPONENTS)
-        items.push({
-          type: "custom-component",
-          tagName: customTag.tagName,
-          component: customTag.component,
-          attributes: customTag.attributes,
-          content: formattedContent,
-          selfClosing: false,
-          singleLine: true,
-          indent: line.length - line.trimStart().length,
-        })
-        i++
-        continue
-      } else if (
-        customTag.type === "custom-component" &&
-        customTag.selfClosing
-      ) {
-        items.push({
-          type: "custom-component",
-          tagName: customTag.tagName,
-          component: customTag.component,
-          attributes: customTag.attributes,
-          selfClosing: true,
-          indent: line.length - line.trimStart().length,
-        })
-        i++
-        continue
-      } else if (customTag.type === "custom-component-open") {
-        const openIndent = line.length - line.trimStart().length
-        const tagName = customTag.tagName
-        const componentFn = customTag.component
-        const attributes = customTag.attributes
-        const contentLines = []
-        i++ // Move past opening tag
-
-        // Collect content until closing tag
-        let depth = 1
-        while (i < allLines.length && depth > 0) {
-          const contentLine = allLines[i]
-          const contentTag = parseCustomTag(contentLine, allComponents)
-
-          if (contentTag && contentTag.tagName === tagName) {
-            if (contentTag.type === "custom-component-open") {
-              depth++
-              contentLines.push(contentLine)
-            } else if (contentTag.type === "custom-component-close") {
-              depth--
-              if (depth === 0) {
-                i++
-                break
-              }
-              contentLines.push(contentLine)
-            }
-          } else {
-            contentLines.push(contentLine)
-          }
-          i++
-        }
-
-        items.push({
-          type: "custom-component",
-          tagName,
-          component: componentFn,
-          attributes,
-          content: contentLines.join("\n"),
-          selfClosing: false,
-          indent: openIndent,
-        })
-        continue
-      }
-    }
-
-    // Check for code block start
-    if (trimmed.startsWith("```")) {
-      const language = trimmed.substring(3).trim()
-      const codeLines = []
-      i++ // Move past the opening ```
-
-      // Collect code block lines until closing ```
-      while (i < allLines.length) {
-        const codeLine = allLines[i]
-        if (codeLine.trim().startsWith("```")) {
-          // Found closing ```, don't include it
-          i++
-          break
-        }
-        codeLines.push(codeLine)
-        i++
-      }
-
-      items.push({
-        type: "pre",
-        content: codeLines.join("\n"),
-        language: language || undefined,
-        indent: 0,
-      })
-      continue
-    }
-
     // Skip empty lines
     if (trimmed.length === 0) {
       i++
       continue
     }
 
-    const leadingSpaces = line.length - line.trimStart().length
+    // Check for custom component tags
+    const customTag = parseCustomTag(line, allComponents)
+    if (customTag) {
+      const result = processCustomComponent(line, allLines, i, customTag, data, allComponents)
+      if (result) {
+        items.push(result.item)
+        i = result.nextIndex
+        continue
+      }
+    }
 
-    // Check for other block types
-    if (HORIZONTAL_RULE_REGEXP.test(trimmed)) {
-      items.push({ type: "hr", indent: leadingSpaces })
-    } else if (UNORDERED_MARKERS.some((marker) => trimmed.startsWith(marker))) {
-      const content = trimmed.substring(2)
-      if (content) {
-        items.push({ type: "li", list: "ul", content, indent: leadingSpaces })
-      }
-    } else if (ORDERED_LIST_REGEXP.test(trimmed)) {
-      const content = trimmed.replace(ORDERED_LIST_REGEXP, "")
-      if (content) {
-        items.push({ type: "li", list: "ol", content, indent: leadingSpaces })
-      }
-    } else {
-      let matched = false
-      for (const { prefix, type } of HEADINGS) {
-        if (trimmed.startsWith(prefix)) {
-          items.push({
-            type,
-            content: trimmed.substring(prefix.length),
-            indent: leadingSpaces,
-          })
-          matched = true
-          break
-        }
-      }
+    // Check for code blocks
+    if (isCodeBlockDelimiter(trimmed)) {
+      const { item, nextIndex } = parseCodeBlock(allLines, i)
+      items.push(item)
+      i = nextIndex
+      continue
+    }
 
-      if (!matched) {
-        if (trimmed.startsWith("> ")) {
-          items.push({
-            type: "blockquote",
-            content: trimmed.substring(2),
-            indent: leadingSpaces,
-          })
-        } else {
-          items.push({ type: "p", content: trimmed, indent: leadingSpaces })
-        }
-      }
+    // Parse regular markdown line
+    const item = parseMarkdownLine(line)
+    if (item) {
+      items.push(item)
     }
 
     i++
   }
 
-  const result = []
-  i = 0
+  return items
+}
 
-  function parseList(startIndex, parentIndent) {
-    const list = []
-    let currentIndex = startIndex
-    const parentListType = items[startIndex].list
+  // Parse all markdown lines into structured items
+  const items = parseMarkdownLines(children, allComponents, data)
 
-    while (currentIndex < items.length) {
-      const item = items[currentIndex]
+/**
+ * Recursively parses nested lists with proper indentation handling
+ */
+function parseList(items, startIndex, parentIndent, htmlParams, data) {
+  const list = []
+  let currentIndex = startIndex
+  const parentListType = items[startIndex].list
 
-      // Stop if not a list item or indent is less than expected
-      if (item.type !== "li" || item.indent < parentIndent) {
-        break
-      }
+  while (currentIndex < items.length) {
+    const item = items[currentIndex]
 
-      // Stop if indent matches but list type differs
-      if (item.indent === parentIndent && item.list !== parentListType) {
-        break
-      }
-
-      // Skip items with greater indent (they belong to nested lists)
-      if (item.indent > parentIndent) {
-        break
-      }
-
-      // Process current item at the correct indent level
-      const processedContent = replaceVariables(item.content, data)
-      const content = [format(processedContent, INLINE_COMPONENTS)]
-      currentIndex++
-
-      // Check if next item is a nested list
-      const nextItem = items[currentIndex]
-      if (nextItem?.type === "li" && nextItem.indent > item.indent) {
-        const nestedResult = parseList(currentIndex, nextItem.indent)
-        content.push(nestedResult.list)
-        currentIndex = nestedResult.nextIndex
-      }
-
-      list.push(nodes.Li(htmlParams, content))
+    // Stop conditions
+    if (item.type !== "li" || item.indent < parentIndent) {
+      break
     }
 
-    const listElement =
-      parentListType === "ul"
-        ? nodes.Ul(htmlParams, list)
-        : nodes.Ol(htmlParams, list)
+    if (item.indent === parentIndent && item.list !== parentListType) {
+      break
+    }
 
-    return { list: listElement, nextIndex: currentIndex }
+    if (item.indent > parentIndent) {
+      break
+    }
+
+    // Process current list item
+    const processedContent = replaceVariables(item.content, data)
+    const content = [format(processedContent, INLINE_COMPONENTS)]
+    currentIndex++
+
+    // Check for nested lists
+    const nextItem = items[currentIndex]
+    if (nextItem?.type === "li" && nextItem.indent > item.indent) {
+      const nestedResult = parseList(items, currentIndex, nextItem.indent, htmlParams, data)
+      content.push(nestedResult.list)
+      currentIndex = nestedResult.nextIndex
+    }
+
+    list.push(nodes.Li(htmlParams, content))
   }
+
+  const listElement =
+    parentListType === "ul"
+      ? nodes.Ul(htmlParams, list)
+      : nodes.Ol(htmlParams, list)
+
+  return { list: listElement, nextIndex: currentIndex }
+}
+
+/**
+ * Processes a custom component item into a node
+ */
+function processCustomComponentItem(item, params, data) {
+  const resolvedAttrs = resolveAttributes(item.attributes, data)
+
+  if (item.selfClosing) {
+    return item.component(resolvedAttrs)
+  }
+
+  if (item.singleLine) {
+    return item.component(resolvedAttrs, item.content)
+  }
+
+  // Multi-line component with children - recursively process markdown
+  const childContent = item.content ? Markdown(params, item.content) : []
+  return item.component(resolvedAttrs, childContent)
+}
+
+/**
+ * Processes blockquote items into a single blockquote node
+ */
+function processBlockquotes(items, startIndex, htmlParams, data) {
+  const lines = []
+  let i = startIndex
+
+  while (i < items.length && items[i].type === "blockquote") {
+    lines.push(items[i].content)
+    i++
+  }
+
+  const content = replaceVariables(lines.join("\n"), data)
+  const blockquote = nodes.Blockquote(
+    htmlParams,
+    nodes.P(htmlParams, format(content, INLINE_COMPONENTS))
+  )
+
+  return { node: blockquote, nextIndex: i }
+}
+
+/**
+ * Converts parsed items into final node tree
+ */
+function convertItemsToNodes(items, params, htmlParams, data) {
+  const result = []
+  let i = 0
 
   while (i < items.length) {
     const item = items[i]
 
     if (item.type === "custom-component") {
-      // Handle custom component
-      const resolvedAttrs = resolveAttributes(item.attributes, data)
-
-      if (item.selfClosing) {
-        // Self-closing component
-        result.push(item.component(resolvedAttrs))
-      } else if (item.singleLine) {
-        // Single-line component: content is already formatted
-        result.push(item.component(resolvedAttrs, item.content))
-      } else {
-        // Multi-line component with children - recursively process markdown content
-        const childContent = item.content ? Markdown(params, item.content) : []
-        result.push(item.component(resolvedAttrs, childContent))
-      }
+      result.push(processCustomComponentItem(item, params, data))
       i++
     } else if (item.type === "li") {
-      const listResult = parseList(i, item.indent)
+      const listResult = parseList(items, i, item.indent, htmlParams, data)
       result.push(listResult.list)
       i = listResult.nextIndex
     } else if (item.type === "blockquote") {
-      const lines = []
-
-      while (i < items.length && items[i].type === "blockquote") {
-        lines.push(items[i].content)
-        i++
-      }
-
-      const content = replaceVariables(lines.join("\n"), data)
-      result.push(
-        nodes.Blockquote(
-          htmlParams,
-          nodes.P(htmlParams, format(content, INLINE_COMPONENTS)),
-        ),
-      )
+      const { node, nextIndex } = processBlockquotes(items, i, htmlParams, data)
+      result.push(node)
+      i = nextIndex
     } else if (item.type === "hr") {
       result.push(nodes.Hr(htmlParams))
       i++
@@ -425,17 +541,22 @@ function Markdown(params, children) {
       result.push(nodes.Pre(htmlParams, nodes.Code(codeParams, item.content)))
       i++
     } else {
+      // Regular block elements (h1-h6, p, etc.)
       const { type, content } = item
       const Component = COMPONENTS[type] || nodes.P
       const processedContent = replaceVariables(content, data)
       result.push(
-        Component(htmlParams, format(processedContent, INLINE_COMPONENTS)),
+        Component(htmlParams, format(processedContent, INLINE_COMPONENTS))
       )
       i++
     }
   }
 
   return result
+}
+
+  // Convert parsed items into final node tree
+  return convertItemsToNodes(items, params, htmlParams, data)
 }
 
 module.exports = component(Markdown)
