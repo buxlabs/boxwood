@@ -80,8 +80,7 @@ test("processLoops: handles multiple loops", () => {
 })
 
 test("processLoops: handles nested loops", () => {
-  const text =
-    "{#each outer as o}{o}: {#each inner as i}{i} {/each}\n{/each}"
+  const text = "{#each outer as o}{o}: {#each inner as i}{i} {/each}\n{/each}"
   const result = processLoops(text, { outer: ["A", "B"], inner: ["1", "2"] })
   assert.strictEqual(result, "A: 1 2 \nB: 1 2 \n")
 })
@@ -93,10 +92,7 @@ test("processLoops: handles nested loops with different item names", () => {
     groups: ["A", "B"],
     items: ["1", "2"],
   })
-  assert.strictEqual(
-    result,
-    "Group A:\n  - 1\n  - 2\nGroup B:\n  - 1\n  - 2\n",
-  )
+  assert.strictEqual(result, "Group A:\n  - 1\n  - 2\nGroup B:\n  - 1\n  - 2\n")
 })
 
 test("processLoops: handles array access in loop variable", () => {
@@ -143,7 +139,12 @@ test("processLoops: handles nested property access in array path", () => {
 
 test("processLoops: handles array index in array path", () => {
   const text = "{#each groups[0]}- {item}\n{/each}"
-  const result = processLoops(text, { groups: [["a", "b"], ["c", "d"]] })
+  const result = processLoops(text, {
+    groups: [
+      ["a", "b"],
+      ["c", "d"],
+    ],
+  })
   assert.strictEqual(result, "- a\n- b\n")
 })
 
@@ -168,7 +169,10 @@ test("processLoops: handles complex object properties", () => {
 test("processLoops: handles index with zero-based counting", () => {
   const text = "{#each items as item, idx}Item #{idx}: {item}\n{/each}"
   const result = processLoops(text, { items: ["first", "second", "third"] })
-  assert.strictEqual(result, "Item #0: first\nItem #1: second\nItem #2: third\n")
+  assert.strictEqual(
+    result,
+    "Item #0: first\nItem #1: second\nItem #2: third\n",
+  )
 })
 
 test("processLoops: handles markdown formatting inside loops", () => {
@@ -187,7 +191,8 @@ test("processLoops: handles single item array", () => {
 })
 
 test("processLoops: handles deeply nested object properties", () => {
-  const text = "{#each users as user}{user.profile.name} - {user.profile.email}\n{/each}"
+  const text =
+    "{#each users as user}{user.profile.name} - {user.profile.email}\n{/each}"
   const result = processLoops(text, {
     users: [
       { profile: { name: "Alice", email: "alice@example.com" } },

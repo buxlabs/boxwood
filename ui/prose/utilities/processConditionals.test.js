@@ -303,7 +303,8 @@ test("processConditionals: handles multiple if-else blocks", () => {
 })
 
 test("processConditionals: handles nested if with else", () => {
-  const text = "{#if outer}Outer: {#if inner}Inner{#else}Not inner{/if}{#else}Not outer{/if}"
+  const text =
+    "{#if outer}Outer: {#if inner}Inner{#else}Not inner{/if}{#else}Not outer{/if}"
   const result1 = processConditionals(text, { outer: true, inner: true })
   assert.strictEqual(result1, "Outer: Inner")
   const result2 = processConditionals(text, { outer: true, inner: false })
@@ -321,10 +322,13 @@ Alternative 1
 Alternative 2
 {/if}`
   const result = processConditionals(text, { show: false })
-  assert.strictEqual(result, `
+  assert.strictEqual(
+    result,
+    `
 Alternative 1
 Alternative 2
-`)
+`,
+  )
 })
 
 test("processConditionals: handles else with markdown content", () => {
@@ -340,7 +344,8 @@ test("processConditionals: handles else when no data object", () => {
 })
 
 test("processConditionals: handles else with complex nested structure", () => {
-  const text = "{#if status == 'active'}Active{#else}{#if status == 'pending'}Pending{#else}Inactive{/if}{/if}"
+  const text =
+    "{#if status == 'active'}Active{#else}{#if status == 'pending'}Pending{#else}Inactive{/if}{/if}"
   const result1 = processConditionals(text, { status: "active" })
   assert.strictEqual(result1, "Active")
   const result2 = processConditionals(text, { status: "pending" })
@@ -350,9 +355,18 @@ test("processConditionals: handles else with complex nested structure", () => {
 })
 
 test("processConditionals: handles else with variables in both branches", () => {
-  const text = "{#if isPremium}Premium: {price}{#else}Standard: {basePrice}{/if}"
-  const result1 = processConditionals(text, { isPremium: true, price: 100, basePrice: 50 })
+  const text =
+    "{#if isPremium}Premium: {price}{#else}Standard: {basePrice}{/if}"
+  const result1 = processConditionals(text, {
+    isPremium: true,
+    price: 100,
+    basePrice: 50,
+  })
   assert.strictEqual(result1, "Premium: {price}")
-  const result2 = processConditionals(text, { isPremium: false, price: 100, basePrice: 50 })
+  const result2 = processConditionals(text, {
+    isPremium: false,
+    price: 100,
+    basePrice: 50,
+  })
   assert.strictEqual(result2, "Standard: {basePrice}")
 })

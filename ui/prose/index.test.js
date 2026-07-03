@@ -3331,14 +3331,17 @@ By {author}
 Author unknown
 {/if}
 `
-  const html = template({
-    data: {
-      showTitle: true,
-      title: "My Article",
-      showAuthor: false,
-      author: "John",
+  const html = template(
+    {
+      data: {
+        showTitle: true,
+        title: "My Article",
+        showAuthor: false,
+        author: "John",
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<h1>My Article</h1>"))
   assert(html.includes("Author unknown"))
   assert(!html.includes("Untitled Document"))
@@ -3359,12 +3362,18 @@ test("handles nested if-else blocks", async () => {
 **Free User**
 {/if}
 `
-  const html1 = template({ data: { userType: "premium", verified: true } }, prose)
+  const html1 = template(
+    { data: { userType: "premium", verified: true } },
+    prose,
+  )
   assert(html1.includes("Premium User"))
   assert(html1.includes("✓ Verified"))
   assert(!html1.includes("Not verified"))
 
-  const html2 = template({ data: { userType: "premium", verified: false } }, prose)
+  const html2 = template(
+    { data: { userType: "premium", verified: false } },
+    prose,
+  )
   assert(html2.includes("Premium User"))
   assert(html2.includes("⚠ Not verified"))
   assert(!html2.includes("✓ Verified"))
@@ -3391,15 +3400,18 @@ No email provided
 
 {/each}
 `
-  const html = template({
-    data: {
-      users: [
-        { name: "Alice", email: "alice@example.com" },
-        { name: "Bob", email: "" },
-        { name: "Charlie" },
-      ],
+  const html = template(
+    {
+      data: {
+        users: [
+          { name: "Alice", email: "alice@example.com" },
+          { name: "Bob", email: "" },
+          { name: "Charlie" },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("Alice"))
   assert(html.includes("alice@example.com"))
   assert(html.includes("Bob"))
@@ -3437,7 +3449,10 @@ test("renders simple loop with {#each items}", async () => {
 - {item}
 {/each}
 `
-  const html = template({ data: { items: ["Apple", "Banana", "Cherry"] } }, prose)
+  const html = template(
+    { data: { items: ["Apple", "Banana", "Cherry"] } },
+    prose,
+  )
   assert(html.includes("<li>Apple</li>"))
   assert(html.includes("<li>Banana</li>"))
   assert(html.includes("<li>Cherry</li>"))
@@ -3462,7 +3477,10 @@ test("renders loop with item and index", async () => {
 Item {i}: {item}
 {/each}
 `
-  const html = template({ data: { items: ["First", "Second", "Third"] } }, prose)
+  const html = template(
+    { data: { items: ["First", "Second", "Third"] } },
+    prose,
+  )
   assert(html.includes("Item 0: First"))
   assert(html.includes("Item 1: Second"))
   assert(html.includes("Item 2: Third"))
@@ -3475,14 +3493,17 @@ test("renders loop with object properties", async () => {
 **{user.name}** - {user.email}
 {/each}
 `
-  const html = template({
-    data: {
-      users: [
-        { name: "Alice", email: "alice@example.com" },
-        { name: "Bob", email: "bob@example.com" },
-      ],
+  const html = template(
+    {
+      data: {
+        users: [
+          { name: "Alice", email: "alice@example.com" },
+          { name: "Bob", email: "bob@example.com" },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<strong>Alice</strong>"))
   assert(html.includes("alice@example.com"))
   assert(html.includes("<strong>Bob</strong>"))
@@ -3499,14 +3520,17 @@ test("renders loop with headings", async () => {
 
 {/each}
 `
-  const html = template({
-    data: {
-      sections: [
-        { title: "Introduction", content: "Welcome to the guide." },
-        { title: "Conclusion", content: "Thank you for reading." },
-      ],
+  const html = template(
+    {
+      data: {
+        sections: [
+          { title: "Introduction", content: "Welcome to the guide." },
+          { title: "Conclusion", content: "Thank you for reading." },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<h2>Introduction</h2>"))
   assert(html.includes("Welcome to the guide."))
   assert(html.includes("<h2>Conclusion</h2>"))
@@ -3537,12 +3561,15 @@ test("handles nested loops", async () => {
 
 {/each}
 `
-  const html = template({
-    data: {
-      categories: ["Fruits", "Vegetables"],
-      items: ["Apple", "Carrot"],
+  const html = template(
+    {
+      data: {
+        categories: ["Fruits", "Vegetables"],
+        items: ["Apple", "Carrot"],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<h3>Fruits</h3>"))
   assert(html.includes("<h3>Vegetables</h3>"))
   // Items should be repeated for each category
@@ -3562,14 +3589,17 @@ Price: $\{product.price}
 
 {/each}
 `
-  const html = template({
-    data: {
-      products: [
-        { name: "Widget", price: 10 },
-        { name: "Gadget", price: 20 },
-      ],
+  const html = template(
+    {
+      data: {
+        products: [
+          { name: "Widget", price: 10 },
+          { name: "Gadget", price: 20 },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<strong>Widget</strong>"))
   assert(html.includes("Price: $10"))
   assert(html.includes("<strong>Gadget</strong>"))
@@ -3589,15 +3619,18 @@ test("handles loops combined with conditionals", async () => {
 
 {/each}
 `
-  const html = template({
-    data: {
-      users: [
-        { name: "Alice", verified: true },
-        { name: "Bob", verified: false },
-        { name: "Charlie", verified: true },
-      ],
+  const html = template(
+    {
+      data: {
+        users: [
+          { name: "Alice", verified: true },
+          { name: "Bob", verified: false },
+          { name: "Charlie", verified: true },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<strong>Alice</strong>"))
   assert(html.includes("<strong>Bob</strong>"))
   assert(html.includes("<strong>Charlie</strong>"))
@@ -3613,14 +3646,17 @@ test("handles loop with nested property access", async () => {
 - {user.profile.name} ({user.profile.role})
 {/each}
 `
-  const html = template({
-    data: {
-      users: [
-        { profile: { name: "Alice", role: "Admin" } },
-        { profile: { name: "Bob", role: "User" } },
-      ],
+  const html = template(
+    {
+      data: {
+        users: [
+          { profile: { name: "Alice", role: "Admin" } },
+          { profile: { name: "Bob", role: "User" } },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("Alice (Admin)"))
   assert(html.includes("Bob (User)"))
 })
@@ -3632,14 +3668,17 @@ test("handles loop with array property access", async () => {
 - {user.name}: {user.tags[0]}, {user.tags[1]}
 {/each}
 `
-  const html = template({
-    data: {
-      users: [
-        { name: "Alice", tags: ["developer", "designer"] },
-        { name: "Bob", tags: ["manager", "analyst"] },
-      ],
+  const html = template(
+    {
+      data: {
+        users: [
+          { name: "Alice", tags: ["developer", "designer"] },
+          { name: "Bob", tags: ["manager", "analyst"] },
+        ],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("Alice: developer, designer"))
   assert(html.includes("Bob: manager, analyst"))
 })
@@ -3651,13 +3690,16 @@ test("handles loop accessing external data variables", async () => {
 - {prefix}{item}{suffix}
 {/each}
 `
-  const html = template({
-    data: {
-      items: ["A", "B", "C"],
-      prefix: ">>",
-      suffix: "<<",
+  const html = template(
+    {
+      data: {
+        items: ["A", "B", "C"],
+        prefix: ">>",
+        suffix: "<<",
+      },
     },
-  }, prose)
+    prose,
+  )
   // HTML entities are encoded
   assert(html.includes("&gt;&gt;A&lt;&lt;"))
   assert(html.includes("&gt;&gt;B&lt;&lt;"))
@@ -3679,12 +3721,15 @@ test("handles multiple separate loops", async () => {
 - {item}
 {/each}
 `
-  const html = template({
-    data: {
-      fruits: ["Apple", "Banana"],
-      vegetables: ["Carrot", "Broccoli"],
+  const html = template(
+    {
+      data: {
+        fruits: ["Apple", "Banana"],
+        vegetables: ["Carrot", "Broccoli"],
+      },
     },
-  }, prose)
+    prose,
+  )
   assert(html.includes("<h1>Fruits</h1>"))
   assert(html.includes("Apple"))
   assert(html.includes("Banana"))

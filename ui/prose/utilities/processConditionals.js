@@ -111,7 +111,8 @@ function processConditionals(text, data) {
   // If no data, treat all conditions as falsy
   if (!data || typeof data !== "object") {
     // Remove all {#if}...{/if} blocks, but keep {#else} content
-    return text.replace(/\{#if\s+[^}]+\}[\s\S]*?\{#else\}([\s\S]*?)\{\/if\}/g, "$1")
+    return text
+      .replace(/\{#if\s+[^}]+\}[\s\S]*?\{#else\}([\s\S]*?)\{\/if\}/g, "$1")
       .replace(/\{#if\s+[^}]+\}[\s\S]*?\{\/if\}/g, "")
   }
 

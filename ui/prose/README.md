@@ -218,8 +218,9 @@ Use `{#each}` blocks to iterate over arrays and render content for each item:
 
 ```markdown
 {#each items}
+
 - {item}
-{/each}
+  {/each}
 ```
 
 By default, the current item is available as `{item}`. For arrays of primitives (strings, numbers, etc.), this is the value itself.
@@ -230,8 +231,9 @@ You can specify a custom variable name for better clarity:
 
 ```markdown
 {#each users as user}
+
 - {user.name} ({user.email})
-{/each}
+  {/each}
 ```
 
 ### Loop with Index
@@ -264,8 +266,9 @@ Variables from outside the loop are still accessible:
 
 ```markdown
 {#each items as item}
+
 - {prefix}{item}{suffix}
-{/each}
+  {/each}
 ```
 
 ### Nested Loops
@@ -274,12 +277,14 @@ Loops can be nested to create complex structures:
 
 ```markdown
 {#each categories as category}
+
 ## {category.name}
 
 {#each category.items as item}
+
 - {item}
-{/each}
-{/each}
+  {/each}
+  {/each}
 ```
 
 ### Combining Loops with Conditionals

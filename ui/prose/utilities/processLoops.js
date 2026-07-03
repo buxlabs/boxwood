@@ -105,7 +105,9 @@ function processLoops(text, data) {
 
     // Replace the entire {#each}...{/each} block
     result =
-      result.substring(0, eachStart) + expandedContent + result.substring(endEachEnd)
+      result.substring(0, eachStart) +
+      expandedContent +
+      result.substring(endEachEnd)
   }
 
   return result
