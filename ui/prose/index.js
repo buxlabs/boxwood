@@ -4,6 +4,7 @@ const { component } = nodes
 const { extractHtmlParams, mergeComponents } = require("./utilities/params")
 const { parseMarkdownLines } = require("./utilities/parseBlock")
 const { convertItemsToNodes } = require("./utilities/convertNodes")
+const { processConditionals } = require("./utilities/processConditionals")
 
 const COMPONENTS = {
   h1: nodes.H1,
@@ -126,8 +127,11 @@ function Prose(params, children) {
   const allComponents = mergeComponents(BUILTIN_HTML_TAGS, customComponents)
   const htmlParams = extractHtmlParams(params)
 
+  // Process {#if}...{/if} conditional blocks first
+  const processedChildren = processConditionals(children, data)
+
   // Parse all markdown lines into structured items
-  const items = parseMarkdownLines(children, allComponents, data)
+  const items = parseMarkdownLines(processedChildren, allComponents, data)
 
   // Convert parsed items into final node tree
   return convertItemsToNodes(

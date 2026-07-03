@@ -112,4 +112,4 @@ function replaceVariables(text, data) {
   return result.join("")
 }
 
-module.exports = { replaceVariables }
+module.exports = { replaceVariables, resolvePath }

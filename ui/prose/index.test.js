@@ -2930,3 +2930,317 @@ Copyright © 2026
   assert(html.includes("<footer>"))
   assert(html.includes("<small>"))
 })
+
+// Conditional rendering tests
+test("renders content inside {#if} block when condition is truthy", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showImage}
+![Featured Image](image.jpg)
+{/if}
+`
+  const html = template({ data: { showImage: true } }, prose)
+  assert(html.includes("<img"))
+  assert(html.includes("image.jpg"))
+})
+
+test("removes content inside {#if} block when condition is falsy", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showImage}
+![Featured Image](image.jpg)
+{/if}
+`
+  const html = template({ data: { showImage: false } }, prose)
+  assert(!html.includes("<img"))
+  assert(!html.includes("image.jpg"))
+})
+
+test("removes content when condition is null", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if author}
+By {author}
+{/if}
+`
+  const html = template({ data: { author: null } }, prose)
+  assert(!html.includes("By"))
+})
+
+test("removes content when condition is undefined", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if author}
+By {author}
+{/if}
+`
+  const html = template({ data: {} }, prose)
+  assert(!html.includes("By"))
+})
+
+test("removes content when condition is empty string", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if title}
+# {title}
+{/if}
+`
+  const html = template({ data: { title: "" } }, prose)
+  assert(!html.includes("<h1>"))
+})
+
+test("renders content when condition is 0 (falsy but keep for now)", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if count}
+Count: {count}
+{/if}
+`
+  const html = template({ data: { count: 0 } }, prose)
+  // 0 is falsy in JavaScript
+  assert(!html.includes("Count:"))
+})
+
+test("renders content when condition is non-empty string", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if title}
+# {title}
+{/if}
+`
+  const html = template({ data: { title: "Hello" } }, prose)
+  assert(html.includes("<h1>Hello</h1>"))
+})
+
+test("renders content when condition is non-zero number", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if count}
+You have {count} items
+{/if}
+`
+  const html = template({ data: { count: 5 } }, prose)
+  assert(html.includes("You have 5 items"))
+})
+
+test("handles multiple {#if} blocks", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showTitle}
+# {title}
+{/if}
+
+{#if showAuthor}
+By {author}
+{/if}
+`
+  const html = template(
+    {
+      data: {
+        showTitle: true,
+        title: "Post",
+        showAuthor: false,
+        author: "John",
+      },
+    },
+    prose,
+  )
+  assert(html.includes("<h1>Post</h1>"))
+  assert(!html.includes("By"))
+  assert(!html.includes("John"))
+})
+
+test("handles nested properties in condition", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if user.profile.avatar}
+![Avatar]({user.profile.avatar})
+{/if}
+`
+  const html = template(
+    { data: { user: { profile: { avatar: "avatar.jpg" } } } },
+    prose,
+  )
+  assert(html.includes("<img"))
+  assert(html.includes("avatar.jpg"))
+})
+
+test("handles array index in condition", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if images[0]}
+![First]({images[0]})
+{/if}
+`
+  const html = template(
+    { data: { images: ["first.jpg", "second.jpg"] } },
+    prose,
+  )
+  assert(html.includes("<img"))
+  assert(html.includes("first.jpg"))
+})
+
+test("handles {#if} with markdown content inside", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showContent}
+## Heading
+
+This is **bold** and *italic*.
+
+- Item 1
+- Item 2
+{/if}
+`
+  const html = template({ data: { showContent: true } }, prose)
+  assert(html.includes("<h2>Heading</h2>"))
+  assert(html.includes("<strong>bold</strong>"))
+  assert(html.includes("<em>italic</em>"))
+  assert(html.includes("<ul>"))
+})
+
+test("handles {#if} with custom components inside", async () => {
+  const { template } = await compile(__dirname)
+  const Alert = (props, children) => {
+    return `<div class="alert">${children}</div>`
+  }
+  const prose = `
+{#if showAlert}
+<Alert>Warning message</Alert>
+{/if}
+`
+  const html = template(
+    { data: { showAlert: true }, components: { Alert } },
+    prose,
+  )
+  assert(html.includes("alert"))
+  assert(html.includes("Warning message"))
+})
+
+test("handles {#if} with variables inside", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showMessage}
+Message: {message}
+{/if}
+`
+  const html = template(
+    { data: { showMessage: true, message: "Hello!" } },
+    prose,
+  )
+  assert(html.includes("Message: Hello!"))
+})
+
+test("handles unclosed {#if} gracefully", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showContent}
+This has no closing tag
+`
+  const html = template({ data: { showContent: true } }, prose)
+  // Should render as-is if not properly closed
+  assert(html.includes("This has no closing tag"))
+})
+
+test("handles {#if} with no data object", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if showContent}
+Content here
+{/if}
+`
+  const html = template(prose)
+  // Without data, condition is undefined, so content should be removed
+  assert(!html.includes("Content here"))
+})
+
+// Comparison operator tests
+test("handles {#if} with greater than operator", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if count > 5}
+You have many items
+{/if}
+`
+  const html = template({ data: { count: 10 } }, prose)
+  assert(html.includes("You have many items"))
+})
+
+test("handles {#if} with less than operator", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if count < 5}
+You have few items
+{/if}
+`
+  const html = template({ data: { count: 3 } }, prose)
+  assert(html.includes("You have few items"))
+})
+
+test("handles {#if} with array length comparison", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if tags.length > 0}
+**Tags:** {tags[0]}, {tags[1]}
+{/if}
+`
+  const html = template({ data: { tags: ["tutorial", "beginner"] } }, prose)
+  assert(html.includes("<strong>Tags:</strong>"))
+  assert(html.includes("tutorial"))
+  assert(html.includes("beginner"))
+})
+
+test("handles {#if} with empty array length comparison", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if tags.length > 0}
+**Tags:** {tags[0]}
+{/if}
+`
+  const html = template({ data: { tags: [] } }, prose)
+  assert(!html.includes("Tags:"))
+})
+
+test("handles {#if} with equals operator for strings", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if status == 'published'}
+This post is live!
+{/if}
+`
+  const html = template({ data: { status: "published" } }, prose)
+  assert(html.includes("This post is live!"))
+})
+
+test("handles {#if} with not equals operator", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if status != 'draft'}
+This is not a draft
+{/if}
+`
+  const html = template({ data: { status: "published" } }, prose)
+  assert(html.includes("This is not a draft"))
+})
+
+test("handles {#if} with greater than or equal operator", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if age >= 18}
+You can vote
+{/if}
+`
+  const html = template({ data: { age: 18 } }, prose)
+  assert(html.includes("You can vote"))
+})
+
+test("handles {#if} comparing two variables", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if current > previous}
+Value increased
+{/if}
+`
+  const html = template({ data: { current: 100, previous: 50 } }, prose)
+  assert(html.includes("Value increased"))
+})
