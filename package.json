@@ -12,7 +12,7 @@
   "scripts": {
     "test": "node --test --test-reporter=dot \"**/*.test.js\" \"**/*.spec.js\"",
     "test:debug": "node --test --test-reporter=spec \"**/*.test.js\" \"**/*.spec.js\"",
-    "coverage": "c8 npm test",
+    "coverage": "node --test --experimental-test-coverage \"**/*.test.js\" \"**/*.spec.js\"",
     "benchmark": "node --test benchmark/index.js",
     "watch": "npm test -- --watch",
     "prepush": "npm test"
@@ -47,7 +47,6 @@
   "homepage": "https://github.com/buxlabs/boxwood#readme",
   "devDependencies": {
     "benchmark": "2.1.4",
-    "c8": "^11.0.0",
     "express": "^5.2.1",
     "handlebars": "^4.7.9",
     "jsdom": "^29.1.1",
