@@ -113,6 +113,26 @@ First item: {items[0].name}
 {/if}
 ```
 
+### Negation
+
+You can negate conditions using the `!` operator:
+
+```markdown
+{#if !hidden}
+This content is visible
+{/if}
+
+{#if !user.verified}
+Please verify your email
+{/if}
+
+{#if !premium}
+Upgrade to access premium features
+{/if}
+```
+
+The `!` operator inverts the condition, making it true when the value is falsy.
+
 ### Comparison Operators
 
 You can use comparison operators in conditions:
@@ -207,8 +227,89 @@ Else blocks work with all conditional features:
 
 - Simple conditions: `{#if show}...{#else}...{/if}`
 - Comparison operators: `{#if count > 5}...{#else}...{/if}`
+- Negation: `{#if !hidden}...{#else}...{/if}`
 - Nested conditions: `{#if outer}{#if inner}...{#else}...{/if}{#else}...{/if}`
 - Inside loops: Conditionally render content for each item
+
+### Else-If Chains
+
+Use `{#elseif}` to test multiple conditions in sequence:
+
+```markdown
+{#if score >= 90}
+Grade: A - Excellent!
+{#elseif score >= 80}
+Grade: B - Good job!
+{#elseif score >= 70}
+Grade: C - Passing
+{#elseif score >= 60}
+Grade: D - Needs improvement
+{#else}
+Grade: F - Failed
+{/if}
+```
+
+```markdown
+{#if role == 'admin'}
+
+# Admin Dashboard
+
+Welcome, administrator!
+{#elseif role == 'moderator'}
+
+# Moderator Panel
+
+Welcome, moderator!
+{#elseif role == 'user'}
+
+# User Profile
+
+Welcome, user!
+{#else}
+
+# Guest Access
+
+Please log in.
+{/if}
+```
+
+Else-if features:
+
+- **Multiple branches**: Chain as many `{#elseif}` blocks as needed
+- **Short-circuit evaluation**: First matching condition wins, remaining branches are skipped
+- **Optional else**: The final `{#else}` block is optional
+- **All comparison operators**: Use `==`, `!=`, `>`, `<`, `>=`, `<=` in elseif conditions
+- **Negation support**: Use `!` to negate elseif conditions
+- **Nested conditionals**: Place if/else blocks inside elseif branches
+
+Example with real-world blog scenario:
+
+```javascript
+Prose(
+  {
+    data: {
+      status: "draft",
+      publishedAt: null,
+      scheduledAt: "2026-07-10",
+    },
+  },
+  `
+# My Blog Post
+
+{#if publishedAt}
+*Published on {publishedAt}*
+{#elseif scheduledAt}
+*Scheduled for {scheduledAt}*
+{#else}
+*Draft - not yet published*
+{/if}
+
+## Content
+
+...
+`,
+)
+```
 
 ## Loops
 

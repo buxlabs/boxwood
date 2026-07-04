@@ -33,13 +33,27 @@ function isTruthy(value) {
 /**
  * Evaluate a condition expression
  * Supports: variable, variable > value, variable < value, etc.
+ * Also supports negation with ! prefix
  * @param {string} condition - The condition to evaluate
  * @param {Object} data - Data object with variable values
  * @returns {boolean} - Whether the condition is true
  */
 function evaluateCondition(condition, data) {
+  // Check for negation operator at the start
+  let negated = false
+  let conditionToEvaluate = condition.trim()
+
+  if (conditionToEvaluate.startsWith("!")) {
+    negated = true
+    conditionToEvaluate = conditionToEvaluate.substring(1).trim()
+  }
+
+  let result
+
   // Check for comparison operators
-  const comparisonMatch = condition.match(/^(.+?)\s*(>=|<=|>|<|==|!=)\s*(.+)$/)
+  const comparisonMatch = conditionToEvaluate.match(
+    /^(.+?)\s*(>=|<=|>|<|==|!=)\s*(.+)$/,
+  )
 
   if (comparisonMatch) {
     const [, leftExpr, operator, rightExpr] = comparisonMatch
@@ -75,29 +89,39 @@ function evaluateCondition(condition, data) {
     // Perform comparison
     switch (operator) {
       case ">":
-        return leftValue > rightValue
+        result = leftValue > rightValue
+        break
       case "<":
-        return leftValue < rightValue
+        result = leftValue < rightValue
+        break
       case ">=":
-        return leftValue >= rightValue
+        result = leftValue >= rightValue
+        break
       case "<=":
-        return leftValue <= rightValue
+        result = leftValue <= rightValue
+        break
       case "==":
-        return leftValue == rightValue
+        result = leftValue == rightValue
+        break
       case "!=":
-        return leftValue != rightValue
+        result = leftValue != rightValue
+        break
       default:
-        return false
+        result = false
     }
+  } else {
+    // No comparison operator, just evaluate truthiness
+    const value = resolvePath(data, conditionToEvaluate)
+    result = isTruthy(value)
   }
 
-  // No comparison operator, just evaluate truthiness
-  const value = resolvePath(data, condition)
-  return isTruthy(value)
+  // Apply negation if present
+  return negated ? !result : result
 }
 
 /**
  * Process {#if condition}...{/if} blocks in text
+ * Supports {#elseif condition} and {#else} blocks
  * Removes blocks where the condition is falsy
  * @param {string} text - Text containing conditional blocks
  * @param {Object} data - Data object with variable values
@@ -110,10 +134,16 @@ function processConditionals(text, data) {
 
   // If no data, treat all conditions as falsy
   if (!data || typeof data !== "object") {
-    // Remove all {#if}...{/if} blocks, but keep {#else} content
-    return text
-      .replace(/\{#if\s+[^}]+\}[\s\S]*?\{#else\}([\s\S]*?)\{\/if\}/g, "$1")
-      .replace(/\{#if\s+[^}]+\}[\s\S]*?\{\/if\}/g, "")
+    // Remove all {#if}...{/if} blocks, but keep final {#else} content
+    let result = text
+    // Handle {#if}...{#elseif}...{#else}...{/if}
+    result = result.replace(
+      /\{#if\s+[^}]+\}[\s\S]*?(?:\{#elseif\s+[^}]+\}[\s\S]*?)*\{#else\}([\s\S]*?)\{\/if\}/g,
+      "$1",
+    )
+    // Handle blocks without {#else}
+    result = result.replace(/\{#if\s+[^}]+\}[\s\S]*?\{\/if\}/g, "")
+    return result
   }
 
   let result = text
@@ -129,15 +159,18 @@ function processConditionals(text, data) {
     if (!ifMatch) break
 
     const fullIfTag = ifMatch[0]
-    const condition = ifMatch[1].trim()
+    const firstCondition = ifMatch[1].trim()
     const ifStart = result.indexOf(fullIfTag)
     const contentStart = ifStart + fullIfTag.length
 
-    // Find the matching {/if} and look for {#else}
+    // Find the matching {/if} and collect all {#elseif} and {#else} blocks
     let depth = 1
     let i = contentStart
     let endIfStart = -1
-    let elseStart = -1
+    const branches = []
+    let currentBranchStart = contentStart
+    let currentBranchCondition = firstCondition
+    let currentBranchType = "if"
 
     while (i < result.length && depth > 0) {
       if (result.substring(i, i + 4) === "{#if") {
@@ -146,13 +179,49 @@ function processConditionals(text, data) {
       } else if (result.substring(i, i + 5) === "{/if}") {
         depth--
         if (depth === 0) {
+          // Save the last branch content
+          branches.push({
+            type: currentBranchType,
+            condition: currentBranchCondition,
+            content: result.substring(currentBranchStart, i),
+          })
           endIfStart = i
           break
         }
         i += 5
+      } else if (result.substring(i, i + 9) === "{#elseif " && depth === 1) {
+        // Found {#elseif} at the same depth level
+        // Save the current branch
+        branches.push({
+          type: currentBranchType,
+          condition: currentBranchCondition,
+          content: result.substring(currentBranchStart, i),
+        })
+
+        // Parse the new condition
+        const elseifMatch = result.substring(i).match(/^\{#elseif\s+([^}]+)\}/)
+        if (elseifMatch) {
+          const elseifTag = elseifMatch[0]
+          currentBranchCondition = elseifMatch[1].trim()
+          currentBranchType = "elseif"
+          currentBranchStart = i + elseifTag.length
+          i += elseifTag.length
+        } else {
+          i++
+        }
       } else if (result.substring(i, i + 7) === "{#else}" && depth === 1) {
-        // Only capture {#else} at the same depth level
-        elseStart = i
+        // Found {#else} at the same depth level
+        // Save the current branch
+        branches.push({
+          type: currentBranchType,
+          condition: currentBranchCondition,
+          content: result.substring(currentBranchStart, i),
+        })
+
+        // Start else branch
+        currentBranchType = "else"
+        currentBranchCondition = null
+        currentBranchStart = i + 7 // +7 for "{#else}"
         i += 7
       } else {
         i++
@@ -165,31 +234,28 @@ function processConditionals(text, data) {
     }
 
     const endIfEnd = endIfStart + 5 // length of "{/if}"
-    let ifContent, elseContent
 
-    if (elseStart !== -1) {
-      // Has {#else} - split content
-      ifContent = result.substring(contentStart, elseStart)
-      elseContent = result.substring(elseStart + 7, endIfStart) // +7 for "{#else}"
-    } else {
-      // No {#else}
-      ifContent = result.substring(contentStart, endIfStart)
-      elseContent = ""
+    // Evaluate branches in order and pick the first one that matches
+    let selectedContent = ""
+    for (const branch of branches) {
+      if (branch.type === "else") {
+        // Else branch always matches if we get here
+        selectedContent = branch.content
+        break
+      } else if (branch.type === "if" || branch.type === "elseif") {
+        // Evaluate the condition
+        if (evaluateCondition(branch.condition, data)) {
+          selectedContent = branch.content
+          break
+        }
+      }
     }
 
-    // Evaluate the condition
-    const shouldRender = evaluateCondition(condition, data)
-
-    // Replace the entire {#if}...{/if} block
-    if (shouldRender) {
-      // Keep the if content, remove the tags
-      result =
-        result.substring(0, ifStart) + ifContent + result.substring(endIfEnd)
-    } else {
-      // Keep the else content (or remove if no else), remove the tags
-      result =
-        result.substring(0, ifStart) + elseContent + result.substring(endIfEnd)
-    }
+    // Replace the entire {#if}...{/if} block with the selected content
+    result =
+      result.substring(0, ifStart) +
+      selectedContent +
+      result.substring(endIfEnd)
   }
 
   return result

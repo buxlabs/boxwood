@@ -370,3 +370,191 @@ test("processConditionals: handles else with variables in both branches", () => 
   })
   assert.strictEqual(result2, "Standard: {basePrice}")
 })
+
+// Negation operator tests
+test("processConditionals: handles negation with !", () => {
+  const text = "{#if !show}Hidden{/if}"
+  const result = processConditionals(text, { show: false })
+  assert.strictEqual(result, "Hidden")
+})
+
+test("processConditionals: handles negation with ! (false case)", () => {
+  const text = "{#if !show}Hidden{/if}"
+  const result = processConditionals(text, { show: true })
+  assert.strictEqual(result, "")
+})
+
+test("processConditionals: handles negation with nested property", () => {
+  const text = "{#if !user.verified}Please verify{/if}"
+  const result = processConditionals(text, { user: { verified: false } })
+  assert.strictEqual(result, "Please verify")
+})
+
+test("processConditionals: handles negation with comparison", () => {
+  const text = "{#if !count > 0}Empty{/if}"
+  const result = processConditionals(text, { count: 0 })
+  assert.strictEqual(result, "Empty")
+})
+
+test("processConditionals: handles negation with equals comparison", () => {
+  const text = "{#if !status == 'inactive'}Active or Pending{/if}"
+  const result = processConditionals(text, { status: "active" })
+  assert.strictEqual(result, "Active or Pending")
+})
+
+test("processConditionals: handles negation with else", () => {
+  const text = "{#if !premium}Basic user{#else}Premium user{/if}"
+  const result = processConditionals(text, { premium: false })
+  assert.strictEqual(result, "Basic user")
+})
+
+test("processConditionals: handles negation with array length", () => {
+  const text = "{#if !items.length > 0}No items{/if}"
+  const result = processConditionals(text, { items: [] })
+  assert.strictEqual(result, "No items")
+})
+
+// {#elseif} tests
+test("processConditionals: handles simple elseif", () => {
+  const text = "{#if score >= 90}A{#elseif score >= 80}B{#else}C{/if}"
+  const result1 = processConditionals(text, { score: 95 })
+  assert.strictEqual(result1, "A")
+  const result2 = processConditionals(text, { score: 85 })
+  assert.strictEqual(result2, "B")
+  const result3 = processConditionals(text, { score: 70 })
+  assert.strictEqual(result3, "C")
+})
+
+test("processConditionals: handles multiple elseif branches", () => {
+  const text =
+    "{#if role == 'admin'}Admin{#elseif role == 'moderator'}Moderator{#elseif role == 'user'}User{#else}Guest{/if}"
+  const result1 = processConditionals(text, { role: "admin" })
+  assert.strictEqual(result1, "Admin")
+  const result2 = processConditionals(text, { role: "moderator" })
+  assert.strictEqual(result2, "Moderator")
+  const result3 = processConditionals(text, { role: "user" })
+  assert.strictEqual(result3, "User")
+  const result4 = processConditionals(text, { role: "guest" })
+  assert.strictEqual(result4, "Guest")
+})
+
+test("processConditionals: handles elseif without final else", () => {
+  const text = "{#if x > 10}Large{#elseif x > 5}Medium{/if}"
+  const result1 = processConditionals(text, { x: 15 })
+  assert.strictEqual(result1, "Large")
+  const result2 = processConditionals(text, { x: 7 })
+  assert.strictEqual(result2, "Medium")
+  const result3 = processConditionals(text, { x: 3 })
+  assert.strictEqual(result3, "")
+})
+
+test("processConditionals: handles elseif with string comparisons", () => {
+  const text =
+    "{#if status == 'active'}Active{#elseif status == 'pending'}Pending{#elseif status == 'suspended'}Suspended{/if}"
+  const result = processConditionals(text, { status: "pending" })
+  assert.strictEqual(result, "Pending")
+})
+
+test("processConditionals: handles elseif with truthiness checks", () => {
+  const text = "{#if premium}Premium{#elseif verified}Verified{#else}Basic{/if}"
+  const result1 = processConditionals(text, { premium: true, verified: false })
+  assert.strictEqual(result1, "Premium")
+  const result2 = processConditionals(text, { premium: false, verified: true })
+  assert.strictEqual(result2, "Verified")
+  const result3 = processConditionals(text, {
+    premium: false,
+    verified: false,
+  })
+  assert.strictEqual(result3, "Basic")
+})
+
+test("processConditionals: handles elseif with negation", () => {
+  const text =
+    "{#if active}Active{#elseif !suspended}Inactive{#else}Suspended{/if}"
+  const result1 = processConditionals(text, { active: false, suspended: false })
+  assert.strictEqual(result1, "Inactive")
+  const result2 = processConditionals(text, { active: false, suspended: true })
+  assert.strictEqual(result2, "Suspended")
+})
+
+test("processConditionals: handles elseif with nested properties", () => {
+  const text =
+    "{#if user.role == 'admin'}Admin Panel{#elseif user.role == 'user'}User Dashboard{/if}"
+  const result = processConditionals(text, { user: { role: "user" } })
+  assert.strictEqual(result, "User Dashboard")
+})
+
+test("processConditionals: handles elseif with complex conditions", () => {
+  const text =
+    "{#if age < 13}Child{#elseif age < 18}Teen{#elseif age < 65}Adult{#else}Senior{/if}"
+  const result1 = processConditionals(text, { age: 10 })
+  assert.strictEqual(result1, "Child")
+  const result2 = processConditionals(text, { age: 15 })
+  assert.strictEqual(result2, "Teen")
+  const result3 = processConditionals(text, { age: 30 })
+  assert.strictEqual(result3, "Adult")
+  const result4 = processConditionals(text, { age: 70 })
+  assert.strictEqual(result4, "Senior")
+})
+
+test("processConditionals: handles nested if with elseif in outer block", () => {
+  const text =
+    "{#if outer}Outer{#elseif middle}{#if inner}Inner{/if}Middle{#else}Neither{/if}"
+  const result1 = processConditionals(text, { outer: true })
+  assert.strictEqual(result1, "Outer")
+  const result2 = processConditionals(text, {
+    outer: false,
+    middle: true,
+    inner: true,
+  })
+  assert.strictEqual(result2, "InnerMiddle")
+  const result3 = processConditionals(text, { outer: false, middle: false })
+  assert.strictEqual(result3, "Neither")
+})
+
+test("processConditionals: handles elseif with whitespace and newlines", () => {
+  const text = `{#if score >= 90}
+Grade: A
+{#elseif score >= 80}
+Grade: B
+{#elseif score >= 70}
+Grade: C
+{#else}
+Grade: F
+{/if}`
+  const result = processConditionals(text, { score: 85 })
+  assert.strictEqual(
+    result,
+    `
+Grade: B
+`,
+  )
+})
+
+test("processConditionals: handles multiple elseif blocks in same text", () => {
+  const text =
+    "{#if x > 0}Positive{#elseif x < 0}Negative{#else}Zero{/if} and {#if y > 0}High{#elseif y == 0}Mid{#else}Low{/if}"
+  const result = processConditionals(text, { x: -5, y: 0 })
+  assert.strictEqual(result, "Negative and Mid")
+})
+
+test("processConditionals: handles elseif when no data object", () => {
+  const text = "{#if a}A{#elseif b}B{#else}C{/if}"
+  const result = processConditionals(text, null)
+  assert.strictEqual(result, "C")
+})
+
+test("processConditionals: elseif evaluates in order (short-circuit)", () => {
+  const text =
+    "{#if count > 10}Many{#elseif count > 5}Some{#elseif count > 0}Few{/if}"
+  const result = processConditionals(text, { count: 7 })
+  // Should match second condition, not third
+  assert.strictEqual(result, "Some")
+})
+
+test("processConditionals: handles elseif with array length", () => {
+  const text =
+    "{#if items.length > 10}Many items{#elseif items.length > 0}Some items{#else}No items{/if}"
+  const result = processConditionals(text, { items: [1, 2, 3] })
+  assert.strictEqual(result, "Some items")
+})

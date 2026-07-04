@@ -3737,3 +3737,324 @@ test("handles multiple separate loops", async () => {
   assert(html.includes("Carrot"))
   assert(html.includes("Broccoli"))
 })
+
+// Negation tests
+test("handles negation with ! operator", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if !hidden}
+This content is visible
+{/if}
+`
+  const html = template({ data: { hidden: false } }, prose)
+  assert(html.includes("This content is visible"))
+})
+
+test("handles negation with ! operator (false case)", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if !visible}
+This should not appear
+{/if}
+`
+  const html = template({ data: { visible: true } }, prose)
+  assert(!html.includes("This should not appear"))
+})
+
+test("handles negation with nested property", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if !user.verified}
+**Please verify your email**
+{/if}
+`
+  const html = template({ data: { user: { verified: false } } }, prose)
+  assert(html.includes("<strong>Please verify your email</strong>"))
+})
+
+test("handles negation with comparison", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if !count > 0}
+Your cart is empty
+{/if}
+`
+  const html = template({ data: { count: 0 } }, prose)
+  assert(html.includes("Your cart is empty"))
+})
+
+test("handles negation with else block", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if !premium}
+## Free Plan
+
+Limited features
+{#else}
+## Premium Plan
+
+All features unlocked
+{/if}
+`
+  const html1 = template({ data: { premium: false } }, prose)
+  assert(html1.includes("<h2>Free Plan</h2>"))
+  assert(html1.includes("Limited features"))
+
+  const html2 = template({ data: { premium: true } }, prose)
+  assert(html2.includes("<h2>Premium Plan</h2>"))
+  assert(html2.includes("All features unlocked"))
+})
+
+// Elseif tests
+test("handles simple {#elseif} block", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if score >= 90}
+Grade: **A**
+{#elseif score >= 80}
+Grade: **B**
+{#elseif score >= 70}
+Grade: **C**
+{#else}
+Grade: **F**
+{/if}
+`
+  const html = template({ data: { score: 85 } }, prose)
+  assert(html.includes("Grade: <strong>B</strong>"))
+  assert(!html.includes("Grade: <strong>A</strong>"))
+  assert(!html.includes("Grade: <strong>C</strong>"))
+})
+
+test("handles {#elseif} with multiple conditions", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if role == 'admin'}
+# Admin Dashboard
+
+Welcome, administrator!
+{#elseif role == 'moderator'}
+# Moderator Panel
+
+Welcome, moderator!
+{#elseif role == 'user'}
+# User Profile
+
+Welcome, user!
+{#else}
+# Guest Access
+
+Please log in.
+{/if}
+`
+  const html = template({ data: { role: "moderator" } }, prose)
+  assert(html.includes("<h1>Moderator Panel</h1>"))
+  assert(html.includes("Welcome, moderator!"))
+  assert(!html.includes("Admin"))
+  assert(!html.includes("User Profile"))
+})
+
+test("handles {#elseif} without final {#else}", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if temperature > 30}
+Hot weather
+{#elseif temperature > 20}
+Warm weather
+{#elseif temperature > 10}
+Cool weather
+{/if}
+
+Stay hydrated!
+`
+  const html1 = template({ data: { temperature: 25 } }, prose)
+  assert(html1.includes("Warm weather"))
+  assert(!html1.includes("Hot weather"))
+
+  const html2 = template({ data: { temperature: 5 } }, prose)
+  assert(!html2.includes("Hot weather"))
+  assert(!html2.includes("Warm"))
+  assert(!html2.includes("Cool"))
+  assert(html2.includes("Stay hydrated!"))
+})
+
+test("handles {#elseif} with string comparisons", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if status == 'published'}
+**Status:** Published
+{#elseif status == 'draft'}
+**Status:** Draft
+{#elseif status == 'archived'}
+**Status:** Archived
+{#else}
+**Status:** Unknown
+{/if}
+`
+  const html = template({ data: { status: "draft" } }, prose)
+  assert(html.includes("<strong>Status:</strong> Draft"))
+})
+
+test("handles {#elseif} with negation", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if active}
+Account is active
+{#elseif !suspended}
+Account is inactive
+{#else}
+Account is suspended
+{/if}
+`
+  const html = template({ data: { active: false, suspended: false } }, prose)
+  assert(html.includes("Account is inactive"))
+})
+
+test("handles {#elseif} with nested conditionals", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if level > 10}
+Expert level
+{#elseif level > 5}
+Intermediate level
+
+{#if hasBonus}
+*Bonus unlocked!*
+{/if}
+{#else}
+Beginner level
+{/if}
+`
+  const html = template({ data: { level: 7, hasBonus: true } }, prose)
+  assert(html.includes("Intermediate level"))
+  assert(html.includes("<em>Bonus unlocked!</em>"))
+})
+
+test("handles {#elseif} with array length checks", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#if items.length > 10}
+You have many items
+{#elseif items.length > 0}
+You have some items
+{#else}
+Your cart is empty
+{/if}
+`
+  const html = template({ data: { items: [1, 2, 3] } }, prose)
+  assert(html.includes("You have some items"))
+  assert(!html.includes("many items"))
+  assert(!html.includes("cart is empty"))
+})
+
+test("handles {#elseif} in blog post scenario", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+# Blog Post
+
+{#if publishedAt}
+*Published on {publishedAt}*
+{#elseif scheduledAt}
+*Scheduled for {scheduledAt}*
+{#else}
+*Draft - not published*
+{/if}
+
+## Content
+
+This is the blog post content.
+`
+  const html = template({ data: { scheduledAt: "2026-07-10" } }, prose)
+  assert(html.includes("<em>Scheduled for 2026-07-10</em>"))
+  assert(!html.includes("Published on"))
+  assert(!html.includes("Draft"))
+})
+
+test("handles multiple {#elseif} chains in same content", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+## Weather
+
+{#if temp > 30}
+Hot
+{#elseif temp > 20}
+Warm
+{#else}
+Cool
+{/if}
+
+## Wind
+
+{#if wind > 20}
+Windy
+{#elseif wind > 10}
+Breezy
+{#else}
+Calm
+{/if}
+`
+  const html = template({ data: { temp: 25, wind: 15 } }, prose)
+  assert(html.includes("Warm"))
+  assert(html.includes("Breezy"))
+})
+
+test("handles {#elseif} with custom components", async () => {
+  const { template } = await compile(__dirname)
+  const { Div } = require("../..")
+  const Alert = (props, children) => {
+    const type = (props && props.type) || "info"
+    return Div({ class: `alert alert-${type}` }, children)
+  }
+
+  const prose = `
+{#if severity == 'error'}
+<Alert type="danger">Critical error occurred!</Alert>
+{#elseif severity == 'warning'}
+<Alert type="warning">Warning message</Alert>
+{#else}
+<Alert type="info">Information message</Alert>
+{/if}
+`
+  const html = template(
+    { data: { severity: "warning" }, components: { Alert } },
+    prose,
+  )
+  assert(html.includes("alert-warning"))
+  assert(html.includes("Warning message"))
+})
+
+test("handles {#elseif} with loops", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each users as user}
+**{user.name}**
+
+{#if user.role == 'admin'}
+- Administrator
+{#elseif user.role == 'moderator'}
+- Moderator
+{#else}
+- Regular user
+{/if}
+
+---
+{/each}
+`
+  const html = template(
+    {
+      data: {
+        users: [
+          { name: "Alice", role: "admin" },
+          { name: "Bob", role: "moderator" },
+          { name: "Charlie", role: "user" },
+        ],
+      },
+    },
+    prose,
+  )
+  assert(html.includes("<strong>Alice</strong>"))
+  assert(html.includes("Administrator"))
+  assert(html.includes("<strong>Bob</strong>"))
+  assert(html.includes("Moderator"))
+  assert(html.includes("<strong>Charlie</strong>"))
+  assert(html.includes("Regular user"))
+})
