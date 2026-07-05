@@ -1,6 +1,12 @@
 const nodes = require("../..")
 const { component } = nodes
 
+const Center = require("../center")
+const Container = require("../container")
+const Grid = require("../grid")
+const Group = require("../group")
+const Stack = require("../stack")
+
 const { extractHtmlParams, mergeComponents } = require("./utilities/params")
 const { parseMarkdownLines } = require("./utilities/parseBlock")
 const { convertItemsToNodes } = require("./utilities/convertNodes")
@@ -101,6 +107,18 @@ const BUILTIN_HTML_TAGS = SAFE_TAG_NAMES.reduce((acc, tagName) => {
   return acc
 }, {})
 
+// Add built-in UI components
+const BUILTIN_UI_COMPONENTS = {
+  Center,
+  Container,
+  Grid,
+  Group,
+  Stack,
+}
+
+// Merge HTML tags and UI components
+const BUILTIN_COMPONENTS = { ...BUILTIN_HTML_TAGS, ...BUILTIN_UI_COMPONENTS }
+
 function Prose(params, children) {
   // Handle array of children recursively
   if (Array.isArray(children)) {
@@ -114,7 +132,7 @@ function Prose(params, children) {
 
   const customComponents = params && params.components
   const data = params && params.data
-  const allComponents = mergeComponents(BUILTIN_HTML_TAGS, customComponents)
+  const allComponents = mergeComponents(BUILTIN_COMPONENTS, customComponents)
   const htmlParams = extractHtmlParams(params)
 
   // Process {#each}...{/each} loop blocks first

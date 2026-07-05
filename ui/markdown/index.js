@@ -39,7 +39,7 @@ function Markdown(params, children) {
   }
 
   const htmlParams = extractHtmlParams(params)
-  
+
   // Merge basic HTML components - all components are now in one place
   const allComponents = mergeComponents(BASIC_HTML_COMPONENTS, null)
 
