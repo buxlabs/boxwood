@@ -54,3 +54,26 @@ test("renders UI components with variables", async () => {
   assert(html.includes("<div"))
   assert(!html.includes("{title}"))
 })
+
+test("renders img tag with src from array property", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ images: [{ src: "/path/to/image.jpg" }] })
+  assert(html.includes('src="/path/to/image.jpg"'))
+  assert(!html.includes("{images[0].src}"))
+})
+
+test("renders Center component with id from object property", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ user: { id: "user-123" } })
+  assert(html.includes('id="user-123"'))
+  assert(html.includes("User Center"))
+  assert(!html.includes("{user.id}"))
+})
+
+test("renders Container component with id from object property", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ container: { id: "main-container" } })
+  assert(html.includes('id="main-container"'))
+  assert(html.includes("Configured Container"))
+  assert(!html.includes("{container.id}"))
+})

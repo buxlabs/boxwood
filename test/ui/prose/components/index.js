@@ -14,6 +14,12 @@ const DEFAULT_PROSE = `
 <Stack>Stack content</Stack>
 
 <Center>{title}</Center>
+
+<img src="{images[0].src}" />
+
+<Center id="{user.id}">User Center</Center>
+
+<Container id="{container.id}">Configured Container</Container>
 `
 
 module.exports = component((data) => {

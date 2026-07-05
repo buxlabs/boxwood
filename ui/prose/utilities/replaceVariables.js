@@ -5,6 +5,11 @@
  * @returns {*} - The resolved value or undefined
  */
 function resolvePath(data, path) {
+  // Handle null or undefined data
+  if (data === null || data === undefined) {
+    return undefined
+  }
+
   // Handle simple variable names (backwards compatibility)
   if (!/[.\[]/.test(path)) {
     return data[path]
