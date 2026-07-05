@@ -1,6 +1,12 @@
 const nodes = require("../..")
 const { component } = nodes
 
+const Center = require("../center")
+const Container = require("../container")
+const Grid = require("../grid")
+const Group = require("../group")
+const Stack = require("../stack")
+
 const { extractHtmlParams, mergeComponents } = require("./utilities/params")
 const { parseMarkdownLines } = require("./utilities/parseBlock")
 const { convertItemsToNodes } = require("./utilities/convertNodes")
@@ -16,6 +22,11 @@ const COMPONENTS = {
   h6: nodes.H6,
   blockquote: nodes.Blockquote,
   hr: nodes.Hr,
+  Center,
+  Container,
+  Grid,
+  Group,
+  Stack,
 }
 
 // Safe builtin HTML tags that can be used as custom components in markdown
