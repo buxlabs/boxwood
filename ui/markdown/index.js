@@ -1,23 +1,18 @@
 const nodes = require("../..")
 const { component } = nodes
 
-const { extractHtmlParams } = require("./utilities/params")
+const { extractHtmlParams, mergeComponents } = require("./utilities/params")
 const { parseMarkdownLines } = require("./utilities/parseBlock")
 const { convertItemsToNodes } = require("./utilities/convertNodes")
 
-const COMPONENTS = {
+// Basic HTML components needed for markdown formatting (links, images, code, etc.)
+const BASIC_HTML_COMPONENTS = {
   h1: nodes.H1,
   h2: nodes.H2,
   h3: nodes.H3,
   h4: nodes.H4,
   h5: nodes.H5,
   h6: nodes.H6,
-  blockquote: nodes.Blockquote,
-  hr: nodes.Hr,
-}
-
-// Basic HTML components needed for markdown formatting (links, images, code, etc.)
-const BASIC_HTML_COMPONENTS = {
   a: nodes.A,
   img: nodes.Img,
   code: nodes.Code,
@@ -44,6 +39,9 @@ function Markdown(params, children) {
   }
 
   const htmlParams = extractHtmlParams(params)
+  
+  // Merge basic HTML components - all components are now in one place
+  const allComponents = mergeComponents(BASIC_HTML_COMPONENTS, null)
 
   // Parse all markdown lines into structured items (no custom components, no data)
   const items = parseMarkdownLines(children, null, null)
@@ -54,8 +52,7 @@ function Markdown(params, children) {
     params,
     htmlParams,
     null, // no data
-    BASIC_HTML_COMPONENTS, // basic HTML components for formatting
-    COMPONENTS,
+    allComponents,
     Markdown,
   )
 }

@@ -121,7 +121,6 @@ function convertItemsToNodes(
   htmlParams,
   data,
   allComponents,
-  components,
   markdownRenderer,
 ) {
   const result = []
@@ -174,7 +173,7 @@ function convertItemsToNodes(
     } else {
       // Regular block elements (h1-h6, p, etc.)
       const { type, content } = item
-      const Component = components[type] || allComponents.p
+      const Component = allComponents[type] || allComponents.p
       const processedContent = replaceVariables(content, data)
       result.push(
         Component(htmlParams, format(processedContent, allComponents)),

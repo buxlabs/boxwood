@@ -1,33 +1,11 @@
 const nodes = require("../..")
 const { component } = nodes
 
-const Center = require("../center")
-const Container = require("../container")
-const Grid = require("../grid")
-const Group = require("../group")
-const Stack = require("../stack")
-
 const { extractHtmlParams, mergeComponents } = require("./utilities/params")
 const { parseMarkdownLines } = require("./utilities/parseBlock")
 const { convertItemsToNodes } = require("./utilities/convertNodes")
 const { processConditionals } = require("./utilities/processConditionals")
 const { processLoops } = require("./utilities/processLoops")
-
-const COMPONENTS = {
-  h1: nodes.H1,
-  h2: nodes.H2,
-  h3: nodes.H3,
-  h4: nodes.H4,
-  h5: nodes.H5,
-  h6: nodes.H6,
-  blockquote: nodes.Blockquote,
-  hr: nodes.Hr,
-  Center,
-  Container,
-  Grid,
-  Group,
-  Stack,
-}
 
 // Safe builtin HTML tags that can be used as custom components in markdown
 // These are always available and don't need to be explicitly passed in params.components
@@ -156,7 +134,6 @@ function Prose(params, children) {
     htmlParams,
     data,
     allComponents,
-    COMPONENTS,
     Prose,
   )
 }
