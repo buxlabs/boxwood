@@ -19,6 +19,7 @@ All standard markdown features:
 ### Templating Features
 
 - **Variable replacement**: `{variable}`, `{user.name}`, `{images[0].src}`
+- **Method calls**: `{images.slice(0, 2)}`, `{tags.join(', ')}`, `{name.toUpperCase()}`
 - **Conditionals**: `{#if variable}...{/if}` blocks for conditional rendering
 - **Loops**: `{#each items}...{/each}` for iteration over arrays
 - **Custom components**: `<Alert type="warning">...</Alert>`
@@ -98,6 +99,39 @@ Prose(
 `,
 )
 ```
+
+## Method Calls
+
+Variable paths can include calls to safe, non-mutating methods. This is especially useful for passing a part of an array to a component:
+
+```javascript
+Prose(
+  {
+    data: { images: ["a.jpg", "b.jpg", "c.jpg", "d.jpg"] },
+    components: { Gallery },
+  },
+  `
+<Gallery images="{images.slice(0, 2)}" />
+
+<Gallery images="{images.slice(2)}" />
+`,
+)
+```
+
+Method calls also work in text content:
+
+```markdown
+**Tags:** {tags.join(', ')}
+
+# {title.toUpperCase()}
+```
+
+Rules:
+
+- Only whitelisted, non-mutating methods are allowed: `slice`, `at`, `concat`, `includes`, `indexOf`, `lastIndexOf`, `join`, `toUpperCase`, `toLowerCase`, `trim`, `charAt`, `substring`, `split`, `padStart`, `padEnd`, `repeat`, `replace`, `replaceAll`, `startsWith`, `endsWith`, `toFixed`, `toString`
+- Arguments must be literals: numbers, quoted strings, `true`, `false` or `null` (variables are not supported as arguments)
+- Mutating methods like `push`, `pop` or `splice` are rejected and the placeholder is kept as-is
+- Method calls can be chained with property access: `{gallery.images.slice(1)[0]}`
 
 ## Conditional Rendering
 

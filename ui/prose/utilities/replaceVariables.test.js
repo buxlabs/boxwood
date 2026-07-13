@@ -260,3 +260,54 @@ test("replaceVariables: combines simple and complex paths", () => {
   )
   assert.strictEqual(result, "Hello Alice, your first image is photo1.jpg")
 })
+
+test("replaceVariables: handles slice method on array", () => {
+  const result = replaceVariables("Images: {images.slice(0, 2)}", {
+    images: ["a.jpg", "b.jpg", "c.jpg"],
+  })
+  assert.strictEqual(result, "Images: a.jpg,b.jpg")
+})
+
+test("replaceVariables: handles string methods", () => {
+  const result = replaceVariables("Name: {name.toUpperCase()}", {
+    name: "alice",
+  })
+  assert.strictEqual(result, "Name: ALICE")
+})
+
+test("replaceVariables: handles method call with string argument", () => {
+  const result = replaceVariables("List: {tags.join(', ')}", {
+    tags: ["one", "two", "three"],
+  })
+  assert.strictEqual(result, "List: one, two, three")
+})
+
+test("replaceVariables: handles chained method with property access", () => {
+  const result = replaceVariables("First: {images.slice(1, 3)[0]}", {
+    images: ["a.jpg", "b.jpg", "c.jpg"],
+  })
+  assert.strictEqual(result, "First: b.jpg")
+})
+
+test("replaceVariables: keeps placeholder for unsafe method", () => {
+  const data = { images: ["a.jpg", "b.jpg"] }
+  const result = replaceVariables("Images: {images.pop()}", data)
+  assert.strictEqual(result, "Images: {images.pop()}")
+  assert.deepStrictEqual(data.images, ["a.jpg", "b.jpg"])
+})
+
+test("replaceVariables: keeps placeholder for method with non-literal argument", () => {
+  const result = replaceVariables("Images: {images.slice(start, end)}", {
+    images: ["a.jpg", "b.jpg"],
+    start: 0,
+    end: 1,
+  })
+  assert.strictEqual(result, "Images: {images.slice(start, end)}")
+})
+
+test("replaceVariables: keeps placeholder for malformed method call", () => {
+  const result = replaceVariables("Images: {images.slice(0,}", {
+    images: ["a.jpg", "b.jpg"],
+  })
+  assert.strictEqual(result, "Images: {images.slice(0,}")
+})

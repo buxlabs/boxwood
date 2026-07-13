@@ -228,3 +228,25 @@ test("resolveAttributes: preserves non-variable attributes", () => {
     data: null,
   })
 })
+
+test("resolveAttributes: resolves method call on array variable", () => {
+  const attrs = { images: { __variable: "images.slice(0, 2)" } }
+  const data = { images: ["a.jpg", "b.jpg", "c.jpg", "d.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: ["a.jpg", "b.jpg"] })
+})
+
+test("resolveAttributes: resolves chained method call with property access", () => {
+  const attrs = { images: { __variable: "gallery.images.slice(1)" } }
+  const data = { gallery: { images: ["a.jpg", "b.jpg", "c.jpg"] } }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: ["b.jpg", "c.jpg"] })
+})
+
+test("resolveAttributes: returns undefined for unsafe method call", () => {
+  const attrs = { images: { __variable: "images.push('x.jpg')" } }
+  const data = { images: ["a.jpg", "b.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: undefined })
+  assert.deepStrictEqual(data.images, ["a.jpg", "b.jpg"])
+})
