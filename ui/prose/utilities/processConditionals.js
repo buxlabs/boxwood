@@ -1,4 +1,4 @@
-const { resolvePath } = require("./replaceVariables")
+const { resolvePath } = require("../../utilities/replaceVariables")
 
 /**
  * Check if a value is truthy for conditional rendering

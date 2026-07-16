@@ -19,15 +19,19 @@ All standard markdown features:
 ### Templating Features
 
 - **Variable replacement**: `{variable}`, `{user.name}`, `{images[0].src}`
+- **Fallbacks**: `{nickname ?? name ?? "Guest"}` with JS nullish semantics
 - **Method calls**: `{images.slice(0, 2)}`, `{tags.join(', ')}`, `{name.toUpperCase()}`
-- **Conditionals**: `{#if variable}...{/if}` blocks for conditional rendering
-- **Loops**: `{#each items}...{/each}` for iteration over arrays
+- **Array literals**: `<Gallery images="{[images[0], images[2]]}" />`
+- **Conditionals**: `{#if}...{#elseif}...{#else}...{/if}` blocks
+- **Loops**: `{#each items}...{#else}...{/each}` with an empty state
 - **Custom components**: `<Alert type="warning">...</Alert>`
 - **Builtin HTML tags**: `<article>`, `<section>`, `<div>`, etc.
+- **Author comments**: `{!-- never rendered --}`
+- **Literal code**: templating never runs inside code blocks or inline code
+- **Validation**: `Prose.validate(text, { data, components })` reports problems
 
-### Planned Features
-
-None at the moment - all core features are implemented!
+The language is closed by design - see
+[What is deliberately missing](#what-is-deliberately-missing).
 
 ## Usage
 
@@ -132,6 +136,44 @@ Rules:
 - Arguments must be literals: numbers, quoted strings, `true`, `false` or `null` (variables are not supported as arguments)
 - Mutating methods like `push`, `pop` or `splice` are rejected and the placeholder is kept as-is
 - Method calls can be chained with property access: `{gallery.images.slice(1)[0]}`
+
+## Fallbacks with ??
+
+Provide a fallback for missing values with the `??` operator:
+
+```markdown
+Hello {nickname ?? name ?? "Guest"}
+
+Price: {price ?? "TBD"}
+```
+
+The semantics match JavaScript: the fallback applies only when the value is
+`null` or `undefined`. Zero, empty strings and `false` are real values and do
+not trigger the fallback:
+
+```markdown
+Count: {count ?? "none"}
+```
+
+With `count: 0` this renders `Count: 0`, not `Count: none`.
+
+Operands can be paths, literals (`"text"`, `0`, `true`, `null`), method calls
+or array literals, and `??` works in text, in loops and in component
+attributes:
+
+```markdown
+<Gallery images="{gallery ?? ['placeholder.jpg']}" />
+```
+
+## Array Literals
+
+Component attributes accept array literals whose elements are paths or
+literals:
+
+```markdown
+<Gallery images="{[images[0], images[2]]}" />
+<Hero sources="{[cover ?? 'default.jpg', banner]}" />
+```
 
 ## Conditional Rendering
 
@@ -502,21 +544,97 @@ Prose(
 
 Note: Since template literals evaluate expressions like `{i + 1}`, you may need to use alternative approaches if you want to perform calculations. In this case, pre-process your data.
 
-**Empty arrays:**
+### Empty State with {#else}
 
-When an array is empty, the loop content is not rendered:
+When the array is empty or missing, the `{#else}` branch renders instead:
+
+```markdown
+{#each products as product}
+- {product.title}
+{#else}
+No products yet.
+{/each}
+```
+
+Without an `{#else}` branch, an empty array renders nothing. An `{#else}`
+that belongs to an `{#if}` inside the loop is not confused with the loop's
+own `{#else}`.
+
+### Expansion Limit
+
+Loop expansion is capped at 1,000,000 characters. Nested loops over large
+arrays multiply quickly - exceeding the cap throws a clear error instead of
+freezing the page.
+
+## Author Comments
+
+Notes for editors that never render:
+
+```markdown
+{!-- TODO: replace the photo after the shoot --}
+
+# The Article
+```
+
+Comments can span multiple lines. Templating inside a comment is never
+executed.
+
+## Code Is Literal
+
+Templating never runs inside fenced code blocks or inline code - braces,
+loops and conditionals stay exactly as written:
+
+````markdown
+Inline `{name}` stays literal, and so does everything inside fences:
+
+```js
+const x = {count}
+{#if debug}console.log(x){/if}
+```
+````
+
+## Escaping
+
+Use `\{` to render a literal brace in regular text: `\{name}` renders as
+`{name}`.
+
+## Validation
+
+`Prose.validate` reports the problems the renderer tolerates silently -
+ideal for a CMS preview:
 
 ```javascript
-Prose(
-  { data: { items: [] } },
-  `
-{#each items as item}
-- {item}
-{/each}
-`,
-)
-// Renders nothing
+const { Prose } = require("boxwood/ui")
+
+const issues = Prose.validate(text, { data, components })
+// [
+//   { line: 3, type: "unknown-component", message: "Unknown component: <Galery>" },
+//   { line: 3, type: "unknown-variable", message: "Unknown variable: imges" },
+//   { line: 4, type: "unclosed-block", message: "Unclosed {#each} opened on line 4" },
+// ]
 ```
+
+Both options are optional: without `data` the unknown-variable check is
+skipped, without `components` the unknown-component check only knows the
+builtin components. Issue types: `unknown-variable`, `unknown-component`,
+`unsafe-method`, `malformed-expression`, `malformed-block`,
+`unmatched-block`, `unclosed-block`, `unclosed-comment`,
+`unclosed-code-block`.
+
+## What Is Deliberately Missing
+
+The language is closed by design. When content needs something more, prepare
+it in the data instead of extending the syntax:
+
+- **Filters/formatters** (`{price | currency}`) - format in JS and pass
+  `priceFormatted` in `data`
+- **Arithmetic** (`{price * 1.23}`) - compute in JS, pass the result
+- **Variable definitions** (`{#set ...}`) - shape the data before rendering
+- **Ternaries** (`{a ? b : c}`) - use `{#if}` blocks or `??`
+- **Logical operators in conditions** (`a && b`) - nest `{#if}` blocks
+
+If a template needs one of these, that is a signal the data is missing a
+field, not that the language is missing a feature.
 
 ## Difference from Markdown Component
 

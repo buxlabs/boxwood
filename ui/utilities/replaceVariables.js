@@ -194,12 +194,177 @@ function resolvePath(data, path) {
 }
 
 /**
+ * Check if an expression is an array literal like "[images[0], images[2]]"
+ * The opening bracket must be closed at the very end of the expression
+ * Pure numeric indexes like "[0]" keep their index-access meaning
+ * @param {string} expression - The expression to check
+ * @returns {boolean} - True if the expression is an array literal
+ */
+function isArrayLiteral(expression) {
+  if (!expression.startsWith("[") || !expression.endsWith("]")) {
+    return false
+  }
+  const inner = expression.substring(1, expression.length - 1).trim()
+  if (/^\d+$/.test(inner)) {
+    return false
+  }
+  let depth = 0
+  let quote = null
+  for (let i = 0; i < expression.length; i++) {
+    const char = expression[i]
+    if (quote) {
+      if (char === quote) quote = null
+      continue
+    }
+    if (char === '"' || char === "'") {
+      quote = char
+      continue
+    }
+    if (char === "[") depth++
+    if (char === "]") {
+      depth--
+      if (depth === 0) {
+        return i === expression.length - 1
+      }
+    }
+  }
+  return false
+}
+
+/**
+ * Split the inner part of an array literal into elements on top-level commas
+ * Respects nested brackets, parentheses and quoted strings
+ * @param {string} inner - The content between the outer brackets
+ * @returns {Array<string>} - Raw element expressions
+ */
+function splitArrayElements(inner) {
+  const elements = []
+  let current = ""
+  let depth = 0
+  let quote = null
+
+  for (const char of inner) {
+    if (quote) {
+      current += char
+      if (char === quote) quote = null
+      continue
+    }
+    if (char === '"' || char === "'") {
+      quote = char
+      current += char
+      continue
+    }
+    if (char === "[" || char === "(") depth++
+    if (char === "]" || char === ")") depth--
+    if (char === "," && depth === 0) {
+      elements.push(current)
+      current = ""
+      continue
+    }
+    current += char
+  }
+
+  if (current.trim()) {
+    elements.push(current)
+  }
+
+  return elements
+}
+
+/**
+ * Split an expression on top-level ?? operators
+ * Respects quoted strings, brackets and parentheses
+ * @param {string} expression - The expression to split
+ * @returns {Array<string>} - Operands (a single element when there is no ??)
+ */
+function splitNullishCoalescing(expression) {
+  const operands = []
+  let current = ""
+  let depth = 0
+  let quote = null
+  let i = 0
+
+  while (i < expression.length) {
+    const char = expression[i]
+    if (quote) {
+      current += char
+      if (char === quote) quote = null
+      i++
+      continue
+    }
+    if (char === '"' || char === "'") {
+      quote = char
+      current += char
+      i++
+      continue
+    }
+    if (char === "[" || char === "(") depth++
+    if (char === "]" || char === ")") depth--
+    if (depth === 0 && char === "?" && expression[i + 1] === "?") {
+      operands.push(current)
+      current = ""
+      i += 2
+      continue
+    }
+    current += char
+    i++
+  }
+
+  operands.push(current)
+  return operands
+}
+
+/**
+ * Resolve an expression from a data object
+ * Supports everything resolvePath does, plus:
+ * - array literals whose elements are paths or literals,
+ *   e.g. "[images[0], images[2]]" or "['a', user.name]"
+ * - nullish coalescing with JS semantics (fallback only for null/undefined),
+ *   e.g. "name ?? 'Guest'" or "nickname ?? name ?? 'Guest'"
+ * @param {Object} data - The data object to resolve the expression from
+ * @param {string} expression - The expression to resolve
+ * @returns {*} - The resolved value or undefined
+ */
+function resolveExpression(data, expression) {
+  const trimmed = expression.trim()
+
+  const operands = splitNullishCoalescing(trimmed)
+  if (operands.length > 1) {
+    let value
+    for (const operand of operands) {
+      const raw = operand.trim()
+      const literal = parseArgument(raw)
+      value = literal ? literal.value : resolveExpression(data, raw)
+      if (value !== undefined && value !== null) {
+        return value
+      }
+    }
+    return value
+  }
+
+  if (isArrayLiteral(trimmed)) {
+    const inner = trimmed.substring(1, trimmed.length - 1)
+    return splitArrayElements(inner).map((element) => {
+      const raw = element.trim()
+      const literal = parseArgument(raw)
+      if (literal) {
+        return literal.value
+      }
+      return resolveExpression(data, raw)
+    })
+  }
+
+  return resolvePath(data, trimmed)
+}
+
+/**
  * Replace {variableName} placeholders in text with actual values from data
  * Supports:
  * - Simple variables: {name}
  * - Array indexing: {images[0]}
  * - Property access: {user.name}
  * - Combined: {images[0].src}
+ * - Fallbacks: {name ?? "Guest"}
  * @param {string} text - Text containing variable placeholders
  * @param {Object} data - Data object with variable values
  * @returns {string|Array} - Text with variables replaced, or array if mixed content
@@ -245,8 +410,9 @@ function replaceVariables(text, data) {
             result.push(text.substring(lastIndex, i))
           }
 
-          // Resolve the variable value (supports paths like "images[0].src")
-          const value = resolvePath(data, variablePath)
+          // Resolve the expression (supports paths like "images[0].src",
+          // safe method calls, array literals and ?? fallbacks)
+          const value = resolveExpression(data, variablePath)
           if (value !== undefined && value !== null) {
             result.push(String(value))
           } else {
@@ -277,4 +443,15 @@ function replaceVariables(text, data) {
   return result.join("")
 }
 
-module.exports = { replaceVariables, resolvePath }
+module.exports = {
+  replaceVariables,
+  resolvePath,
+  resolveExpression,
+  // Parsing internals, exported for the Prose validator
+  SAFE_METHODS,
+  parseArgument,
+  parsePathSegments,
+  splitNullishCoalescing,
+  isArrayLiteral,
+  splitArrayElements,
+}

@@ -216,3 +216,121 @@ test("processLoops: handles boolean values in array", () => {
   const result = processLoops(text, { flags: [true, false, true] })
   assert.strictEqual(result, "- true\n- false\n- true\n")
 })
+
+test("processLoops: supports ?? fallback inside loop", () => {
+  const text = "{#each users}- {item.nickname ?? item.name}\n{/each}"
+  const result = processLoops(text, {
+    users: [{ name: "Alice", nickname: "Ala" }, { name: "Bob" }],
+  })
+  assert.strictEqual(result, "- Ala\n- Bob\n")
+})
+
+test("processLoops: supports literal fallback inside loop", () => {
+  const text = "{#each users}- {item.role ?? 'guest'}\n{/each}"
+  const result = processLoops(text, {
+    users: [{ role: "admin" }, {}],
+  })
+  assert.strictEqual(result, "- admin\n- guest\n")
+})
+
+test("processLoops: supports method calls inside loop", () => {
+  const text = "{#each names}- {item.toUpperCase()}\n{/each}"
+  const result = processLoops(text, { names: ["alice", "bob"] })
+  assert.strictEqual(result, "- ALICE\n- BOB\n")
+})
+
+test("processLoops: renders {#else} branch for empty array", () => {
+  const text = "{#each items}- {item}\n{#else}No items{/each}"
+  const result = processLoops(text, { items: [] })
+  assert.strictEqual(result, "No items")
+})
+
+test("processLoops: renders {#else} branch for missing array", () => {
+  const text = "{#each items}- {item}\n{#else}No items{/each}"
+  const result = processLoops(text, {})
+  assert.strictEqual(result, "No items")
+})
+
+test("processLoops: renders {#else} branch when there is no data", () => {
+  const text = "{#each items}- {item}\n{#else}No items{/each}"
+  const result = processLoops(text, null)
+  assert.strictEqual(result, "No items")
+})
+
+test("processLoops: ignores {#else} branch for non-empty array", () => {
+  const text = "{#each items}- {item}\n{#else}No items{/each}"
+  const result = processLoops(text, { items: ["a", "b"] })
+  assert.strictEqual(result, "- a\n- b\n")
+})
+
+test("processLoops: removes block without {#else} for empty array", () => {
+  const text = "{#each items}- {item}\n{/each}"
+  const result = processLoops(text, { items: [] })
+  assert.strictEqual(result, "")
+})
+
+test("processLoops: does not confuse {#else} of a nested {#if}", () => {
+  const text =
+    "{#each users}{#if item.admin}ADMIN {#else}USER {/if}{#else}Nobody{/each}"
+  const result = processLoops(text, {
+    users: [{ admin: true }, { admin: false }],
+  })
+  assert.strictEqual(result, "ADMIN USER ")
+})
+
+test("processLoops: renders {#else} even when items contain {#if} blocks", () => {
+  const text =
+    "{#each users}{#if item.admin}ADMIN{#else}USER{/if}{#else}Nobody{/each}"
+  const result = processLoops(text, { users: [] })
+  assert.strictEqual(result, "Nobody")
+})
+
+test("processLoops: supports nested loop with its own {#else}", () => {
+  const text =
+    "{#each groups as group}{#each group.members as member}{member} {#else}empty group {/each}{#else}No groups{/each}"
+  const result = processLoops(text, {
+    groups: [{ members: ["a", "b"] }, { members: [] }],
+  })
+  assert.strictEqual(result, "a b empty group ")
+})
+
+test("processLoops: renders {#else} of outer loop with nested loop inside items", () => {
+  const text =
+    "{#each groups as group}{#each group.members as member}{member}{/each}{#else}No groups{/each}"
+  const result = processLoops(text, { groups: [] })
+  assert.strictEqual(result, "No groups")
+})
+
+test("processLoops: keeps variables in {#else} branch for later passes", () => {
+  const text = "{#each items}- {item}{#else}{fallbackMessage}{/each}"
+  const result = processLoops(text, { items: [], fallbackMessage: "Nothing" })
+  assert.strictEqual(result, "{fallbackMessage}")
+})
+
+test("processLoops: nested loop can iterate over outer item property", () => {
+  const text =
+    "{#each groups as group}{group.name}: {#each group.members as m}{m} {/each}\n{/each}"
+  const result = processLoops(text, {
+    groups: [
+      { name: "A", members: ["x", "y"] },
+      { name: "B", members: ["z"] },
+    ],
+  })
+  assert.strictEqual(result, "A: x y \nB: z \n")
+})
+
+test("processLoops: throws a clear error when expansion exceeds the limit", () => {
+  const text = "{#each items}" + "x".repeat(10000) + "{/each}"
+  const items = new Array(200).fill("a")
+  assert.throws(
+    () => processLoops(text, { items }),
+    /expanded past 1000000 characters/,
+  )
+})
+
+test("processLoops: large but reasonable loops stay under the limit", () => {
+  const text = "{#each items}- {item}\n{/each}"
+  const items = new Array(1000).fill("row")
+  const result = processLoops(text, { items })
+  assert.strictEqual(result.split("\n").length, 1001)
+})

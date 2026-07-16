@@ -16,10 +16,18 @@ test("renders Gallery with a slice of the images array", async () => {
   const { template } = await compile(__dirname)
   const html = template({ images: ["/a.jpg", "/b.jpg", "/c.jpg"] })
   // First gallery renders all three images, second renders the first two,
-  // third renders the last one
-  assert.strictEqual(count(html, 'src="/a.jpg"'), 2)
+  // third renders the last one, fourth renders the first and the last one
+  assert.strictEqual(count(html, 'src="/a.jpg"'), 3)
   assert.strictEqual(count(html, 'src="/b.jpg"'), 2)
-  assert.strictEqual(count(html, 'src="/c.jpg"'), 2)
-  assert.strictEqual(count(html, "<img"), 6)
+  assert.strictEqual(count(html, 'src="/c.jpg"'), 3)
+  assert.strictEqual(count(html, "<img"), 8)
   assert(!html.includes("{images.slice"))
+})
+
+test("renders Gallery with an array literal of images", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ images: ["/a.jpg", "/b.jpg", "/c.jpg"] })
+  assert(!html.includes("{[images"))
+  assert(html.includes('src="/a.jpg"'))
+  assert(html.includes('src="/c.jpg"'))
 })

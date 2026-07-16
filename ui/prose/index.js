@@ -7,11 +7,17 @@ const Grid = require("../grid")
 const Group = require("../group")
 const Stack = require("../stack")
 
-const { extractHtmlParams, mergeComponents } = require("./utilities/params")
-const { parseMarkdownLines } = require("./utilities/parseBlock")
-const { convertItemsToNodes } = require("./utilities/convertNodes")
+const { extractHtmlParams, mergeComponents } = require("../utilities/params")
+const { parseMarkdownLines } = require("../utilities/parseBlock")
+const { convertItemsToNodes } = require("../utilities/convertNodes")
 const { processConditionals } = require("./utilities/processConditionals")
 const { processLoops } = require("./utilities/processLoops")
+const {
+  maskCodeSegments,
+  restoreCodeSegments,
+} = require("./utilities/protectCode")
+const { stripComments } = require("./utilities/stripComments")
+const { validate } = require("./utilities/validate")
 
 // Safe builtin HTML tags that can be used as custom components in markdown
 // These are always available and don't need to be explicitly passed in params.components
@@ -135,9 +141,16 @@ function Prose(params, children) {
   const allComponents = mergeComponents(BUILTIN_COMPONENTS, customComponents)
   const htmlParams = extractHtmlParams(params)
 
+  // Mask code blocks and inline code first - code is literal content and
+  // no templating pass (comments, loops, conditionals, interpolation) may touch it
+  const { text: maskedChildren, tokens } = maskCodeSegments(children)
+
+  // Remove {!-- ... --} author comments
+  let processedChildren = stripComments(maskedChildren)
+
   // Process {#each}...{/each} loop blocks first
   // Conditionals within loops are processed during loop expansion
-  let processedChildren = processLoops(children, data)
+  processedChildren = processLoops(processedChildren, data)
 
   // Process any remaining {#if}...{/if} conditional blocks (those outside loops)
   processedChildren = processConditionals(processedChildren, data)
@@ -146,7 +159,7 @@ function Prose(params, children) {
   const items = parseMarkdownLines(processedChildren, allComponents, data)
 
   // Convert parsed items into final node tree
-  return convertItemsToNodes(
+  const nodes = convertItemsToNodes(
     items,
     params,
     htmlParams,
@@ -154,6 +167,24 @@ function Prose(params, children) {
     allComponents,
     Prose,
   )
+
+  // Put the original code content back into the final tree
+  return restoreCodeSegments(nodes, tokens)
 }
 
 module.exports = component(Prose)
+
+/**
+ * Validate a Prose template without rendering it
+ * Reports problems the renderer tolerates silently: unknown variables,
+ * unclosed blocks, unsafe methods, unknown components
+ * @param {string} text - The prose template text
+ * @param {Object} options - { data, components } - both optional
+ * @returns {Array<{line: number, type: string, message: string}>}
+ */
+module.exports.validate = (text, options = {}) => {
+  return validate(text, {
+    ...options,
+    components: mergeComponents(BUILTIN_COMPONENTS, options.components),
+  })
+}

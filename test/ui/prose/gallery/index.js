@@ -14,6 +14,8 @@ const DEFAULT_PROSE = `
 <Gallery images="{images.slice(0, 2)}" />
 
 <Gallery images="{images.slice(2)}" />
+
+<Gallery images="{[images[0], images[2]]}" />
 `
 
 module.exports = component((data) => {

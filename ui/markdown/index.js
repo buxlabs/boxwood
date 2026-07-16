@@ -1,9 +1,9 @@
 const nodes = require("../..")
 const { component } = nodes
 
-const { extractHtmlParams, mergeComponents } = require("./utilities/params")
-const { parseMarkdownLines } = require("./utilities/parseBlock")
-const { convertItemsToNodes } = require("./utilities/convertNodes")
+const { extractHtmlParams, mergeComponents } = require("../utilities/params")
+const { parseMarkdownLines } = require("../utilities/parseBlock")
+const { convertItemsToNodes } = require("../utilities/convertNodes")
 
 // Basic HTML components needed for markdown formatting (links, images, code, etc.)
 const BASIC_HTML_COMPONENTS = {

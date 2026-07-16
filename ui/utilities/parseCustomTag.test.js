@@ -228,3 +228,66 @@ test("resolveAttributes: preserves non-variable attributes", () => {
     data: null,
   })
 })
+
+test("resolveAttributes: resolves method call on array variable", () => {
+  const attrs = { images: { __variable: "images.slice(0, 2)" } }
+  const data = { images: ["a.jpg", "b.jpg", "c.jpg", "d.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: ["a.jpg", "b.jpg"] })
+})
+
+test("resolveAttributes: resolves chained method call with property access", () => {
+  const attrs = { images: { __variable: "gallery.images.slice(1)" } }
+  const data = { gallery: { images: ["a.jpg", "b.jpg", "c.jpg"] } }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: ["b.jpg", "c.jpg"] })
+})
+
+test("resolveAttributes: returns undefined for unsafe method call", () => {
+  const attrs = { images: { __variable: "images.push('x.jpg')" } }
+  const data = { images: ["a.jpg", "b.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: undefined })
+  assert.deepStrictEqual(data.images, ["a.jpg", "b.jpg"])
+})
+
+test("parseAttributes: parses array literal in quoted attribute", () => {
+  const result = parseAttributes('source="{[images[0], images[2]]}"')
+  assert.deepStrictEqual(result, {
+    source: { __variable: "[images[0], images[2]]" },
+  })
+})
+
+test("resolveAttributes: resolves array literal of variables", () => {
+  const attrs = { source: { __variable: "[images[0], images[2]]" } }
+  const data = { images: ["a.jpg", "b.jpg", "c.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { source: ["a.jpg", "c.jpg"] })
+})
+
+test("resolveAttributes: resolves array literal mixing variables and literals", () => {
+  const attrs = { source: { __variable: '[images[0], "static.jpg"]' } }
+  const data = { images: ["a.jpg", "b.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { source: ["a.jpg", "static.jpg"] })
+})
+
+test("resolveAttributes: resolves array literal with method calls", () => {
+  const attrs = { source: { __variable: "[images.at(0), images.at(-1)]" } }
+  const data = { images: ["a.jpg", "b.jpg", "c.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { source: ["a.jpg", "c.jpg"] })
+})
+
+test("resolveAttributes: resolves ?? fallback in attribute", () => {
+  const attrs = { source: { __variable: 'cover ?? images[0]' } }
+  const data = { images: ["a.jpg", "b.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { source: "a.jpg" })
+})
+
+test("resolveAttributes: resolves ?? with array literal fallback", () => {
+  const attrs = { images: { __variable: 'gallery ?? ["placeholder.jpg"]' } }
+  const result = resolveAttributes(attrs, {})
+  assert.deepStrictEqual(result, { images: ["placeholder.jpg"] })
+})

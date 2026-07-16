@@ -1,3 +1,5 @@
+const { resolveExpression } = require("./replaceVariables")
+
 /**
  * Parse a custom component tag from markdown
  * Supports both <Component attr="value"> and <Component attr={variable}>
@@ -157,7 +159,19 @@ function parseAttributes(attributesStr) {
           i++
         }
       }
-      attributes[name] = value
+      
+      // Check if the entire quoted value is a variable reference: "{variable}"
+      if (value.startsWith("{") && value.endsWith("}")) {
+        const variableName = value.substring(1, value.length - 1).trim()
+        if (variableName) {
+          attributes[name] = { __variable: variableName }
+        } else {
+          attributes[name] = value
+        }
+      } else {
+        attributes[name] = value
+      }
+      
       if (i < str.length) i++ // Skip closing quote
     } else if (str[i] === "{") {
       // Variable reference
@@ -197,12 +211,11 @@ function resolveAttributes(attributes, data) {
   const resolved = {}
   for (const [key, value] of Object.entries(attributes)) {
     if (value && typeof value === "object" && value.__variable) {
-      // Resolve variable
-      const variableName = value.__variable
-      resolved[key] =
-        data && data[variableName] !== undefined
-          ? data[variableName]
-          : undefined
+      // Resolve variable using resolveExpression to support complex paths
+      // and array literals like "[images[0], images[2]]"
+      const variablePath = value.__variable
+      const resolvedValue = resolveExpression(data, variablePath)
+      resolved[key] = resolvedValue
     } else {
       resolved[key] = value
     }

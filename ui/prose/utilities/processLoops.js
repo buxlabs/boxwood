@@ -1,5 +1,13 @@
-const { resolvePath } = require("./replaceVariables")
+const {
+  resolvePath,
+  resolveExpression,
+} = require("../../utilities/replaceVariables")
 const { processConditionals } = require("./processConditionals")
+
+// Upper bound for expanded loop output - {#each} blocks nested over large
+// arrays multiply, and content authors should get a clear error instead of
+// an unresponsive page
+const MAX_EXPANSION_LENGTH = 1000000
 
 /**
  * Process {#each items}...{/each} blocks in text
@@ -8,6 +16,7 @@ const { processConditionals } = require("./processConditionals")
  * - {#each items} - basic iteration, access current item with {item}
  * - {#each items as item} - custom item variable name
  * - {#each items as item, index} - access item and index
+ * - {#each items}...{#else}...{/each} - fallback content for empty arrays
  * @param {string} text - Text containing loop blocks
  * @param {Object} data - Data object with variable values
  * @returns {string} - Text with loops expanded
@@ -17,9 +26,9 @@ function processLoops(text, data) {
     return text
   }
 
-  // If no data, remove all {#each}...{/each} blocks
+  // Without data every array is missing, so loops render their {#else} branch
   if (!data || typeof data !== "object") {
-    return text.replace(/\{#each\s+[^}]+\}[\s\S]*?\{\/each\}/g, "")
+    data = {}
   }
 
   let result = text
@@ -74,6 +83,9 @@ function processLoops(text, data) {
     const blockContent = result.substring(contentStart, endEachStart)
     const endEachEnd = endEachStart + 7 // length of "{/each}"
 
+    // Split the block into the item branch and an optional {#else} branch
+    const { itemBranch, elseBranch } = splitLoopBranches(blockContent)
+
     // Resolve the array
     const array = resolvePath(data, arrayPath)
 
@@ -92,16 +104,30 @@ function processLoops(text, data) {
           loopData[indexName] = idx
         }
 
-        // First, process any conditionals within the loop content using the loop data
-        let itemContent = processConditionals(blockContent, loopData)
+        // First, expand nested loops recursively so they can reference
+        // the current item (e.g. {#each group.members} inside {#each groups as group})
+        let itemContent = processLoops(itemBranch, loopData)
+
+        // Then process any conditionals within the loop content using the loop data
+        itemContent = processConditionals(itemContent, loopData)
 
         // Then replace variables in the block content
         itemContent = replaceLoopVariables(itemContent, loopData)
 
         expandedContent += itemContent
+
+        if (expandedContent.length > MAX_EXPANSION_LENGTH) {
+          throw new Error(
+            `Prose: {#each ${arrayPath}} expanded past ${MAX_EXPANSION_LENGTH} characters - reduce the array size or nesting`,
+          )
+        }
       }
+    } else {
+      // Empty or missing array - render the {#else} branch if present
+      // It is inserted as-is: nested loops are handled by the next iterations
+      // of this while loop, conditionals and variables by the later passes
+      expandedContent = elseBranch
     }
-    // If array is empty or not an array, remove the block
 
     // Replace the entire {#each}...{/each} block
     result =
@@ -111,6 +137,40 @@ function processLoops(text, data) {
   }
 
   return result
+}
+
+/**
+ * Split loop block content into the item branch and an optional {#else} branch
+ * Only a top-level {#else} splits the block - an {#else} that belongs to a
+ * nested {#each} or {#if} inside the block is ignored
+ * @param {string} blockContent - Content between {#each} and {/each}
+ * @returns {{itemBranch: string, elseBranch: string}} - The two branches
+ */
+function splitLoopBranches(blockContent) {
+  let depth = 0
+  let i = 0
+
+  while (i < blockContent.length) {
+    if (
+      blockContent.substring(i, i + 6) === "{#each" ||
+      blockContent.substring(i, i + 4) === "{#if"
+    ) {
+      depth++
+    } else if (
+      blockContent.substring(i, i + 7) === "{/each}" ||
+      blockContent.substring(i, i + 5) === "{/if}"
+    ) {
+      depth--
+    } else if (depth === 0 && blockContent.substring(i, i + 7) === "{#else}") {
+      return {
+        itemBranch: blockContent.substring(0, i),
+        elseBranch: blockContent.substring(i + 7),
+      }
+    }
+    i++
+  }
+
+  return { itemBranch: blockContent, elseBranch: "" }
 }
 
 /**
@@ -125,7 +185,7 @@ function replaceLoopVariables(text, loopData) {
   }
 
   let result = text
-  const regex = /\{([a-zA-Z0-9_.[\]]+)\}/g
+  const regex = /\{([^{}]+)\}/g
   let match
 
   // Collect all variable matches first to avoid issues with overlapping replacements
@@ -154,8 +214,9 @@ function replaceLoopVariables(text, loopData) {
       continue
     }
 
-    // Resolve the variable value
-    const value = resolvePath(loopData, path)
+    // Resolve the expression (supports paths, safe method calls,
+    // array literals and ?? fallbacks)
+    const value = resolveExpression(loopData, path)
 
     if (value !== undefined && value !== null) {
       result =
