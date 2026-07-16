@@ -1,4 +1,7 @@
-const { resolveExpression } = require("./replaceVariables")
+const {
+  resolveExpression,
+  replaceVariables,
+} = require("./replaceVariables")
 
 /**
  * Parse a custom component tag from markdown
@@ -160,18 +163,24 @@ function parseAttributes(attributesStr) {
         }
       }
       
-      // Check if the entire quoted value is a variable reference: "{variable}"
-      if (value.startsWith("{") && value.endsWith("}")) {
-        const variableName = value.substring(1, value.length - 1).trim()
-        if (variableName) {
-          attributes[name] = { __variable: variableName }
-        } else {
-          attributes[name] = value
-        }
+      // Whole-value variable reference: "{variable}" - resolves to the raw
+      // value (array, object, number), not a string
+      const inner = value.substring(1, value.length - 1)
+      if (
+        value.startsWith("{") &&
+        value.endsWith("}") &&
+        inner.trim() &&
+        !inner.includes("{") &&
+        !inner.includes("}")
+      ) {
+        attributes[name] = { __variable: inner.trim() }
+      } else if (/\{[^{}]+\}/.test(value)) {
+        // Partial interpolation: "/products/{id}" or "Photo of {name}"
+        attributes[name] = { __interpolate: value }
       } else {
         attributes[name] = value
       }
-      
+
       if (i < str.length) i++ // Skip closing quote
     } else if (str[i] === "{") {
       // Variable reference
@@ -216,6 +225,9 @@ function resolveAttributes(attributes, data) {
       const variablePath = value.__variable
       const resolvedValue = resolveExpression(data, variablePath)
       resolved[key] = resolvedValue
+    } else if (value && typeof value === "object" && value.__interpolate) {
+      // Partial interpolation always produces a string
+      resolved[key] = replaceVariables(value.__interpolate, data)
     } else {
       resolved[key] = value
     }

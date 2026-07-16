@@ -188,3 +188,11 @@ test("Prose.validate: merges custom components with builtins", () => {
   })
   assert.deepStrictEqual(issues, [])
 })
+
+test("validate: validates partial interpolation in attributes", () => {
+  const issues = validate('<Gallery href="/products/{prodcutId}" />', {
+    data: { productId: 1 },
+    components: { Gallery: () => null },
+  })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+})

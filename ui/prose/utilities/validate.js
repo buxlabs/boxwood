@@ -17,7 +17,6 @@ const CONDITION_REGEXP = /^(.+?)\s*(>=|<=|>|<|==|!=)\s*(.+)$/
 const INLINE_CODE_REGEXP = /(`+)([^`]+)\1/g
 const BRACE_REGEXP = /\{([^{}]*)\}/g
 const COMPONENT_TAG_REGEXP = /^<\/?([A-Z][A-Za-z0-9-]*)/
-const ATTRIBUTE_EXPRESSION_REGEXP = /=\s*(?:"\{([^}"]*)\}"|'\{([^}']*)\}'|\{([^}]*)\})/g
 
 /**
  * Validate a Prose template and report problems that the renderer
@@ -253,19 +252,8 @@ function validate(text, options = {}) {
         )
       }
     }
-    if (componentMatch) {
-      // Validate attribute expressions: attr="{expr}" or attr={expr}
-      let attrMatch
-      while ((attrMatch = ATTRIBUTE_EXPRESSION_REGEXP.exec(trimmed)) !== null) {
-        const expression = attrMatch[1] ?? attrMatch[2] ?? attrMatch[3]
-        if (expression && expression.trim()) {
-          validateExpression(expression, lineNumber)
-        }
-      }
-      continue
-    }
-
-    // Braced tags and expressions
+    // Braced tags and expressions - on component lines this also covers
+    // attribute expressions, both whole-value ({expr}) and partial (/p/{id})
     let braceMatch
     while ((braceMatch = BRACE_REGEXP.exec(line)) !== null) {
       // Escaped braces are literal

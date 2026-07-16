@@ -291,3 +291,47 @@ test("resolveAttributes: resolves ?? with array literal fallback", () => {
   const result = resolveAttributes(attrs, {})
   assert.deepStrictEqual(result, { images: ["placeholder.jpg"] })
 })
+
+test("parseAttributes: marks partial interpolation in quoted attribute", () => {
+  const result = parseAttributes('href="/products/{id}"')
+  assert.deepStrictEqual(result, {
+    href: { __interpolate: "/products/{id}" },
+  })
+})
+
+test("resolveAttributes: interpolates partial attribute value", () => {
+  const attrs = { href: { __interpolate: "/products/{id}" } }
+  const result = resolveAttributes(attrs, { id: 7 })
+  assert.deepStrictEqual(result, { href: "/products/7" })
+})
+
+test("resolveAttributes: interpolates multiple variables in one attribute", () => {
+  const attrs = { alt: { __interpolate: "Photo of {name} ({year})" } }
+  const result = resolveAttributes(attrs, { name: "Jan", year: 2026 })
+  assert.deepStrictEqual(result, { alt: "Photo of Jan (2026)" })
+})
+
+test("resolveAttributes: supports ?? inside partial interpolation", () => {
+  const attrs = { alt: { __interpolate: "Photo of {name ?? 'someone'}" } }
+  const result = resolveAttributes(attrs, {})
+  assert.deepStrictEqual(result, { alt: "Photo of someone" })
+})
+
+test("resolveAttributes: keeps placeholder for missing variable in partial value", () => {
+  const attrs = { href: { __interpolate: "/products/{id}" } }
+  const result = resolveAttributes(attrs, {})
+  assert.deepStrictEqual(result, { href: "/products/{id}" })
+})
+
+test("resolveAttributes: whole-value reference still returns the raw value", () => {
+  const attrs = { images: { __variable: "images" } }
+  const data = { images: ["a.jpg", "b.jpg"] }
+  const result = resolveAttributes(attrs, data)
+  assert.deepStrictEqual(result, { images: ["a.jpg", "b.jpg"] })
+})
+
+test("resolveAttributes: interpolates value with multiple whole expressions", () => {
+  const attrs = { class: { __interpolate: "{base} {modifier}" } }
+  const result = resolveAttributes(attrs, { base: "card", modifier: "wide" })
+  assert.deepStrictEqual(result, { class: "card wide" })
+})

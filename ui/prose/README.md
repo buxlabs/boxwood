@@ -175,6 +175,17 @@ literals:
 <Hero sources="{[cover ?? 'default.jpg', banner]}" />
 ```
 
+## Attribute Interpolation
+
+An attribute whose entire value is a single `{expression}` resolves to the
+raw value (array, object, number) - that is what makes
+`images="{images.slice(0, 2)}"` work. Expressions can also be embedded in a
+longer attribute string, which always produces a string:
+
+```markdown
+<Card href="/products/{id}" alt="Photo of {name ?? 'someone'}" />
+```
+
 ## Conditional Rendering
 
 Use `{#if}` blocks to conditionally render content based on data:
