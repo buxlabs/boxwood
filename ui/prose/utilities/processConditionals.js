@@ -1,4 +1,8 @@
-const { resolvePath } = require("../../utilities/replaceVariables")
+const {
+  resolveExpression,
+  splitLogicalOr,
+  splitLogicalAnd,
+} = require("../../utilities/replaceVariables")
 
 /**
  * Check if a value is truthy for conditional rendering
@@ -33,12 +37,28 @@ function isTruthy(value) {
 /**
  * Evaluate a condition expression
  * Supports: variable, variable > value, variable < value, etc.
- * Also supports negation with ! prefix
+ * Also supports negation with ! prefix and logical || and && operators
+ * with JS precedence (&& binds tighter than ||),
+ * e.g. "articles.length == 0 || user.role == 'admin'"
+ * Both comparison sides and bare conditions accept full expressions:
+ * ?? fallbacks, arithmetic ("items.length - 1 > 0") and array literals
  * @param {string} condition - The condition to evaluate
  * @param {Object} data - Data object with variable values
  * @returns {boolean} - Whether the condition is true
  */
 function evaluateCondition(condition, data) {
+  // Logical operators, || first so && binds tighter (JS precedence)
+  // Each operand is evaluated recursively, including its own ! negation
+  const orOperands = splitLogicalOr(condition)
+  if (orOperands.length > 1) {
+    return orOperands.some((operand) => evaluateCondition(operand, data))
+  }
+
+  const andOperands = splitLogicalAnd(condition)
+  if (andOperands.length > 1) {
+    return andOperands.every((operand) => evaluateCondition(operand, data))
+  }
+
   // Check for negation operator at the start
   let negated = false
   let conditionToEvaluate = condition.trim()
@@ -50,16 +70,16 @@ function evaluateCondition(condition, data) {
 
   let result
 
-  // Check for comparison operators
+  // Check for comparison operators - longest first so === wins over ==
   const comparisonMatch = conditionToEvaluate.match(
-    /^(.+?)\s*(>=|<=|>|<|==|!=)\s*(.+)$/,
+    /^(.+?)\s*(===|!==|>=|<=|>|<|==|!=)\s*(.+)$/,
   )
 
   if (comparisonMatch) {
     const [, leftExpr, operator, rightExpr] = comparisonMatch
 
-    // Resolve left side (variable or path)
-    const leftValue = resolvePath(data, leftExpr.trim())
+    // Resolve left side - any expression, e.g. "items.length - 1"
+    const leftValue = resolveExpression(data, leftExpr.trim())
 
     // Resolve right side (could be a number, string, or variable)
     let rightValue = rightExpr.trim()
@@ -81,9 +101,9 @@ function evaluateCondition(condition, data) {
     ) {
       rightValue = rightValue.slice(1, -1)
     }
-    // Otherwise treat as a variable path
+    // Otherwise treat as an expression
     else {
-      rightValue = resolvePath(data, rightValue)
+      rightValue = resolveExpression(data, rightValue)
     }
 
     // Perform comparison
@@ -106,12 +126,19 @@ function evaluateCondition(condition, data) {
       case "!=":
         result = leftValue != rightValue
         break
+      case "===":
+        result = leftValue === rightValue
+        break
+      case "!==":
+        result = leftValue !== rightValue
+        break
       default:
         result = false
     }
   } else {
     // No comparison operator, just evaluate truthiness
-    const value = resolvePath(data, conditionToEvaluate)
+    // Expressions are supported, e.g. "title ?? subtitle"
+    const value = resolveExpression(data, conditionToEvaluate)
     result = isTruthy(value)
   }
 

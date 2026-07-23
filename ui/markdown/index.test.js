@@ -59,7 +59,7 @@ Here are the items:
 That's all!
   `
   const html = template(markdown)
-  assert(html.includes("<h1>Shopping List</h1>"))
+  assert(html.includes('<h1>Shopping List</h1>'))
   assert(html.includes("<p>Here are the items:</p>"))
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Apples</li>"))
@@ -81,7 +81,7 @@ test("handles list followed by heading", async () => {
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Item one</li>"))
   assert(html.includes("</ul>"))
-  assert(html.includes("<h2>Next Section</h2>"))
+  assert(html.includes('<h2>Next Section</h2>'))
 })
 
 test("handles both dash types in same list", async () => {
@@ -136,7 +136,7 @@ Follow these steps:
 3. Return home
   `
   const html = template(markdown)
-  assert(html.includes("<h1>Shopping List</h1>"))
+  assert(html.includes('<h1>Shopping List</h1>'))
   assert(html.includes("<p>Buy these items:</p>"))
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Apples</li>"))
@@ -185,8 +185,8 @@ test("handles array of markdown strings", async () => {
   const { template } = await compile(__dirname)
   const markdown = ["# First", "# Second"]
   const html = template(markdown)
-  assert(html.includes("<h1>First</h1>"))
-  assert(html.includes("<h1>Second</h1>"))
+  assert(html.includes('<h1>First</h1>'))
+  assert(html.includes('<h1>Second</h1>'))
 })
 
 test("groups consecutive blockquotes", async () => {
@@ -233,7 +233,7 @@ test("renders inline markdown in headings", async () => {
   const { template } = await compile(__dirname)
   const markdown = "# Heading with **bold**"
   const html = template(markdown)
-  assert(html.includes("<h1>Heading with <strong>bold</strong></h1>"))
+  assert(html.includes('<h1>Heading with <strong>bold</strong></h1>'))
 })
 
 test("renders inline markdown in lists", async () => {
@@ -398,7 +398,7 @@ More text
   `
   const html = template(markdown)
 
-  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<h1>Title</h1>'))
   assert(html.includes("<p>Some text</p>"))
   assert(html.includes("<ol>"))
   assert(html.includes("<li>First item"))
@@ -572,7 +572,7 @@ test("renders images in headings", async () => {
   const { template } = await compile(__dirname)
   const markdown = "# Heading with ![icon](/icon.svg)"
   const html = template(markdown)
-  assert(html.includes("<h1>"))
+  assert(html.includes("<h1"))
   assert(html.includes('<img src="/icon.svg" alt="icon">'))
   assert(html.includes("</h1>"))
 })
@@ -738,7 +738,7 @@ code here
 More text
   `
   const html = template(markdown)
-  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<h1>Title</h1>'))
   assert(html.includes("<p>Some paragraph text</p>"))
   assert(html.includes("<pre>"))
   assert(html.includes("code here"))
@@ -955,7 +955,7 @@ test("escapes in headings", async () => {
   const { template } = await compile(__dirname)
   const markdown = "# Heading with \\*escaped\\* text"
   const html = template(markdown)
-  assert(html.includes("<h1>Heading with *escaped* text</h1>"))
+  assert(html.includes('<h1>Heading with *escaped* text</h1>'))
   assert(!html.includes("<strong>"))
 })
 
@@ -1048,3 +1048,36 @@ test("nested markdown with escapes - bold link with escaped bracket", async () =
   assert(html.includes("]"))
 })
 
+
+test("renders markdown tables", async () => {
+  const { template } = await compile(__dirname)
+  const markdown = `
+| Name | Price |
+| --- | --- |
+| Widget | 10 |
+`
+  const html = template(markdown)
+  assert(html.includes("<thead><tr><th>Name</th><th>Price</th></tr></thead>"))
+  assert(html.includes("<tr><td>Widget</td><td>10</td></tr>"))
+})
+
+test("renders strikethrough and task lists", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("~~old~~\n\n- [x] done")
+  assert(html.includes("<del>old</del>"))
+  assert(html.includes('<input type="checkbox" disabled checked> done'))
+})
+
+test("plain Markdown headings have no anchor ids", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("## Hello World")
+  assert(html.includes("<h2>Hello World</h2>"))
+  assert(!html.includes("id="))
+})
+
+test("plain Markdown still renders GFM features", async () => {
+  const { template } = await compile(__dirname)
+  assert(template("| A |\n| --- |\n| 1 |").includes("<table>"))
+  assert(template("- [x] done").includes('type="checkbox"'))
+  assert(template("~~old~~").includes("<del>old</del>"))
+})

@@ -51,6 +51,29 @@ test("validate: reports unsafe method", () => {
   assert.deepStrictEqual(types(issues), ["unsafe-method"])
 })
 
+test("validate: accepts paths as method arguments", () => {
+  const issues = validate("{images.slice(0, limit)}", {
+    data: { images: [], limit: 2 },
+  })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: reports unknown variable in a method argument", () => {
+  const issues = validate("{images.slice(0, limti)}", {
+    data: { images: [], limit: 2 },
+  })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("limti"))
+})
+
+test("validate: reports unsafe method in a method argument", () => {
+  const issues = validate("{images.slice(0, items.pop())}", {
+    data: { images: [], items: [] },
+  })
+  assert.deepStrictEqual(types(issues), ["unsafe-method"])
+  assert(issues[0].message.includes("pop"))
+})
+
 test("validate: reports malformed expression", () => {
   const issues = validate("{items.slice(0,}", { data: { items: [] } })
   assert.deepStrictEqual(types(issues), ["malformed-expression"])
@@ -87,9 +110,65 @@ test("validate: accepts {#elseif} inside {#if}", () => {
   assert.deepStrictEqual(issues, [])
 })
 
+test("validate: validates || and && condition operands", () => {
+  const text = "{#if articles.length === 0 || usr.role === 'admin'}x{/if}"
+  const issues = validate(text, { data: { articles: [], user: {} } })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("usr"))
+})
+
+test("validate: accepts valid logical conditions", () => {
+  const text =
+    "{#if articles.length === 0 || user.role === 'admin' && user.active}x{/if}"
+  const issues = validate(text, { data: { articles: [], user: {} } })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: reports empty logical operand in a condition", () => {
+  const issues = validate("{#if a ||}x{/if}", { data: { a: 1 } })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
+})
+
 test("validate: validates condition expressions", () => {
   const issues = validate("{#if count > 3}big{/if}", { data: { total: 1 } })
   assert.deepStrictEqual(types(issues), ["unknown-variable"])
+})
+
+test("validate: validates || operands", () => {
+  const issues = validate('{title || imges[0]}', { data: { title: "", images: [] } })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("imges"))
+})
+
+test("validate: accepts valid || fallbacks", () => {
+  const issues = validate('{title || "Untitled"}', { data: { title: "" } })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: reports mixed ?? and || as malformed", () => {
+  const issues = validate("{a ?? b || c}", { data: { a: 1, b: 2, c: 3 } })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
+  assert(issues[0].message.includes("mix"))
+})
+
+test("validate: validates && operands", () => {
+  const issues = validate("{active && usr.name}", {
+    data: { active: true, user: {} },
+  })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("usr"))
+})
+
+test("validate: validates && operands nested in ||", () => {
+  const issues = validate("{a || b && unknwn}", { data: { a: 1, b: 2 } })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("unknwn"))
+})
+
+test("validate: reports mixed ?? and && as malformed", () => {
+  const issues = validate("{a ?? b && c}", { data: { a: 1, b: 2, c: 3 } })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
+  assert(issues[0].message.includes("mix"))
 })
 
 test("validate: validates ?? operands", () => {
@@ -112,6 +191,21 @@ test("validate: validates array literal elements", () => {
   assert.deepStrictEqual(types(issues), ["unknown-variable"])
 })
 
+test("validate: validates spread elements in array literals", () => {
+  const issues = validate("{[...images.slice(0, 1), ...imges.slice(2)]}", {
+    data: { images: [] },
+  })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("imges"))
+})
+
+test("validate: accepts valid spread elements", () => {
+  const issues = validate("{[...images.slice(1, 2), ...images.slice(4, 5)]}", {
+    data: { images: [] },
+  })
+  assert.deepStrictEqual(issues, [])
+})
+
 test("validate: reports unknown component", () => {
   const issues = validate("<Galery images=\"{images}\" />", {
     data: { images: [] },
@@ -127,6 +221,37 @@ test("validate: accepts known component and validates its attributes", () => {
     components: { Gallery: () => null },
   })
   assert.deepStrictEqual(types(issues), ["unknown-variable"])
+})
+
+test("validate: validates expressions in multi-line component tags", () => {
+  const text = [
+    '<Gallery images="{[',
+    "  images[0],",
+    "  imges[1]",
+    ']}" />',
+  ].join("\n")
+  const issues = validate(text, {
+    data: { images: [] },
+    components: { Gallery: () => null },
+  })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("imges"))
+})
+
+test("validate: accepts valid multi-line component tags", () => {
+  const text = [
+    "<Gallery",
+    '  images="{[',
+    "  images[0],",
+    "  images[1]",
+    ']}"',
+    "/>",
+  ].join("\n")
+  const issues = validate(text, {
+    data: { images: [] },
+    components: { Gallery: () => null },
+  })
+  assert.deepStrictEqual(issues, [])
 })
 
 test("validate: skips content of fenced code blocks", () => {
@@ -195,4 +320,95 @@ test("validate: validates partial interpolation in attributes", () => {
     components: { Gallery: () => null },
   })
   assert.deepStrictEqual(types(issues), ["unknown-variable"])
+})
+
+test("validate: accepts expressions in {#each} headers", () => {
+  const text = "{#each posts.slice(0, 3) as post}{post.title}{/each}"
+  const issues = validate(text, { data: { posts: [] } })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: reports unknown variable in an {#each} header expression", () => {
+  const text = "{#each psts.slice(0, 3) as post}{post.title}{/each}"
+  const issues = validate(text, { data: { posts: [] } })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("psts"))
+})
+
+test("validate: validates arithmetic operands", () => {
+  const issues = validate("{indx + 1}", { data: { index: 0 } })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("indx"))
+})
+
+test("validate: accepts valid arithmetic", () => {
+  const issues = validate("{i + 1} {items.length - 1} {price * quantity}", {
+    data: { i: 0, items: [], price: 1, quantity: 2 },
+  })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: accepts ?? and arithmetic in conditions", () => {
+  const text = "{#if title ?? subtitle}x{/if}\n{#if items.length - 1 > 0}y{/if}"
+  const issues = validate(text, { data: { title: "", subtitle: "", items: [] } })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: reports unknown variable in a condition expression", () => {
+  const issues = validate("{#if titel ?? subtitle}x{/if}", {
+    data: { title: "", subtitle: "" },
+  })
+  assert.deepStrictEqual(types(issues), ["unknown-variable"])
+  assert(issues[0].message.includes("titel"))
+})
+
+test("validate: accepts expressions in method arguments", () => {
+  const issues = validate("{a.slice(0, n - 1)}", { data: { a: [], n: 3 } })
+  assert.deepStrictEqual(issues, [])
+})
+
+test("validate: reports empty expression braces", () => {
+  const issues = validate("Hello {}", { data: {} })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
+  assert(issues[0].message.includes("Empty expression"))
+})
+
+test("validate: reports empty expression with whitespace", () => {
+  const issues = validate("Hello { }", { data: {} })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
+})
+
+test("validate: reports empty expression in attributes", () => {
+  const issues = validate('<Center title="{}" />', {
+    components: { Center: () => null },
+  })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
+})
+
+test("validate: skips escaped and inline-code empty braces", () => {
+  assert.deepStrictEqual(validate("literal \\{} braces", { data: {} }), [])
+  assert.deepStrictEqual(validate("use `{}` in code", { data: {} }), [])
+})
+
+test("validate: reports empty {#if} condition", () => {
+  const issues = validate("{#if }x{/if}", { data: {} })
+  assert.deepStrictEqual(types(issues), ["malformed-block"])
+  assert(issues[0].message.includes("Empty condition"))
+})
+
+test("validate: reports empty {#elseif} condition", () => {
+  const issues = validate("{#if a}1{#elseif }2{/if}", { data: { a: 1 } })
+  assert.deepStrictEqual(types(issues), ["malformed-block"])
+})
+
+test("validate: reports prototype-chain access", () => {
+  const issues = validate("{x.constructor}", { data: { x: {} } })
+  assert.deepStrictEqual(types(issues), ["forbidden-property"])
+  assert(issues[0].message.includes("prototype access"))
+})
+
+test("validate: reports oversized expressions instead of hanging", () => {
+  const huge = "{" + "a".repeat(1001) + "}"
+  const issues = validate(huge, { data: {} })
+  assert.deepStrictEqual(types(issues), ["malformed-expression"])
 })

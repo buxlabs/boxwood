@@ -18,6 +18,7 @@ const BASIC_HTML_COMPONENTS = {
   code: nodes.Code,
   strong: nodes.Strong,
   em: nodes.Em,
+  del: nodes.Del,
   p: nodes.P,
   ul: nodes.Ul,
   ol: nodes.Ol,
@@ -25,6 +26,12 @@ const BASIC_HTML_COMPONENTS = {
   pre: nodes.Pre,
   blockquote: nodes.Blockquote,
   hr: nodes.Hr,
+  table: nodes.Table,
+  thead: nodes.Thead,
+  tbody: nodes.Tbody,
+  tr: nodes.Tr,
+  th: nodes.Th,
+  td: nodes.Td,
 }
 
 function Markdown(params, children) {

@@ -1,18 +1,25 @@
 const {
   SAFE_METHODS,
+  FORBIDDEN_KEYS,
+  MAX_EXPRESSION_LENGTH,
   parseArgument,
   parsePathSegments,
   splitNullishCoalescing,
+  splitLogicalOr,
+  splitLogicalAnd,
+  splitArithmetic,
   isArrayLiteral,
   splitArrayElements,
 } = require("../../utilities/replaceVariables")
+const { scanUnquotedGt } = require("../../utilities/parseBlock")
 
 // Matches the {#each} header accepted by processLoops
+// The array part is any expression, e.g. "posts.slice(0, 3)"
 const EACH_HEADER_REGEXP =
-  /^#each\s+([a-zA-Z0-9_.[\]]+)(?:\s+as\s+([a-zA-Z0-9_]+)(?:\s*,\s*([a-zA-Z0-9_]+))?)?$/
+  /^#each\s+(.+?)(?:\s+as\s+([a-zA-Z0-9_]+)(?:\s*,\s*([a-zA-Z0-9_]+))?)?$/
 
 // Matches the comparison conditions accepted by processConditionals
-const CONDITION_REGEXP = /^(.+?)\s*(>=|<=|>|<|==|!=)\s*(.+)$/
+const CONDITION_REGEXP = /^(.+?)\s*(===|!==|>=|<=|>|<|==|!=)\s*(.+)$/
 
 const INLINE_CODE_REGEXP = /(`+)([^`]+)\1/g
 const BRACE_REGEXP = /\{([^{}]*)\}/g
@@ -60,12 +67,27 @@ function validate(text, options = {}) {
       return
     }
     for (const segment of segments) {
-      if (segment.type === "method" && !SAFE_METHODS.has(segment.name)) {
+      if (FORBIDDEN_KEYS.has(segment.name)) {
         report(
           line,
-          "unsafe-method",
-          `Method not allowed: ${segment.name}() - allowed methods: ${[...SAFE_METHODS].join(", ")}`,
+          "forbidden-property",
+          `Property not allowed: ${segment.name} - prototype access is blocked`,
         )
+      }
+      if (segment.type === "method") {
+        if (!SAFE_METHODS.has(segment.name)) {
+          report(
+            line,
+            "unsafe-method",
+            `Method not allowed: ${segment.name}() - allowed methods: ${[...SAFE_METHODS].join(", ")}`,
+          )
+        }
+        // Path arguments are full expressions, e.g. "slice(0, n - 1)"
+        for (const arg of segment.args) {
+          if (arg.type === "path") {
+            validateExpression(arg.path, line)
+          }
+        }
       }
     }
     const root = segments[0]
@@ -85,7 +107,80 @@ function validate(text, options = {}) {
     const trimmed = expression.trim()
     if (!trimmed) return
 
-    for (const operand of splitNullishCoalescing(trimmed)) {
+    // Oversized expressions are rejected by the resolver too - report and
+    // stop before the recursive scanners run on a pathological input
+    if (expression.length > MAX_EXPRESSION_LENGTH) {
+      report(
+        line,
+        "malformed-expression",
+        `Expression too long (over ${MAX_EXPRESSION_LENGTH} characters)`,
+      )
+      return
+    }
+
+    const nullishOperands = splitNullishCoalescing(trimmed)
+    const orOperands = splitLogicalOr(trimmed)
+    const andOperands = splitLogicalAnd(trimmed)
+
+    // Mixing ?? with || or && without parentheses is invalid, same as in JS
+    if (
+      nullishOperands.length > 1 &&
+      (orOperands.length > 1 || andOperands.length > 1)
+    ) {
+      report(
+        line,
+        "malformed-expression",
+        `Cannot mix ?? with || or && in one expression: {${trimmed}}`,
+      )
+      return
+    }
+
+    // || first so && binds tighter (JS precedence) - operands of || may
+    // contain && and recurse through validateExpression
+    const operands =
+      orOperands.length > 1
+        ? orOperands
+        : andOperands.length > 1
+          ? andOperands
+          : nullishOperands
+
+    if (operands.length > 1) {
+      for (const operand of operands) {
+        const raw = operand.trim()
+        if (!raw) {
+          report(
+            line,
+            "malformed-expression",
+            `Malformed expression: {${trimmed}}`,
+          )
+          continue
+        }
+        validateExpression(raw, line)
+      }
+      return
+    }
+
+    // Arithmetic operands validate recursively, e.g. {i + 1}
+    const sums = splitArithmetic(trimmed, ["+", "-"])
+    const arithmetic =
+      sums.operators.length > 0 ? sums : splitArithmetic(trimmed, ["*", "/"])
+    if (arithmetic.operators.length > 0) {
+      for (const operand of arithmetic.operands) {
+        const raw = operand.trim()
+        if (!raw) {
+          report(
+            line,
+            "malformed-expression",
+            `Malformed expression: {${trimmed}}`,
+          )
+          continue
+        }
+        validateExpression(raw, line)
+      }
+      return
+    }
+
+    for (const operand of operands) {
       const raw = operand.trim()
       if (!raw) {
         report(
@@ -100,7 +195,12 @@ function validate(text, options = {}) {
       }
       if (isArrayLiteral(raw)) {
         for (const element of splitArrayElements(raw.substring(1, raw.length - 1))) {
-          validateExpression(element, line)
+          // Spread elements validate the spread expression itself
+          const rawElement = element.trim()
+          validateExpression(
+            rawElement.startsWith("...") ? rawElement.substring(3) : rawElement,
+            line,
+          )
         }
         continue
       }
@@ -109,6 +209,25 @@ function validate(text, options = {}) {
   }
 
   const validateCondition = (condition, line) => {
+    // Logical operators - validate each operand on its own
+    const orOperands = splitLogicalOr(condition)
+    const operands =
+      orOperands.length > 1 ? orOperands : splitLogicalAnd(condition)
+    if (operands.length > 1) {
+      for (const operand of operands) {
+        if (!operand.trim()) {
+          report(
+            line,
+            "malformed-expression",
+            `Malformed condition: {#if ${condition.trim()}}`,
+          )
+          continue
+        }
+        validateCondition(operand, line)
+      }
+      return
+    }
+
     let expr = condition.trim()
     if (expr.startsWith("!")) {
       expr = expr.substring(1).trim()
@@ -157,7 +276,12 @@ function validate(text, options = {}) {
           "{#elseif} without a matching {#if}",
         )
       }
-      validateCondition(content.substring("#elseif".length), line)
+      const condition = content.substring("#elseif".length)
+      if (!condition.trim()) {
+        report(line, "malformed-block", "Empty condition: {#elseif}")
+        return
+      }
+      validateCondition(condition, line)
       return
     }
 
@@ -173,8 +297,15 @@ function validate(text, options = {}) {
     }
 
     if (content.startsWith("#if")) {
+      // Push before validating so a matching {/if} does not report an error
       stack.push({ type: "if", line })
-      validateCondition(content.substring("#if".length), line)
+      const condition = content.substring("#if".length)
+      if (!condition.trim()) {
+        // The renderer leaves {#if } blocks as literal text
+        report(line, "malformed-block", "Empty condition: {#if}")
+        return
+      }
+      validateCondition(condition, line)
       return
     }
 
@@ -252,6 +383,28 @@ function validate(text, options = {}) {
         )
       }
     }
+    // Multi-line component tags - join the attribute lines so expressions
+    // spanning lines (e.g. multi-line array literals) are validated as one
+    // The tag ends at the first > outside quoted attribute values
+    const gtState = { quote: null }
+    if (componentMatch && !scanUnquotedGt(line, gtState)) {
+      const parts = [line]
+      let j = i + 1
+      // A blank line ends the markdown block - stop joining there
+      while (
+        j < lines.length &&
+        lines[j].trim() &&
+        !scanUnquotedGt(lines[j], gtState)
+      ) {
+        parts.push(lines[j])
+        j++
+      }
+      if (j < lines.length && lines[j].trim()) {
+        parts.push(lines[j])
+        line = parts.join("\n")
+        i = j
+      }
+    }
     // Braced tags and expressions - on component lines this also covers
     // attribute expressions, both whole-value ({expr}) and partial (/p/{id})
     let braceMatch
@@ -261,7 +414,16 @@ function validate(text, options = {}) {
         continue
       }
       const content = braceMatch[1].trim()
-      if (!content) continue
+      if (!content) {
+        // A forgotten value - the renderer keeps {} as literal text,
+        // and an attribute value "{}" is passed through as a string
+        report(
+          lineNumber,
+          "malformed-expression",
+          "Empty expression: {} - escape with \\{ for literal braces",
+        )
+        continue
+      }
 
       if (content.startsWith("#") || content.startsWith("/")) {
         handleControlTag(content, lineNumber)

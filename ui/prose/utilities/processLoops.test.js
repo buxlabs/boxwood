@@ -334,3 +334,33 @@ test("processLoops: large but reasonable loops stay under the limit", () => {
   const result = processLoops(text, { items })
   assert.strictEqual(result.split("\n").length, 1001)
 })
+
+test("processLoops: iterates over a slice expression", () => {
+  const text = "{#each posts.slice(0, 2) as post}{post} {/each}"
+  const result = processLoops(text, { posts: ["a", "b", "c"] })
+  assert.strictEqual(result, "a b ")
+})
+
+test("processLoops: iterates over a slice with path arguments", () => {
+  const text = "{#each posts.slice(0, limit) as post}{post} {/each}"
+  const result = processLoops(text, { posts: ["a", "b", "c"], limit: 2 })
+  assert.strictEqual(result, "a b ")
+})
+
+test("processLoops: iterates over an array literal with spread", () => {
+  const text = "{#each [...featured, ...latest] as post}{post} {/each}"
+  const result = processLoops(text, { featured: ["f"], latest: ["l1", "l2"] })
+  assert.strictEqual(result, "f l1 l2 ")
+})
+
+test("processLoops: supports ?? fallback in the header", () => {
+  const text = "{#each posts ?? fallback as post}{post} {/each}"
+  const result = processLoops(text, { fallback: ["x"] })
+  assert.strictEqual(result, "x ")
+})
+
+test("processLoops: slice expression works with index variable", () => {
+  const text = "{#each posts.slice(1, 3) as post, i}{i}:{post} {/each}"
+  const result = processLoops(text, { posts: ["a", "b", "c"] })
+  assert.strictEqual(result, "0:b 1:c ")
+})

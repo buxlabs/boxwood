@@ -59,7 +59,7 @@ Here are the items:
 That's all!
   `
   const html = template(prose)
-  assert(html.includes("<h1>Shopping List</h1>"))
+  assert(html.includes('<h1 id="shopping-list">Shopping List</h1>'))
   assert(html.includes("<p>Here are the items:</p>"))
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Apples</li>"))
@@ -81,7 +81,7 @@ test("handles list followed by heading", async () => {
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Item one</li>"))
   assert(html.includes("</ul>"))
-  assert(html.includes("<h2>Next Section</h2>"))
+  assert(html.includes('<h2 id="next-section">Next Section</h2>'))
 })
 
 test("handles both dash types in same list", async () => {
@@ -136,7 +136,7 @@ Follow these steps:
 3. Return home
   `
   const html = template(prose)
-  assert(html.includes("<h1>Shopping List</h1>"))
+  assert(html.includes('<h1 id="shopping-list">Shopping List</h1>'))
   assert(html.includes("<p>Buy these items:</p>"))
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Apples</li>"))
@@ -185,8 +185,8 @@ test("handles array of prose strings", async () => {
   const { template } = await compile(__dirname)
   const prose = ["# First", "# Second"]
   const html = template(prose)
-  assert(html.includes("<h1>First</h1>"))
-  assert(html.includes("<h1>Second</h1>"))
+  assert(html.includes('<h1 id="first">First</h1>'))
+  assert(html.includes('<h1 id="second">Second</h1>'))
 })
 
 test("groups consecutive blockquotes", async () => {
@@ -233,7 +233,7 @@ test("renders inline prose in headings", async () => {
   const { template } = await compile(__dirname)
   const prose = "# Heading with **bold**"
   const html = template(prose)
-  assert(html.includes("<h1>Heading with <strong>bold</strong></h1>"))
+  assert(html.includes('<h1 id="heading-with-bold">Heading with <strong>bold</strong></h1>'))
 })
 
 test("renders inline prose in lists", async () => {
@@ -398,7 +398,7 @@ More text
   `
   const html = template(prose)
 
-  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<h1 id="title">Title</h1>'))
   assert(html.includes("<p>Some text</p>"))
   assert(html.includes("<ol>"))
   assert(html.includes("<li>First item"))
@@ -431,7 +431,7 @@ test("renders links in headings", async () => {
   const { template } = await compile(__dirname)
   const prose = "# Heading with [link](/url)"
   const html = template(prose)
-  assert(html.includes('<h1>Heading with <a href="/url">link</a></h1>'))
+  assert(html.includes('<h1 id="heading-with-link">Heading with <a href="/url">link</a></h1>'))
 })
 
 test("renders links in list items", async () => {
@@ -572,7 +572,7 @@ test("renders images in headings", async () => {
   const { template } = await compile(__dirname)
   const prose = "# Heading with ![icon](/icon.svg)"
   const html = template(prose)
-  assert(html.includes("<h1>"))
+  assert(html.includes("<h1"))
   assert(html.includes('<img src="/icon.svg" alt="icon">'))
   assert(html.includes("</h1>"))
 })
@@ -738,7 +738,7 @@ code here
 More text
   `
   const html = template(prose)
-  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<h1 id="title">Title</h1>'))
   assert(html.includes("<p>Some paragraph text</p>"))
   assert(html.includes("<pre>"))
   assert(html.includes("code here"))
@@ -955,7 +955,7 @@ test("escapes in headings", async () => {
   const { template } = await compile(__dirname)
   const prose = "# Heading with \\*escaped\\* text"
   const html = template(prose)
-  assert(html.includes("<h1>Heading with *escaped* text</h1>"))
+  assert(html.includes('<h1 id="heading-with-escaped-text">Heading with *escaped* text</h1>'))
   assert(!html.includes("<strong>"))
 })
 
@@ -1188,7 +1188,7 @@ Hello **{userName}**!
   `,
   )
 
-  assert(html.includes("<h1>Welcome Bob!</h1>"))
+  assert(html.includes('<h1 id="welcome-bob">Welcome Bob!</h1>'))
   assert(html.includes('<div class="alert alert-success">'))
   assert(html.includes("Hello <strong>Bob</strong>!"))
 })
@@ -1237,7 +1237,7 @@ This is a paragraph with a [link](http://example.com).
 
   assert(html.includes('<div class="card">'))
   assert(html.includes('<div class="card-title">My Card</div>'))
-  assert(html.includes("<h2>Heading</h2>"))
+  assert(html.includes('<h2 id="heading">Heading</h2>'))
   assert(html.includes('<a href="http://example.com">link</a>'))
   assert(html.includes("<ul>"))
   assert(html.includes("<li>Item 1</li>"))
@@ -1259,7 +1259,7 @@ Important information
 <Button variant="primary" text="Click" />
   `,
   )
-  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<h1 id="title">Title</h1>'))
   assert(html.includes('<div class="alert alert-info">'))
   assert(html.includes("Important information"))
   assert(html.includes('<div class="btn btn-primary">Click</div>'))
@@ -1352,7 +1352,7 @@ test("works without custom components", async () => {
   const { template } = await compile(__dirname)
   const html = template({}, "# Title\n\nRegular prose content")
 
-  assert(html.includes("<h1>Title</h1>"))
+  assert(html.includes('<h1 id="title">Title</h1>'))
   assert(html.includes("Regular prose content"))
 })
 
@@ -1512,7 +1512,7 @@ Heading 1
 </h1>
   `,
   )
-  assert(html.includes("<h1>"))
+  assert(html.includes("<h1"))
   assert(html.includes("Heading 1"))
 })
 
@@ -1526,7 +1526,7 @@ Heading 2
 </h2>
   `,
   )
-  assert(html.includes("<h2>"))
+  assert(html.includes("<h2"))
   assert(html.includes("Heading 2"))
 })
 
@@ -1540,7 +1540,7 @@ Heading 3
 </h3>
   `,
   )
-  assert(html.includes("<h3>"))
+  assert(html.includes("<h3"))
   assert(html.includes("Heading 3"))
 })
 
@@ -1554,7 +1554,7 @@ Heading 4
 </h4>
   `,
   )
-  assert(html.includes("<h4>"))
+  assert(html.includes("<h4"))
   assert(html.includes("Heading 4"))
 })
 
@@ -1568,7 +1568,7 @@ Heading 5
 </h5>
   `,
   )
-  assert(html.includes("<h5>"))
+  assert(html.includes("<h5"))
   assert(html.includes("Heading 5"))
 })
 
@@ -1582,7 +1582,7 @@ Heading 6
 </h6>
   `,
   )
-  assert(html.includes("<h6>"))
+  assert(html.includes("<h6"))
   assert(html.includes("Heading 6"))
 })
 
@@ -2386,7 +2386,7 @@ Content with **bold** text.
 </div>
   `
   const html = template({}, prose)
-  assert(html.includes("<h1>Markdown Heading</h1>"))
+  assert(html.includes('<h1 id="markdown-heading">Markdown Heading</h1>'))
   assert(html.includes('<div class="container">'))
   assert(html.includes("<strong>prose</strong>"))
   assert(html.includes("<article>"))
@@ -2419,7 +2419,7 @@ Footer
   assert(html.includes("<section>"))
   assert(html.includes("<article>"))
   assert(html.includes("<header>"))
-  assert(html.includes("<h2>"))
+  assert(html.includes("<h2"))
   assert(html.includes("Title"))
   assert(html.includes("<p>"))
   assert(html.includes("Content"))
@@ -2717,7 +2717,7 @@ Regular prose paragraph here.
 - List item 2
   `,
   )
-  assert(html.includes("<h1>Heading</h1>"))
+  assert(html.includes('<h1 id="heading">Heading</h1>'))
   assert(
     html.includes("<p>This is a <strong>single-line</strong> paragraph</p>"),
   )
@@ -2913,11 +2913,11 @@ Copyright © 2026
   // Verify structure
   assert(html.includes("<article>"))
   assert(html.includes("<header>"))
-  assert(html.includes("<h1>"))
+  assert(html.includes("<h1"))
   assert(html.includes("Understanding Web Development"))
   assert(html.includes('<time datetime="2026-07-03">'))
   assert(html.includes("<section>"))
-  assert(html.includes("<h2>Introduction</h2>"))
+  assert(html.includes('<h2 id="introduction">Introduction</h2>'))
   assert(html.includes("<strong>HTML</strong>"))
   assert(html.includes("<figure>"))
   assert(html.includes("<figcaption>"))
@@ -2986,7 +2986,7 @@ test("removes content when condition is empty string", async () => {
 {/if}
 `
   const html = template({ data: { title: "" } }, prose)
-  assert(!html.includes("<h1>"))
+  assert(!html.includes("<h1"))
 })
 
 test("renders content when condition is 0 (falsy but keep for now)", async () => {
@@ -3009,7 +3009,7 @@ test("renders content when condition is non-empty string", async () => {
 {/if}
 `
   const html = template({ data: { title: "Hello" } }, prose)
-  assert(html.includes("<h1>Hello</h1>"))
+  assert(html.includes('<h1 id="hello">Hello</h1>'))
 })
 
 test("renders content when condition is non-zero number", async () => {
@@ -3045,7 +3045,7 @@ By {author}
     },
     prose,
   )
-  assert(html.includes("<h1>Post</h1>"))
+  assert(html.includes('<h1 id="post">Post</h1>'))
   assert(!html.includes("By"))
   assert(!html.includes("John"))
 })
@@ -3093,7 +3093,7 @@ This is **bold** and *italic*.
 {/if}
 `
   const html = template({ data: { showContent: true } }, prose)
-  assert(html.includes("<h2>Heading</h2>"))
+  assert(html.includes('<h2 id="heading">Heading</h2>'))
   assert(html.includes("<strong>bold</strong>"))
   assert(html.includes("<em>italic</em>"))
   assert(html.includes("<ul>"))
@@ -3260,7 +3260,7 @@ Upgrade for more features
 {/if}
 `
   const html = template({ data: { isPremium: true } }, prose)
-  assert(html.includes("<h1>Premium Content</h1>"))
+  assert(html.includes('<h1 id="premium-content">Premium Content</h1>'))
   assert(html.includes("Access exclusive features"))
   assert(!html.includes("Standard Content"))
 })
@@ -3279,7 +3279,7 @@ Upgrade for more features
 {/if}
 `
   const html = template({ data: { isPremium: false } }, prose)
-  assert(html.includes("<h1>Standard Content</h1>"))
+  assert(html.includes('<h1 id="standard-content">Standard Content</h1>'))
   assert(html.includes("Upgrade for more features"))
   assert(!html.includes("Premium Content"))
 })
@@ -3342,7 +3342,7 @@ Author unknown
     },
     prose,
   )
-  assert(html.includes("<h1>My Article</h1>"))
+  assert(html.includes('<h1 id="my-article">My Article</h1>'))
   assert(html.includes("Author unknown"))
   assert(!html.includes("Untitled Document"))
   assert(!html.includes("By John"))
@@ -3531,9 +3531,9 @@ test("renders loop with headings", async () => {
     },
     prose,
   )
-  assert(html.includes("<h2>Introduction</h2>"))
+  assert(html.includes('<h2 id="introduction">Introduction</h2>'))
   assert(html.includes("Welcome to the guide."))
-  assert(html.includes("<h2>Conclusion</h2>"))
+  assert(html.includes('<h2 id="conclusion">Conclusion</h2>'))
   assert(html.includes("Thank you for reading."))
 })
 
@@ -3570,8 +3570,8 @@ test("handles nested loops", async () => {
     },
     prose,
   )
-  assert(html.includes("<h3>Fruits</h3>"))
-  assert(html.includes("<h3>Vegetables</h3>"))
+  assert(html.includes('<h3 id="fruits">Fruits</h3>'))
+  assert(html.includes('<h3 id="vegetables">Vegetables</h3>'))
   // Items should be repeated for each category
   const appleMatches = (html.match(/Apple/g) || []).length
   assert(appleMatches === 2)
@@ -3730,10 +3730,10 @@ test("handles multiple separate loops", async () => {
     },
     prose,
   )
-  assert(html.includes("<h1>Fruits</h1>"))
+  assert(html.includes('<h1 id="fruits">Fruits</h1>'))
   assert(html.includes("Apple"))
   assert(html.includes("Banana"))
-  assert(html.includes("<h1>Vegetables</h1>"))
+  assert(html.includes('<h1 id="vegetables">Vegetables</h1>'))
   assert(html.includes("Carrot"))
   assert(html.includes("Broccoli"))
 })
@@ -3797,11 +3797,11 @@ All features unlocked
 {/if}
 `
   const html1 = template({ data: { premium: false } }, prose)
-  assert(html1.includes("<h2>Free Plan</h2>"))
+  assert(html1.includes('<h2 id="free-plan">Free Plan</h2>'))
   assert(html1.includes("Limited features"))
 
   const html2 = template({ data: { premium: true } }, prose)
-  assert(html2.includes("<h2>Premium Plan</h2>"))
+  assert(html2.includes('<h2 id="premium-plan">Premium Plan</h2>'))
   assert(html2.includes("All features unlocked"))
 })
 
@@ -3847,7 +3847,7 @@ Please log in.
 {/if}
 `
   const html = template({ data: { role: "moderator" } }, prose)
-  assert(html.includes("<h1>Moderator Panel</h1>"))
+  assert(html.includes('<h1 id="moderator-panel">Moderator Panel</h1>'))
   assert(html.includes("Welcome, moderator!"))
   assert(!html.includes("Admin"))
   assert(!html.includes("User Profile"))
@@ -4057,4 +4057,324 @@ test("handles {#elseif} with loops", async () => {
   assert(html.includes("Moderator"))
   assert(html.includes("<strong>Charlie</strong>"))
   assert(html.includes("Regular user"))
+})
+
+test("headings get anchor ids from their text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("## Getting Started")
+  assert(html.includes('<h2 id="getting-started">Getting Started</h2>'))
+})
+
+test("heading anchors strip diacritics", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("## Mój tytuł")
+  assert(html.includes('<h2 id="moj-tytul">Mój tytuł</h2>'))
+})
+
+test("heading anchors come from interpolated text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ data: { title: "Release Notes" } }, "# {title}")
+  assert(html.includes('<h1 id="release-notes">Release Notes</h1>'))
+})
+
+test("repeated headings get numbered anchors", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+# Setup
+
+## Notes
+
+# Usage
+
+## Notes
+
+## Notes
+`
+  const html = template(prose)
+  assert(html.includes('<h2 id="notes">Notes</h2>'))
+  assert(html.includes('<h2 id="notes-2">Notes</h2>'))
+  assert(html.includes('<h2 id="notes-3">Notes</h2>'))
+})
+
+test("heading anchors skip headings without alphanumeric text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("# ***")
+  assert(!html.includes('id="'))
+})
+
+test("explicit id param wins over heading anchors", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ id: "custom" }, "# Title")
+  assert(html.includes('id="custom"'))
+  assert(!html.includes('id="title"'))
+})
+
+test("renders markdown tables", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+| Name | Price |
+| --- | --- |
+| Widget | 10 |
+| Gadget | 20 |
+`
+  const html = template(prose)
+  assert(html.includes("<table>"))
+  assert(html.includes("<thead><tr><th>Name</th><th>Price</th></tr></thead>"))
+  assert(html.includes("<tbody>"))
+  assert(html.includes("<tr><td>Widget</td><td>10</td></tr>"))
+  assert(html.includes("<tr><td>Gadget</td><td>20</td></tr>"))
+  assert(html.includes("</table>"))
+})
+
+test("renders table column alignment as styles", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+| Left | Center | Right |
+| :--- | :---: | ---: |
+| a | b | c |
+`
+  const html = template(prose)
+  assert(html.includes("<th>Left</th>"))
+  assert(html.includes('<th style="text-align:center">Center</th>'))
+  assert(html.includes('<th style="text-align:right">Right</th>'))
+  assert(html.includes('<td style="text-align:right">c</td>'))
+})
+
+test("renders inline markdown and variables in table cells", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+| Product | Link |
+| --- | --- |
+| **{name}** | [site]({url}) |
+`
+  const html = template({ data: { name: "Widget", url: "/w" } }, prose)
+  assert(html.includes("<td><strong>Widget</strong></td>"))
+  assert(html.includes('<td><a href="/w">site</a></td>'))
+})
+
+test("normalizes short table rows to the header width", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+| A | B | C |
+| --- | --- | --- |
+| 1 | 2 |
+`
+  const html = template(prose)
+  assert(html.includes("<tr><td>1</td><td>2</td><td></td></tr>"))
+})
+
+test("table rows can come from loops", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+| Name | Price |
+| --- | --- |
+{#each products as product}| {product.name} | {product.price} |
+{/each}`
+  const html = template(
+    { data: { products: [{ name: "A", price: 1 }, { name: "B", price: 2 }] } },
+    prose,
+  )
+  assert(html.includes("<tr><td>A</td><td>1</td></tr>"))
+  assert(html.includes("<tr><td>B</td><td>2</td></tr>"))
+})
+
+test("pipe lines without a separator stay paragraphs", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("| just text |")
+  assert(!html.includes("<table>"))
+  assert(html.includes("| just text |"))
+})
+
+test("escaped pipes stay inside table cells", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+| Syntax | Meaning |
+| --- | --- |
+| a \\| b | or |
+`
+  const html = template(prose)
+  assert(html.includes("<td>a | b</td>"))
+})
+
+test("renders one-based counters in loops", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+{#each posts as post, i}
+Part {i + 1} of {posts.length}: {post}
+{/each}
+`
+  const html = template({ data: { posts: ["First", "Second"] } }, prose)
+  assert(html.includes("Part 1 of 2: First"))
+  assert(html.includes("Part 2 of 2: Second"))
+})
+
+test("heading anchors restore inline code text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("## Using `slice` safely")
+  assert(html.includes('<h2 id="using-slice-safely">'))
+  assert(html.includes("<code>slice</code>"))
+})
+
+test("heading anchors restore inline code inside nested components", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+<Container>
+
+## Section about \`api\` calls
+
+</Container>
+`
+  const html = template(prose)
+  assert(html.includes('id="section-about-api-calls"'))
+})
+
+test("text starting with a component name is not swallowed", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+<Container is mentioned here as plain text
+we like it a lot
+
+Paragraph ending with value 5 >
+Another paragraph
+`
+  const html = template(prose)
+  assert(html.includes("Another paragraph"))
+  assert(html.includes("we like it a lot"))
+})
+
+test("renders strikethrough", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("Old price: ~~100~~ now 50")
+  assert(html.includes("Old price: <del>100</del> now 50"))
+})
+
+test("strikethrough supports nested inline markdown", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("~~**bold gone**~~")
+  assert(html.includes("<del><strong>bold gone</strong></del>"))
+})
+
+test("single tildes stay literal", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("about ~5 minutes and ~10 more")
+  assert(html.includes("about ~5 minutes and ~10 more"))
+  assert(!html.includes("<del>"))
+})
+
+test("escaped tildes stay literal", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("\\~~not struck~~")
+  assert(!html.includes("<del>"))
+})
+
+test("renders task lists with disabled checkboxes", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+- [ ] todo item
+- [x] done item
+- regular item
+`
+  const html = template(prose)
+  assert(html.includes('<li><input type="checkbox" disabled> todo item</li>'))
+  assert(
+    html.includes('<li><input type="checkbox" disabled checked> done item</li>'),
+  )
+  assert(html.includes("<li>regular item</li>"))
+})
+
+test("task lists work in ordered lists and with uppercase X", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("1. [X] shipped")
+  assert(html.includes("<ol>"))
+  assert(html.includes('<input type="checkbox" disabled checked> shipped'))
+})
+
+test("task list text supports variables and inline markdown", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ data: { task: "Ship it" } }, "- [x] {task} with **bold**")
+  assert(html.includes("Ship it with <strong>bold</strong>"))
+})
+
+test("nested same-name multiline tags keep depth tracking", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+<Container>
+outer start
+<Container
+  class="inner"
+>
+inner
+</Container>
+outer end
+</Container>
+`
+  const html = template(prose)
+  assert(html.includes("outer end"))
+  assert(!html.includes("&lt;/Container&gt;"))
+  assert(!html.includes("</Container>"))
+})
+
+test("quoted attribute values may contain >", async () => {
+  const { template } = await compile(__dirname)
+  const html = template('<Center title="5 > 3">content</Center>')
+  assert(html.includes("content"))
+  assert(!html.includes("&lt;Center"))
+})
+
+test("quoted > works in multi-line tags", async () => {
+  const { template } = await compile(__dirname)
+  const prose = `
+<Center
+  title="5 > 3"
+>
+inner text
+</Center>
+`
+  const html = template(prose)
+  assert(html.includes("inner text"))
+  assert(!html.includes("&lt;Center"))
+})
+
+test("empty task item renders a bare checkbox", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("- [ ]\n- [x] done")
+  assert(html.includes('<li><input type="checkbox" disabled> </li>'))
+})
+
+test("empty braces stay literal and never crash", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ data: { name: "x" } }, "Hello {} and { } here")
+  assert(html.includes("Hello {} and { } here"))
+})
+
+test("empty {#if} block stays literal text", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ data: { x: 1 } }, "{#if }visible{/if}")
+  assert(html.includes("{#if }visible{/if}"))
+})
+
+test("markdown links with javascript: scheme are neutralized", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("[click me](javascript:alert(1))")
+  assert(!html.includes("javascript:"))
+  assert(html.includes('href="#"'))
+})
+
+test("markdown links with data: scheme are neutralized", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("[x](data:text/html,<script>alert(1)</script>)")
+  assert(!html.includes("data:"))
+})
+
+test("normal links are left intact", async () => {
+  const { template } = await compile(__dirname)
+  const html = template("[docs](https://example.com/page)")
+  assert(html.includes('href="https://example.com/page"'))
+})
+
+test("prototype access in interpolation stays literal", async () => {
+  const { template } = await compile(__dirname)
+  const html = template({ data: { x: {} } }, "{x.constructor.constructor}")
+  assert(!html.includes("Function"))
+  assert(html.includes("{x.constructor.constructor}"))
 })

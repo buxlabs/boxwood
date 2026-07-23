@@ -4,8 +4,33 @@ const {
 } = require("./replaceVariables")
 
 /**
+ * Find the first > that is not inside a quoted attribute value
+ * @param {string} text - The text to scan
+ * @param {number} from - Index to start scanning at
+ * @returns {number} - Index of the unquoted > or -1
+ */
+function findUnquotedGt(text, from) {
+  let quote = null
+  for (let i = from; i < text.length; i++) {
+    const char = text[i]
+    if (quote) {
+      if (char === quote) quote = null
+      continue
+    }
+    if (char === '"' || char === "'") {
+      quote = char
+      continue
+    }
+    if (char === ">") return i
+  }
+  return -1
+}
+
+/**
  * Parse a custom component tag from markdown
  * Supports both <Component attr="value"> and <Component attr={variable}>
+ * Attribute values may contain > when quoted, e.g. title="5 > 3",
+ * and may span multiple lines (the line then contains newlines)
  * @param {string} line - The line to parse
  * @param {Object} customComponents - Map of component names to functions
  * @returns {Object|null} - Parsed tag info or null if not a custom tag
@@ -17,65 +42,7 @@ function parseCustomTag(line, customComponents) {
 
   const trimmed = line.trim()
 
-  // Check for single-line tag: <tag>content</tag> or <tag attr="value">content</tag>
-  const singleLineMatch = trimmed.match(
-    /^<([A-Za-z][A-Za-z0-9-]*)(\s+[^>]*)?>(.+?)<\/\1>\s*$/,
-  )
-  if (singleLineMatch) {
-    const [, tagName, attributesStr, content] = singleLineMatch
-    const component = customComponents[tagName]
-    if (component) {
-      const attributes = parseAttributes(attributesStr || "")
-      return {
-        type: "custom-component-single-line",
-        tagName,
-        component,
-        attributes,
-        content,
-        selfClosing: false,
-      }
-    }
-  }
-
-  // Check for self-closing tag: <ComponentName ... /> (space before / is optional)
-  const selfClosingMatch = trimmed.match(
-    /^<([A-Za-z][A-Za-z0-9-]*)(\s+[^>]*)?\s*\/>\s*$/,
-  )
-  if (selfClosingMatch) {
-    const [, tagName, attributesStr] = selfClosingMatch
-    const component = customComponents[tagName]
-    if (component) {
-      const attributes = parseAttributes(attributesStr || "")
-      return {
-        type: "custom-component",
-        tagName,
-        component,
-        attributes,
-        selfClosing: true,
-      }
-    }
-  }
-
-  // Check for opening tag: <ComponentName ...>
-  const openTagMatch = trimmed.match(
-    /^<([A-Za-z][A-Za-z0-9-]*)(\s+[^>]*)?>\s*$/,
-  )
-  if (openTagMatch) {
-    const [, tagName, attributesStr] = openTagMatch
-    const component = customComponents[tagName]
-    if (component) {
-      const attributes = parseAttributes(attributesStr || "")
-      return {
-        type: "custom-component-open",
-        tagName,
-        component,
-        attributes,
-        selfClosing: false,
-      }
-    }
-  }
-
-  // Check for closing tag: </ComponentName>
+  // Closing tag: </ComponentName>
   const closeTagMatch = trimmed.match(/^<\/([A-Za-z][A-Za-z0-9-]*)>\s*$/)
   if (closeTagMatch) {
     const [, tagName] = closeTagMatch
@@ -85,6 +52,78 @@ function parseCustomTag(line, customComponents) {
         type: "custom-component-close",
         tagName,
         component,
+      }
+    }
+    return null
+  }
+
+  // Tag name followed by whitespace, / or >
+  const nameMatch = trimmed.match(/^<([A-Za-z][A-Za-z0-9-]*)(?=[\s/>])/)
+  if (!nameMatch) {
+    return null
+  }
+  const tagName = nameMatch[1]
+  const component = customComponents[tagName]
+  if (!component) {
+    return null
+  }
+
+  const gt = findUnquotedGt(trimmed, nameMatch[0].length)
+  if (gt === -1) {
+    return null
+  }
+
+  // Self-closing when / directly precedes the > (whitespace allowed between)
+  let attributesEnd = gt
+  let selfClosing = false
+  let before = gt - 1
+  while (before > 0 && /\s/.test(trimmed[before])) {
+    before--
+  }
+  if (trimmed[before] === "/") {
+    selfClosing = true
+    attributesEnd = before
+  }
+
+  const attributesStr = trimmed.substring(nameMatch[0].length, attributesEnd)
+  const after = trimmed.substring(gt + 1)
+
+  if (selfClosing) {
+    if (after.trim() !== "") {
+      return null
+    }
+    return {
+      type: "custom-component",
+      tagName,
+      component,
+      attributes: parseAttributes(attributesStr),
+      selfClosing: true,
+    }
+  }
+
+  if (after.trim() === "") {
+    return {
+      type: "custom-component-open",
+      tagName,
+      component,
+      attributes: parseAttributes(attributesStr),
+      selfClosing: false,
+    }
+  }
+
+  // Single-line tag with content: <tag ...>content</tag>
+  const closeToken = `</${tagName}>`
+  const content = after.replace(/\s+$/, "")
+  if (content.endsWith(closeToken)) {
+    const inner = content.substring(0, content.length - closeToken.length)
+    if (inner) {
+      return {
+        type: "custom-component-single-line",
+        tagName,
+        component,
+        attributes: parseAttributes(attributesStr),
+        content: inner,
+        selfClosing: false,
       }
     }
   }
@@ -240,4 +279,5 @@ module.exports = {
   parseCustomTag,
   parseAttributes,
   resolveAttributes,
+  findUnquotedGt,
 }

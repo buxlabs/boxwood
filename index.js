@@ -79,6 +79,10 @@ function compile(path) {
         head: [],
         body: [],
       }
+      // JSON-LD scripts are collected, deduplicated by content and moved
+      // to head - a component rendering structured data can be used many
+      // times without emitting duplicate entries
+      const schemas = { keys: new Set(), nodes: [] }
       const walk = (node) => {
         if (!node) {
           return
@@ -98,13 +102,18 @@ function compile(path) {
         }
         if (node.name === "script") {
           const attributes = node.attributes || {}
-          if (
-            attributes.src ||
-            ["application/json", "application/ld+json"].includes(
-              attributes.type,
-            )
-          ) {
+          if (attributes.src || attributes.type === "application/json") {
             node.ignore = false
+            return
+          } else if (attributes.type === "application/ld+json") {
+            const key = render(node.children, false)
+            if (schemas.keys.has(key)) {
+              // Duplicate structured data - drop it
+              node.ignore = true
+            } else {
+              schemas.keys.add(key)
+              schemas.nodes.push(node)
+            }
             return
           } else {
             const script = node.children
@@ -149,6 +158,19 @@ function compile(path) {
             scriptNode.attributes = { nonce }
           }
           nodes.head.children.push(scriptNode)
+        }
+        // Move JSON-LD scripts into head, keeping their attributes
+        // Without a head node the first occurrence stays in place
+        for (const scriptNode of schemas.nodes) {
+          scriptNode.ignore = true
+          const copy = {
+            name: "script",
+            children: scriptNode.children,
+          }
+          if (scriptNode.attributes) {
+            copy.attributes = scriptNode.attributes
+          }
+          nodes.head.children.push(copy)
         }
       }
       if (nodes.body) {

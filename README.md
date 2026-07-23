@@ -194,6 +194,32 @@ Content-Security-Policy: script-src 'nonce-rAnd0m123' 'strict-dynamic';
 
 ## Features
 
+### Prose - markdown with templating
+
+Render markdown content with safe interpolation, conditionals, loops,
+tables, heading anchors and custom components:
+
+```js
+const { Prose } = require("boxwood/ui")
+
+Prose({ data, components: { Gallery } }, `
+# {title}
+
+Published {date.toLocaleDateString('en-US')}
+
+{#each posts.slice(0, limit) as post, i}
+Part {i + 1}: **{post.title ?? 'Untitled'}**
+{/each}
+
+<Gallery images="{images.slice(0, 3)}" />
+`)
+```
+
+Templates never execute arbitrary code - expressions resolve against `data`
+with a whitelist of non-mutating methods, and `Prose.validate` reports
+unknown variables, unsafe methods and malformed blocks with line numbers.
+See the full [Prose syntax reference](docs/prose.md).
+
 ### Components with CSS
 
 ```js

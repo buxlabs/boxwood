@@ -26,9 +26,28 @@ const SAFE_METHODS = new Set([
   "endsWith",
   // Numbers
   "toFixed",
+  // Dates and numbers - locale-aware formatting, e.g. toLocaleDateString('pl-PL')
+  "toLocaleDateString",
+  "toLocaleTimeString",
+  "toLocaleString",
+  "toISOString",
   // Anything
   "toString",
 ])
+
+// Property names that expose the prototype chain - never resolved, so a
+// path like "x.constructor.constructor" cannot reach Function or pollute
+// prototypes. Blocked for both dot and bracket access, at any depth.
+const FORBIDDEN_KEYS = new Set(["__proto__", "constructor", "prototype"])
+
+// Guard against pathological nesting like "{[[[[...]]]]}" - real expressions
+// never nest this deeply, and unbounded recursion would exhaust the stack
+const MAX_EXPRESSION_DEPTH = 50
+
+// Real expressions are short (a path, a call, a small array literal); an
+// oversized one is an attack or a typo. Cutting it off before the O(n)
+// scanners run keeps a malicious "{[[[...]]]}" from allocating megabytes.
+const MAX_EXPRESSION_LENGTH = 1000
 
 /**
  * Parse a single method argument literal
@@ -56,7 +75,13 @@ function parseArgument(raw) {
 
 /**
  * Parse a path into segments of property accesses and method calls
- * e.g. "images.slice(0, 2)" -> [{type: "property", name: "images"}, {type: "method", name: "slice", args: [0, 2]}]
+ * e.g. "images.slice(0, limit)" -> [
+ *   {type: "property", name: "images"},
+ *   {type: "method", name: "slice", args: [
+ *     {type: "literal", value: 0},
+ *     {type: "path", path: "limit"},
+ *   ]},
+ * ]
  * @param {string} path - The path to parse
  * @returns {Array|null} - Parsed segments or null if the path is malformed
  */
@@ -91,12 +116,14 @@ function parsePathSegments(path) {
     if (!name) return null
 
     if (path[i] === "(") {
-      // Method call - collect literal arguments, respecting quoted strings
+      // Method call - collect arguments, respecting quoted strings and
+      // nested brackets/parentheses (e.g. "slice(0, items.indexOf('x'))")
       i++
       const rawArgs = []
       let current = ""
       let quote = null
       let closed = false
+      let depth = 0
       while (i < path.length) {
         const c = path[i]
         if (quote) {
@@ -111,16 +138,34 @@ function parsePathSegments(path) {
           i++
           continue
         }
-        if (c === ",") {
-          rawArgs.push(current)
-          current = ""
+        if (c === "(" || c === "[") {
+          depth++
+          current += c
+          i++
+          continue
+        }
+        if (c === "]") {
+          depth--
+          current += c
           i++
           continue
         }
         if (c === ")") {
-          closed = true
+          if (depth === 0) {
+            closed = true
+            i++
+            break
+          }
+          depth--
+          current += c
           i++
-          break
+          continue
+        }
+        if (c === "," && depth === 0) {
+          rawArgs.push(current)
+          current = ""
+          i++
+          continue
         }
         current += c
         i++
@@ -130,11 +175,19 @@ function parsePathSegments(path) {
         rawArgs.push(current)
       }
 
+      // Arguments are literals or data paths, e.g. "slice(0, limit)" -
+      // paths are stored unresolved and looked up against data at resolve time
       const args = []
       for (const raw of rawArgs) {
         const parsed = parseArgument(raw)
-        if (!parsed) return null
-        args.push(parsed.value)
+        if (parsed) {
+          args.push({ type: "literal", value: parsed.value })
+          continue
+        }
+        const argPath = raw.trim()
+        const argSegments = parsePathSegments(argPath)
+        if (!argSegments || argSegments.length === 0) return null
+        args.push({ type: "path", path: argPath })
       }
       segments.push({ type: "method", name, args })
     } else {
@@ -147,9 +200,10 @@ function parsePathSegments(path) {
 
 /**
  * Resolve a path like "images[0].src", "user.name" or "images.slice(0, 2)" from a data object
- * Method calls are restricted to a whitelist of non-mutating methods with literal arguments
+ * Method calls are restricted to a whitelist of non-mutating methods
+ * Arguments are literals or data paths, e.g. "images.slice(0, limit)"
  * @param {Object} data - The data object to resolve the path from
- * @param {string} path - The path to resolve (e.g., "images[0].src", "images.slice(0, 2)")
+ * @param {string} path - The path to resolve (e.g., "images[0].src", "images.slice(0, limit)")
  * @returns {*} - The resolved value or undefined
  */
 function resolvePath(data, path) {
@@ -160,6 +214,9 @@ function resolvePath(data, path) {
 
   // Handle simple variable names (backwards compatibility)
   if (!/[.\[(]/.test(path)) {
+    if (FORBIDDEN_KEYS.has(path)) {
+      return undefined
+    }
     return data[path]
   }
 
@@ -173,6 +230,10 @@ function resolvePath(data, path) {
     if (current === null || current === undefined) {
       return undefined
     }
+    // Block prototype-chain access at every hop
+    if (FORBIDDEN_KEYS.has(segment.name)) {
+      return undefined
+    }
     if (segment.type === "method") {
       if (
         !SAFE_METHODS.has(segment.name) ||
@@ -180,8 +241,12 @@ function resolvePath(data, path) {
       ) {
         return undefined
       }
+      // Path arguments are full expressions, e.g. "slice(0, n - 1)"
+      const args = segment.args.map((arg) =>
+        arg.type === "path" ? resolveExpression(data, arg.path) : arg.value,
+      )
       try {
-        current = current[segment.name](...segment.args)
+        current = current[segment.name](...args)
       } catch (error) {
         return undefined
       }
@@ -272,12 +337,13 @@ function splitArrayElements(inner) {
 }
 
 /**
- * Split an expression on top-level ?? operators
+ * Split an expression on a top-level two-character operator (?? or ||)
  * Respects quoted strings, brackets and parentheses
  * @param {string} expression - The expression to split
- * @returns {Array<string>} - Operands (a single element when there is no ??)
+ * @param {string} char - The operator character, repeated twice ("?" or "|")
+ * @returns {Array<string>} - Operands (a single element when there is no operator)
  */
-function splitNullishCoalescing(expression) {
+function splitDoubleOperator(expression, char) {
   const operands = []
   let current = ""
   let depth = 0
@@ -285,28 +351,28 @@ function splitNullishCoalescing(expression) {
   let i = 0
 
   while (i < expression.length) {
-    const char = expression[i]
+    const c = expression[i]
     if (quote) {
-      current += char
-      if (char === quote) quote = null
+      current += c
+      if (c === quote) quote = null
       i++
       continue
     }
-    if (char === '"' || char === "'") {
-      quote = char
-      current += char
+    if (c === '"' || c === "'") {
+      quote = c
+      current += c
       i++
       continue
     }
-    if (char === "[" || char === "(") depth++
-    if (char === "]" || char === ")") depth--
-    if (depth === 0 && char === "?" && expression[i + 1] === "?") {
+    if (c === "[" || c === "(") depth++
+    if (c === "]" || c === ")") depth--
+    if (depth === 0 && c === char && expression[i + 1] === char) {
       operands.push(current)
       current = ""
       i += 2
       continue
     }
-    current += char
+    current += c
     i++
   }
 
@@ -315,26 +381,175 @@ function splitNullishCoalescing(expression) {
 }
 
 /**
+ * Split an expression on top-level ?? operators
+ * @param {string} expression - The expression to split
+ * @returns {Array<string>} - Operands (a single element when there is no ??)
+ */
+function splitNullishCoalescing(expression) {
+  return splitDoubleOperator(expression, "?")
+}
+
+/**
+ * Split an expression on top-level || operators
+ * @param {string} expression - The expression to split
+ * @returns {Array<string>} - Operands (a single element when there is no ||)
+ */
+function splitLogicalOr(expression) {
+  return splitDoubleOperator(expression, "|")
+}
+
+/**
+ * Split an expression on top-level && operators
+ * @param {string} expression - The expression to split
+ * @returns {Array<string>} - Operands (a single element when there is no &&)
+ */
+function splitLogicalAnd(expression) {
+  return splitDoubleOperator(expression, "&")
+}
+
+/**
+ * Split an expression on top-level arithmetic operators from the given set
+ * Operators must be surrounded by spaces ("i + 1", not "i+1") to stay
+ * unambiguous with negative literals and identifiers
+ * Respects quoted strings, brackets and parentheses
+ * @param {string} expression - The expression to split
+ * @param {Array<string>} characters - Operator characters, e.g. ["+", "-"]
+ * @returns {{operands: Array<string>, operators: Array<string>}}
+ */
+function splitArithmetic(expression, characters) {
+  const operands = []
+  const operators = []
+  let current = ""
+  let depth = 0
+  let quote = null
+  let i = 0
+
+  while (i < expression.length) {
+    const c = expression[i]
+    if (quote) {
+      current += c
+      if (c === quote) quote = null
+      i++
+      continue
+    }
+    if (c === '"' || c === "'") {
+      quote = c
+      current += c
+      i++
+      continue
+    }
+    if (c === "[" || c === "(") depth++
+    if (c === "]" || c === ")") depth--
+    if (
+      depth === 0 &&
+      characters.includes(c) &&
+      expression[i - 1] === " " &&
+      expression[i + 1] === " "
+    ) {
+      operands.push(current)
+      operators.push(c)
+      current = ""
+      i += 2
+      continue
+    }
+    current += c
+    i++
+  }
+
+  operands.push(current)
+  return { operands, operators }
+}
+
+/**
+ * Apply a single arithmetic operator with JS semantics
+ * "+" works for numbers and strings (concatenation), the rest require numbers
+ * Nullish operands and NaN results resolve to undefined
+ */
+function applyArithmetic(left, operator, right) {
+  if (
+    left === undefined ||
+    left === null ||
+    right === undefined ||
+    right === null
+  ) {
+    return undefined
+  }
+  if (operator === "+") {
+    const addable = (value) =>
+      typeof value === "number" || typeof value === "string"
+    if (!addable(left) || !addable(right)) {
+      return undefined
+    }
+    const result = left + right
+    return typeof result === "number" && Number.isNaN(result)
+      ? undefined
+      : result
+  }
+  if (typeof left !== "number" || typeof right !== "number") {
+    return undefined
+  }
+  let result
+  if (operator === "-") {
+    result = left - right
+  } else if (operator === "*") {
+    result = left * right
+  } else {
+    result = left / right
+  }
+  return Number.isNaN(result) ? undefined : result
+}
+
+/**
  * Resolve an expression from a data object
  * Supports everything resolvePath does, plus:
  * - array literals whose elements are paths or literals,
  *   e.g. "[images[0], images[2]]" or "['a', user.name]"
+ * - spread elements inside array literals,
+ *   e.g. "[...images.slice(0, 2), ...images.slice(4)]"
  * - nullish coalescing with JS semantics (fallback only for null/undefined),
  *   e.g. "name ?? 'Guest'" or "nickname ?? name ?? 'Guest'"
+ * - logical or with JS semantics (fallback for any falsy value),
+ *   e.g. "title || 'Untitled'"
+ * - logical and with JS semantics (first falsy operand, or the last one),
+ *   with JS precedence (&& binds tighter than ||)
+ * - arithmetic with space-separated + - * / operators and JS precedence,
+ *   e.g. "i + 1", "items.length - 1", "price * quantity"
+ * Mixing ?? with || or && in one expression is a syntax error in JS
+ * (parentheses are required) - such expressions resolve to undefined
  * @param {Object} data - The data object to resolve the expression from
  * @param {string} expression - The expression to resolve
  * @returns {*} - The resolved value or undefined
  */
-function resolveExpression(data, expression) {
+function resolveExpression(data, expression, depth = 0) {
+  // Bail out on pathological nesting before the stack is exhausted
+  if (depth > MAX_EXPRESSION_DEPTH) {
+    return undefined
+  }
+  // Oversized expressions are never legitimate - reject before scanning
+  if (expression.length > MAX_EXPRESSION_LENGTH) {
+    return undefined
+  }
   const trimmed = expression.trim()
+  const recurse = (raw) => resolveExpression(data, raw, depth + 1)
 
-  const operands = splitNullishCoalescing(trimmed)
-  if (operands.length > 1) {
+  const nullishOperands = splitNullishCoalescing(trimmed)
+  const orOperands = splitLogicalOr(trimmed)
+  const andOperands = splitLogicalAnd(trimmed)
+
+  // Mixing ?? with || or && without parentheses is invalid, same as in JS
+  if (
+    nullishOperands.length > 1 &&
+    (orOperands.length > 1 || andOperands.length > 1)
+  ) {
+    return undefined
+  }
+
+  if (nullishOperands.length > 1) {
     let value
-    for (const operand of operands) {
+    for (const operand of nullishOperands) {
       const raw = operand.trim()
       const literal = parseArgument(raw)
-      value = literal ? literal.value : resolveExpression(data, raw)
+      value = literal ? literal.value : recurse(raw)
       if (value !== undefined && value !== null) {
         return value
       }
@@ -342,16 +557,81 @@ function resolveExpression(data, expression) {
     return value
   }
 
+  // || first so && binds tighter (JS precedence) - each || operand may
+  // contain && which the recursive call resolves
+  if (orOperands.length > 1) {
+    let value
+    for (const operand of orOperands) {
+      const raw = operand.trim()
+      const literal = parseArgument(raw)
+      value = literal ? literal.value : recurse(raw)
+      if (value) {
+        return value
+      }
+    }
+    return value
+  }
+
+  if (andOperands.length > 1) {
+    let value
+    for (const operand of andOperands) {
+      const raw = operand.trim()
+      const literal = parseArgument(raw)
+      value = literal ? literal.value : recurse(raw)
+      if (!value) {
+        return value
+      }
+    }
+    return value
+  }
+
+  // Arithmetic - operators must be surrounded by spaces
+  // Sums split first so * and / bind tighter (their operands resolve
+  // through the recursive call), chains evaluate left to right
+  const sums = splitArithmetic(trimmed, ["+", "-"])
+  const arithmetic =
+    sums.operators.length > 0 ? sums : splitArithmetic(trimmed, ["*", "/"])
+  if (arithmetic.operators.length > 0) {
+    const resolveOperand = (raw) => {
+      const operand = raw.trim()
+      const literal = parseArgument(operand)
+      return literal ? literal.value : recurse(operand)
+    }
+    let value = resolveOperand(arithmetic.operands[0])
+    for (let index = 0; index < arithmetic.operators.length; index++) {
+      value = applyArithmetic(
+        value,
+        arithmetic.operators[index],
+        resolveOperand(arithmetic.operands[index + 1]),
+      )
+      if (value === undefined) {
+        return undefined
+      }
+    }
+    return value
+  }
+
   if (isArrayLiteral(trimmed)) {
     const inner = trimmed.substring(1, trimmed.length - 1)
-    return splitArrayElements(inner).map((element) => {
+    const result = []
+    for (const element of splitArrayElements(inner)) {
       const raw = element.trim()
-      const literal = parseArgument(raw)
-      if (literal) {
-        return literal.value
+      if (raw.startsWith("...")) {
+        // Spread element - flatten the resolved array into the result,
+        // e.g. "[...images.slice(0, 2), ...images.slice(4)]"
+        // Nullish values disappear, other non-array values are kept as-is
+        const value = recurse(raw.substring(3))
+        if (Array.isArray(value)) {
+          result.push(...value)
+        } else if (value !== undefined && value !== null) {
+          result.push(value)
+        }
+        continue
       }
-      return resolveExpression(data, raw)
-    })
+      const literal = parseArgument(raw)
+      result.push(literal ? literal.value : recurse(raw))
+    }
+    return result
   }
 
   return resolvePath(data, trimmed)
@@ -449,9 +729,14 @@ module.exports = {
   resolveExpression,
   // Parsing internals, exported for the Prose validator
   SAFE_METHODS,
+  FORBIDDEN_KEYS,
+  MAX_EXPRESSION_LENGTH,
   parseArgument,
   parsePathSegments,
   splitNullishCoalescing,
+  splitLogicalOr,
+  splitLogicalAnd,
+  splitArithmetic,
   isArrayLiteral,
   splitArrayElements,
 }

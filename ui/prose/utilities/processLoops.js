@@ -1,7 +1,4 @@
-const {
-  resolvePath,
-  resolveExpression,
-} = require("../../utilities/replaceVariables")
+const { resolveExpression } = require("../../utilities/replaceVariables")
 const { processConditionals } = require("./processConditionals")
 
 // Upper bound for expanded loop output - {#each} blocks nested over large
@@ -17,6 +14,8 @@ const MAX_EXPANSION_LENGTH = 1000000
  * - {#each items as item} - custom item variable name
  * - {#each items as item, index} - access item and index
  * - {#each items}...{#else}...{/each} - fallback content for empty arrays
+ * - {#each posts.slice(0, 3) as post} - any expression producing an array,
+ *   including array literals, spread and ?? fallbacks
  * @param {string} text - Text containing loop blocks
  * @param {Object} data - Data object with variable values
  * @returns {string} - Text with loops expanded
@@ -41,8 +40,9 @@ function processLoops(text, data) {
 
     // Find the next {#each} block
     // Matches: {#each items}, {#each items as item}, {#each items as item, index}
+    // The array part is any expression, e.g. {#each posts.slice(0, 3) as post}
     const eachMatch = result.match(
-      /\{#each\s+([a-zA-Z0-9_.[\]]+)(?:\s+as\s+([a-zA-Z0-9_]+)(?:\s*,\s*([a-zA-Z0-9_]+))?)?\}/,
+      /\{#each\s+(.+?)(?:\s+as\s+([a-zA-Z0-9_]+)(?:\s*,\s*([a-zA-Z0-9_]+))?)?\}/,
     )
     if (!eachMatch) break
 
@@ -86,8 +86,9 @@ function processLoops(text, data) {
     // Split the block into the item branch and an optional {#else} branch
     const { itemBranch, elseBranch } = splitLoopBranches(blockContent)
 
-    // Resolve the array
-    const array = resolvePath(data, arrayPath)
+    // Resolve the array - expressions are supported, e.g. "posts.slice(0, 3)",
+    // "[...featured, ...latest]" or "posts ?? []"
+    const array = resolveExpression(data, arrayPath)
 
     // Generate repeated content
     let expandedContent = ""

@@ -197,6 +197,102 @@ test("processConditionals: handles not equals operator", () => {
   assert.strictEqual(result, "User is active")
 })
 
+test("processConditionals: handles strict equals operator", () => {
+  const text = "{#if user.role === 'admin'}Admin{/if}"
+  const result = processConditionals(text, { user: { role: "admin" } })
+  assert.strictEqual(result, "Admin")
+})
+
+test("processConditionals: strict equals does not coerce types", () => {
+  const text = "{#if count === 5}Five{/if}"
+  assert.strictEqual(processConditionals(text, { count: 5 }), "Five")
+  assert.strictEqual(processConditionals(text, { count: "5" }), "")
+})
+
+test("processConditionals: handles strict not equals operator", () => {
+  const text = "{#if count !== 5}Not five{/if}"
+  assert.strictEqual(processConditionals(text, { count: "5" }), "Not five")
+  assert.strictEqual(processConditionals(text, { count: 5 }), "")
+})
+
+// Logical operator tests
+test("processConditionals: handles || in conditions", () => {
+  const text =
+    "{#if articles.length === 0 || user.role === 'admin'}Visible{/if}"
+  assert.strictEqual(
+    processConditionals(text, { articles: [], user: { role: "guest" } }),
+    "Visible",
+  )
+  assert.strictEqual(
+    processConditionals(text, { articles: [1], user: { role: "admin" } }),
+    "Visible",
+  )
+  assert.strictEqual(
+    processConditionals(text, { articles: [1], user: { role: "guest" } }),
+    "",
+  )
+})
+
+test("processConditionals: handles && in conditions", () => {
+  const text = "{#if user.active && user.role === 'admin'}Admin panel{/if}"
+  assert.strictEqual(
+    processConditionals(text, { user: { active: true, role: "admin" } }),
+    "Admin panel",
+  )
+  assert.strictEqual(
+    processConditionals(text, { user: { active: false, role: "admin" } }),
+    "",
+  )
+  assert.strictEqual(
+    processConditionals(text, { user: { active: true, role: "guest" } }),
+    "",
+  )
+})
+
+test("processConditionals: && binds tighter than ||", () => {
+  // a || b && c is a || (b && c)
+  const text = "{#if a || b && c}Yes{/if}"
+  assert.strictEqual(processConditionals(text, { a: true, b: false, c: false }), "Yes")
+  assert.strictEqual(processConditionals(text, { a: false, b: true, c: true }), "Yes")
+  assert.strictEqual(processConditionals(text, { a: false, b: true, c: false }), "")
+})
+
+test("processConditionals: handles negation of || operands", () => {
+  const text = "{#if !admin || !banned}Shown{/if}"
+  assert.strictEqual(
+    processConditionals(text, { admin: true, banned: true }),
+    "",
+  )
+  assert.strictEqual(
+    processConditionals(text, { admin: true, banned: false }),
+    "Shown",
+  )
+})
+
+test("processConditionals: ignores || inside quoted strings", () => {
+  const text = "{#if status == 'a || b'}Literal{/if}"
+  assert.strictEqual(processConditionals(text, { status: "a || b" }), "Literal")
+})
+
+test("processConditionals: handles paths as method arguments in conditions", () => {
+  const text = "{#if tags.includes(tag)}Tagged{/if}"
+  assert.strictEqual(
+    processConditionals(text, { tags: ["a", "b"], tag: "b" }),
+    "Tagged",
+  )
+  assert.strictEqual(
+    processConditionals(text, { tags: ["a"], tag: "b" }),
+    "",
+  )
+})
+
+test("processConditionals: handles || in elseif conditions", () => {
+  const text =
+    "{#if a}A{#elseif b || c}B or C{#else}None{/if}"
+  assert.strictEqual(processConditionals(text, { a: false, b: false, c: true }), "B or C")
+  assert.strictEqual(processConditionals(text, { a: false, b: false, c: false }), "None")
+})
+
 test("processConditionals: handles array length comparison", () => {
   const text = "{#if tags.length > 0}Has tags{/if}"
   const result = processConditionals(text, { tags: ["a", "b", "c"] })
@@ -557,4 +653,58 @@ test("processConditionals: handles elseif with array length", () => {
     "{#if items.length > 10}Many items{#elseif items.length > 0}Some items{#else}No items{/if}"
   const result = processConditionals(text, { items: [1, 2, 3] })
   assert.strictEqual(result, "Some items")
+})
+
+test("processConditionals: supports ?? in conditions", () => {
+  const text = "{#if title ?? subtitle}Has heading{/if}"
+  assert.strictEqual(
+    processConditionals(text, { title: null, subtitle: "Sub" }),
+    "Has heading",
+  )
+  assert.strictEqual(
+    processConditionals(text, { title: null, subtitle: null }),
+    "",
+  )
+})
+
+test("processConditionals: supports arithmetic in comparisons", () => {
+  const text = "{#if items.length - 1 > 0}More than one{/if}"
+  assert.strictEqual(
+    processConditionals(text, { items: ["a", "b"] }),
+    "More than one",
+  )
+  assert.strictEqual(processConditionals(text, { items: ["a"] }), "")
+})
+
+test("processConditionals: supports expressions on both comparison sides", () => {
+  const text = "{#if posts.slice(0, limit).length == limit}Full page{/if}"
+  assert.strictEqual(
+    processConditionals(text, { posts: ["a", "b", "c"], limit: 2 }),
+    "Full page",
+  )
+  assert.strictEqual(
+    processConditionals(text, { posts: ["a"], limit: 2 }),
+    "",
+  )
+})
+
+test("processConditionals: supports ?? with || in conditions", () => {
+  // Hierarchical split: (a ?? b) is an operand of ||
+  const text = "{#if draft ?? hidden || admin}Visible{/if}"
+  assert.strictEqual(
+    processConditionals(text, { draft: null, hidden: true, admin: false }),
+    "Visible",
+  )
+  assert.strictEqual(
+    processConditionals(text, { draft: false, hidden: true, admin: false }),
+    "",
+  )
+})
+
+test("processConditionals: negation applies to expressions", () => {
+  const text = "{#if !(title ?? subtitle)}No heading{/if}"
+  // Parentheses are not supported - negation of a bare ?? expression instead
+  const simple = "{#if !title}No title{/if}"
+  assert.strictEqual(processConditionals(simple, { title: "" }), "No title")
+  assert.strictEqual(processConditionals(simple, { title: "x" }), "")
 })

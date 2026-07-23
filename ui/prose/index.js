@@ -145,6 +145,13 @@ function Prose(params, children) {
   // no templating pass (comments, loops, conditionals, interpolation) may touch it
   const { text: maskedChildren, tokens } = maskCodeSegments(children)
 
+  // Inherit tokens from the outer Prose call (nested component content is
+  // masked by the outer call) so heading anchors can restore code text
+  const outerTokens = params && params.__codeTokens
+  const codeTokens = outerTokens
+    ? new Map([...outerTokens, ...tokens])
+    : tokens
+
   // Remove {!-- ... --} author comments
   let processedChildren = stripComments(maskedChildren)
 
@@ -159,9 +166,12 @@ function Prose(params, children) {
   const items = parseMarkdownLines(processedChildren, allComponents, data)
 
   // Convert parsed items into final node tree
+  // __codeTokens travels with params so recursive Prose calls (multi-line
+  // component children) can also restore code text in heading anchors
+  // __headingAnchors opts into anchor ids - a Prose feature, not plain Markdown
   const nodes = convertItemsToNodes(
     items,
-    params,
+    { ...params, __codeTokens: codeTokens, __headingAnchors: true },
     htmlParams,
     data,
     allComponents,
