@@ -64,3 +64,6 @@ sandbox/
 cache/
 tmp/
 .husky
+
+# SPA runtime prototype (work in progress)
+prototype/
