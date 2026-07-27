@@ -12,11 +12,9 @@ module.exports = component(
     styles,
     scripts: [
       js`
-        const accordions = document.querySelector('.${styles.accordion}')
-        accordions.forEach(accordion => {
-          accordion.addEventListener('click', function () {
-            const sibling = this.nextElement
-            sibling.classList.toggle('${styles.hidden}')
+        document.querySelectorAll('.${styles.accordion}').forEach(function (header) {
+          header.addEventListener('click', function () {
+            header.nextElementSibling.classList.toggle('${styles.hidden}')
           })
         })
       `,
