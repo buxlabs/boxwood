@@ -1,0 +1,23 @@
+.form {
+  display: grid;
+}
+
+.input {
+  border: 1px solid black;
+}
+
+.submit {
+  cursor: pointer;
+}
+
+.error {
+  color: red;
+}
+
+.status {
+  color: green;
+}
+
+.hidden {
+  display: none;
+}

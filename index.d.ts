@@ -680,6 +680,10 @@ declare module "boxwood" {
     constructor(message: string)
   }
 
+  export class ScriptError extends Error {
+    constructor(message: string)
+  }
+
   export class ImageError extends Error {
     constructor(message: string)
   }

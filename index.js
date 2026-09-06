@@ -1,6 +1,13 @@
 const { join, resolve, sep: separator } = require("path")
 const { readFileSync, realpathSync, lstatSync } = require("fs")
 const csstree = require("css-tree")
+const {
+  parse: parseJS,
+  generate: generateJS,
+  program,
+  iife,
+  scope: scopeOf,
+} = require("abstract-syntax-tree")
 const { createHash } = require("./utilities/hash")
 
 class TranslationError extends Error {
@@ -31,6 +38,14 @@ class CSSError extends Error {
   constructor(message) {
     super(message)
     this.name = "CSSError"
+    Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+class ScriptError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = "ScriptError"
     Error.captureStackTrace(this, this.constructor)
   }
 }
@@ -118,14 +133,12 @@ function compile(path) {
           } else {
             const script = node.children
             if (script) {
+              // Nodes built by hand rather than by js`` or js.load
+              prepareScript(node, "a <script> tag")
               if (attributes.target === "head") {
-                if (!scripts.head.includes(script)) {
-                  scripts.head.push(script)
-                }
+                scripts.head.push(node)
               } else {
-                if (!scripts.body.includes(script)) {
-                  scripts.body.push(script)
-                }
+                scripts.body.push(node)
               }
             }
             node.ignore = true
@@ -152,7 +165,7 @@ function compile(path) {
         if (scripts.head.length > 0) {
           const scriptNode = {
             name: "script",
-            children: scripts.head.join(""),
+            children: mergeScripts(scripts.head),
           }
           if (nonce) {
             scriptNode.attributes = { nonce }
@@ -177,7 +190,7 @@ function compile(path) {
         if (scripts.body.length > 0) {
           const scriptNode = {
             name: "script",
-            children: scripts.body.join(""),
+            children: mergeScripts(scripts.body),
           }
           if (nonce) {
             scriptNode.attributes = { nonce }
@@ -759,6 +772,152 @@ css.inline = function (object) {
   return stylesheet(object).toString()
 }
 
+/*
+ * Client side scripts used to be concatenated as raw strings, which made the
+ * output depend on details that should not matter - a script without a
+ * trailing semicolon silently swallowed the one after it, and two components
+ * declaring the same top level name broke the whole bundle.
+ *
+ * Scripts are parsed once, cached by node identity and merged as syntax trees.
+ * Nothing is added to the emitted code unless it is actually needed.
+ */
+
+const MODULE_STATEMENTS = new Set([
+  "ImportDeclaration",
+  "ExportNamedDeclaration",
+  "ExportDefaultDeclaration",
+  "ExportAllDeclaration",
+])
+
+function parseScript(source, origin) {
+  let tree
+  try {
+    tree = parseJS(source)
+  } catch (error) {
+    throw new ScriptError(`invalid JavaScript in ${origin}: ${error.message}`)
+  }
+  for (const node of tree.body) {
+    if (MODULE_STATEMENTS.has(node.type)) {
+      throw new ScriptError(
+        `import and export are not supported in an inline script in ${origin}, ` +
+          `use a <script src="..."> tag instead`,
+      )
+    }
+  }
+  return tree
+}
+
+/*
+ * Everything known about one script, keyed by the node it came from. The same
+ * node object is reused across renders, so this runs at most once per script
+ * no matter how many times a template is rendered.
+ */
+const prepared = new WeakMap()
+let scriptCount = 0
+
+function prepareScript(node, origin) {
+  if (!prepared.has(node)) {
+    // The text that was parsed is the text that goes out again when the
+    // script turns out to be alone, so it is worth keeping
+    const source = render(node.children, false)
+    const tree = parseScript(source, origin)
+    prepared.set(node, {
+      source,
+      tree,
+      // Only the top level can collide - anything nested is already scoped
+      // by the function it lives in, while a var in a block is not
+      bindings: new Set(scopeOf(tree).bindings.map((binding) => binding.name)),
+      id: (scriptCount += 1),
+    })
+  }
+  return prepared.get(node)
+}
+
+// The form two scripts are compared in, so that whitespace cannot tell them apart
+function canonicalScript(script) {
+  if (script.code === undefined) {
+    script.code = generateJS(script.tree)
+  }
+  return script.code
+}
+
+function deduplicate(scripts) {
+  const unique = []
+  const seen = new Set()
+  for (const script of scripts) {
+    const code = canonicalScript(script)
+    if (!seen.has(code)) {
+      seen.add(code)
+      unique.push(script)
+    }
+  }
+  return unique
+}
+
+function claimed(bindings, taken) {
+  for (const name of bindings) {
+    if (taken.has(name)) {
+      return true
+    }
+  }
+  return false
+}
+
+/*
+ * Scripts share one global scope, so a name can only be claimed once. The
+ * first script to declare it keeps it at the top level, and a later script
+ * that redeclares it is wrapped - only that script pays for the wrapper.
+ */
+function bundleScripts(scripts) {
+  const body = []
+  const taken = new Set()
+  for (const { tree, bindings } of scripts) {
+    if (claimed(bindings, taken)) {
+      body.push(iife(tree.body))
+    } else {
+      bindings.forEach((name) => taken.add(name))
+      body.push(...tree.body)
+    }
+  }
+  return generateJS(program(body))
+}
+
+/*
+ * Merging regenerates code, which is wasted work when the same set of scripts
+ * is rendered over and over - the nodes are created once and reused, so their
+ * identity is enough to key the result. Order is part of the key, because it
+ * is part of the bundle.
+ */
+const merges = new Map()
+const MERGE_LIMIT = 1000
+
+function remember(key, build) {
+  if (merges.has(key)) {
+    return merges.get(key)
+  }
+  const result = build()
+  if (merges.size >= MERGE_LIMIT) {
+    merges.clear()
+  }
+  merges.set(key, result)
+  return result
+}
+
+function mergeScripts(nodes) {
+  const scripts = nodes.map((node) => prepared.get(node))
+
+  // A lone script has nothing to collide with, so it goes out untouched
+  if (scripts.length === 1) {
+    return scripts[0].source
+  }
+
+  const key = scripts.map((script) => script.id).join(",")
+  return remember(key, () => {
+    const unique = deduplicate(scripts)
+    return unique.length === 1 ? unique[0].source : bundleScripts(unique)
+  })
+}
+
 function js(inputs) {
   let result = ""
   for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
@@ -770,9 +929,10 @@ function js(inputs) {
       result += input
     }
   }
-  return {
-    js: tag("script", result),
-  }
+  const preview = result.trim().split("\n")[0].slice(0, 60)
+  const node = tag("script", result)
+  prepareScript(node, `a js\`${preview}\` template`)
+  return { js: node }
 }
 
 /*
@@ -793,12 +953,10 @@ js.load = function (path, options = {}) {
   const content = readFile(file, "utf8")
 
   const attributes = options.target ? { target: options.target } : {}
-  if (options && options.transform) {
-    return {
-      js: tag("script", attributes, options.transform(content)),
-    }
-  }
-  return { js: tag("script", attributes, content) }
+  const code = options.transform ? options.transform(content) : content
+  const node = tag("script", attributes, code)
+  prepareScript(node, file)
+  return { js: node }
 }
 
 const node =
@@ -1208,6 +1366,7 @@ module.exports = {
   FileError,
   RawError,
   CSSError,
+  ScriptError,
   ImageError,
   SVGError,
   JSONError,

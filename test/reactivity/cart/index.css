@@ -1,0 +1,23 @@
+.cart {
+  display: flex;
+}
+
+.count {
+  font-weight: bold;
+}
+
+.total {
+  font-weight: bold;
+}
+
+.clear {
+  cursor: pointer;
+}
+
+.product {
+  display: grid;
+}
+
+.added {
+  color: green;
+}

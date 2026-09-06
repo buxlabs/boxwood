@@ -1,0 +1,23 @@
+.search {
+  display: grid;
+}
+
+.results {
+  list-style: none;
+}
+
+.result {
+  padding: 4px;
+}
+
+.loader {
+  color: gray;
+}
+
+.message {
+  color: gray;
+}
+
+.hidden {
+  display: none;
+}

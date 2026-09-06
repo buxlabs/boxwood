@@ -1,0 +1,23 @@
+.list {
+  list-style: none;
+}
+
+.item {
+  display: flex;
+}
+
+.done {
+  text-decoration: line-through;
+}
+
+.remaining {
+  font-weight: bold;
+}
+
+.empty {
+  color: gray;
+}
+
+.hidden {
+  display: none;
+}

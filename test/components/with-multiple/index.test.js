@@ -11,6 +11,8 @@ test("component: can render with multiple styles and scripts", async () => {
   assert(html.includes("color:red"))
   assert(html.includes("color:blue"))
   assert(html.includes("<script>"))
-  assert(html.includes("console.log('one')"))
-  assert(html.includes("console.log('two')"))
+  // The merged bundle is generated from a syntax tree, so quoting and
+  // statement termination are normalised
+  assert(html.includes('console.log("one");'))
+  assert(html.includes('console.log("two");'))
 })

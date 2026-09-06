@@ -1,0 +1,11 @@
+.counter {
+  display: flex;
+}
+
+.value {
+  font-weight: bold;
+}
+
+.increment {
+  cursor: pointer;
+}

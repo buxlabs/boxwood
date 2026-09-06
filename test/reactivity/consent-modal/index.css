@@ -1,0 +1,19 @@
+.modal {
+  position: fixed;
+}
+
+.options {
+  display: grid;
+}
+
+.actions {
+  display: flex;
+}
+
+.reopen {
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
