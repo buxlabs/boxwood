@@ -1,3 +1,4 @@
+const { join } = require("path")
 const {
   component,
   css,
@@ -16,9 +17,17 @@ const styles = css.load(__dirname)
 
 /*
  * The smallest possible piece of reactivity - a single number owned by the
- * client, rendered on the server with its initial value. Written by hand
- * today, so that the behaviour is pinned down before any of it becomes a
- * library feature.
+ * client, rendered on the server with its initial value.
+ *
+ * Classes carry the styling and data attributes are the script's hooks. That
+ * separation is what lets the behaviour live in client.js: with no scoped
+ * class name to interpolate, there is nothing a template literal was needed
+ * for, and a class that has no rule in index.css can no longer take the
+ * script down with it.
+ *
+ * Reasoning lives here rather than in client.js, because a loaded script is
+ * emitted verbatim - every comment in it is shipped to the browser, and this
+ * file is not.
  */
 module.exports = component(
   ({ start = 0 }) => {
@@ -26,33 +35,15 @@ module.exports = component(
       Head([Title("Counter")]),
       Body([
         H1("Counter"),
-        Div({ class: styles.counter }, [
-          Span({ class: styles.value }, String(start)),
-          Button({ class: styles.increment, type: "button" }, "+1"),
+        Div({ class: styles.counter, "data-counter": "" }, [
+          Span({ class: styles.value, "data-value": "" }, String(start)),
+          Button(
+            { class: styles.increment, "data-increment": "", type: "button" },
+            "+1",
+          ),
         ]),
       ]),
     ])
   },
-  {
-    styles,
-    scripts: [
-      js`
-        document.querySelectorAll('.${styles.counter}').forEach(function (counter) {
-          // The bundle may run again on a document it has already wired up -
-          // a soft navigation, a swapped in fragment, an accidental second
-          // include. Listeners must not stack.
-          if (counter.dataset.ready) return
-          counter.dataset.ready = 'true'
-
-          const value = counter.querySelector('.${styles.value}')
-          const button = counter.querySelector('.${styles.increment}')
-          let count = Number(value.textContent)
-          button.addEventListener('click', function () {
-            count += 1
-            value.textContent = String(count)
-          })
-        })
-      `,
-    ],
-  }
+  { styles, scripts: [js.load(join(__dirname, "client.js"))] },
 )

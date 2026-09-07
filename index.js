@@ -492,6 +492,29 @@ const SELF_CLOSING_TAGS = new Set([
 
 const UNESCAPED_TAGS = new Set(["script", "style", "template"])
 
+// A script carrying data rather than code. Its contents are JSON, so they are
+// never executed - but they are still inside a <script> element, and a "<" in
+// the data can close it early and turn the rest of the page into markup.
+const DATA_SCRIPT_TYPES = new Set(["application/json", "application/ld+json"])
+
+/*
+ * "<" is only ever inside a string in well formed JSON, and \u003c is how JSON
+ * spells it, so JSON.parse gives the original text back. Escaping the whole
+ * document the way escapeHTML does would emit &quot; and &amp;, which JSON
+ * cannot read - this has to be the one character.
+ */
+function escapeData(json) {
+  return json.indexOf("<") < 0 ? json : json.replace(/</g, "\\u003c")
+}
+
+function isDataScript(node) {
+  return (
+    node.name === "script" &&
+    node.attributes &&
+    DATA_SCRIPT_TYPES.has(node.attributes.type)
+  )
+}
+
 const render = (input, escape = true) => {
   // Most common case: string (~50% of nodes)
   if (typeof input === "string") {
@@ -541,7 +564,8 @@ const render = (input, escape = true) => {
 
   if (input.name) {
     const attrs = input.attributes ? attributes(input.attributes) : ""
-    const children = render(input.children, !UNESCAPED_TAGS.has(input.name))
+    const contents = render(input.children, !UNESCAPED_TAGS.has(input.name))
+    const children = isDataScript(input) ? escapeData(contents) : contents
 
     return attrs
       ? `<${input.name} ${attrs}>${children}</${input.name}>`
@@ -713,17 +737,57 @@ function stylesheet(input) {
   }
 }
 
-function css(inputs) {
-  let result = ""
-  for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
-    const input = inputs[i]
-    const value = arguments[i + 1]
-    if (value) {
-      result += input + value
-    } else {
-      result += input
+function describe(value) {
+  if (value === null) return "null"
+  if (value === undefined) return "undefined"
+  if (Array.isArray(value)) return "an array"
+  const type = typeof value
+  return `${"aeiou".includes(type[0]) ? "an" : "a"} ${type}`
+}
+
+/*
+ * Joins a tagged template's literal parts with its placeholders.
+ *
+ * The check here used to be `if (value)`, which quietly deleted every falsy
+ * placeholder: `${0}` left a hole in the source, `${false}` left one that
+ * sometimes still parsed, and `${styles.typo}` left a selector matching
+ * nothing at all. A placeholder becomes text, so it either has a value that
+ * can be written down or it is a mistake worth hearing about.
+ */
+function interpolate(inputs, values, fail) {
+  let result = inputs[0]
+  for (let i = 0, ilen = values.length; i < ilen; i += 1) {
+    const value = values[i]
+    const type = typeof value
+    if (type !== "string" && type !== "number" && type !== "boolean") {
+      throw fail(i + 1, describe(value))
     }
+    result += value + inputs[i + 1]
   }
+  return result
+}
+
+// A scoped class with no rule in the stylesheet reads as undefined, which is
+// the most common way to land here, so the message says so.
+function placeholder(position, found) {
+  const hint =
+    found === "undefined"
+      ? ` A scoped class name is undefined when its stylesheet has no rule ` +
+        `for it, so check the name against the css.`
+      : ``
+  return (
+    `placeholder ${position} is ${found}. A placeholder is written into the ` +
+    `output as text, so it has to be a string, a number or a boolean.${hint}`
+  )
+}
+
+function css(inputs) {
+  const result = interpolate(
+    inputs,
+    Array.prototype.slice.call(arguments, 1),
+    (position, found) =>
+      new CSSError(`css\`\` ${placeholder(position, found)}`),
+  )
   const tree = csstree.parse(result)
   const classes = {}
 
@@ -958,16 +1022,12 @@ function mergeScripts(nodes) {
 }
 
 function js(inputs) {
-  let result = ""
-  for (let i = 0, ilen = inputs.length; i < ilen; i += 1) {
-    const input = inputs[i]
-    const value = arguments[i + 1]
-    if (value) {
-      result += input + value
-    } else {
-      result += input
-    }
-  }
+  const result = interpolate(
+    inputs,
+    Array.prototype.slice.call(arguments, 1),
+    (position, found) =>
+      new ScriptError(`js\`\` ${placeholder(position, found)}`),
+  )
   const preview = result.trim().split("\n")[0].slice(0, 60)
   const node = tag("script", result)
   prepareScript(node, `a js\`${preview}\` template`)

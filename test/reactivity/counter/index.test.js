@@ -25,9 +25,16 @@ test("#reactivity/counter: it renders the initial value with scoped styles", asy
   const { template } = await compile(__dirname)
   const html = template({ start: 5 })
 
-  assert(html.includes('<div class="c1">'))
-  assert(html.includes('<span class="c2">5</span>'))
-  assert(html.includes('<button class="c3" type="button">+1</button>'))
+  // Classes for the stylesheet, data attributes for the script.
+  assert(html.includes('<div class="c1" data-counter="">'))
+  assert(html.includes('<span class="c2" data-value="">5</span>'))
+  assert(
+    html.includes(
+      '<button class="c3" data-increment="" type="button">+1</button>',
+    ),
+  )
+  // The guard is a property, so it leaves nothing behind in the markup.
+  assert(!html.includes("data-ready"))
   assert(html.includes("<style>"))
   assert(html.includes(".c3{cursor:pointer}"))
 })
@@ -69,4 +76,31 @@ test("#reactivity/counter: running the bundle twice does not stack listeners", a
 
   click()
   assert.strictEqual(value.textContent, "6")
+})
+
+test("#reactivity/counter: it rewires after the markup is replaced", async () => {
+  const { dom, click } = await render({ start: 5 })
+  const { window } = dom
+  const { document } = window
+
+  click()
+  assert.strictEqual(document.querySelector("span").textContent, "6")
+
+  // What a soft navigation does: the DOM is rebuilt from HTML, so every
+  // listener is gone even though the markup looks identical. Re-running the
+  // bundle has to wire it up again.
+  //
+  // A guard written as an attribute fails exactly here - it is serialised
+  // into the markup, survives the rebuild, and convinces the script the
+  // elements are already wired. The counter comes back permanently dead.
+  document.body.innerHTML = document.body.innerHTML
+  const script = document.createElement("script")
+  script.textContent = document.querySelector("script").textContent
+  document.body.appendChild(script)
+
+  document
+    .querySelector("button")
+    .dispatchEvent(new window.MouseEvent("click", { bubbles: true }))
+
+  assert.strictEqual(document.querySelector("span").textContent, "7")
 })
