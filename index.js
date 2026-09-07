@@ -1052,7 +1052,15 @@ js.load = function (path, options = {}) {
   const content = readFile(file, "utf8")
 
   const attributes = options.target ? { target: options.target } : {}
-  const code = options.transform ? options.transform(content) : content
+  /*
+   * The transform is handed the resolved path as well as the source, because
+   * anything that resolves imports - a bundler, a compiler - needs to know
+   * which directory a relative specifier is relative to. It runs once per
+   * compile rather than once per render, so it can afford to be expensive.
+   */
+  const code = options.transform
+    ? options.transform(content, { path: file })
+    : content
   const node = tag("script", attributes, code)
   prepareScript(node, file)
   return { js: node }
