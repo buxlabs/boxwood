@@ -8,7 +8,8 @@ const { parseInlineScript } = require("../../scripts/helpers")
 // Longer than the debounce in index.js, short enough to stay out of the way.
 const SETTLED = 60
 
-const settle = (ms = SETTLED) => new Promise((resolve) => setTimeout(resolve, ms))
+const settle = (ms = SETTLED) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
 const body = (results) => ({ json: () => Promise.resolve({ results }) })
 
@@ -17,7 +18,10 @@ const body = (results) => ({ json: () => Promise.resolve({ results }) })
  * records every call and hands back whatever the test decides, including a
  * promise the test resolves by hand.
  */
-async function render({ results = [], respond = () => Promise.resolve(body([])) } = {}) {
+async function render({
+  results = [],
+  respond = () => Promise.resolve(body([])),
+} = {}) {
   const { template } = await compile(__dirname)
   const calls = []
 
@@ -56,9 +60,13 @@ test("#reactivity/search: it renders the server results and an idle page", async
   const { template } = await compile(__dirname)
   const html = template({ results: [{ title: "boxwood" }] })
 
-  assert(html.includes('<li class="c3">boxwood</li>'))
-  assert(html.includes('<p class="c4 c6">Loading...</p>')) // loader starts hidden
-  assert(html.includes('<p class="c5 c6"></p>')) // and so does the message
+  // A server rendered result carries the same hook the script gives a created
+  // one, so one stylesheet rule covers both.
+  assert(html.includes('<li data-result="">boxwood</li>'))
+  assert(
+    html.includes('<p class="c3" data-loader="" data-hidden="">Loading...</p>'),
+  )
+  assert(html.includes('<p class="c4" data-message="" data-hidden=""></p>'))
 })
 
 test("#reactivity/search: it emits a single, parseable bundle", async () => {
@@ -71,7 +79,9 @@ test("#reactivity/search: it emits a single, parseable bundle", async () => {
 })
 
 test("#reactivity/search: typing is debounced into a single request", async () => {
-  const { calls, type } = await render({ respond: () => Promise.resolve(body([])) })
+  const { calls, type } = await render({
+    respond: () => Promise.resolve(body([])),
+  })
 
   type("b")
   type("bo")

@@ -31,7 +31,7 @@ async function render() {
   // dispatchEvent returns false when a listener called preventDefault
   function send() {
     return !form.dispatchEvent(
-      new dom.window.Event("submit", { bubbles: true, cancelable: true })
+      new dom.window.Event("submit", { bubbles: true, cancelable: true }),
     )
   }
 
@@ -54,12 +54,23 @@ test("#reactivity/login-form: it renders the form with scoped styles", async () 
   const { template } = await compile(__dirname)
   const html = template()
 
-  assert(html.includes('<form class="c1" novalidate>'))
-  assert(html.includes('<input id="email" name="email" type="email" class="c2">'))
-  assert(html.includes('<input id="password" name="password" type="password" class="c2">'))
-  assert(html.includes('<button type="submit" class="c3" disabled>Sign in</button>'))
+  assert(html.includes('<form class="c1" data-form="" novalidate>'))
+  assert(
+    html.includes('<input id="email" name="email" type="email" class="c2">'),
+  )
+  assert(
+    html.includes(
+      '<input id="password" name="password" type="password" class="c2">',
+    ),
+  )
+  assert(
+    html.includes(
+      '<button type="submit" class="c3" data-submit="" disabled>Sign in</button>',
+    ),
+  )
   assert(html.includes("<style>"))
-  assert(html.includes(".c6{display:none}"))
+  // The hidden state is an attribute now, so the rule hangs off the class.
+  assert(html.includes(".c4[data-hidden]{display:none}"))
 })
 
 test("#reactivity/login-form: it emits a single, parseable bundle", async () => {
@@ -128,7 +139,8 @@ test("#reactivity/login-form: a valid submit interpolates the email into the sta
 })
 
 test("#reactivity/login-form: running the bundle twice does not stack listeners", async () => {
-  const { dom, email, password, status, error, type, send, visible } = await render()
+  const { dom, email, password, status, error, type, send, visible } =
+    await render()
 
   // A second run must not register a single new listener.
   assert.strictEqual(runBundleAgain(dom), 0)

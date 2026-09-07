@@ -2,14 +2,6 @@
   list-style: none;
 }
 
-.item {
-  display: flex;
-}
-
-.done {
-  text-decoration: line-through;
-}
-
 .remaining {
   font-weight: bold;
 }
@@ -18,6 +10,19 @@
   color: gray;
 }
 
-.hidden {
+/*
+ * Items are created by the script as well as rendered by the server, and the
+ * script cannot know a hashed class name - so both the shape and its state
+ * hang off data attributes, scoped by the list's class.
+ */
+.list [data-item] {
+  display: flex;
+}
+
+.list [data-done] {
+  text-decoration: line-through;
+}
+
+[data-hidden] {
   display: none;
 }

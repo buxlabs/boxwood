@@ -7,31 +7,33 @@ const { compile } = require("../../..")
 test("#pages/documentation: it returns a page with an accordion", async () => {
   const { template } = await compile(join(__dirname, "./index.js"))
   const html = template()
+
   assert(html.includes("Accordion"))
-  // The accordion's inline enhancement script is emitted into the page body.
-  assert(html.includes("header.nextElementSibling.classList.toggle"))
+  // The accordion's enhancement is loaded from client.js and emitted into the
+  // page body. A fragment carries no script, so this page is where it lands.
+  assert(html.includes("[data-accordion]"))
 })
 
-test("#pages/documentation: the accordion's querySelectorAll enhancement toggles on click", async () => {
+test("#pages/documentation: the accordion's enhancement toggles on click", async () => {
   const { template } = await compile(join(__dirname, "./index.js"))
   const html = template()
 
   // runScripts: "dangerously" executes the embedded <script> as the doc parses.
   const dom = new JSDOM(html, { runScripts: "dangerously" })
   const { document } = dom.window
-  const header = document.querySelector("h3") // the accordion header
-  const panel = header.nextElementSibling // content + hidden classes
-  const collapsed = panel.className
+  const header = document.querySelector("h3")
+  const panel = header.nextElementSibling
 
-  // Starts collapsed: content + hidden classes present.
-  assert.strictEqual(panel.classList.length, 2)
+  // Visibility rather than class names: the state is an attribute now, and
+  // what matters is that the stylesheet acts on it.
+  const visible = () => dom.window.getComputedStyle(panel).display !== "none"
 
   const click = () =>
     header.dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }))
 
+  assert.strictEqual(visible(), false)
   click()
-  assert.strictEqual(panel.classList.length, 1) // hidden class removed -> expanded
-
+  assert.strictEqual(visible(), true)
   click()
-  assert.strictEqual(panel.className, collapsed) // toggled back to collapsed
+  assert.strictEqual(visible(), false)
 })

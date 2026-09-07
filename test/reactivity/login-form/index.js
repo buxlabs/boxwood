@@ -1,3 +1,4 @@
+const { join } = require("path")
 const {
   component,
   css,
@@ -29,7 +30,7 @@ module.exports = component(
       Head([Title("Login")]),
       Body([
         H1("Login"),
-        Form({ class: styles.form, novalidate: true }, [
+        Form({ class: styles.form, "data-form": "", novalidate: true }, [
           Label({ for: "email" }, "Email"),
           Input({
             id: "email",
@@ -44,62 +45,23 @@ module.exports = component(
             type: "password",
             class: styles.input,
           }),
-          P({ class: [styles.error, styles.hidden] }),
-          Button({ type: "submit", class: styles.submit, disabled: true }, "Sign in"),
+          P({ class: styles.error, "data-error": "", "data-hidden": "" }),
+          Button(
+            {
+              type: "submit",
+              class: styles.submit,
+              "data-submit": "",
+              disabled: true,
+            },
+            "Sign in",
+          ),
         ]),
-        P({ class: styles.status }),
+        P({ class: styles.status, "data-status": "" }),
       ]),
     ])
   },
   {
     styles,
-    scripts: [
-      js`
-        document.querySelectorAll('.${styles.form}').forEach(function (form) {
-          // The bundle may run again on a document it has already wired up -
-          // a soft navigation, a swapped in fragment, an accidental second
-          // include. Listeners must not stack.
-          if (form.dataset.ready) return
-          form.dataset.ready = 'true'
-
-          const email = form.querySelector('#email')
-          const password = form.querySelector('#password')
-          const error = form.querySelector('.${styles.error}')
-          const submit = form.querySelector('.${styles.submit}')
-          const status = document.querySelector('.${styles.status}')
-
-          function showError(message) {
-            error.textContent = message
-            error.classList.remove('${styles.hidden}')
-          }
-
-          function clearError() {
-            error.textContent = ''
-            error.classList.add('${styles.hidden}')
-          }
-
-          function sync() {
-            submit.disabled = email.value.trim() === '' || password.value.trim() === ''
-          }
-
-          form.addEventListener('input', function () {
-            clearError()
-            sync()
-          })
-
-          form.addEventListener('submit', function (event) {
-            event.preventDefault()
-            if (!email.value.includes('@')) {
-              showError('Enter a valid email address')
-              return
-            }
-            clearError()
-            status.textContent = 'Signed in as ' + email.value
-          })
-
-          sync()
-        })
-      `,
-    ],
-  }
+    scripts: [js.load(join(__dirname, "client.js"))],
+  },
 )

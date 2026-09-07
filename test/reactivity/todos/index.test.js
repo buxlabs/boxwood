@@ -17,7 +17,7 @@ async function render(todos = TODOS) {
   const { document } = dom.window
 
   const list = document.querySelector("ul")
-  const input = document.querySelector("#new-todo")
+  const input = document.querySelector("[data-new-todo]")
   const remaining = () => document.querySelector("body > span").textContent
   const descriptions = () =>
     [...list.querySelectorAll("li span")].map((span) => span.textContent)
@@ -27,15 +27,17 @@ async function render(todos = TODOS) {
   const empty = document.querySelector("p")
   const emptyVisible = () =>
     dom.window.getComputedStyle(empty).display !== "none"
+  // Done is a state the script writes, so it is an attribute rather than a
+  // second class name.
   const done = (index) =>
-    [...list.querySelectorAll("li")][index].classList.length === 2
+    [...list.querySelectorAll("li")][index].hasAttribute("data-done")
 
   function add(description) {
     input.value = description
     document
-      .querySelector("#new-todo-form")
+      .querySelector("[data-new-todo-form]")
       .dispatchEvent(
-        new dom.window.Event("submit", { bubbles: true, cancelable: true })
+        new dom.window.Event("submit", { bubbles: true, cancelable: true }),
       )
   }
 
@@ -48,7 +50,9 @@ async function render(todos = TODOS) {
   function remove(index) {
     list
       .querySelectorAll("button[data-action=remove]")
-      [index].dispatchEvent(new dom.window.MouseEvent("click", { bubbles: true }))
+      [index].dispatchEvent(
+        new dom.window.MouseEvent("click", { bubbles: true }),
+      )
   }
 
   return {
@@ -71,10 +75,11 @@ test("#reactivity/todos: it renders the initial items and the derived count", as
   const html = template({ todos: TODOS })
 
   assert(html.includes("<span>buy milk</span>"))
-  assert(html.includes('<li class="c2 c3">')) // walk dog is done
+  assert(html.includes('<li data-item="" data-done="">')) // walk dog is done
   assert(html.includes('type="checkbox" data-action="toggle" checked'))
-  assert(html.includes('<span class="c4">1 remaining</span>'))
-  assert(html.includes('<p class="c5 c6">')) // the empty message stays hidden
+  assert(html.includes('<span class="c2" data-remaining="">1 remaining</span>'))
+  // The empty message stays hidden.
+  assert(html.includes('<p class="c3" data-empty="" data-hidden="">'))
 })
 
 test("#reactivity/todos: it emits a single, parseable bundle", async () => {
@@ -98,7 +103,11 @@ test("#reactivity/todos: adding appends an item, clears the input and recounts",
 
   add("write tests")
 
-  assert.deepStrictEqual(descriptions(), ["buy milk", "walk dog", "write tests"])
+  assert.deepStrictEqual(descriptions(), [
+    "buy milk",
+    "walk dog",
+    "write tests",
+  ])
   assert.strictEqual(remaining(), "2 remaining")
   assert.strictEqual(input.value, "")
 })
@@ -142,7 +151,9 @@ test("#reactivity/todos: removing drops the item and recounts", async () => {
  * when listeners were attached, so it only works because the list delegates.
  */
 test("#reactivity/todos: an item added after load can be toggled and removed", async () => {
-  const { descriptions, remaining, done, add, toggle, remove } = await render([])
+  const { descriptions, remaining, done, add, toggle, remove } = await render(
+    [],
+  )
 
   add("write tests")
   assert.deepStrictEqual(descriptions(), ["write tests"])

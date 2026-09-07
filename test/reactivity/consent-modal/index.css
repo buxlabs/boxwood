@@ -14,6 +14,8 @@
   cursor: pointer;
 }
 
-.hidden {
+/* State the script toggles - on the modal itself and on things inside it. */
+.modal[data-hidden],
+.modal [data-hidden] {
   display: none;
 }

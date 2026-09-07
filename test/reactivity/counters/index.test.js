@@ -14,7 +14,8 @@ async function render(props = { starts: STARTS }) {
   const { document } = dom.window
 
   const counters = [...document.querySelectorAll("div")]
-  const values = () => [...document.querySelectorAll("span")].map((span) => span.textContent)
+  const values = () =>
+    [...document.querySelectorAll("span")].map((span) => span.textContent)
 
   function click(index) {
     counters[index]
@@ -29,10 +30,10 @@ test("#reactivity/counters: it renders one instance per start value", async () =
   const { template } = await compile(__dirname)
   const html = template({ starts: STARTS })
 
-  assert(html.includes('<span class="c2">0</span>'))
-  assert(html.includes('<span class="c2">5</span>'))
-  assert(html.includes('<span class="c2">10</span>'))
-  assert.strictEqual(html.match(/class="c1"/g).length, 3)
+  assert(html.includes('<span class="c2" data-value="">0</span>'))
+  assert(html.includes('<span class="c2" data-value="">5</span>'))
+  assert(html.includes('<span class="c2" data-value="">10</span>'))
+  assert.strictEqual(html.match(/data-counter=""/g).length, 3)
 })
 
 test("#reactivity/counters: three instances share one script and one style", async () => {

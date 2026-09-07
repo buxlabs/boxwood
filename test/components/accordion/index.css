@@ -6,6 +6,7 @@
   background: white;
 }
 
-.hidden {
+/* State is an attribute the script toggles, so the class stays purely visual. */
+.content[data-hidden] {
   display: none;
 }

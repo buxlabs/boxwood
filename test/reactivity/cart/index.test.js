@@ -22,7 +22,7 @@ async function render(products = PRODUCTS) {
   const total = () => cart.querySelectorAll("span")[2].textContent
   const tallies = () =>
     [...document.querySelectorAll("div > span:last-child")].map(
-      (span) => span.textContent
+      (span) => span.textContent,
     )
 
   const click = (element) =>
@@ -38,10 +38,14 @@ test("#reactivity/cart: it renders an empty badge and one row per product", asyn
   const { template } = await compile(__dirname)
   const html = template({ products: PRODUCTS })
 
-  assert(html.includes('<span class="c2">0</span>'))
-  assert(html.includes('<span class="c3">$0.00</span>'))
-  assert(html.includes('<button type="button" data-price="9.99">Add</button>'))
-  assert.strictEqual(html.match(/class="c5"/g).length, 3)
+  assert(html.includes('<span class="c2" data-count="">0</span>'))
+  assert(html.includes('<span class="c3" data-total="">$0.00</span>'))
+  assert(
+    html.includes(
+      '<button type="button" data-add="" data-price="9.99">Add</button>',
+    ),
+  )
+  assert.strictEqual(html.match(/data-product=""/g).length, 3)
 })
 
 test("#reactivity/cart: two components merge into one parseable bundle", async () => {

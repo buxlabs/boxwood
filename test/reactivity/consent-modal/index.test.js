@@ -46,10 +46,19 @@ test("#reactivity/consent-modal: it renders the modal open with scoped styles", 
   const { template } = await compile(__dirname)
   const html = template()
 
-  assert(html.includes('<div class="c1" role="dialog" aria-modal="true"'))
-  assert(html.includes('<button type="button" id="accept">Accept all</button>'))
-  assert(html.includes('<button type="button" id="save" class="c5">'))
-  assert(html.includes(".c5{display:none}"))
+  assert(
+    html.includes(
+      '<div class="c1" data-modal="" role="dialog" aria-modal="true"',
+    ),
+  )
+  assert(
+    html.includes('<button type="button" data-accept="">Accept all</button>'),
+  )
+  assert(html.includes('<button type="button" data-save="" data-hidden="">'))
+  // The state rule hangs off the modal rather than a standalone class, and it
+  // covers the modal itself as well as what is inside it.
+  assert(html.includes(".c1[data-hidden]"))
+  assert(html.includes(".c1 [data-hidden]{display:none}"))
   // The modal itself carries no hidden class: a first visit sees it open.
   assert(!html.includes('class="c1 c5"'))
 })
@@ -69,7 +78,7 @@ test("#reactivity/consent-modal: accepting stores every category and closes", as
   assert.strictEqual(visible(modal), true)
   assert.strictEqual(stored(), null)
 
-  click("#accept")
+  click("[data-accept]")
 
   assert.strictEqual(visible(modal), false)
   assert.strictEqual(stored(), "analytics,marketing")
@@ -78,7 +87,7 @@ test("#reactivity/consent-modal: accepting stores every category and closes", as
 test("#reactivity/consent-modal: rejecting stores an empty decision and closes", async () => {
   const { modal, stored, visible, click } = await render()
 
-  click("#reject")
+  click("[data-reject]")
 
   assert.strictEqual(visible(modal), false)
   // An empty string is still a decision - it is not the same as null.
@@ -90,16 +99,16 @@ test("#reactivity/consent-modal: managing reveals the options and saves the sele
     await render()
 
   assert.strictEqual(visible(options), false)
-  assert.strictEqual(visible(document.querySelector("#save")), false)
+  assert.strictEqual(visible(document.querySelector("[data-save]")), false)
 
-  click("#manage")
+  click("[data-manage]")
 
   assert.strictEqual(visible(options), true)
-  assert.strictEqual(visible(document.querySelector("#save")), true)
-  assert.strictEqual(visible(document.querySelector("#manage")), false)
+  assert.strictEqual(visible(document.querySelector("[data-save]")), true)
+  assert.strictEqual(visible(document.querySelector("[data-manage]")), false)
 
-  check("#analytics")
-  click("#save")
+  check("[data-analytics]")
+  click("[data-save]")
 
   assert.strictEqual(visible(modal), false)
   assert.strictEqual(stored(), "analytics")
@@ -110,8 +119,8 @@ test("#reactivity/consent-modal: a stored decision closes the modal on load", as
 
   assert.strictEqual(visible(modal), false)
   // The checkboxes are restored from the stored decision.
-  assert.strictEqual(document.querySelector("#analytics").checked, true)
-  assert.strictEqual(document.querySelector("#marketing").checked, false)
+  assert.strictEqual(document.querySelector("[data-analytics]").checked, true)
+  assert.strictEqual(document.querySelector("[data-marketing]").checked, false)
 })
 
 test("#reactivity/consent-modal: the footer button reopens a closed modal", async () => {
@@ -119,10 +128,10 @@ test("#reactivity/consent-modal: the footer button reopens a closed modal", asyn
 
   assert.strictEqual(visible(modal), false)
 
-  click("#reopen")
+  click("[data-reopen]")
   assert.strictEqual(visible(modal), true)
 
-  click("#accept")
+  click("[data-accept]")
   assert.strictEqual(visible(modal), false)
 })
 
@@ -132,10 +141,10 @@ test("#reactivity/consent-modal: running the bundle twice does not stack listene
   // A second run must not register a single new listener.
   assert.strictEqual(runBundleAgain(dom), 0)
 
-  click("#accept")
+  click("[data-accept]")
   assert.strictEqual(visible(modal), false)
   assert.strictEqual(stored(), "analytics,marketing")
 
-  click("#reopen")
+  click("[data-reopen]")
   assert.strictEqual(visible(modal), true)
 })

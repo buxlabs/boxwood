@@ -6,10 +6,6 @@
   list-style: none;
 }
 
-.result {
-  padding: 4px;
-}
-
 .loader {
   color: gray;
 }
@@ -18,6 +14,15 @@
   color: gray;
 }
 
-.hidden {
+/*
+ * Results are created by the script, which cannot know a hashed class name -
+ * so the rule hangs off the data attribute, scoped by the container's class.
+ */
+.results [data-result] {
+  padding: 4px;
+}
+
+/* State the script toggles. */
+.search [data-hidden] {
   display: none;
 }

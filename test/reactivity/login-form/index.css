@@ -18,6 +18,7 @@
   color: green;
 }
 
-.hidden {
+/* State the script toggles, so it is an attribute rather than a class. */
+.error[data-hidden] {
   display: none;
 }

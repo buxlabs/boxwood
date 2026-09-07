@@ -1,3 +1,4 @@
+const { join } = require("path")
 const {
   component,
   css,
@@ -22,33 +23,15 @@ const styles = css.load(__dirname)
  */
 const Counter = component(
   ({ start = 0 }) => {
-    return Div({ class: styles.counter }, [
-      Span({ class: styles.value }, String(start)),
-      Button({ class: styles.increment, type: "button" }, "+1"),
+    return Div({ class: styles.counter, "data-counter": "" }, [
+      Span({ class: styles.value, "data-value": "" }, String(start)),
+      Button(
+        { class: styles.increment, "data-increment": "", type: "button" },
+        "+1",
+      ),
     ])
   },
-  {
-    styles,
-    scripts: [
-      js`
-        document.querySelectorAll('.${styles.counter}').forEach(function (counter) {
-          // The bundle may run again on a document it has already wired up -
-          // a soft navigation, a swapped in fragment, an accidental second
-          // include. Listeners must not stack.
-          if (counter.dataset.ready) return
-          counter.dataset.ready = 'true'
-
-          const value = counter.querySelector('.${styles.value}')
-          const button = counter.querySelector('.${styles.increment}')
-          let count = Number(value.textContent)
-          button.addEventListener('click', function () {
-            count += 1
-            value.textContent = String(count)
-          })
-        })
-      `,
-    ],
-  }
+  { styles, scripts: [js.load(join(__dirname, "client.js"))] },
 )
 
 module.exports = component(({ starts }) => {
