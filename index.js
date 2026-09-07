@@ -102,6 +102,13 @@ function compile(path) {
         if (!node) {
           return
         }
+        // Same reason as in render(): the checks below read node.name, and a
+        // function has one. A child called `style` would otherwise push
+        // undefined into the page's stylesheet, and one called `script` would
+        // be marked ignored and disappear.
+        if (typeof node === "function") {
+          return
+        }
         if (node.name === "head") {
           nodes.head = node
         }
@@ -384,6 +391,26 @@ const ALIASES = {
 const KEY_VALIDATION_REGEX = /^[a-zA-Z0-9\-_:]+$/
 const isKeyValid = (key) => KEY_VALIDATION_REGEX.test(key)
 
+/*
+ * An attribute is rendered on the server, so a function has no value to be
+ * written as and used to be dropped without a word - `class: () => ...` left
+ * the element with no class at all, and `onclick: fn` left the page with no
+ * handler. Neither is something to find out about in a browser.
+ */
+function unrenderable(key) {
+  if (key.startsWith("on")) {
+    return (
+      `"${key}" was given a function, which cannot be written into the ` +
+      `markup. An inline handler has to be a string; behaviour that needs ` +
+      `real code belongs in a js\`\` script.`
+    )
+  }
+  return (
+    `"${key}" cannot be a function. Attributes are rendered on the server, ` +
+    `so the value has to be there by the time the markup is built.`
+  )
+}
+
 const attributes = (options) => {
   if (!options) {
     return ""
@@ -394,6 +421,9 @@ const attributes = (options) => {
       continue
     }
     const value = options[key]
+    if (typeof value === "function") {
+      throw new ScriptError(unrenderable(key))
+    }
     if (
       typeof value === "string" ||
       typeof value === "number" ||
@@ -485,6 +515,14 @@ const render = (input, escape = true) => {
     input === true
   ) {
     return ""
+  }
+
+  // A function child is a value: it is called, and what it returns is what
+  // renders. This has to happen before the input.name checks below, because a
+  // function has a truthy .name - without it a child called `count` renders
+  // as <count></count>, and one called `br` as <br>.
+  if (typeof input === "function") {
+    return render(input(), escape)
   }
 
   // Objects (elements) - check ignore flag first
@@ -592,6 +630,7 @@ const tag = (tagName, attrsOrChildren, ...restChildren) => {
   const isChildrenNotAttributes =
     typeof attrsOrChildren === "string" ||
     typeof attrsOrChildren === "number" ||
+    typeof attrsOrChildren === "function" ||
     Array.isArray(attrsOrChildren) ||
     (attrsOrChildren &&
       typeof attrsOrChildren === "object" &&

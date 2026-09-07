@@ -52,29 +52,31 @@ declare module "boxwood" {
     role?: string
     // Data attributes
     [key: `data-${string}`]: any
-    // Event handlers
-    onclick?: string | Function
-    ondblclick?: string | Function
-    onmousedown?: string | Function
-    onmouseup?: string | Function
-    onmouseover?: string | Function
-    onmousemove?: string | Function
-    onmouseout?: string | Function
-    onmouseenter?: string | Function
-    onmouseleave?: string | Function
-    onkeydown?: string | Function
-    onkeyup?: string | Function
-    onkeypress?: string | Function
-    onfocus?: string | Function
-    onblur?: string | Function
-    onchange?: string | Function
-    oninput?: string | Function
-    onsubmit?: string | Function
-    onreset?: string | Function
-    onload?: string | Function
-    onerror?: string | Function
-    onresize?: string | Function
-    onscroll?: string | Function
+    // Event handlers. A string only: an attribute is rendered on the
+    // server, so a function has no value to be written as and is
+    // refused. Behaviour that needs real code belongs in a js`` script.
+    onclick?: string
+    ondblclick?: string
+    onmousedown?: string
+    onmouseup?: string
+    onmouseover?: string
+    onmousemove?: string
+    onmouseout?: string
+    onmouseenter?: string
+    onmouseleave?: string
+    onkeydown?: string
+    onkeyup?: string
+    onkeypress?: string
+    onfocus?: string
+    onblur?: string
+    onchange?: string
+    oninput?: string
+    onsubmit?: string
+    onreset?: string
+    onload?: string
+    onerror?: string
+    onresize?: string
+    onscroll?: string
   }
 
   // Element-specific attributes
@@ -152,9 +154,7 @@ declare module "boxwood" {
     action?: string
     method?: "get" | "post" | "dialog"
     enctype?:
-      | "application/x-www-form-urlencoded"
-      | "multipart/form-data"
-      | "text/plain"
+      "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain"
     name?: string
     target?: string
     novalidate?: boolean
