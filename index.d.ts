@@ -623,7 +623,35 @@ declare module "boxwood" {
 
   // Asset loaders
   export function css(path: string): { css: Node }
-  export function js(path: string): { js: Node }
+  /**
+   * An inline script, emitted into the page's body bundle.
+   *
+   * A placeholder is written into the source as text, so it has to be a
+   * string, a number or a boolean - anything else throws. Note that the value
+   * becomes code rather than data: to hand a client script server data, use a
+   * script tag of type "application/json" and read it with JSON.parse.
+   */
+  export function js(
+    strings: TemplateStringsArray,
+    ...values: (string | number | boolean)[]
+  ): { js: Node }
+
+  export namespace js {
+    /** The same, emitted into the head bundle instead of the body. */
+    function head(
+      strings: TemplateStringsArray,
+      ...values: (string | number | boolean)[]
+    ): { js: Node }
+
+    /** Load a script from a file. The transform is given the resolved path. */
+    function load(
+      path: string,
+      options?: {
+        target?: "head"
+        transform?: (code: string, context: { path: string }) => string
+      },
+    ): { js: Node }
+  }
   export function json(path: string): any
 
   // Component system

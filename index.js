@@ -1,4 +1,4 @@
-const { join, resolve, sep: separator } = require("path")
+const { basename, join, resolve, sep: separator } = require("path")
 const { readFileSync, realpathSync, lstatSync } = require("fs")
 const csstree = require("css-tree")
 const {
@@ -290,9 +290,34 @@ function validateSymlinks(path, base) {
   }
 }
 
-function validateFile(path, base) {
+/*
+ * Whether the path is inside the working directory at all.
+ *
+ * This runs before validateSymlinks, which walks the path one segment at a
+ * time by slicing the base off the front - a slice that only means anything
+ * once the path is known to start with the base. Checked in the other order,
+ * a path outside the project sliced into a fragment of itself, resolved that
+ * fragment against the project, and reported a missing file nobody asked for.
+ */
+function validateContainment(path, base) {
   const normalizedPath = normalizePath(path)
   const normalizedBase = normalizePath(base)
+
+  if (normalizedPath === normalizedBase) {
+    throw new FileError(
+      `path "${path}" is the same as the current working directory "${base}"`,
+    )
+  }
+
+  if (!normalizedPath.startsWith(normalizedBase + "/")) {
+    throw new FileError(
+      `real path "${normalizedPath}" is not within the current working directory "${normalizedBase}"`,
+    )
+  }
+}
+
+function validateFile(path, base) {
+  const normalizedPath = normalizePath(path)
 
   const type = extension(normalizedPath)
 
@@ -312,18 +337,6 @@ function validateFile(path, base) {
   if (stats.isSymbolicLink()) {
     throw new FileError(`path "${path}" is a symbolic link`)
   }
-
-  if (normalizedPath === normalizedBase) {
-    throw new FileError(
-      `path "${path}" is the same as the current working directory "${base}"`,
-    )
-  }
-
-  if (!normalizedPath.startsWith(normalizedBase + "/")) {
-    throw new FileError(
-      `real path "${normalizedPath}" is not within the current working directory "${normalizedBase}"`,
-    )
-  }
 }
 
 function readFile(path, encoding) {
@@ -334,6 +347,7 @@ function readFile(path, encoding) {
     const realBase = realpathSync(absoluteBase)
     const realPath = realpathSync(absolutePath)
 
+    validateContainment(realPath, realBase)
     validateSymlinks(realPath, realBase)
     validateFile(realPath, realBase)
 
@@ -1021,17 +1035,37 @@ function mergeScripts(nodes) {
   })
 }
 
-function js(inputs) {
+/*
+ * An inline script, from the tag's literal parts and its placeholders.
+ *
+ * `attributes` carries the same target js.load takes. It never reaches the
+ * markup - compile() reads it to decide which of the page's two bundles the
+ * script joins, and then ignores the node.
+ */
+function inline(inputs, values, attributes) {
   const result = interpolate(
     inputs,
-    Array.prototype.slice.call(arguments, 1),
+    values,
     (position, found) =>
       new ScriptError(`js\`\` ${placeholder(position, found)}`),
   )
   const preview = result.trim().split("\n")[0].slice(0, 60)
-  const node = tag("script", result)
+  const node = attributes
+    ? tag("script", attributes, result)
+    : tag("script", result)
   prepareScript(node, `a js\`${preview}\` template`)
   return { js: node }
+}
+
+function js(inputs) {
+  return inline(inputs, Array.prototype.slice.call(arguments, 1))
+}
+
+// The head counterpart, for code that has to run before the body is parsed.
+js.head = function (inputs) {
+  return inline(inputs, Array.prototype.slice.call(arguments, 1), {
+    target: "head",
+  })
 }
 
 /*
@@ -1047,8 +1081,22 @@ function js(inputs) {
  * Should not be used for user-generated content.
  */
 
+// The two bundles a page has. Anything else is a typo, and silently putting
+// the script in the body is not a helpful reading of one.
+const SCRIPT_TARGETS = new Set(["head", "body"])
+
 js.load = function (path, options = {}) {
-  const file = path.endsWith(".js") ? path : join(path, "index.js")
+  if (options.target !== undefined && !SCRIPT_TARGETS.has(options.target)) {
+    throw new ScriptError(
+      `"${options.target}" is not a script target. A script goes in the ` +
+        `"head" or the "body", and leaving it out means the body.`,
+    )
+  }
+
+  // A name with a dot in it is a file. Testing for ".js" instead sent
+  // "app.mjs" looking for "app.mjs/index.js" and reported a missing directory
+  // rather than an unsupported file type.
+  const file = basename(path).includes(".") ? path : join(path, "index.js")
   const content = readFile(file, "utf8")
 
   const attributes = options.target ? { target: options.target } : {}
