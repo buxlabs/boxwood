@@ -8,5 +8,6 @@ test("component: can render with scripts", async () => {
   assert(html.includes("<div"))
   assert(html.includes("Hello"))
   assert(html.includes("<script>"))
-  assert(html.includes("console.log('test')"))
+  // Quotes are normalised because every bundle is generated from its tree.
+  assert(html.includes('console.log("test")'))
 })

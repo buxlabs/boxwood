@@ -49,7 +49,7 @@ No template parsing at runtime. Templates are already JavaScript functions, elim
 - Automatic CSS scoping with hash-based class names
 - CSS-in-JS with zero runtime
 - Critical CSS inlining
-- Automatic minification
+- Automatic CSS minification
 
 ### Built-in i18n Support
 

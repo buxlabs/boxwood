@@ -4,6 +4,7 @@ const csstree = require("css-tree")
 const {
   parse: parseJS,
   generate: generateJS,
+  bundle: bundleJS,
   program,
   iife,
   scope: scopeOf,
@@ -1020,18 +1021,28 @@ function remember(key, build) {
   return result
 }
 
+/*
+ * Every bundle is generated from its tree, however many scripts went into it.
+ *
+ * Comments never enter the tree - parse() is not given onComment - so this is
+ * also what strips them, and a page's scripts are no longer commented or not
+ * depending on how many of them there happen to be. Formatting is left alone:
+ * the output still has to be readable in a browser with no source map.
+ */
 function mergeScripts(nodes) {
   const scripts = nodes.map((node) => prepared.get(node))
 
-  // A lone script has nothing to collide with, so it goes out untouched
+  // A lone script has nothing to collide with, so it needs no merging.
   if (scripts.length === 1) {
-    return scripts[0].source
+    return canonicalScript(scripts[0])
   }
 
   const key = scripts.map((script) => script.id).join(",")
   return remember(key, () => {
     const unique = deduplicate(scripts)
-    return unique.length === 1 ? unique[0].source : bundleScripts(unique)
+    return unique.length === 1
+      ? canonicalScript(unique[0])
+      : bundleScripts(unique)
   })
 }
 
@@ -1081,6 +1092,76 @@ js.head = function (inputs) {
  * Should not be used for user-generated content.
  */
 
+/*
+ * A client script may import from its own files.
+ *
+ * The resolving and linking is abstract-syntax-tree's; what boxwood decides is
+ * where the files come from and what the result is wrapped in.
+ *
+ * The loader matters more than it looks. The package never touches the
+ * filesystem - a module id is only a key into whatever the caller hands it - so
+ * routing every read through readFile keeps one containment rule for the whole
+ * library, symlinks and working directory included.
+ *
+ * The wrapper is boxwood's too. Renaming settles a collision inside one bundle,
+ * but two components' bundles are both top level on the page, so the function
+ * around each is what keeps one component's helper away from another - the same
+ * bargain scoped styles make.
+ */
+function hasModuleSyntax(source) {
+  try {
+    return parseJS(source, { module: true }).body.some((node) =>
+      MODULE_STATEMENTS.has(node.type),
+    )
+  } catch (error) {
+    // Not a module - leave it to the ordinary path, whose error is better.
+    return false
+  }
+}
+
+function loadModule(id) {
+  try {
+    if (!lstatSync(id).isFile()) {
+      return undefined
+    }
+  } catch (error) {
+    // Nothing there, so the resolver keeps trying its other candidates.
+    return undefined
+  }
+  // It exists, so a refusal now is about policy and worth hearing.
+  return readFile(id, "utf8")
+}
+
+function bundleEntry(file, source) {
+  let tree
+  try {
+    tree = bundleJS(source, {
+      // The resolver is pure string handling on "/", so a module id has to be
+      // spelled that way. On posix this is what it already was; on windows it
+      // is the difference between resolving and not, and fs takes either.
+      entry: file.split(separator).join("/"),
+      modules: loadModule,
+      cycles: "throw",
+    })
+  } catch (error) {
+    if (error instanceof FileError) {
+      throw error
+    }
+    throw new ScriptError(`cannot bundle "${file}": ${error.message}`)
+  }
+  // A specifier that named a package rather than a file is kept as an import,
+  // and an inline script cannot carry one.
+  const retained = tree.body.find((node) => node.type === "ImportDeclaration")
+  if (retained) {
+    throw new ScriptError(
+      `"${retained.source.value}" in "${file}" is not a relative path. A ` +
+        `script imports its own files; third party code belongs in a bundle ` +
+        `of its own, referenced with <script src="...">.`,
+    )
+  }
+  return generateJS(iife(tree.body))
+}
+
 // The two bundles a page has. Anything else is a typo, and silently putting
 // the script in the body is not a helpful reading of one.
 const SCRIPT_TARGETS = new Set(["head", "body"])
@@ -1106,9 +1187,14 @@ js.load = function (path, options = {}) {
    * which directory a relative specifier is relative to. It runs once per
    * compile rather than once per render, so it can afford to be expensive.
    */
-  const code = options.transform
+  const transformed = options.transform
     ? options.transform(content, { path: file })
     : content
+  // A script that imports is resolved and wrapped; one that does not is the
+  // text of the file, unchanged.
+  const code = hasModuleSyntax(transformed)
+    ? bundleEntry(file, transformed)
+    : transformed
   const node = tag("script", attributes, code)
   prepareScript(node, file)
   return { js: node }

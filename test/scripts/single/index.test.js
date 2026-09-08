@@ -7,5 +7,7 @@ test("styles and scripts can be inlined is a function", async () => {
   const html = template()
   assert(html.includes("<div>hello, world!</div>"))
   assert(html.includes("<style>div{color:red}</style>"))
-  assert(html.includes("<script>alert('hello, world!')</script>"))
+  // A lone script is generated from its tree like any other, so quotes are
+  // normalised and a semicolon is added.
+  assert(html.includes('<script>alert("hello, world!");\n</script>'))
 })
