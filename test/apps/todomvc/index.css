@@ -1,0 +1,291 @@
+/*
+ * The TodoMVC look, written for this app rather than pulled from
+ * todomvc-app-css. Boxwood inlines a page's stylesheet into the head, so the
+ * stylesheet wants to stay small, and every rule here is one this app uses.
+ *
+ * Classes are for styling and are hashed by css.load. Anything the client
+ * script has to find, and any state it writes, is a data attribute instead:
+ * the script cannot know a hashed name, and an item built in the browser has
+ * to come out exactly like one rendered on the server.
+ */
+
+/*
+ * The line height is unitless on purpose. As "1.4em" it computes to 19.6px
+ * here and every descendant inherits that length rather than the ratio - so
+ * the 100px heading and the 24px rows were drawn in a 19.6px line box, which
+ * clipped the one and crowded the others.
+ */
+body {
+  margin: 0;
+  min-width: 230px;
+  background: #f5f5f5;
+  color: #4d4d4d;
+  font: 300 14px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.app {
+  position: relative;
+  margin: 160px auto 40px;
+  max-width: 550px;
+  background: #fff;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 25px 50px rgba(0, 0, 0, 0.1);
+}
+
+/* Above the card rather than inside it, which is where TodoMVC has it. */
+.title {
+  position: absolute;
+  top: -130px;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  color: rgba(175, 47, 47, 0.15);
+  font-size: 100px;
+  font-weight: 200;
+  line-height: 1;
+  text-align: center;
+}
+
+.new {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 16px 16px 16px 60px;
+  border: none;
+  border-bottom: 1px solid #ededed;
+  color: inherit;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: inherit;
+  line-height: 1.4;
+}
+
+.new::placeholder {
+  color: #c8c8c8;
+  font-style: italic;
+}
+
+.new:focus {
+  outline: none;
+  box-shadow: 0 0 2px 2px rgba(175, 47, 47, 0.2);
+}
+
+/*
+ * Reachable, and off the screen. The form's submit button is here: TodoMVC
+ * has no Add button, but a form without one submits on Enter only while it
+ * has exactly one field, which is a condition that stops holding the moment
+ * anyone adds a second. A real button also gives a keyboard a control to
+ * land on.
+ */
+.offscreen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+/*
+ * The padding and the gap are not the list's, so that the smaller box lands
+ * on the same centre line as an item's and the label starts where an item's
+ * title does.
+ */
+.toggles {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  padding: 10px 16px 10px 21px;
+  border-bottom: 1px solid #ededed;
+  color: #949494;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 15px;
+  color: #777;
+}
+
+.count {
+  flex: 1;
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.filters a {
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.filters a:hover {
+  border-color: rgba(175, 47, 47, 0.1);
+}
+
+.filters [data-selected] {
+  border-color: rgba(175, 47, 47, 0.2);
+}
+
+.clear {
+  border: none;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.clear:hover {
+  text-decoration: underline;
+}
+
+.info {
+  margin: 40px auto;
+  max-width: 550px;
+  color: #bfbfbf;
+  font-size: 10px;
+  text-align: center;
+}
+
+.info p {
+  margin: 4px 0;
+}
+
+.info a {
+  color: inherit;
+}
+
+/*
+ * An item is built by the browser as well as by the server, so it carries no
+ * class of its own - the shape and the state both hang off data attributes,
+ * scoped by the list's class.
+ */
+.list [data-item] {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 58px;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border-bottom: 1px solid #ededed;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+/*
+ * Both boxes are the app's own drawing rather than the platform's: one round
+ * outline, one tick. Left as they came, a 13px system checkbox next to 24px
+ * text is the thing that looks unfinished.
+ */
+.toggles input,
+.list [data-action="toggle"] {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border: 1px solid #ededed;
+  border-radius: 50%;
+  background: transparent center no-repeat;
+  background-size: 22px 22px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.toggles input {
+  width: 20px;
+  height: 20px;
+  background-size: 15px 15px;
+}
+
+.toggles input:checked,
+.list [data-completed] [data-action="toggle"] {
+  border-color: #bddad5;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235dc2af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M4 12.5l5 5L20 6.5'/></svg>");
+}
+
+.toggles input:focus-visible,
+.list [data-action="toggle"]:focus-visible {
+  outline: 2px solid rgba(175, 47, 47, 0.4);
+  outline-offset: 2px;
+}
+
+.list [data-title] {
+  flex: 1;
+  /* Wraps between words, and inside one only when a word cannot fit at all. */
+  overflow-wrap: break-word;
+  cursor: pointer;
+}
+
+.list [data-completed] [data-title] {
+  color: #d9d9d9;
+  text-decoration: line-through;
+}
+
+.list [data-action="destroy"] {
+  flex: none;
+  visibility: hidden;
+  width: 40px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #cc9a9a;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.list [data-item]:hover [data-action="destroy"],
+.list [data-action="destroy"]:focus-visible {
+  visibility: visible;
+}
+
+/* Editing replaces the whole row with one field. */
+.list [data-edit] {
+  display: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 0 0 44px;
+  border: 1px solid #999;
+  color: inherit;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: inherit;
+  line-height: 1.4;
+}
+
+.list [data-editing] > * {
+  display: none;
+}
+
+.list [data-editing] [data-edit] {
+  display: block;
+}
+
+[data-hidden] {
+  display: none;
+}

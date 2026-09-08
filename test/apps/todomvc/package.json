@@ -1,0 +1,9 @@
+{
+  "name": "boxwood-todomvc",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TodoMVC, built with boxwood",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
